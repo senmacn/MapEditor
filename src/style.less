@@ -1,0 +1,43 @@
+@import url("./style/arco-design.less");
+@import url("./style/common.less");
+
+body {
+  margin: 0;
+  padding: 0;
+}
+
+.arco-vue-site {
+  color: var(--color-text-2);
+  font-size: 14px;
+  background-color: var(--color-bg-1);
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    color: var(--color-text-1);
+    font-weight: 500;
+  }
+
+  .arco-vue-body {
+    padding-top: 71px;
+    height: calc(100vh - 71px);
+  }
+
+  .site-backtop-btn {
+    background: var(--color-bg-5) !important;
+    border: 1px solid var(--color-fill-3) !important;
+    box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+  }
+
+  .link {
+    color: rgb(var(--arcoblue-6));
+    text-decoration: none;
+  }
+
+  .article-header {
+    position: relative;
+    padding: 36px 0;
+    border-bottom: 1px solid var(--color-border);
+  }
+}
