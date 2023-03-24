@@ -1,8 +1,8 @@
 <template>
   <canvas
     id="maskCanvas"
-    width="1000"
-    height="1000"
+    width="2000"
+    height="2000"
     @mousemove="handleMouseMove"
     @mouseup.stop="handleMouseUp"
     @mousedown.stop="handleMouseDown"
@@ -12,7 +12,7 @@
 
 <script setup lang="ts">
   import useCanvas from './hooks/useCanvas';
-  import controller, { CanvasOption } from './common/canvas-options';
+  import controller, { CanvasOption } from './common/canvas-controller';
   import { getPos } from './common/canvas-util';
   import { onMounted } from 'vue';
   import { emitPersistLineEvent } from './common/event';
@@ -83,9 +83,10 @@
     position: absolute;
     top: 0;
     left: 0;
-    border: 5px solid #cccccc;
+    border: 3px solid rgb(143, 143, 143);
     background-repeat: no-repeat;
     background-size: contain;
     position: absolute;
+    z-index: 999;
   }
 </style>

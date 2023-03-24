@@ -1,8 +1,8 @@
 <template>
   <canvas
-    id="editCanvas"
-    width="1000"
-    height="1000"
+    :id="layer?.uuid"
+    width="2000"
+    height="2000"
     @mousemove.stop="handleMouseMove"
     @mouseup.stop="handleMouseUp"
     @mousedown.stop="handleMouseDown"
@@ -11,48 +11,65 @@
 </template>
 
 <script setup lang="ts">
+  import type { Layer } from './common/types';
   import { onBeforeUnmount, onMounted, watch } from 'vue';
   import { useCanvasConfigContext } from './hooks/useCanvasConfig';
-  import controller, { CanvasOption } from './common/canvas-options';
+  import controller, { CanvasOption } from './common/canvas-controller';
   import * as canvasUtil from './common/canvas-util';
   import useCanvas from './hooks/useCanvas';
   import { onCanvasRevertEvent, onPersistLineEvent } from './common/event';
 
-  enum StateKeep {
-    Null, // 多次点击二者都可以
-    KeepOn, // 多次点击仅能选中
-    KeepOff, // 多次点击仅能消除选中
-  }
-
   const props = defineProps({
-    map: {
-      type: File,
+    layer: {
+      type: Object as PropType<Layer>,
     },
   });
 
-  // 更换背景图片
   watch(
-    () => props.map,
+    () => props.layer?.map,
     () => {
-      if (!props.map) return;
-      var reader = new FileReader(); //调用FileReader
-      reader.readAsDataURL(props.map); //将文件读取为 DataURL(base64)
-      reader.onload = function (evt) {
+      if (props.layer) {
         document
-          .querySelector('#editCanvas')
-          ?.setAttribute('style', 'background-image: url(' + String(evt.target?.result) + ');');
-      };
+          .getElementById(props.layer?.uuid)
+          ?.setAttribute('style', 'background-image: url(' + props.layer?.map + ');');
+      }
     },
   );
+  watch(
+    () => props.layer?.visible,
+    () => {
+      if (props.layer?.visible) {
+        setTimeout(function () {
+          setup();
+        }, 100);
+      }
+    },
+  );
+
   // canvas相关
   const ctxRef = useCanvas();
   const configRef = useCanvasConfigContext();
-  const linePoints: Map<String, PointA[]> = new Map();
+  const linePoints: Map<String, PointA> = new Map();
   let movedPoints: PointA[] = [];
   let beginPoint: PointA = { x: 0, y: 0 };
+  // 初始化
+  function setup() {
+    if (!props.layer) return;
+    let editCanvas: HTMLCanvasElement = document.getElementById(
+      props.layer.uuid,
+    ) as HTMLCanvasElement;
+    if (editCanvas == null) return;
+    let ctx = editCanvas.getContext('2d', {
+      willReadFrequently: true,
+    }) as CanvasRenderingContext2D;
+    ctxRef.setupCanvas(ctx, configRef);
+    // drawCanvas();
+    ctxRef.save();
+
+    props.layer.ctx = ctxRef;
+  }
 
   // 鼠标事件根据不同按钮按下后分别处理
-  const lineStart = { offsetX: 0, offsetY: 0 };
   function handleMouseDown(e: MouseEvent) {
     if (e.button !== 0) return;
     switch (controller.getState()) {
@@ -70,18 +87,15 @@
         }
         beginPoint = point;
         // 没自动连接的话，存一下按下的点
-        const key = canvasUtil.getCompressPos(point);
-        linePoints.has(key) ? linePoints.get(key)?.push(point) : linePoints.set(key, [point]);
+        const key = canvasUtil.getPosKey(point);
+        linePoints.set(key, point);
         break;
       }
       case CanvasOption.FollowMouseClear: {
-        // changeFilledState(canvasUtil.getPos(e), StateKeep.KeepOff);
+        ctxRef.erase(canvasUtil.getPos(e));
         break;
       }
       case CanvasOption.DrawLine: {
-        lineStart.offsetX = e.offsetX;
-        lineStart.offsetY = e.offsetY;
-
         break;
       }
       default:
@@ -100,7 +114,7 @@
         break;
       }
       case CanvasOption.FollowMouseClear: {
-        // changeFilledState(canvasUtil.getPos(e), StateKeep.KeepOff);
+        ctxRef.erase(canvasUtil.getPos(e));
         break;
       }
       default:
@@ -110,21 +124,25 @@
   function handleMouseUp(e: MouseEvent) {
     if (e.button !== 0 || !controller.getActive()) return;
     const curPoint = canvasUtil.getPos(e);
-    if (canvasUtil.isPointOverlap(curPoint, beginPoint)) {
-      ctxRef.fillStyle = 'red';
-      ctxRef.fillRect(curPoint.x, curPoint.y, 1, 1);
-    } else {
-      switch (controller.getState()) {
-        case CanvasOption.FollowMouse: {
+    switch (controller.getState()) {
+      case CanvasOption.FollowMouse: {
+        if (canvasUtil.isPointOverlap(curPoint, beginPoint)) {
+          ctxRef.fillStyle = configRef.color;
+          ctxRef.fillRect(curPoint.x, curPoint.y, 1, 1);
+        } else {
           _drawSmoothLine(e);
           if (configRef.autoConnect) {
             _autoConnect(curPoint);
-            break;
           }
         }
-        default:
-          break;
+        break;
       }
+      case CanvasOption.FollowMouseClear: {
+        ctxRef.erase(canvasUtil.getPos(e), true);
+      }
+
+      default:
+        break;
     }
     controller.setActive(false);
     ctxRef.save();
@@ -146,32 +164,37 @@
   }
   // 判断是否需要自动连接
   function _autoConnect(curPoint: PointA) {
-    // 压缩一下 x y 坐标，查找更快一些
-    let key = canvasUtil.getCompressPos(curPoint);
-    const points = linePoints.get(key);
-    // 计算该点附近距离最近且小于20的点
-    if (points && points.length) {
-      let minDistance = 20;
-      let minDistancePointIndex = -1;
-      points.forEach((point, index) => {
-        const distance = canvasUtil.getDistance(point, curPoint);
-        if (distance < minDistance) {
-          minDistance = distance;
-          minDistancePointIndex = index;
-        }
-      });
-      if (minDistancePointIndex >= 0) {
-        ctxRef.drawLine(curPoint, points[minDistancePointIndex]);
-        points.splice(minDistancePointIndex, 1);
-      } else {
-        linePoints.has(key) ? linePoints.get(key)?.push(curPoint) : linePoints.set(key, [curPoint]);
-        return;
-      }
+    // let key = canvasUtil.getPosKey(curPoint);
+    // const points = linePoints.values();
+    // // 计算该点附近距离最近且小于20的点
+    // if (linePoints.size > 0) {
+    //   let minDistance = 20;
+    //   let minDistancePoint = null;
+    //   for (const point of points) {
+    //     const distance = canvasUtil.getDistance(point, curPoint);
+    //     if (distance < minDistance) {
+    //       minDistance = distance;
+    //       minDistancePoint = point;
+    //     }
+    //   }
+    //   if (minDistancePoint != null) {
+    //     ctxRef.drawLine(curPoint, minDistancePoint);
+    //     linePoints.delete(canvasUtil.getPosKey(minDistancePoint));
+    //     return true;
+    //   } else {
+    //     linePoints.set(key, curPoint);
+    //   }
+    // }
+    // // 没开启自动连接就将点存入
+    // linePoints.set(key, curPoint);
+    const endPoint = canvasUtil.getConnectEndPoint(ctxRef.getImageData(), curPoint)
+    if (endPoint != null) {
+      ctxRef.drawLine(curPoint, endPoint);
     }
-    // 没开启自动连接就将点存入
-    linePoints.has(key) ? linePoints.get(key)?.push(curPoint) : linePoints.set(key, [curPoint]);
+    return false;
   }
 
+  // 监听广播
   onCanvasRevertEvent(() => {
     ctxRef.revert();
   });
@@ -186,31 +209,21 @@
   watch(
     () => configRef.zoom,
     () => {
-      drawCanvas();
+      // drawCanvas();
     },
   );
-  // 绘制基本网格和之前的内容
-  function drawCanvas() {
-    let editCanvas: HTMLCanvasElement | null = document.querySelector('#editCanvas');
-    if (!ctxRef || !editCanvas) return;
-  }
+
   function onKeyBoardDown(e: KeyboardEvent) {
     if (e.ctrlKey && e.key === 'z') {
+      e.stopPropagation();
       ctxRef.revert();
     }
   }
   // 挂载时初始化
   onMounted(() => {
-    window.addEventListener('keydown', onKeyBoardDown);
+    setup();
 
-    let editCanvas: HTMLCanvasElement | null = document.querySelector('#editCanvas');
-    if (editCanvas == null) return;
-    let ctx = editCanvas.getContext('2d', {
-      willReadFrequently: true,
-    }) as CanvasRenderingContext2D;
-    ctxRef.setupCanvas(ctx);
-    drawCanvas();
-    ctxRef.save();
+    window.addEventListener('keydown', onKeyBoardDown);
   });
   onBeforeUnmount(() => {
     window.removeEventListener('keydown', onKeyBoardDown);
@@ -218,11 +231,11 @@
 </script>
 
 <style scoped lang="less">
-  #editCanvas {
+  canvas {
     position: absolute;
     top: 0;
     left: 0;
-    border: 5px solid #cccccc;
+    border: 3px solid rgb(143, 143, 143);
     background-repeat: no-repeat;
     background-size: contain;
   }

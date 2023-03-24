@@ -1,16 +1,19 @@
 import { isFunction } from 'lodash-es';
 import { ref, unref } from 'vue';
+import { CanvasConfig } from './useCanvasConfig';
 
-export interface CanvasInstance {
-  setupCanvas: (canvas: CanvasRenderingContext2D) => void;
+export type CanvasInstance = {
+  setupCanvas: (canvas: CanvasRenderingContext2D, config?: CanvasConfig) => void;
   save: () => void;
   revert: () => void;
   clean: () => void;
+  erase(point: PointA, isLast?: boolean): void;
   getHistoryUseful: () => boolean;
   drawSmoothLine: (beginPoint: PointA, controlPoint: PointA, endPoint: PointA) => void;
   drawLine: (beginPoint: PointA, endPoint: PointA) => void;
   drawDashLine: (beginPoint: PointA, endPoint: PointA) => void;
-}
+  getImageData: () => ImageData;
+} & CanvasRenderingContext2D;
 
 /**
  * canvas 直接操作的封装
@@ -18,8 +21,18 @@ export interface CanvasInstance {
  */
 export default function useCanvas(): CanvasInstance & CanvasRenderingContext2D {
   const canvasRef = ref<CanvasRenderingContext2D>();
-  const setupCanvas = (canvas: CanvasRenderingContext2D) => {
+  const canvasConfig = ref<CanvasConfig>({
+    style: {},
+    zoom: 1,
+    color: 'red',
+    density: 1,
+    autoConnect: true,
+  });
+  const setupCanvas = (canvas: CanvasRenderingContext2D, config?: CanvasConfig) => {
     canvasRef.value = canvas;
+    if (config) {
+      canvasConfig.value = config;
+    }
   };
   const getCanvas = () => {
     const ctx = unref(canvasRef);
@@ -62,30 +75,60 @@ export default function useCanvas(): CanvasInstance & CanvasRenderingContext2D {
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
     save();
   }
-
-  // 贝塞尔曲线
-  const drawSmoothLine = (beginPoint: PointA, controlPoint: PointA, endPoint: PointA) => {
+  // 橡皮擦
+  let lastPoint: PointA | null = null;
+  const erase = (point: PointA, isLast: boolean = false) => {
     const ctx = getCanvas();
-    ctx.strokeStyle = 'red';
+    if (!lastPoint) {
+      lastPoint = point;
+    } else {
+      ctx.save();
+      //设置擦除路径
+      ctx.beginPath();
+      // 清除上一次erase产生的圆和内部内容
+      ctx.arc(lastPoint.x, lastPoint.y, 11, 0, Math.PI * 2, false);
+      // 通过clip设置下一步清空时，只影响arc的内容
+      ctx.clip();
+      ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+      ctx.restore();
+    }
+    // 画橡皮（圆）
+    if (!isLast) {
+      ctx.save();
+      ctx.strokeStyle = 'black';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.arc(point.x, point.y, 10, 0, Math.PI * 2, false);
+      ctx.clip();
+      ctx.stroke();
+      ctx.restore();
+      lastPoint = point;
+    } else {
+      lastPoint = null;
+    }
+  };
+  // 贝塞尔曲线
+  function drawSmoothLine(beginPoint: PointA, controlPoint: PointA, endPoint: PointA) {
+    const ctx = getCanvas();
+    ctx.strokeStyle = canvasConfig.value.color;
     ctx.beginPath();
     ctx.moveTo(beginPoint.x, beginPoint.y);
     ctx.quadraticCurveTo(controlPoint.x, controlPoint.y, endPoint.x, endPoint.y);
     ctx.stroke();
     ctx.closePath();
-  };
-
+  }
   // 普通直线
-  const drawLine = (beginPoint: PointA, endPoint: PointA) => {
+  function drawLine(beginPoint: PointA, endPoint: PointA) {
     const ctx = getCanvas();
-    ctx.strokeStyle = 'red';
+    ctx.strokeStyle = canvasConfig.value.color;
     ctx.beginPath();
     ctx.moveTo(beginPoint.x, beginPoint.y);
     ctx.lineTo(endPoint.x, endPoint.y);
     ctx.stroke();
     ctx.closePath();
-  };
-
-  const drawDashLine = (beginPoint: PointA, endPoint: PointA) => {
+  }
+  // 画虚线
+  function drawDashLine(beginPoint: PointA, endPoint: PointA) {
     const ctx = getCanvas();
     ctx.setLineDash([5, 5]);
     ctx.strokeStyle = 'gray';
@@ -94,17 +137,23 @@ export default function useCanvas(): CanvasInstance & CanvasRenderingContext2D {
     ctx.lineTo(endPoint.x, endPoint.y);
     ctx.stroke();
     ctx.closePath();
-  };
+  }
+  function getImageData() {
+    const ctx = getCanvas();
+    return ctx.getImageData(0, 0, ctx.canvas.width, ctx.canvas.height);
+  }
 
-  const canvasInstance: CanvasInstance = {
+  const canvasInstance = {
     setupCanvas,
     save,
     revert,
     getHistoryUseful,
     clean,
+    erase,
     drawSmoothLine,
     drawLine,
     drawDashLine,
+    getImageData,
   };
   // 代理一下
   return new Proxy(canvasInstance, {
@@ -122,5 +171,5 @@ export default function useCanvas(): CanvasInstance & CanvasRenderingContext2D {
       ctx[prop] = newValue;
       return true;
     },
-  }) as CanvasInstance & CanvasRenderingContext2D;
+  }) as CanvasInstance;
 }
