@@ -7,14 +7,14 @@ export enum CanvasOption {
   DrawRect,
 }
 
-class CanvasOptionController {
+class CanvasStateController {
   private state = ref(CanvasOption.FollowMouse);
   private active = false;
   constructor() {
     document.body.style.cursor = 'url(./src/assets/ico/cursor.ico), pointer';
   }
   setState(option: CanvasOption) {
-    if (option == CanvasOption.FollowMouse) {
+    if (option === CanvasOption.FollowMouse) {
       document.body.style.cursor = 'url(./src/assets/ico/cursor.ico), pointer';
     } else if (option === CanvasOption.DrawLine) {
       document.body.style.cursor = 'crosshair';
@@ -37,6 +37,6 @@ class CanvasOptionController {
   }
 }
 
-const controller = new CanvasOptionController();
+const controller = new CanvasStateController();
 
 export default controller;
