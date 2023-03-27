@@ -49,12 +49,12 @@
   // canvas相关
   const ctxRef = useCanvas();
   const configRef = useCanvasConfigContext();
-  const linePoints: Map<String, PointA> = new Map();
   let movedPoints: PointA[] = [];
   let beginPoint: PointA = { x: 0, y: 0 };
   // 初始化
+  let setUpState = false;
   function setup() {
-    if (!props.layer) return;
+    if (!props.layer || setUpState) return;
     let editCanvas: HTMLCanvasElement = document.getElementById(
       props.layer.uuid,
     ) as HTMLCanvasElement;
@@ -67,6 +67,7 @@
     ctxRef.save();
 
     props.layer.ctx = ctxRef;
+    setUpState = true;
   }
 
   // 鼠标事件根据不同按钮按下后分别处理
@@ -79,16 +80,16 @@
         movedPoints = [];
         // 开启自动连接时才连接
         if (configRef.autoConnect) {
-          if (lastedPoint && canvasUtil.getDistance(lastedPoint, point) < 20) {
+          // 可以连接最后一点的时候直接连接，否则调用自动连接函数进行连接
+          if (lastedPoint && canvasUtil.getDistance(lastedPoint, point) < 30) {
             beginPoint = lastedPoint;
             movedPoints.push(point);
             break;
+          } else {
+            _autoConnect(point);
           }
         }
         beginPoint = point;
-        // 没自动连接的话，存一下按下的点
-        const key = canvasUtil.getPosKey(point);
-        linePoints.set(key, point);
         break;
       }
       case CanvasOption.FollowMouseClear: {
@@ -107,10 +108,7 @@
     if (e.button !== 0 || !controller.getActive()) return;
     switch (controller.getState()) {
       case CanvasOption.FollowMouse: {
-        const endPoint = _drawSmoothLine(e);
-        if (endPoint) {
-          beginPoint = endPoint;
-        }
+        _drawSmoothLine(e);
         break;
       }
       case CanvasOption.FollowMouseClear: {
@@ -130,9 +128,9 @@
           ctxRef.fillStyle = configRef.color;
           ctxRef.fillRect(curPoint.x, curPoint.y, 1, 1);
         } else {
-          _drawSmoothLine(e);
-          if (configRef.autoConnect) {
-            _autoConnect(curPoint);
+          const endPoint = _drawSmoothLine(e, true);
+          if (configRef.autoConnect && endPoint) {
+            _autoConnect(endPoint);
           }
         }
         break;
@@ -148,50 +146,38 @@
     ctxRef.save();
   }
   // 假如可以画线的话，画线
-  function _drawSmoothLine(e: MouseEvent): PointA | null {
+  function _drawSmoothLine(e: MouseEvent, isLast = false): PointA {
     movedPoints.push(canvasUtil.getPos(e));
     if (movedPoints.length > 3) {
       const lastTwoPoints = movedPoints.slice(-2);
       const controlPoint = lastTwoPoints[0];
-      const endPoint: PointA = {
-        x: (lastTwoPoints[0].x + lastTwoPoints[1].x) / 2,
-        y: (lastTwoPoints[0].y + lastTwoPoints[1].y) / 2,
-      };
-      ctxRef.drawSmoothLine(beginPoint, controlPoint, endPoint);
+      let endPoint: PointA;
+      // 最后一次使用end点，否则使用start-end中间点
+      if (isLast) {
+        endPoint = { x: lastTwoPoints[1].x, y: lastTwoPoints[1].y };
+        ctxRef.drawLine(beginPoint, endPoint);
+      } else {
+        endPoint = {
+          x: (lastTwoPoints[0].x + lastTwoPoints[1].x) / 2,
+          y: (lastTwoPoints[0].y + lastTwoPoints[1].y) / 2,
+        };
+        ctxRef.drawSmoothLine(beginPoint, controlPoint, endPoint);
+      }
+
+      beginPoint = endPoint;
+      movedPoints.splice(0, 1);
       return endPoint;
     }
-    return null;
+    return movedPoints[movedPoints.length - 1];
   }
   // 判断是否需要自动连接
   function _autoConnect(curPoint: PointA) {
-    // let key = canvasUtil.getPosKey(curPoint);
-    // const points = linePoints.values();
-    // // 计算该点附近距离最近且小于20的点
-    // if (linePoints.size > 0) {
-    //   let minDistance = 20;
-    //   let minDistancePoint = null;
-    //   for (const point of points) {
-    //     const distance = canvasUtil.getDistance(point, curPoint);
-    //     if (distance < minDistance) {
-    //       minDistance = distance;
-    //       minDistancePoint = point;
-    //     }
-    //   }
-    //   if (minDistancePoint != null) {
-    //     ctxRef.drawLine(curPoint, minDistancePoint);
-    //     linePoints.delete(canvasUtil.getPosKey(minDistancePoint));
-    //     return true;
-    //   } else {
-    //     linePoints.set(key, curPoint);
-    //   }
-    // }
-    // // 没开启自动连接就将点存入
-    // linePoints.set(key, curPoint);
-    const endPoint = canvasUtil.getConnectEndPoint(ctxRef.getImageData(), curPoint)
+    const endPoint = canvasUtil.getConnectEndPoint(ctxRef.getImageData(), curPoint);
     if (endPoint != null) {
+      console.log('endPoint', endPoint);
+
       ctxRef.drawLine(curPoint, endPoint);
     }
-    return false;
   }
 
   // 监听广播
@@ -199,9 +185,9 @@
     ctxRef.revert();
   });
   onPersistLineEvent((_, payload) => {
-    ctxRef.drawLine(payload.beginPoint, payload.endPoint);
     _autoConnect(payload.beginPoint);
     _autoConnect(payload.endPoint);
+    ctxRef.drawLine(payload.beginPoint, payload.endPoint);
     ctxRef.save();
   });
 

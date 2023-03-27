@@ -18,12 +18,18 @@
       <a-col :span="6">
         <a-button type="primary" @click="getPosition">获取坐标</a-button>
       </a-col>
+      <a-col :span="10">
+        <a-button-group>
+          <a-button type="primary" @click="getBackgroundPosition">检测背景</a-button>
+          <span id="backgroundPickr"> </span>
+        </a-button-group>
+      </a-col>
     </a-row>
-    <a-row>
+    <!-- <a-row>
       <a-col :span="22" :offset="2">
         <controlled-slider @register="registerControllerSlider"></controlled-slider>
       </a-col>
-    </a-row>
+    </a-row> -->
     <a-row>
       <a-col class="row-label" :span="4">
         <span class="group-label">功能： </span>
@@ -73,8 +79,9 @@
 </template>
 
 <script setup lang="ts">
-  import { Ref, inject, onMounted, ref, watch } from 'vue';
+  import { Ref, inject, onMounted, ref, unref, watch } from 'vue';
   import AButton from '@arco-design/web-vue/es/button';
+  import { ButtonGroup as AButtonGroup } from '@arco-design/web-vue/es/button';
   import ASwitch from '@arco-design/web-vue/es/switch';
   import ATextArea from '@arco-design/web-vue/es/textarea';
   import message from '@arco-design/web-vue/es/message';
@@ -89,6 +96,7 @@
   import * as canvasUtil from './common/canvas-util';
   import { Layer } from './common/types';
   import { useColorPicker } from '../../hooks/useColorPicker';
+  import { useLoading } from '../../components/Loading';
 
   const emit = defineEmits<{
     (e: 'update-style', key: string, value: string): void;
@@ -100,21 +108,49 @@
   const configRef = useCanvasConfigContext();
   const layersRef: Ref<Layer[]> = inject('layers', [] as any);
 
+  const [openLoading, closeLoading] = useLoading({ tip: '计算中！', minTime: 1000 });
   function getPosition() {
-    const layers = layersRef.value;
-    for (let index = layers.length - 1; index >= 0; index--) {
-      const layer = layers[index];
-      if (layer.visible) {
-        if (layer.ctx == null) {
+    const layers = unref(layersRef);
+    new Promise((resolve, reject) => {
+      openLoading();
+      resolve(true);
+    })
+      .then(() => {
+        for (let index = layers.length - 1; index >= 0; index--) {
+          const layer = layers[index];
+          if (layer.visible) {
+            if (layer.ctx == null) {
+              message.warning('获取图层数据失败！');
+              return;
+            }
+            positionsRef.value = canvasUtil.getPosition(layer.ctx.getImageData()).join(' ');
+          }
+        }
+      })
+      .finally(() => closeLoading());
+  }
+
+  function getBackgroundPosition() {
+    const layers = unref(layersRef);
+    const backgroundLayer = layers[0];
+    new Promise((resolve, reject) => {
+      openLoading();
+      resolve(true);
+    })
+      .then(() => {
+        if (backgroundLayer.ctx == null) {
           message.warning('获取图层数据失败！');
           return;
         }
-        positionsRef.value = canvasUtil.getPosition(layer.ctx.getImageData()).join(' ');
-      }
-    }
+        positionsRef.value = canvasUtil
+          .getPositionByRGBAColor(
+            backgroundLayer.ctx.getImageData(),
+            backGroundPickrInstance.getColor(),
+          )
+          .join(' ');
+      })
+      .finally(() => closeLoading());
   }
-
-  const pickrInstance = useColorPicker('#pickr');
 
   function handleChangeOptionState(state: CanvasOption) {
     controller.setState(state);
@@ -130,11 +166,15 @@
     },
   });
 
+  const pickrInstance = useColorPicker('#pickr');
+  const backGroundPickrInstance = useColorPicker('#backgroundPickr');
   onMounted(() => {
     pickrInstance.init();
     pickrInstance.on('save', (color) => {
       emit('update-config', 'color', color.toRGBA().toString());
     });
+
+    backGroundPickrInstance.init();
   });
 </script>
 
@@ -157,6 +197,13 @@
       }
       .row-label {
         font-weight: bold;
+      }
+      .arco-btn-group {
+        .pcr-button {
+          height: 38px;
+          width: 38px;
+          margin-left: 1px;
+        }
       }
     }
     .pickr-wrapper {

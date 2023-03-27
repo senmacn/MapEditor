@@ -46,8 +46,16 @@ export function useColorPicker(el: string) {
   const on = (event: string, fn: (...props: any) => void): void => {
     pickrRef.value.on(event, fn);
   };
+  const getColor: () => [number, number, number, number] = () =>
+    pickrRef.value
+      .getColor()
+      .toRGBA()
+      .map((num: number, index: number) =>
+        index === 3 ? Number((num * 255).toFixed(0)) : Number(num.toFixed(0)),
+      );
   return {
     init,
     on,
+    getColor,
   };
 }

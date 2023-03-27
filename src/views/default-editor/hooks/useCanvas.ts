@@ -113,6 +113,9 @@ export default function useCanvas(): CanvasInstance & CanvasRenderingContext2D {
     ctx.strokeStyle = canvasConfig.value.color;
     ctx.beginPath();
     ctx.moveTo(beginPoint.x, beginPoint.y);
+    ctx.lineWidth = 1;
+    ctx.lineJoin = 'round';
+    ctx.lineCap = 'round';
     ctx.quadraticCurveTo(controlPoint.x, controlPoint.y, endPoint.x, endPoint.y);
     ctx.stroke();
     ctx.closePath();
@@ -122,6 +125,7 @@ export default function useCanvas(): CanvasInstance & CanvasRenderingContext2D {
     const ctx = getCanvas();
     ctx.strokeStyle = canvasConfig.value.color;
     ctx.beginPath();
+    ctx.lineWidth = 1;
     ctx.moveTo(beginPoint.x, beginPoint.y);
     ctx.lineTo(endPoint.x, endPoint.y);
     ctx.stroke();
