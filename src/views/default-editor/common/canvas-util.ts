@@ -19,6 +19,28 @@ function _isPointInData(data: Uint8ClampedArray, startIndex: number) {
   return data[startIndex] || data[startIndex + 1] || data[startIndex + 2] || data[startIndex + 3];
 }
 
+// 获取数据中颜色为rgba的坐标
+export function getPositionByRGBAColor(
+  imageData: ImageData,
+  rgba: [number, number, number, number],
+) {
+  const positions: number[][] = [];
+  // imageData.data 大小为 height * width * 4，每4个值组成一个点，从左向右从上到下
+  for (let yIndex = 0; yIndex < imageData.height; yIndex++) {
+    for (let xIndex = 0; xIndex < imageData.width; xIndex++) {
+      const pointStartIndex = xIndex * 4 + yIndex * 4 * imageData.width;
+      if (
+        [0, 1, 2].every(
+          (index) => Math.abs(rgba[index] - imageData.data[pointStartIndex + index]) < 3,
+        )
+      ) {
+        positions.push([xIndex, yIndex]);
+      }
+    }
+  }
+  return positions;
+}
+
 export function getPosition(imageData: ImageData) {
   const positions: number[][] = [];
   // imageData.data 大小为 height * width * 4，每4个值组成一个点，从左向右从上到下
@@ -49,55 +71,56 @@ export function getConnectEndPoint(imageData: ImageData, point: PointA) {
         let connectPointCount = 0;
         // [x - 1, y -1]
         const leftTopStartIndex = pointStartIndex - 4 - 4 * imageData.width;
-        leftTopStartIndex > 0 &&
+        leftTopStartIndex >= 0 &&
           leftTopStartIndex < data.length &&
           _isPointInData(data, leftTopStartIndex) &&
-          connectPointCount++;
+          ++connectPointCount;
         // [x - 1, y]
         const leftStartIndex = pointStartIndex - 4;
-        leftStartIndex > 0 &&
+        leftStartIndex >= 0 &&
           leftStartIndex < data.length &&
           _isPointInData(data, leftStartIndex) &&
-          connectPointCount++;
+          ++connectPointCount;
         // [x - 1, y + 1]
         const leftBottomStartIndex = pointStartIndex - 4 + 4 * imageData.width;
-        leftBottomStartIndex > 0 &&
+        leftBottomStartIndex >= 0 &&
           leftBottomStartIndex < data.length &&
           _isPointInData(data, leftBottomStartIndex) &&
-          connectPointCount++;
+          ++connectPointCount;
         // [x, y - 1]
         const topStartIndex = pointStartIndex - 4 * imageData.width;
-        topStartIndex > 0 &&
+        topStartIndex >= 0 &&
           topStartIndex < data.length &&
           _isPointInData(data, topStartIndex) &&
-          connectPointCount++;
+          ++connectPointCount;
         // [x + 1, y - 1]
         const rightTopStartIndex = pointStartIndex + 4 - 4 * imageData.width;
-        rightTopStartIndex > 0 &&
+        rightTopStartIndex >= 0 &&
           rightTopStartIndex < data.length &&
           _isPointInData(data, rightTopStartIndex) &&
-          connectPointCount++;
+          ++connectPointCount;
         // [x + 1, y]
         const rightStartIndex = pointStartIndex + 4;
-        rightStartIndex > 0 &&
+        rightStartIndex >= 0 &&
           rightStartIndex < data.length &&
           _isPointInData(data, rightStartIndex) &&
-          connectPointCount++;
+          ++connectPointCount;
         // [x + 1, y + 1]
         const rightBottomStartIndex = pointStartIndex + 4 + 4 * imageData.width;
-        rightBottomStartIndex > 0 &&
+        rightBottomStartIndex >= 0 &&
           rightBottomStartIndex < data.length &&
           _isPointInData(data, rightBottomStartIndex) &&
-          connectPointCount++;
+          ++connectPointCount;
         // [x, y + 1]
         const bottomStartIndex = pointStartIndex + 4 * imageData.width;
-        bottomStartIndex > 0 &&
+        bottomStartIndex >= 0 &&
           bottomStartIndex < data.length &&
           _isPointInData(data, bottomStartIndex) &&
-          connectPointCount++;
-
-        if (connectPointCount > 1) continue;
-        endPoints.push({ x: xIndex, y: yIndex });
+          ++connectPointCount;
+        // canvas 在两个像素间绘制线时，由于无法绘制0.5px，1px直线会补全变为2px
+        if (connectPointCount <= 2) {
+          endPoints.push({ x: xIndex, y: yIndex });
+        }
       }
     }
   }
@@ -105,7 +128,7 @@ export function getConnectEndPoint(imageData: ImageData, point: PointA) {
   let minDistancePoint = null;
   for (const endPoint of endPoints) {
     const distance = getDistance(endPoint, point);
-    if (distance < minDistance) {
+    if (distance < minDistance && distance > 2) {
       minDistance = distance;
       minDistancePoint = endPoint;
     }

@@ -7,4 +7,5 @@ export interface Layer {
   visible: boolean;
   map: string | ArrayBuffer | null;
   ctx?: CanvasInstance;
+  keep?: boolean;
 }

@@ -2,8 +2,9 @@
   <div class="map-editor">
     <div :class="hideOptionRef ? 'content-box full-screen' : 'content-box'">
       <div class="scroller">
-        <template v-for="layer in layersRef">
-          <map-canvas :layer="layer" v-show="layer.visible" />
+        <base-canvas :layer="baseLayer" v-show="baseLayer.visible" />
+        <template v-for="layer in extendLayersRef">
+          <default-canvas :layer="layer" v-show="layer.visible" />
         </template>
         <mask-canvas v-if="visibleRef" />
       </div>
@@ -21,15 +22,20 @@
         v-else
         @click="() => changeHideState(false)"
       />
-      <map-options @update-style="handleUpdateStyle" @update-config="handleUpdateConfig" />
+      <map-options
+        :baseLayer="baseLayer"
+        @update-style="handleUpdateStyle"
+        @update-config="handleUpdateConfig"
+      />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-  import { provide, reactive, ref, watch } from 'vue';
+  import { computed, provide, reactive, ref, watch } from 'vue';
   import AButton from '@arco-design/web-vue/es/button';
-  import mapCanvas from './default-canvas.vue';
+  import defaultCanvas from './default-canvas.vue';
+  import baseCanvas from './base-canvas.vue';
   import maskCanvas from './mask-canvas.vue';
   import mapOptions from './default-options.vue';
   import { CanvasConfig, createCanvasConfigContext } from './hooks/useCanvasConfig';
@@ -38,7 +44,17 @@
   import { useToggle } from '@vueuse/core';
   import { Layer } from './common/types';
 
+  const baseLayer = reactive<Layer>({
+    uuid: getRandomDomId(),
+    name: '背景图层',
+    level: 0,
+    visible: true,
+    map: null,
+    keep: true,
+  });
+
   const layersRef = ref<Layer[]>([
+    baseLayer,
     {
       uuid: getRandomDomId(),
       name: '默认图层',
@@ -48,6 +64,8 @@
     },
   ]);
   provide('layers', layersRef);
+
+  const extendLayersRef = computed<Layer[]>(() => layersRef.value.slice(1));
 
   const canvasConfigRef = reactive<CanvasConfig>({
     style: {},

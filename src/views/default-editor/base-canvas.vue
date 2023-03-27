@@ -1,0 +1,85 @@
+<template>
+  <canvas :id="layer?.uuid" width="2000" height="2000"></canvas>
+</template>
+
+<script setup lang="ts">
+  import type { Layer } from './common/types';
+  import { onMounted, watch } from 'vue';
+  import { useCanvasConfigContext } from './hooks/useCanvasConfig';
+  import useCanvas from './hooks/useCanvas';
+
+  const props = defineProps({
+    layer: {
+      type: Object as PropType<Layer>,
+    },
+  });
+
+  watch(
+    () => props.layer?.map,
+    () => {
+      if (props.layer) {
+        const image = new Image();
+        image.src = props.layer?.map as string;
+        image.onload = () => {
+          ctxRef.drawImage(image, 0, 0, ctxRef.canvas.width, ctxRef.canvas.height);
+        };
+      }
+    },
+  );
+  watch(
+    () => props.layer?.visible,
+    () => {
+      if (props.layer?.visible) {
+        setTimeout(function () {
+          setup();
+        }, 100);
+      }
+    },
+  );
+
+  // canvas相关
+  const ctxRef = useCanvas();
+  const configRef = useCanvasConfigContext();
+  // 初始化
+  let setUpState = false;
+  function setup() {
+    if (!props.layer || setUpState) return;
+    if (!props.layer) return;
+    let editCanvas: HTMLCanvasElement = document.getElementById(
+      props.layer.uuid,
+    ) as HTMLCanvasElement;
+    if (editCanvas == null) return;
+    let ctx = editCanvas.getContext('2d', {
+      willReadFrequently: true,
+    }) as CanvasRenderingContext2D;
+    ctxRef.setupCanvas(ctx, configRef);
+    // drawCanvas();
+    ctxRef.save();
+
+    props.layer.ctx = ctxRef;
+    setUpState = true;
+  }
+
+  // 配置修改时，重置canvas
+  watch(
+    () => configRef.zoom,
+    () => {
+      // drawCanvas();
+    },
+  );
+  // 挂载时初始化
+  onMounted(() => {
+    setup();
+  });
+</script>
+
+<style scoped lang="less">
+  canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    border: 3px solid rgb(143, 143, 143);
+    background-repeat: no-repeat;
+    background-size: contain;
+  }
+</style>

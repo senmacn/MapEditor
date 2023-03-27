@@ -9,15 +9,17 @@
       <li class="layer-item" v-for="(layer, index) in layersRef" :key="index">
         <div
           class="layer-index"
-          draggable="true"
+          :draggable="!layer.keep"
           @dragenter="dragenter($event, index)"
           @dragover="dragover($event, index)"
           @dragstart="dragstart(index)"
         >
+          <icon-fire v-if="hotLayerRef === index" />
           {{ index + 1 }}
         </div>
         <div class="layer-name">
-          <a-input type="text" v-model="layer.name" />
+          <span v-if="layer.keep">{{ layer.name }}<icon-lock /></span>
+          <a-input v-else type="text" v-model="layer.name" />
         </div>
         <div class="layer-option">
           <a-button
@@ -35,7 +37,11 @@
               <icon-eye-invisible />
             </template>
           </a-button>
-          <a-upload @beforeUpload="(file) => handleUploadFile(file, index)" accept=".png,.jpg">
+          <a-upload
+            @beforeUpload="(file) => handleUploadFile(file, index)"
+            accept=".png,.jpg"
+            v-if="layer.keep"
+          >
             <template #upload-button>
               <a-button type="text" :class="layer.map ? 'success' : 'none'">
                 <template #icon>
@@ -44,7 +50,12 @@
               </a-button>
             </template>
           </a-upload>
-          <a-button type="text" status="warning" @click="() => handleLayerDelete(index)">
+          <a-button
+            type="text"
+            status="warning"
+            @click="() => handleLayerDelete(index)"
+            v-if="!layer.keep"
+          >
             <template #icon>
               <icon-delete />
             </template>
@@ -59,15 +70,34 @@
 </template>
 
 <script setup lang="ts">
-  import { Ref, inject, ref } from 'vue';
+  import { Ref, inject, ref, watch } from 'vue';
   import AInput from '@arco-design/web-vue/es/input';
   import AButton from '@arco-design/web-vue/es/button';
+  import AToolTip from '@arco-design/web-vue/es/tooltip';
   import AUpload from '@arco-design/web-vue/es/upload';
   import modal from '@arco-design/web-vue/es/modal';
   import { getRandomDomId } from '../../../utils/uuid';
   import { useLoading } from '../../../components/Loading';
+  import { Layer } from '../common/types';
 
   const layersRef: Ref<Layer[]> = inject('layers', [] as any);
+
+  // 当前聚焦
+  const hotLayerRef = ref<number>(0);
+  watch(
+    () => layersRef.value,
+    () => {
+      hotLayerRef.value = -1;
+      for (let index = layersRef.value.length - 1; index >= 0; index--) {
+        const element = layersRef.value[index];
+        if (element.visible) {
+          hotLayerRef.value = index;
+          break;
+        }
+      }
+    },
+    { deep: true },
+  );
 
   function handleLayerDelete(index: number) {
     modal.confirm({
@@ -107,6 +137,8 @@
   }
   function dragenter(e: MouseEvent, index: number) {
     e.preventDefault();
+    // 禁止修改背景图层
+    if (index === 0) return;
     // 避免源对象触发自身的dragenter事件
     if (dragIndexRef.value !== index) {
       const source = layersRef.value[dragIndexRef.value];
@@ -143,6 +175,9 @@
     border-bottom: 1px solid #ccc;
     &.title {
       font-weight: bold;
+      div {
+        background: var(--color-fill-3);
+      }
     }
     > div {
       height: 24px;
@@ -155,6 +190,7 @@
       border-right: 0;
     }
     .layer-index {
+      cursor: grab;
       width: 60px;
     }
     .layer-name {
@@ -163,6 +199,13 @@
         font-size: 12px;
         line-height: 24px;
         text-align: center;
+      }
+      span {
+        font-size: 12px;
+        line-height: 24px;
+      }
+      .arco-icon {
+        font-size: 14px;
       }
     }
     .layer-option {
@@ -206,5 +249,8 @@
   以便能够正确地计算移动的动画。 */
   .list-leave-active {
     position: absolute;
+  }
+  .arco-icon-fire {
+    color: rgb(255, 50, 48) !important;
   }
 </style>

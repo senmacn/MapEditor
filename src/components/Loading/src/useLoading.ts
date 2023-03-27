@@ -31,13 +31,23 @@ export function useLoading(
 
   const instance = createLoading(props, undefined, true);
 
+  let startTime = 0;
   const open = (): void => {
     const t = unref(target as Ref<ElRef>);
     if (!t) return;
     instance.open(t);
+    startTime = new Date().valueOf();
   };
 
+  // 定时关闭，有最小关闭和时间的话计算
   const close = (): void => {
+    const current = new Date().valueOf();
+    if (props.minTime && current < startTime + props.minTime) {
+      setTimeout(function () {
+        close();
+      }, startTime + props.minTime - current);
+      return;
+    }
     instance.close();
   };
 

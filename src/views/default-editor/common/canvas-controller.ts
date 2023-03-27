@@ -7,19 +7,23 @@ export enum CanvasOption {
   DrawRect,
 }
 
+function setCursor(cursor: string) {
+  const scrollElement = document.getElementsByClassName('scroller')[0] as HTMLElement;
+  scrollElement.style.cursor = cursor;
+}
+
 class CanvasStateController {
   private state = ref(CanvasOption.FollowMouse);
   private active = false;
   constructor() {
-    document.body.style.cursor = 'url(./src/assets/ico/cursor.ico), pointer';
   }
   setState(option: CanvasOption) {
     if (option === CanvasOption.FollowMouse) {
-      document.body.style.cursor = 'url(./src/assets/ico/cursor.ico), pointer';
+      setCursor('url(./src/assets/ico/cursor.ico), pointer');
     } else if (option === CanvasOption.DrawLine) {
-      document.body.style.cursor = 'crosshair';
+      setCursor('crosshair');
     } else {
-      document.body.style.cursor = 'url(./src/assets/ico/eraser.svg), pointer';
+      setCursor('url(./src/assets/ico/eraser.svg), pointer');
     }
     this.state.value = option;
   }

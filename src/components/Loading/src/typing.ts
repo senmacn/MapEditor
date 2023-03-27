@@ -10,4 +10,5 @@ export interface LoadingProps {
   absolute: boolean;
   loading: boolean;
   background: string;
+  minTime: number;
 }
