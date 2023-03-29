@@ -14,7 +14,7 @@
             <router-link to="/default-editor"> 默认编辑器 </router-link>
           </a-option>
         </a-select>
-        <a-tool-tip
+        <a-tooltip
           content="
             全屏
           "
@@ -25,7 +25,7 @@
               <icon-fullscreen v-else />
             </template>
           </a-button>
-        </a-tool-tip>
+        </a-tooltip>
         <a-avatar :size="36" :image-url="defaultAvatar"></a-avatar>
       </a-space>
     </div>
@@ -33,11 +33,6 @@
 </template>
 
 <script setup lang="ts">
-  import AToolTip from '@arco-design/web-vue/es/tooltip';
-  import AAvatar from '@arco-design/web-vue/es/avatar';
-  import ASpace from '@arco-design/web-vue/es/space';
-  import ASelect, { Option as AOption } from '@arco-design/web-vue/es/select';
-  import AButton from '@arco-design/web-vue/es/button';
   import { useFullscreen } from '@vueuse/core';
   import { onMounted, ref } from 'vue';
   import defaultAvatar from '@/assets/images/defaultAvatar.png';

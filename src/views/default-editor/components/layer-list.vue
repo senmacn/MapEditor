@@ -22,37 +22,43 @@
           <a-input v-else type="text" v-model="layer.name" />
         </div>
         <div class="layer-option">
-          <a-button
-            type="text"
-            v-if="layer.visible && !layer.keep"
-            status="success"
-            @click="() => changeLayerVisible(layer, false)"
-          >
-            <template #icon>
-              <icon-eye />
-            </template>
-          </a-button>
-          <a-button
-            type="text"
-            status="normal"
-            v-if="!layer.visible && !layer.keep"
-            @click="() => changeLayerVisible(layer, true)"
-          >
-            <template #icon>
-              <icon-eye-invisible />
-            </template>
-          </a-button>
+          <a-tooltip content="隐藏图层">
+            <a-button
+              type="text"
+              v-if="layer.visible && !layer.keep"
+              status="success"
+              @click="() => changeLayerVisible(layer, false)"
+            >
+              <template #icon>
+                <icon-eye />
+              </template>
+            </a-button>
+          </a-tooltip>
+          <a-tooltip content="显示图层">
+            <a-button
+              type="text"
+              status="normal"
+              v-if="!layer.visible && !layer.keep"
+              @click="() => changeLayerVisible(layer, true)"
+            >
+              <template #icon>
+                <icon-eye-invisible />
+              </template>
+            </a-button>
+          </a-tooltip>
           <a-upload
             @beforeUpload="(file) => handleUploadFile(file, index)"
             accept=".png,.jpg"
             v-if="layer.keep"
           >
             <template #upload-button>
-              <a-button type="text" :class="layer.map ? 'success' : 'none'">
-                <template #icon>
-                  <icon-file-image />
-                </template>
-              </a-button>
+              <a-tooltip content="上传底图">
+                <a-button type="text" :class="layer.map ? 'success' : 'none'">
+                  <template #icon>
+                    <icon-file-image />
+                  </template>
+                </a-button>
+              </a-tooltip>
             </template>
           </a-upload>
           <a-button
@@ -68,16 +74,14 @@
         </div>
       </li>
     </transition-group>
-    <a-button @click="handleLayerAdd">+</a-button>
+    <a-tooltip content="添加图层">
+      <a-button @click="handleLayerAdd">+</a-button>
+    </a-tooltip>
   </div>
 </template>
 
 <script setup lang="ts">
-  import { Ref, inject, ref, watch } from 'vue';
-  import AInput from '@arco-design/web-vue/es/input';
-  import AButton from '@arco-design/web-vue/es/button';
-  import AToolTip from '@arco-design/web-vue/es/tooltip';
-  import AUpload from '@arco-design/web-vue/es/upload';
+  import { Ref, inject, ref } from 'vue';
   import modal from '@arco-design/web-vue/es/modal';
   import { getRandomDomId } from '../../../utils/uuid';
   import { useLoading } from '../../../components/Loading';

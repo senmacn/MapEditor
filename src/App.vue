@@ -10,7 +10,6 @@
 </template>
 
 <script setup lang="ts">
-  import AButton from '@arco-design/web-vue/es/button';
   import ABackTop from '@arco-design/web-vue/es/back-top';
   import Navbar from './components/navbar/index.vue';
 </script>

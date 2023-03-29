@@ -5,8 +5,8 @@ import { CanvasConfig } from './useCanvasConfig';
 export type CanvasInstance = {
   setupCanvas: (canvas: CanvasRenderingContext2D, config?: CanvasConfig) => void;
   save: () => void;
-  revert: () => void;
-  revoke: () => void;
+  redo: () => void;
+  undo: () => void;
   clean: () => void;
   erase(point: PointA, isLast?: boolean): void;
   drawSmoothLine: (beginPoint: PointA, controlPoint: PointA, endPoint: PointA) => void;
@@ -29,12 +29,15 @@ export default function useCanvas(): CanvasInstance & CanvasRenderingContext2D {
     density: 1,
     autoConnect: true,
   });
-  const setupCanvas = (canvas: CanvasRenderingContext2D, config?: CanvasConfig) => {
+  function setupCanvas(canvas: CanvasRenderingContext2D, config?: CanvasConfig) {
     canvasRef.value = canvas;
     if (config) {
       canvasConfig.value = config;
     }
-  };
+    if (historyState.current < 0) {
+      save();
+    }
+  }
   const getCanvas = () => {
     const ctx = unref(canvasRef);
     if (ctx) return ctx;
@@ -43,8 +46,8 @@ export default function useCanvas(): CanvasInstance & CanvasRenderingContext2D {
   // canvas 存储历史用于保存、撤销、还原操作
   const canvasHistory: ImageData[] & Recordable = [];
   const historyState = reactive({
-    current: 0,
-    max: 0,
+    current: -1,
+    max: -1,
   });
   canvasHistory.putIn = function (value: ImageData) {
     if (historyState.max === 19) {
@@ -61,7 +64,7 @@ export default function useCanvas(): CanvasInstance & CanvasRenderingContext2D {
     const data = ctx.getImageData(0, 0, ctx.canvas.width, ctx.canvas.height);
     canvasHistory.putIn(data);
   };
-  const revert = () => {
+  const redo = () => {
     const ctx = getCanvas();
     if (historyState.current < historyState.max) {
       const data = canvasHistory[++historyState.current];
@@ -69,7 +72,7 @@ export default function useCanvas(): CanvasInstance & CanvasRenderingContext2D {
       ctx.putImageData(data, 0, 0);
     }
   };
-  const revoke = () => {
+  const undo = () => {
     const ctx = getCanvas();
     if (historyState.current > 0) {
       const data = canvasHistory[--historyState.current];
@@ -160,8 +163,8 @@ export default function useCanvas(): CanvasInstance & CanvasRenderingContext2D {
   const canvasInstance = {
     setupCanvas,
     save,
-    revert,
-    revoke,
+    redo,
+    undo,
     clean,
     erase,
     drawSmoothLine,

@@ -3,11 +3,19 @@
     <div class="position">
       <a-text-area v-model="positionsRef"></a-text-area>
     </div>
-    <a-row>
+    <a-row class="option-group">
       <a-col class="row-label" :span="4">
         <span class="group-label">文件： </span>
       </a-col>
       <a-col :span="6">
+        <a-button type="primary" disabled @click="">保存</a-button>
+      </a-col>
+      <a-col :span="6">
+        <a-button type="primary" disabled @click="">加载</a-button>
+      </a-col>
+    </a-row>
+    <a-row>
+      <a-col :span="6" :offset="4">
         <a-button type="primary" @click="getPosition">获取坐标</a-button>
       </a-col>
       <a-col :span="8">
@@ -20,7 +28,7 @@
         <a-button type="primary" @click="exportData">下载完整数据</a-button>
       </a-col>
     </a-row>
-    <a-row>
+    <a-row class="option-group">
       <a-col class="row-label" :span="4">
         <span class="group-label">图层： </span>
       </a-col>
@@ -33,7 +41,7 @@
         <controlled-slider @register="registerControllerSlider"></controlled-slider>
       </a-col>
     </a-row> -->
-    <a-row>
+    <a-row class="option-group">
       <a-col class="row-label" :span="4">
         <span class="group-label">功能： </span>
       </a-col>
@@ -42,7 +50,8 @@
           :class="[controller.getState() === CanvasOption.FollowMouse && 'actived']"
           @click="() => handleChangeOptionState(CanvasOption.FollowMouse)"
         >
-          跟随鼠标
+          <icon-edit />
+          画笔
         </a-button>
       </a-col>
       <a-col :span="6">
@@ -50,26 +59,36 @@
           :class="[controller.getState() === CanvasOption.DrawLine && 'actived']"
           @click="() => handleChangeOptionState(CanvasOption.DrawLine)"
         >
-          选择直线
+          <icon-oblique-line />
+          直线
         </a-button>
       </a-col>
+    </a-row>
+    <a-row>
       <a-col :span="6" :offset="4">
         <a-button
           :class="[controller.getState() === CanvasOption.FollowMouseClear && 'actived']"
           @click="() => handleChangeOptionState(CanvasOption.FollowMouseClear)"
         >
+          <icon-eraser />
           橡皮
         </a-button>
       </a-col>
       <a-col :span="6">
-        <a-button @click="emitCanvasRevokeEvent"> 撤销 </a-button>
+        <a-button @click="emitCanvasUndoEvent">
+          <icon-undo />
+          撤销
+        </a-button>
       </a-col>
       <a-col :span="6">
-        <a-button @click="emitCanvasRevertEvent"> 还原 </a-button>
+        <a-button @click="emitCanvasRedoEvent">
+          <icon-redo />
+          还原
+        </a-button>
       </a-col>
     </a-row>
-    <a-row>
-      <a-col class="row-label" :span="4">配置：</a-col>
+    <a-row class="option-group">
+      <a-col class="row-label" :span="4">设置：</a-col>
       <a-col :span="12">
         <div class="auto-connect">
           <span>自动连接: </span>
@@ -102,19 +121,13 @@
 </template>
 
 <script setup lang="ts">
-  import { Ref, inject, onMounted, ref, unref, watch } from 'vue';
-  import AButton from '@arco-design/web-vue/es/button';
-  import { ButtonGroup as AButtonGroup } from '@arco-design/web-vue/es/button';
-  import ASwitch from '@arco-design/web-vue/es/switch';
-  import AInputNumber from '@arco-design/web-vue/es/input-number';
+  import { Ref, inject, onMounted, ref, unref } from 'vue';
   import modal from '@arco-design/web-vue/es/modal';
   import ATextArea from '@arco-design/web-vue/es/textarea';
   import message from '@arco-design/web-vue/es/message';
-  import { Row as ARow, Col as ACol } from '@arco-design/web-vue/es/grid';
-  import ASelect, { Option as AOption } from '@arco-design/web-vue/es/select';
-  import ControlledSlider, { useControllerSlider } from '../../components/controlled-slider';
+  // import ControlledSlider, { useControllerSlider } from '../../components/controlled-slider';
   import controller, { CanvasOption } from './common/canvas-controller';
-  import { emitCanvasRevokeEvent, emitCanvasRevertEvent } from './common/event';
+  import { emitCanvasUndoEvent, emitCanvasRedoEvent } from './common/event';
   import { useCanvasConfigContext } from './hooks/useCanvasConfig';
   import LayerList from './components/layer-list.vue';
   import * as canvasUtil from './common/canvas-util';
@@ -138,30 +151,27 @@
     const layers = unref(layersRef);
     new Promise((resolve, reject) => {
       openLoading();
-      resolve(true);
-    })
-      .then(() => {
+      setTimeout(() => {
         for (let index = layers.length - 1; index >= 0; index--) {
           const layer = layers[index];
-          if (layer.visible) {
+          if (layer.visible && layer.hot) {
             if (layer.ctx == null) {
               message.warning('获取图层数据失败！');
-              return;
+              break;
             }
             positionsRef.value = canvasUtil.getPosition(layer.ctx.getImageData()).join(' ');
           }
         }
-      })
-      .finally(() => closeLoading());
+        resolve(true);
+      }, 10);
+    }).finally(() => closeLoading());
   }
   function getBackgroundPosition() {
     const layers = unref(layersRef);
     const backgroundLayer = layers[0];
     new Promise((resolve, reject) => {
       openLoading();
-      resolve(true);
-    })
-      .then(() => {
+      setTimeout(() => {
         if (backgroundLayer.ctx == null) {
           message.warning('获取图层数据失败！');
           return;
@@ -172,8 +182,9 @@
             backGroundPickrInstance.getColor(),
           )
           .join(' ');
-      })
-      .finally(() => closeLoading());
+        resolve(true);
+      }, 10);
+    }).finally(() => closeLoading());
   }
   function exportData() {
     modal.confirm({
@@ -224,9 +235,8 @@
     .arco-row {
       align-items: center;
       margin: 10px;
-      border-bottom: 1px solid black;
       .arco-col {
-        margin-bottom: 10px;
+        margin-bottom: 6px;
         font-size: 12px;
       }
       .row-label {

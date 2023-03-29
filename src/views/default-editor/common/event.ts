@@ -1,25 +1,29 @@
 import { EventBusListener, useEventBus } from '@vueuse/core';
 
-const canvasRevertEvent = Symbol('revert');
-const revertBus = useEventBus<Symbol>(canvasRevertEvent);
-const onCanvasRevertEvent = (listener: EventBusListener) => revertBus.on(listener);
-const emitCanvasRevertEvent = () => revertBus.emit(canvasRevertEvent);
+// 还原事件
+const canvasRedoEvent = Symbol('redo');
+const redoBus = useEventBus<Symbol>(canvasRedoEvent);
+const onCanvasRedoEvent = (listener: EventBusListener) => redoBus.on(listener);
+const emitCanvasRedoEvent = () => redoBus.emit(canvasRedoEvent);
 
-const canvasRevokeEvent = Symbol('revoke');
-const revokeBus = useEventBus<Symbol>(canvasRevokeEvent);
-const onCanvasRevokeEvent = (listener: EventBusListener) => revokeBus.on(listener);
-const emitCanvasRevokeEvent = () => revokeBus.emit(canvasRevokeEvent);
+// 撤销事件
+const canvasUndoEvent = Symbol('undo');
+const undoBus = useEventBus<Symbol>(canvasUndoEvent);
+const onCanvasUndoEvent = (listener: EventBusListener) => undoBus.on(listener);
+const emitCanvasUndoEvent = () => undoBus.emit(canvasUndoEvent);
 
+// 根据mask-canvas创建直线
 const persistLineEvent = Symbol('persistLine');
 const persistLineBus = useEventBus<Symbol>(persistLineEvent);
 const onPersistLineEvent = (listener: EventBusListener) => persistLineBus.on(listener);
-const emitPersistLineEvent = (beginPoint: PointA, endPoint: PointA) => persistLineBus.emit(persistLineEvent, { beginPoint, endPoint });
+const emitPersistLineEvent = (beginPoint: PointA, endPoint: PointA) =>
+  persistLineBus.emit(persistLineEvent, { beginPoint, endPoint });
 
 export {
-    onCanvasRevertEvent,
-    emitCanvasRevertEvent,
-    onCanvasRevokeEvent,
-    emitCanvasRevokeEvent,
-    onPersistLineEvent,
-    emitPersistLineEvent
+  onCanvasRedoEvent,
+  emitCanvasRedoEvent,
+  onCanvasUndoEvent,
+  emitCanvasUndoEvent,
+  onPersistLineEvent,
+  emitPersistLineEvent,
 };
