@@ -1,16 +1,7 @@
 import { createContext, useContext } from '../../../hooks/useContext';
+import { CanvasConfig } from '../common/types';
 
 const key = Symbol('canvas-config');
-
-export type CanvasConfig = {
-  [K: string]: Recordable<string> | string | number | boolean;
-  style: Recordable<string>;
-  density: number;
-  color: string;
-  lineWidth: number;
-  zoom: number;
-  autoConnect: boolean;
-};
 
 export function createCanvasConfigContext(instance: CanvasConfig) {
   return createContext(instance, key);

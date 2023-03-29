@@ -37,11 +37,11 @@
   import baseCanvas from './base-canvas.vue';
   import maskCanvas from './mask-canvas.vue';
   import mapOptions from './default-options.vue';
-  import { CanvasConfig, createCanvasConfigContext } from './hooks/useCanvasConfig';
+  import { createCanvasConfigContext } from './hooks/useCanvasConfig';
   import { getRandomDomId } from '../../utils/uuid';
   import controller, { CanvasOption } from './common/canvas-controller';
   import { useToggle } from '@vueuse/core';
-  import { Layer } from './common/types';
+  import { CanvasConfig, Layer } from './common/types';
 
   const baseLayer = reactive<Layer>({
     uuid: getRandomDomId(),
