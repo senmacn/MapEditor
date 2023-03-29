@@ -56,6 +56,28 @@
     // drawCanvas();
     ctxRef.save();
 
+    let CanvasWidth = ctxRef.canvas.width;
+    let CanvasHeight = ctxRef.canvas.height;
+    // 遍历的方式初始化网格
+    let xLineTotals = Math.floor(CanvasWidth / 10); // 计算需要绘画的x轴条数
+    for (let i = 0; i < xLineTotals; i++) {
+      ctxRef.beginPath();
+      ctxRef.moveTo(0, 10 * i);
+      ctxRef.lineTo(CanvasWidth, 10 * i);
+      ctxRef.strokeStyle = '#ccc';
+      ctxRef.lineWidth = 1;
+      ctxRef.stroke();
+    }
+    let yLineTotals = Math.floor(CanvasHeight / 10);
+    for (let j = 0; j < yLineTotals; j++) {
+      ctxRef.beginPath();
+      ctxRef.moveTo(10 * j, 0);
+      ctxRef.lineTo(10 * j, CanvasHeight);
+      ctxRef.strokeStyle = '#ccc';
+      ctxRef.lineWidth = 1;
+      ctxRef.stroke();
+    }
+
     props.layer.ctx = ctxRef;
     setUpState = true;
   }

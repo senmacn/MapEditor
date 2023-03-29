@@ -1,14 +1,14 @@
 import { isFunction } from 'lodash-es';
-import { ref, unref } from 'vue';
+import { reactive, ref, unref } from 'vue';
 import { CanvasConfig } from './useCanvasConfig';
 
 export type CanvasInstance = {
   setupCanvas: (canvas: CanvasRenderingContext2D, config?: CanvasConfig) => void;
   save: () => void;
   revert: () => void;
+  revoke: () => void;
   clean: () => void;
   erase(point: PointA, isLast?: boolean): void;
-  getHistoryUseful: () => boolean;
   drawSmoothLine: (beginPoint: PointA, controlPoint: PointA, endPoint: PointA) => void;
   drawLine: (beginPoint: PointA, endPoint: PointA) => void;
   drawDashLine: (beginPoint: PointA, endPoint: PointA) => void;
@@ -24,6 +24,7 @@ export default function useCanvas(): CanvasInstance & CanvasRenderingContext2D {
   const canvasConfig = ref<CanvasConfig>({
     style: {},
     zoom: 1,
+    lineWidth: 1,
     color: 'red',
     density: 1,
     autoConnect: true,
@@ -39,35 +40,43 @@ export default function useCanvas(): CanvasInstance & CanvasRenderingContext2D {
     if (ctx) return ctx;
     throw new Error('Canvas Not Found');
   };
-  // canvas 存储历史用于撤销操作
+  // canvas 存储历史用于保存、撤销、还原操作
   const canvasHistory: ImageData[] & Recordable = [];
-  const historyLengthRef = ref(0);
+  const historyState = reactive({
+    current: 0,
+    max: 0,
+  });
   canvasHistory.putIn = function (value: ImageData) {
-    if (this.length === 20) {
+    if (historyState.max === 19) {
       this.shift();
+      historyState.max = historyState.current;
+    } else {
+      this.splice(++historyState.current);
+      historyState.max = historyState.current;
     }
     this.push(value);
   };
   const save = () => {
     const ctx = getCanvas();
     const data = ctx.getImageData(0, 0, ctx.canvas.width, ctx.canvas.height);
-    canvasHistory.push(data);
-    historyLengthRef.value = historyLengthRef.value + 1;
+    canvasHistory.putIn(data);
   };
   const revert = () => {
     const ctx = getCanvas();
-    if (historyLengthRef.value === 1) {
-      const data = canvasHistory[0];
-      ctx.putImageData(data, 0, 0);
-    } else {
-      canvasHistory.pop();
-      historyLengthRef.value = historyLengthRef.value - 1;
-      const data = canvasHistory[historyLengthRef.value - 1];
+    if (historyState.current < historyState.max) {
+      const data = canvasHistory[++historyState.current];
       if (!data) return;
       ctx.putImageData(data, 0, 0);
     }
   };
-  const getHistoryUseful = () => historyLengthRef.value > 0;
+  const revoke = () => {
+    const ctx = getCanvas();
+    if (historyState.current > 0) {
+      const data = canvasHistory[--historyState.current];
+      if (!data) return;
+      ctx.putImageData(data, 0, 0);
+    }
+  };
 
   // 清空
   function clean() {
@@ -113,7 +122,7 @@ export default function useCanvas(): CanvasInstance & CanvasRenderingContext2D {
     ctx.strokeStyle = canvasConfig.value.color;
     ctx.beginPath();
     ctx.moveTo(beginPoint.x, beginPoint.y);
-    ctx.lineWidth = 1;
+    ctx.lineWidth = canvasConfig.value.lineWidth;
     ctx.lineJoin = 'round';
     ctx.lineCap = 'round';
     ctx.quadraticCurveTo(controlPoint.x, controlPoint.y, endPoint.x, endPoint.y);
@@ -125,7 +134,7 @@ export default function useCanvas(): CanvasInstance & CanvasRenderingContext2D {
     const ctx = getCanvas();
     ctx.strokeStyle = canvasConfig.value.color;
     ctx.beginPath();
-    ctx.lineWidth = 1;
+    ctx.lineWidth = canvasConfig.value.lineWidth;
     ctx.moveTo(beginPoint.x, beginPoint.y);
     ctx.lineTo(endPoint.x, endPoint.y);
     ctx.stroke();
@@ -136,6 +145,7 @@ export default function useCanvas(): CanvasInstance & CanvasRenderingContext2D {
     const ctx = getCanvas();
     ctx.setLineDash([5, 5]);
     ctx.strokeStyle = 'gray';
+    ctx.lineWidth = canvasConfig.value.lineWidth;
     ctx.beginPath();
     ctx.moveTo(beginPoint.x, beginPoint.y);
     ctx.lineTo(endPoint.x, endPoint.y);
@@ -151,7 +161,7 @@ export default function useCanvas(): CanvasInstance & CanvasRenderingContext2D {
     setupCanvas,
     save,
     revert,
-    getHistoryUseful,
+    revoke,
     clean,
     erase,
     drawSmoothLine,

@@ -5,24 +5,27 @@
     </div>
     <a-row>
       <a-col class="row-label" :span="4">
-        <span class="group-label">图层： </span>
-      </a-col>
-    </a-row>
-    <a-row>
-      <layer-list></layer-list>
-    </a-row>
-    <a-row>
-      <a-col class="row-label" :span="4">
         <span class="group-label">文件： </span>
       </a-col>
       <a-col :span="6">
         <a-button type="primary" @click="getPosition">获取坐标</a-button>
       </a-col>
-      <a-col :span="10">
+      <a-col :span="8">
         <a-button-group>
           <a-button type="primary" @click="getBackgroundPosition">检测背景</a-button>
           <span id="backgroundPickr"> </span>
         </a-button-group>
+      </a-col>
+      <a-col :span="6">
+        <a-button type="primary" @click="exportData">下载完整数据</a-button>
+      </a-col>
+    </a-row>
+    <a-row>
+      <a-col class="row-label" :span="4">
+        <span class="group-label">图层： </span>
+      </a-col>
+      <a-col :span="24">
+        <layer-list></layer-list>
       </a-col>
     </a-row>
     <!-- <a-row>
@@ -59,20 +62,40 @@
         </a-button>
       </a-col>
       <a-col :span="6">
-        <a-button @click="emitCanvasRevertEvent"> 撤销 </a-button>
+        <a-button @click="emitCanvasRevokeEvent"> 撤销 </a-button>
+      </a-col>
+      <a-col :span="6">
+        <a-button @click="emitCanvasRevertEvent"> 还原 </a-button>
       </a-col>
     </a-row>
     <a-row>
       <a-col class="row-label" :span="4">配置：</a-col>
-      <a-col :span="8">
+      <a-col :span="12">
         <div class="auto-connect">
           <span>自动连接: </span>
-          <a-switch :default-checked="configRef.autoConnect" @change="handleAutoConnectChange" />
+          <a-switch
+            :default-checked="configRef.autoConnect"
+            @change="(value) => emit('update-config', 'autoConnect', value)"
+          />
         </div>
       </a-col>
-      <a-col class="pickr-wrapper" :span="8">
+      <a-col class="pickr-wrapper" :span="8" :offset="4">
         <span>线条颜色： </span>
         <span id="pickr"> </span>
+      </a-col>
+      <a-col class="pickr-wrapper" :span="12">
+        <span>线条宽度： </span>
+        <a-input-number
+          mode="button"
+          size="small"
+          :max="10"
+          :min="1"
+          :step="1"
+          :precision="1"
+          :default-value="configRef.lineWidth"
+          :formatter="(value: number) => Number(value).toFixed(0)"
+          @change="(num) => emit('update-config', 'lineWidth', num)"
+        />
       </a-col>
     </a-row>
   </div>
@@ -83,20 +106,22 @@
   import AButton from '@arco-design/web-vue/es/button';
   import { ButtonGroup as AButtonGroup } from '@arco-design/web-vue/es/button';
   import ASwitch from '@arco-design/web-vue/es/switch';
+  import AInputNumber from '@arco-design/web-vue/es/input-number';
+  import modal from '@arco-design/web-vue/es/modal';
   import ATextArea from '@arco-design/web-vue/es/textarea';
   import message from '@arco-design/web-vue/es/message';
-  import ATooltip from '@arco-design/web-vue/es/tooltip';
   import { Row as ARow, Col as ACol } from '@arco-design/web-vue/es/grid';
   import ASelect, { Option as AOption } from '@arco-design/web-vue/es/select';
   import ControlledSlider, { useControllerSlider } from '../../components/controlled-slider';
   import controller, { CanvasOption } from './common/canvas-controller';
-  import { emitCanvasRevertEvent } from './common/event';
+  import { emitCanvasRevokeEvent, emitCanvasRevertEvent } from './common/event';
   import { useCanvasConfigContext } from './hooks/useCanvasConfig';
   import LayerList from './components/layer-list.vue';
   import * as canvasUtil from './common/canvas-util';
   import { Layer } from './common/types';
   import { useColorPicker } from '../../hooks/useColorPicker';
   import { useLoading } from '../../components/Loading';
+  import { exportFile } from '../../utils/file';
 
   const emit = defineEmits<{
     (e: 'update-style', key: string, value: string): void;
@@ -129,7 +154,6 @@
       })
       .finally(() => closeLoading());
   }
-
   function getBackgroundPosition() {
     const layers = unref(layersRef);
     const backgroundLayer = layers[0];
@@ -151,20 +175,25 @@
       })
       .finally(() => closeLoading());
   }
+  function exportData() {
+    modal.confirm({
+      title: '确认',
+      content: '导出完整的坐标数据！',
+      onOk: () => {
+        exportFile('data.json', positionsRef.value);
+      },
+    });
+  }
 
   function handleChangeOptionState(state: CanvasOption) {
     controller.setState(state);
   }
 
-  function handleAutoConnectChange(value: any) {
-    emit('update-config', 'autoConnect', value);
-  }
-
-  const [registerControllerSlider] = useControllerSlider({
-    onChange: function (val) {
-      emit('update-config', 'zoom', val);
-    },
-  });
+  // const [registerControllerSlider] = useControllerSlider({
+  //   onChange: function (val) {
+  //     emit('update-config', 'zoom', val);
+  //   },
+  // });
 
   const pickrInstance = useColorPicker('#pickr');
   const backGroundPickrInstance = useColorPicker('#backgroundPickr');
@@ -183,27 +212,36 @@
     .arco-upload-wrapper {
       width: auto;
     }
-
     .arco-select {
       width: 90px;
       height: 38px;
     }
-
+    .arco-btn {
+      font-size: 12px;
+      width: 80px;
+      height: 32px;
+    }
     .arco-row {
       align-items: center;
       margin: 10px;
+      border-bottom: 1px solid black;
       .arco-col {
         margin-bottom: 10px;
+        font-size: 12px;
       }
       .row-label {
         font-weight: bold;
+        font-size: 14px;
       }
       .arco-btn-group {
         .pcr-button {
-          height: 38px;
-          width: 38px;
+          height: 32px;
+          width: 32px;
           margin-left: 1px;
         }
+      }
+      .arco-input-number {
+        width: 100px;
       }
     }
     .pickr-wrapper {
@@ -226,10 +264,6 @@
   .result {
     margin-top: 400px;
     margin-left: 200px;
-  }
-  .displayCanvas {
-    background: url('src\\assets\\images\\test.png');
-    background-repeat: no-repeat;
   }
   .auto-connect {
   }

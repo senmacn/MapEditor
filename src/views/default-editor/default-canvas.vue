@@ -17,7 +17,7 @@
   import controller, { CanvasOption } from './common/canvas-controller';
   import * as canvasUtil from './common/canvas-util';
   import useCanvas from './hooks/useCanvas';
-  import { onCanvasRevertEvent, onPersistLineEvent } from './common/event';
+  import { onCanvasRevertEvent, onCanvasRevokeEvent, onPersistLineEvent } from './common/event';
 
   const props = defineProps({
     layer: {
@@ -172,7 +172,11 @@
   }
   // 判断是否需要自动连接
   function _autoConnect(curPoint: PointA) {
-    const endPoint = canvasUtil.getConnectEndPoint(ctxRef.getImageData(), curPoint);
+    const endPoint = canvasUtil.getConnectEndPoint(
+      ctxRef.getImageData(),
+      curPoint,
+      configRef.lineWidth,
+    );
     if (endPoint != null) {
       console.log('endPoint', endPoint);
 
@@ -182,7 +186,14 @@
 
   // 监听广播
   onCanvasRevertEvent(() => {
-    ctxRef.revert();
+    if (props.layer?.hot) {
+      ctxRef.revert();
+    }
+  });
+  onCanvasRevokeEvent(() => {
+    if (props.layer?.hot) {
+      ctxRef.revoke();
+    }
   });
   onPersistLineEvent((_, payload) => {
     _autoConnect(payload.beginPoint);
@@ -202,13 +213,13 @@
   function onKeyBoardDown(e: KeyboardEvent) {
     if (e.ctrlKey && e.key === 'z') {
       e.stopPropagation();
-      ctxRef.revert();
+      ctxRef.revoke();
     }
   }
+
   // 挂载时初始化
   onMounted(() => {
     setup();
-
     window.addEventListener('keydown', onKeyBoardDown);
   });
   onBeforeUnmount(() => {

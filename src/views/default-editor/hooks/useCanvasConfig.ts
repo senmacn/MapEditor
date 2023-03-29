@@ -7,6 +7,7 @@ export type CanvasConfig = {
   style: Recordable<string>;
   density: number;
   color: string;
+  lineWidth: number;
   zoom: number;
   autoConnect: boolean;
 };

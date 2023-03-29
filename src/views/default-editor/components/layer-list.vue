@@ -6,7 +6,7 @@
       <div class="layer-option">操作</div>
     </div>
     <transition-group name="list" tag="ul">
-      <li class="layer-item" v-for="(layer, index) in layersRef" :key="index">
+      <li class="layer-item" v-for="(layer, index) in layersRef" :key="layer.uuid">
         <div
           class="layer-index"
           :draggable="!layer.keep"
@@ -14,7 +14,7 @@
           @dragover="dragover($event, index)"
           @dragstart="dragstart(index)"
         >
-          <icon-fire v-if="hotLayerRef === index" />
+          <icon-fire v-if="layer.hot" />
           {{ index + 1 }}
         </div>
         <div class="layer-name">
@@ -24,15 +24,20 @@
         <div class="layer-option">
           <a-button
             type="text"
-            v-if="layer.visible"
+            v-if="layer.visible && !layer.keep"
             status="success"
-            @click="() => (layer.visible = false)"
+            @click="() => changeLayerVisible(layer, false)"
           >
             <template #icon>
               <icon-eye />
             </template>
           </a-button>
-          <a-button type="text" status="normal" v-else @click="() => (layer.visible = true)">
+          <a-button
+            type="text"
+            status="normal"
+            v-if="!layer.visible && !layer.keep"
+            @click="() => changeLayerVisible(layer, true)"
+          >
             <template #icon>
               <icon-eye-invisible />
             </template>
@@ -63,9 +68,7 @@
         </div>
       </li>
     </transition-group>
-    <div class="layer-item">
-      <a-button @click="handleLayerAdd">+</a-button>
-    </div>
+    <a-button @click="handleLayerAdd">+</a-button>
   </div>
 </template>
 
@@ -83,21 +86,22 @@
   const layersRef: Ref<Layer[]> = inject('layers', [] as any);
 
   // 当前聚焦
-  const hotLayerRef = ref<number>(0);
-  watch(
-    () => layersRef.value,
-    () => {
-      hotLayerRef.value = -1;
-      for (let index = layersRef.value.length - 1; index >= 0; index--) {
-        const element = layersRef.value[index];
-        if (element.visible) {
-          hotLayerRef.value = index;
-          break;
-        }
+  const refreshHot = () => {
+    let isHot = false;
+    for (let index = layersRef.value.length - 1; index >= 0; index--) {
+      const element = layersRef.value[index];
+      element.hot = false;
+      if (element.visible && !isHot) {
+        element.hot = true;
+        isHot = true;
       }
-    },
-    { deep: true },
-  );
+    }
+  };
+
+  function changeLayerVisible(layer: Layer, visible: boolean) {
+    layer.visible = visible;
+    refreshHot();
+  }
 
   function handleLayerDelete(index: number) {
     modal.confirm({
@@ -105,6 +109,7 @@
       content: `即将删除图层[${layersRef.value[index].name}],该操作不可逆，请仔细确认！`,
       onOk: () => {
         layersRef.value.splice(index, 1);
+        refreshHot();
       },
     });
   }
@@ -126,9 +131,11 @@
       uuid: getRandomDomId(),
       name: '图层' + (layersRef.value.length + 1),
       level: layersRef.value.length ? layersRef.value[layersRef.value.length - 1].level + 1 : 1,
-      visible: false,
+      hot: true,
+      visible: true,
       map: null,
     });
+    refreshHot();
   }
 
   const dragIndexRef = ref(0);
@@ -146,6 +153,7 @@
       layersRef.value.splice(index, 0, source);
       // 排序变化后目标对象的索引变成源对象的索引
       dragIndexRef.value = index;
+      refreshHot();
     }
   }
   function dragover(e: MouseEvent, index: number) {
@@ -155,7 +163,7 @@
 
 <style lang="less">
   .layer-list {
-    border: 1px solid #ccc;
+    border: 1px solid var(--color-border-4);
     width: 100%;
     ul {
       min-height: 160px;
@@ -167,21 +175,26 @@
     ul::-webkit-scrollbar {
       display: none;
     }
+    > .arco-btn {
+      width: 100% !important;
+      height: 24px !important;
+    }
   }
+
   .layer-item {
     display: flex;
     width: 100%;
     list-style: none;
-    border-bottom: 1px solid #ccc;
+    border-bottom: 1px solid var(--color-border-4);
     &.title {
       font-weight: bold;
       div {
-        background: var(--color-fill-3);
+        background: var(--color-fill-4);
       }
     }
     > div {
       height: 24px;
-      border-right: 1px solid #ccc;
+      border-right: 1px solid var(--color-border-4);
       text-align: center;
       line-height: 24px;
       font-size: 12px;

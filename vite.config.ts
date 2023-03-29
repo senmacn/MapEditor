@@ -1,9 +1,15 @@
-import { defineConfig } from 'vite';
+import { defineConfig, splitVendorChunkPlugin } from 'vite';
 import vue from '@vitejs/plugin-vue';
 import { createStyleImportPlugin } from 'vite-plugin-style-import';
+import path from 'path';
 
 export default defineConfig({
   mode: 'development',
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, 'src')
+    }
+  },
   css: {
     preprocessorOptions: {
       less: {
@@ -43,5 +49,6 @@ export default defineConfig({
         },
       ],
     }),
+    splitVendorChunkPlugin(),
   ],
 });

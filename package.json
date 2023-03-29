@@ -19,6 +19,7 @@
   },
   "devDependencies": {
     "@types/lodash-es": "^4.17.7",
+    "@types/node": "^18.15.10",
     "@vitejs/plugin-vue": "^4.0.0",
     "consola": "^2.15.3",
     "less": "^4.1.3",
