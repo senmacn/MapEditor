@@ -103,10 +103,7 @@
 
 <script setup lang="ts">
   import { ref, watch } from 'vue';
-  import AButton from '@arco-design/web-vue/es/button';
-  import AUpload from '@arco-design/web-vue/es/upload';
   import ATextArea from '@arco-design/web-vue/es/textarea';
-  import ATooltip from '@arco-design/web-vue/es/tooltip';
   import { Row as ARow, Col as ACol } from '@arco-design/web-vue/es/grid';
   import ASelect, { Option as AOption } from '@arco-design/web-vue/es/select';
   import ControlledSlider, { useControllerSlider } from '../../components/controlled-slider';

@@ -17,7 +17,7 @@
   import controller, { CanvasOption } from './common/canvas-controller';
   import * as canvasUtil from './common/canvas-util';
   import useCanvas from './hooks/useCanvas';
-  import { onCanvasRevertEvent, onCanvasRevokeEvent, onPersistLineEvent } from './common/event';
+  import { onCanvasRedoEvent, onCanvasUndoEvent, onPersistLineEvent } from './common/event';
 
   const props = defineProps({
     layer: {
@@ -64,7 +64,6 @@
     }) as CanvasRenderingContext2D;
     ctxRef.setupCanvas(ctx, configRef);
     // drawCanvas();
-    ctxRef.save();
 
     props.layer.ctx = ctxRef;
     setUpState = true;
@@ -185,14 +184,14 @@
   }
 
   // 监听广播
-  onCanvasRevertEvent(() => {
+  onCanvasRedoEvent(() => {
     if (props.layer?.hot) {
-      ctxRef.revert();
+      ctxRef.redo();
     }
   });
-  onCanvasRevokeEvent(() => {
+  onCanvasUndoEvent(() => {
     if (props.layer?.hot) {
-      ctxRef.revoke();
+      ctxRef.undo();
     }
   });
   onPersistLineEvent((_, payload) => {
@@ -211,9 +210,10 @@
   );
 
   function onKeyBoardDown(e: KeyboardEvent) {
-    if (e.ctrlKey && e.key === 'z') {
+    if (e.ctrlKey) {
       e.stopPropagation();
-      ctxRef.revoke();
+      if (e.key === 'z') ctxRef.undo();
+      if (e.key === 'y') ctxRef.redo();
     }
   }
 

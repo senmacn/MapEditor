@@ -25,7 +25,11 @@ declare global {
     [key: string]: T;
   };
   declare type Point = [number, number];
-  declare type PointA = { x: number, y: number };
+  declare type PointA = { x: number; y: number };
+
+  declare global {
+    import '@arco-design/web-vue/es/components';
+  }
 }
 
 declare module 'vue' {

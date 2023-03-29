@@ -11,7 +11,6 @@
 
 <script lang="ts" setup>
   import { PropType } from 'vue';
-  import ASpin from '@arco-design/web-vue/es/spin';
   import { SizeEnum } from './typing';
 
   const props = defineProps({

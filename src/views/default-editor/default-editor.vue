@@ -33,7 +33,6 @@
 
 <script setup lang="ts">
   import { computed, provide, reactive, ref, watch } from 'vue';
-  import AButton from '@arco-design/web-vue/es/button';
   import defaultCanvas from './default-canvas.vue';
   import baseCanvas from './base-canvas.vue';
   import maskCanvas from './mask-canvas.vue';

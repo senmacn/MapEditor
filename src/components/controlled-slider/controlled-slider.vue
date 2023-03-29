@@ -25,8 +25,6 @@
 </template>
 
 <script setup lang="ts">
-  import ASlider from '@arco-design/web-vue/es/slider';
-  import AButton from '@arco-design/web-vue/es/button';
   import { Ref, ref, unref, watch } from 'vue';
   import { ControlledSliderAction, ControlledSliderProps } from './types';
 
