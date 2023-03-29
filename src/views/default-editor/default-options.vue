@@ -36,11 +36,6 @@
         <layer-list></layer-list>
       </a-col>
     </a-row>
-    <!-- <a-row>
-      <a-col :span="22" :offset="2">
-        <controlled-slider @register="registerControllerSlider"></controlled-slider>
-      </a-col>
-    </a-row> -->
     <a-row class="option-group">
       <a-col class="row-label" :span="4">
         <span class="group-label">功能： </span>
@@ -63,9 +58,7 @@
           直线
         </a-button>
       </a-col>
-    </a-row>
-    <a-row>
-      <a-col :span="6" :offset="4">
+      <a-col :span="6">
         <a-button
           :class="[controller.getState() === CanvasOption.FollowMouseClear && 'actived']"
           @click="() => handleChangeOptionState(CanvasOption.FollowMouseClear)"
@@ -74,7 +67,9 @@
           橡皮
         </a-button>
       </a-col>
-      <a-col :span="6">
+    </a-row>
+    <a-row>
+      <a-col :span="6" :offset="4">
         <a-button @click="emitCanvasUndoEvent">
           <icon-undo />
           撤销
@@ -117,6 +112,12 @@
         />
       </a-col>
     </a-row>
+    <a-row>
+      <a-col :span="20" :offset="4">
+        比例：
+        <controlled-slider @register="registerControllerSlider"></controlled-slider>
+      </a-col>
+    </a-row>
   </div>
 </template>
 
@@ -125,7 +126,7 @@
   import modal from '@arco-design/web-vue/es/modal';
   import ATextArea from '@arco-design/web-vue/es/textarea';
   import message from '@arco-design/web-vue/es/message';
-  // import ControlledSlider, { useControllerSlider } from '../../components/controlled-slider';
+  import ControlledSlider, { useControllerSlider } from '../../components/controlled-slider';
   import controller, { CanvasOption } from './common/canvas-controller';
   import { emitCanvasUndoEvent, emitCanvasRedoEvent } from './common/event';
   import { useCanvasConfigContext } from './hooks/useCanvasConfig';
@@ -139,7 +140,6 @@
   const emit = defineEmits<{
     (e: 'update-style', key: string, value: string): void;
     (e: 'update-config', key: string, value: any): void;
-    (e: 'update:layers', layers: Array<Layer>): void;
   }>();
 
   const positionsRef = ref<any>('');
@@ -200,11 +200,11 @@
     controller.setState(state);
   }
 
-  // const [registerControllerSlider] = useControllerSlider({
-  //   onChange: function (val) {
-  //     emit('update-config', 'zoom', val);
-  //   },
-  // });
+  const [registerControllerSlider] = useControllerSlider({
+    onChange: function (val) {
+      emit('update-config', 'zoom', val);
+    },
+  });
 
   const pickrInstance = useColorPicker('#pickr');
   const backGroundPickrInstance = useColorPicker('#backgroundPickr');

@@ -1,8 +1,9 @@
 <template>
   <canvas
     id="maskCanvas"
-    width="2000"
-    height="2000"
+    width="1000"
+    height="1000"
+    :style="canvasUtil.getZoomChangeStyle(configRef.zoom)"
     @mousemove="handleMouseMove"
     @mouseup.stop="handleMouseUp"
     @mousedown.stop="handleMouseDown"
@@ -16,9 +17,12 @@
   import { getPos } from './common/canvas-util';
   import { onMounted } from 'vue';
   import { emitPersistLineEvent } from './common/event';
+  import * as canvasUtil from './common/canvas-util';
+  import { useCanvasConfigContext } from './hooks/useCanvasConfig';
 
   // canvas相关
   const ctxRef = useCanvas();
+  const configRef = useCanvasConfigContext();
   let beginPoint: PointA = { x: 0, y: 0 };
   let endPoint: PointA = { x: 0, y: 0 };
 

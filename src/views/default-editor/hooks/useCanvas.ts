@@ -112,7 +112,6 @@ export class ExtendCanvas implements CanvasExtendImp {
     ctx.lineCap = 'round';
     ctx.quadraticCurveTo(controlPoint.x, controlPoint.y, endPoint.x, endPoint.y);
     ctx.stroke();
-    ctx.closePath();
   }
   // 普通直线
   drawLine(beginPoint: PointA, endPoint: PointA) {
@@ -123,7 +122,6 @@ export class ExtendCanvas implements CanvasExtendImp {
     ctx.moveTo(beginPoint.x, beginPoint.y);
     ctx.lineTo(endPoint.x, endPoint.y);
     ctx.stroke();
-    ctx.closePath();
   }
   // 画虚线
   drawDashLine(beginPoint: PointA, endPoint: PointA) {
@@ -135,7 +133,6 @@ export class ExtendCanvas implements CanvasExtendImp {
     ctx.moveTo(beginPoint.x, beginPoint.y);
     ctx.lineTo(endPoint.x, endPoint.y);
     ctx.stroke();
-    ctx.closePath();
   }
   getImageData() {
     const ctx = this.getCanvas();

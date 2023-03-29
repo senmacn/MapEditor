@@ -6,10 +6,12 @@ export function getDistance(p1: PointA, p2: PointA): number {
   return Math.sqrt(Math.pow(p1.x - p2.x, 2) + Math.pow(p1.y - p2.y, 2));
 }
 
+// 获取点的key 'x-y'
 export function getPosKey(point: PointA): string {
   return point.x + '-' + point.y;
 }
 
+// 两点是否重合
 export function isPointOverlap(p1: PointA, p2: PointA): boolean {
   return p1.x - p2.x === 0 && p1.y - p2.y === 0;
 }
@@ -31,7 +33,7 @@ export function getPositionByRGBAColor(
       const pointStartIndex = xIndex * 4 + yIndex * 4 * imageData.width;
       if (
         [0, 1, 2].every(
-          (index) => Math.abs(rgba[index] - imageData.data[pointStartIndex + index]) < 3,
+          (index) => Math.abs(rgba[index] - imageData.data[pointStartIndex + index]) <= 1,
         )
       ) {
         positions.push([xIndex, yIndex]);
@@ -55,19 +57,27 @@ export function getPosition(imageData: ImageData) {
   return positions;
 }
 
+/**
+ * 获取可以自动连接的端点（根据线段宽度，判断的范围不同）
+ * @param imageData 画布信息
+ * @param point 点
+ * @param lineWidth 线段宽度
+ * @returns
+ */
 export function getConnectEndPoint(imageData: ImageData, point: PointA, lineWidth: number) {
   const endPoints: PointA[] = [];
   const data = imageData.data;
-  const startX = point.x - 15 > 0 ? point.x - 15 : 0,
-    startY = point.y - 15 > 0 ? point.y - 15 : 15,
-    endX = point.x + 15,
-    endY = point.y + 15;
+  const checkLength = Math.floor(15 + lineWidth / 2);
+  const startX = point.x - checkLength > 0 ? point.x - checkLength : 0,
+    startY = point.y - checkLength > 0 ? point.y - checkLength : checkLength,
+    endX = point.x + checkLength,
+    endY = point.y + checkLength;
   for (let yIndex = startY; yIndex <= endY; yIndex++) {
     for (let xIndex = startX; xIndex <= endX; xIndex++) {
       if (startX == xIndex || startY == yIndex) continue;
       const pointStartIndex = xIndex * 4 + yIndex * 4 * imageData.width;
       if (_isPointInData(imageData.data, pointStartIndex)) {
-        // 查看九宫格内是否只有一个连接点(是否是端点)
+        // 查看九宫格内是否只有X个连接点(是否是端点)
         let connectPointCount = 0;
         // [x - 1, y -1]
         const leftTopStartIndex = pointStartIndex - 4 - 4 * imageData.width;
@@ -137,4 +147,9 @@ export function getConnectEndPoint(imageData: ImageData, point: PointA, lineWidt
     return minDistancePoint;
   }
   return null;
+}
+
+// TODO: 1000 换成width
+export function getZoomChangeStyle(zoom: number) {
+  return `transform: scale(${zoom});left: ${500 * (zoom - 1)}px;top: ${500 * (zoom - 1)}px`;
 }
