@@ -28,12 +28,11 @@
   import { Ref, ref, unref, watch } from 'vue';
   import { ControlledSliderAction, ControlledSliderProps } from './types';
 
-  const VALUES = [0.25, 0.5, 1, 1.25, 1.5, 2];
+  const VALUES = [0.25, 0.5, 1, 1.5, 2];
   const VALUE_MARKS = {
     0.25: '25%',
     0.5: '50%',
     1: '100%',
-    1.25: '125%',
     1.5: '150%',
     2: '200%',
   };
@@ -112,15 +111,16 @@
     height: 32px;
   }
   .slider-value {
-    width: 36px;
-    font-size: 12px;
+    width: 38px;
+    font-size: 8px;
     font-weight: bold;
   }
   .arco-slider {
     width: 100%;
-    padding: 0 5px;
     &.arco-slider-with-marks {
       margin-bottom: 12px;
+      padding-right: 16px;
+      padding-left: 10px;
     }
 
     .arco-slider-marks .arco-slider-mark {

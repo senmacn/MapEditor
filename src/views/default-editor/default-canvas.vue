@@ -1,8 +1,9 @@
 <template>
   <canvas
     :id="layer?.uuid"
-    width="2000"
-    height="2000"
+    width="1000"
+    height="1000"
+    :style="styleRef"
     @mousemove.stop="handleMouseMove"
     @mouseup.stop="handleMouseUp"
     @mousedown.stop="handleMouseDown"
@@ -12,7 +13,7 @@
 
 <script setup lang="ts">
   import type { Layer } from './common/types';
-  import { onBeforeUnmount, onMounted, watch } from 'vue';
+  import { onBeforeUnmount, onMounted, ref, watch } from 'vue';
   import { useCanvasConfigContext } from './hooks/useCanvasConfig';
   import controller, { CanvasOption } from './common/canvas-controller';
   import * as canvasUtil from './common/canvas-util';
@@ -177,8 +178,6 @@
       configRef.lineWidth,
     );
     if (endPoint != null) {
-      console.log('endPoint', endPoint);
-
       ctxRef.drawLine(curPoint, endPoint);
     }
   }
@@ -201,11 +200,14 @@
     ctxRef.save();
   });
 
-  // 配置修改时，重置canvas
+  // zoom配置修改时，修改canvas大小
+  const styleRef = ref('');
   watch(
     () => configRef.zoom,
     () => {
-      // drawCanvas();
+      if (configRef.zoom){
+        styleRef.value = canvasUtil.getZoomChangeStyle(configRef.zoom)
+      }
     },
   );
 
@@ -216,7 +218,6 @@
       if (e.key === 'y') ctxRef.redo();
     }
   }
-
   // 挂载时初始化
   onMounted(() => {
     setup();

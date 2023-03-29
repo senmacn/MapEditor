@@ -1,5 +1,10 @@
 <template>
-  <canvas :id="layer?.uuid" width="2000" height="2000"></canvas>
+  <canvas
+    :id="layer?.uuid"
+    :style="canvasUtil.getZoomChangeStyle(configRef.zoom)"
+    width="1000"
+    height="1000"
+  ></canvas>
 </template>
 
 <script setup lang="ts">
@@ -7,6 +12,7 @@
   import { onMounted, watch } from 'vue';
   import { useCanvasConfigContext } from './hooks/useCanvasConfig';
   import useCanvas from './hooks/useCanvas';
+  import * as canvasUtil from './common/canvas-util';
 
   const props = defineProps({
     layer: {
@@ -58,24 +64,20 @@
     let CanvasWidth = ctxRef.canvas.width;
     let CanvasHeight = ctxRef.canvas.height;
     // 遍历的方式初始化网格
+    ctxRef.beginPath();
+    ctxRef.strokeStyle = '#ccc';
+    ctxRef.lineWidth = 1;
     let xLineTotals = Math.floor(CanvasWidth / 12); // 计算需要绘画的x轴条数
     for (let i = 0; i < xLineTotals; i++) {
-      ctxRef.beginPath();
       ctxRef.moveTo(0, 12 * i);
       ctxRef.lineTo(CanvasWidth, 12 * i);
-      ctxRef.strokeStyle = '#ccc';
-      ctxRef.lineWidth = 1;
-      ctxRef.stroke();
     }
     let yLineTotals = Math.floor(CanvasHeight / 12);
     for (let j = 0; j < yLineTotals; j++) {
-      ctxRef.beginPath();
       ctxRef.moveTo(12 * j, 0);
       ctxRef.lineTo(12 * j, CanvasHeight);
-      ctxRef.strokeStyle = '#ccc';
-      ctxRef.lineWidth = 1;
-      ctxRef.stroke();
     }
+    ctxRef.stroke();
 
     props.layer.ctx = ctxRef;
     setUpState = true;

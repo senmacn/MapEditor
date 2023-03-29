@@ -29,6 +29,6 @@ export interface Layer {
   visible: boolean;
   map: string | ArrayBuffer | null;
   hot: boolean;
-  ctx?: CanvasInstanceImp;
+  ctx?: CanvasExtendImp;
   keep?: boolean;
 }

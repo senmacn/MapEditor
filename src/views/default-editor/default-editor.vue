@@ -22,8 +22,7 @@
         v-else
         @click="() => changeHideState(false)"
       />
-      <map-options
-        :baseLayer="baseLayer"
+      <default-options
         @update-style="handleUpdateStyle"
         @update-config="handleUpdateConfig"
       />
@@ -36,7 +35,7 @@
   import defaultCanvas from './default-canvas.vue';
   import baseCanvas from './base-canvas.vue';
   import maskCanvas from './mask-canvas.vue';
-  import mapOptions from './default-options.vue';
+  import defaultOptions from './default-options.vue';
   import { createCanvasConfigContext } from './hooks/useCanvasConfig';
   import { getRandomDomId } from '../../utils/uuid';
   import controller, { CanvasOption } from './common/canvas-controller';
