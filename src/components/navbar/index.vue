@@ -5,13 +5,15 @@
       <span>地图编辑器</span>
     </div>
     <div class="arco-nav-right">
-      <div>
+      <a-space size="large">
         <a-select v-model="routerRef">
-          <a-option :value="RouterEnum.GridEditor"><router-link to="/grid-editor"> 网格编辑器 </router-link></a-option>
-          <a-option :value="RouterEnum.DefaultEditor"><router-link to="/default-editor"> 默认编辑器 </router-link></a-option>
+          <!-- <a-option :value="RouterEnum.GridEditor">
+            <router-link to="/grid-editor"> 网格编辑器 </router-link>
+          </a-option> -->
+          <a-option :value="RouterEnum.DefaultEditor">
+            <router-link to="/default-editor"> 默认编辑器 </router-link>
+          </a-option>
         </a-select>
-      </div>
-      <div>
         <a-tool-tip
           content="
             全屏
@@ -24,21 +26,25 @@
             </template>
           </a-button>
         </a-tool-tip>
-      </div>
+        <a-avatar :size="36" :image-url="defaultAvatar"></a-avatar>
+      </a-space>
     </div>
   </nav>
 </template>
 
 <script setup lang="ts">
   import AToolTip from '@arco-design/web-vue/es/tooltip';
+  import AAvatar from '@arco-design/web-vue/es/avatar';
+  import ASpace from '@arco-design/web-vue/es/space';
   import ASelect, { Option as AOption } from '@arco-design/web-vue/es/select';
   import AButton from '@arco-design/web-vue/es/button';
   import { useFullscreen } from '@vueuse/core';
   import { onMounted, ref } from 'vue';
+  import defaultAvatar from '@/assets/images/defaultAvatar.png';
 
   enum RouterEnum {
-    GridEditor = "grid-editor",
-    DefaultEditor = "default-editor"
+    GridEditor = 'grid-editor',
+    DefaultEditor = 'default-editor',
   }
 
   const { isFullscreen, toggle: toggleFullScreen } = useFullscreen();

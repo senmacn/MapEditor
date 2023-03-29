@@ -6,7 +6,7 @@ const routes: RouteRecordRaw[] = [
   {
     name: 'home',
     path: '/',
-    redirect: '/grid-editor',
+    redirect: '/default-editor',
   },
   {
     name: 'grid-editor',

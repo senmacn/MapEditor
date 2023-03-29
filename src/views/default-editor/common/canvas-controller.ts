@@ -1,4 +1,5 @@
 import { ref } from 'vue';
+import cursor from '@/assets/ico/cursor.ico';
 
 export enum CanvasOption {
   FollowMouse,
@@ -8,6 +9,7 @@ export enum CanvasOption {
 }
 
 function setCursor(cursor: string) {
+  // 替换成用class实现
   const scrollElement = document.getElementsByClassName('scroller')[0] as HTMLElement;
   scrollElement.style.cursor = cursor;
 }
@@ -15,15 +17,14 @@ function setCursor(cursor: string) {
 class CanvasStateController {
   private state = ref(CanvasOption.FollowMouse);
   private active = false;
-  constructor() {
-  }
+  constructor() {}
   setState(option: CanvasOption) {
     if (option === CanvasOption.FollowMouse) {
-      setCursor('url(./src/assets/ico/cursor.ico), pointer');
+      setCursor(`url(${cursor}, pointer`);
     } else if (option === CanvasOption.DrawLine) {
       setCursor('crosshair');
     } else {
-      setCursor('url(./src/assets/ico/eraser.svg), pointer');
+      setCursor('pointer');
     }
     this.state.value = option;
   }

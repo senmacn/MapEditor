@@ -55,7 +55,7 @@ export function getPosition(imageData: ImageData) {
   return positions;
 }
 
-export function getConnectEndPoint(imageData: ImageData, point: PointA) {
+export function getConnectEndPoint(imageData: ImageData, point: PointA, lineWidth: number) {
   const endPoints: PointA[] = [];
   const data = imageData.data;
   const startX = point.x - 15 > 0 ? point.x - 15 : 0,
@@ -118,7 +118,7 @@ export function getConnectEndPoint(imageData: ImageData, point: PointA) {
           _isPointInData(data, bottomStartIndex) &&
           ++connectPointCount;
         // canvas 在两个像素间绘制线时，由于无法绘制0.5px，1px直线会补全变为2px
-        if (connectPointCount <= 2) {
+        if (connectPointCount <= lineWidth + 2) {
           endPoints.push({ x: xIndex, y: yIndex });
         }
       }

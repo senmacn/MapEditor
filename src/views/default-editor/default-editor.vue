@@ -3,7 +3,7 @@
     <div :class="hideOptionRef ? 'content-box full-screen' : 'content-box'">
       <div class="scroller">
         <base-canvas :layer="baseLayer" v-show="baseLayer.visible" />
-        <template v-for="layer in extendLayersRef">
+        <template v-for="(layer, index) in extendLayersRef" :key="layer.uuid">
           <default-canvas :layer="layer" v-show="layer.visible" />
         </template>
         <mask-canvas v-if="visibleRef" />
@@ -49,6 +49,7 @@
     name: '背景图层',
     level: 0,
     visible: true,
+    hot: false,
     map: null,
     keep: true,
   });
@@ -59,6 +60,7 @@
       uuid: getRandomDomId(),
       name: '默认图层',
       level: 1,
+      hot: true,
       visible: true,
       map: null,
     },
@@ -71,6 +73,7 @@
     style: {},
     zoom: 1,
     color: 'red',
+    lineWidth: 1,
     density: 1,
     autoConnect: true,
   });
@@ -108,7 +111,7 @@
   }
   .content-box {
     flex: 1;
-    border: 1px solid #cccccc;
+    border: 1px dashed #cccccc;
     margin: 10px;
     max-width: calc(100vw - 484px);
     padding: 10px;
@@ -129,7 +132,7 @@
     width: 400px;
     margin: 10px;
     padding: 10px;
-    border: 1px solid #cccccc;
+    border: 1px dashed #cccccc;
     &.hide {
       width: 0;
       position: absolute;
@@ -146,7 +149,6 @@
     right: 406px;
   }
   .option-control-left {
-    position: absolute;
     right: 495px;
   }
 </style>
