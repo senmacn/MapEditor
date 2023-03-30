@@ -49,7 +49,6 @@
           <a-upload
             @beforeUpload="(file) => handleUploadFile(file, index)"
             accept=".png,.jpg"
-            v-if="layer.keep"
           >
             <template #upload-button>
               <a-tooltip content="上传底图">

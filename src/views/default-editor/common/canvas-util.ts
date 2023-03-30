@@ -151,5 +151,9 @@ export function getConnectEndPoint(imageData: ImageData, point: PointA, lineWidt
 
 // TODO: 1000 换成width
 export function getZoomChangeStyle(zoom: number) {
-  return `transform: scale(${zoom});left: ${500 * (zoom - 1)}px;top: ${500 * (zoom - 1)}px`;
+  return {
+    transform: 'scale(' + zoom + ')',
+    left: 500 * (zoom - 1) + 'px',
+    top: 500 * (zoom - 1) + 'px',
+  };
 }
