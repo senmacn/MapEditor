@@ -3,7 +3,6 @@
     :id="layer?.uuid"
     width="1000"
     height="1000"
-    :style="styleRef"
     @mousemove.stop="handleMouseMove"
     @mouseup.stop="handleMouseUp"
     @mousedown.stop="handleMouseDown"
@@ -30,9 +29,9 @@
     () => props.layer?.map,
     () => {
       if (props.layer) {
-        document
-          .getElementById(props.layer?.uuid)
-          ?.setAttribute('style', 'background-image: url(' + props.layer?.map + ');');
+        const layer = document.getElementById(props.layer?.uuid);
+        if (!layer) return;
+        layer.style.setProperty('background-image', 'url(' + props.layer?.map + ')');
       }
     },
   );
@@ -201,12 +200,16 @@
   });
 
   // zoom配置修改时，修改canvas大小
-  const styleRef = ref('');
   watch(
     () => configRef.zoom,
     () => {
-      if (configRef.zoom){
-        styleRef.value = canvasUtil.getZoomChangeStyle(configRef.zoom)
+      if (configRef.zoom) {
+        const layer = document.getElementById(props.layer?.uuid || '');
+        if (!layer) return;
+        const style = canvasUtil.getZoomChangeStyle(configRef.zoom);
+        layer.style.setProperty('transform', style.transform);
+        layer.style.setProperty('top', style.top);
+        layer.style.setProperty('left', style.left);
       }
     },
   );

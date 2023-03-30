@@ -108,7 +108,7 @@
           :precision="1"
           :default-value="configRef.lineWidth"
           :formatter="(value: number) => Number(value).toFixed(0)"
-          @change="(num: number) => emit('update-config', 'lineWidth', num)"
+          @change="(num) => emit('update-config', 'lineWidth', num)"
         />
       </a-col>
     </a-row>

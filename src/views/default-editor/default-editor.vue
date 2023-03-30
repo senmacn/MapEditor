@@ -1,9 +1,9 @@
 <template>
   <div class="map-editor">
     <div :class="hideOptionRef ? 'content-box full-screen' : 'content-box'">
-      <div class="scroller">
+      <div class="scroller" @contextmenu="handleWrapperContextmenu">
         <base-canvas :layer="baseLayer" v-show="baseLayer.visible" />
-        <template v-for="(layer, index) in extendLayersRef" :key="layer.uuid">
+        <template v-for="layer in extendLayersRef" :key="layer.uuid">
           <default-canvas :layer="layer" v-show="layer.visible" />
         </template>
         <mask-canvas v-if="visibleRef" />
@@ -22,10 +22,7 @@
         v-else
         @click="() => changeHideState(false)"
       />
-      <default-options
-        @update-style="handleUpdateStyle"
-        @update-config="handleUpdateConfig"
-      />
+      <default-options @update-style="handleUpdateStyle" @update-config="handleUpdateConfig" />
     </div>
   </div>
 </template>
@@ -98,6 +95,12 @@
   );
 
   const [hideOptionRef, changeHideState] = useToggle(false);
+
+  function handleWrapperContextmenu(e: MouseEvent) {
+    if (e.target && (e.target as any).nodeName == 'CANVAS') {
+
+    }
+  }
 </script>
 
 <style lang="less">
