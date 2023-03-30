@@ -4,12 +4,10 @@
     <div class="arco-vue-body">
       <router-view />
     </div>
-    <!-- <a-back-top :style="{ right: '70px', bottom: '80px' }"> </a-back-top> -->
   </div>
 </template>
 
 <script setup lang="ts">
-  // import ABackTop from '@arco-design/web-vue/es/back-top';
   import Navbar from './components/navbar/index.vue';
   import modal from '@arco-design/web-vue/es/modal';
   import { onBeforeUnmount, onMounted } from 'vue';

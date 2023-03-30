@@ -1,7 +1,7 @@
 <template>
   <div class="map-option">
     <div class="position">
-      <a-text-area v-model="positionsRef"></a-text-area>
+      <a-textarea v-model="positionsRef"></a-textarea>
     </div>
     <a-row>
       <a-col :span="4">
@@ -103,9 +103,6 @@
 
 <script setup lang="ts">
   import { ref, watch } from 'vue';
-  import ATextArea from '@arco-design/web-vue/es/textarea';
-  import { Row as ARow, Col as ACol } from '@arco-design/web-vue/es/grid';
-  import ASelect, { Option as AOption } from '@arco-design/web-vue/es/select';
   import ControlledSlider, { useControllerSlider } from '../../components/controlled-slider';
   import { useCanvasConfigContext } from './context/useCanvasConfig';
   import controller, { CanvasOption } from './common/canvas-options';
