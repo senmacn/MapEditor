@@ -1,7 +1,7 @@
 <template>
   <div class="default-option">
     <div class="position">
-      <a-text-area v-model="positionsRef"></a-text-area>
+      <a-textarea v-model="positionsRef"></a-textarea>
     </div>
     <a-row class="option-group">
       <a-col class="row-label" :span="4">
@@ -89,7 +89,7 @@
           <span>自动连接: </span>
           <a-switch
             :default-checked="configRef.autoConnect"
-            @change="(value) => emit('update-config', 'autoConnect', value)"
+            @change="(value: any) => emit('update-config', 'autoConnect', value)"
           />
         </div>
       </a-col>
@@ -108,7 +108,7 @@
           :precision="1"
           :default-value="configRef.lineWidth"
           :formatter="(value: number) => Number(value).toFixed(0)"
-          @change="(num) => emit('update-config', 'lineWidth', num)"
+          @change="(num: number) => emit('update-config', 'lineWidth', num)"
         />
       </a-col>
     </a-row>
@@ -124,7 +124,6 @@
 <script setup lang="ts">
   import { Ref, inject, onMounted, ref, unref } from 'vue';
   import modal from '@arco-design/web-vue/es/modal';
-  import ATextArea from '@arco-design/web-vue/es/textarea';
   import message from '@arco-design/web-vue/es/message';
   import ControlledSlider, { useControllerSlider } from '../../components/controlled-slider';
   import controller, { CanvasOption } from './common/canvas-controller';

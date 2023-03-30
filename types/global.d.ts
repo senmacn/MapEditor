@@ -29,6 +29,8 @@ declare global {
 
   declare global {
     import '@arco-design/web-vue/es/components';
+    import './components';
+    import './auto-import';
   }
 }
 
