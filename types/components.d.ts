@@ -27,6 +27,7 @@ declare module '@vue/runtime-core' {
     AUpload: typeof import('@arco-design/web-vue')['Upload']
     ControlledSlider: typeof import('./../src/components/controlled-slider/controlled-slider.vue')['default']
     IconDelete: typeof import('@arco-design/web-vue/es/icon')['IconDelete']
+    IconDragArrow: typeof import('@arco-design/web-vue/es/icon')['IconDragArrow']
     IconEdit: typeof import('@arco-design/web-vue/es/icon')['IconEdit']
     IconEraser: typeof import('@arco-design/web-vue/es/icon')['IconEraser']
     IconEye: typeof import('@arco-design/web-vue/es/icon')['IconEye']

@@ -2,14 +2,14 @@
   <div class="layer-list">
     <div class="layer-item title">
       <div class="layer-index">序号</div>
-      <div class="layer-name">名称</div>
-      <div class="layer-option">操作</div>
+      <div class="layer-name"> 名称 </div>
+      <div class="layer-option"> 操作 </div>
     </div>
-    <transition-group name="list" tag="ul">
-      <li class="layer-item" v-for="(layer, index) in layersRef" :key="layer.uuid">
+    <transition-group name="list" tag="ul" class="arco-list-content">
+      <li class="layer-item arco-list-item" v-for="(layer, index) in layersRef" :key="layer.uuid">
         <div
           class="layer-index"
-          :draggable="!layer.keep"
+          draggable
           @dragenter="dragenter($event, index)"
           @dragover="dragover($event, index)"
           @dragstart="dragstart(index)"
@@ -18,14 +18,13 @@
           {{ index + 1 }}
         </div>
         <div class="layer-name">
-          <span v-if="layer.keep">{{ layer.name }}<icon-lock /></span>
-          <a-input v-else type="text" v-model="layer.name" />
+          <a-input type="text" v-model="layer.name" />
         </div>
         <div class="layer-option">
           <a-tooltip content="隐藏图层">
             <a-button
               type="text"
-              v-if="layer.visible && !layer.keep"
+              v-if="layer.visible"
               status="success"
               @click="() => changeLayerVisible(layer, false)"
             >
@@ -38,7 +37,7 @@
             <a-button
               type="text"
               status="normal"
-              v-if="!layer.visible && !layer.keep"
+              v-if="!layer.visible"
               @click="() => changeLayerVisible(layer, true)"
             >
               <template #icon>
@@ -46,10 +45,7 @@
               </template>
             </a-button>
           </a-tooltip>
-          <a-upload
-            @beforeUpload="(file) => handleUploadFile(file, index)"
-            accept=".png,.jpg"
-          >
+          <a-upload @beforeUpload="(file) => handleUploadFile(file, index)" accept=".png,.jpg">
             <template #upload-button>
               <a-tooltip content="上传底图">
                 <a-button type="text" :class="layer.map ? 'success' : 'none'">
@@ -60,12 +56,7 @@
               </a-tooltip>
             </template>
           </a-upload>
-          <a-button
-            type="text"
-            status="warning"
-            @click="() => handleLayerDelete(index)"
-            v-if="!layer.keep"
-          >
+          <a-button type="text" status="warning" @click="() => handleLayerDelete(index)">
             <template #icon>
               <icon-delete />
             </template>
@@ -137,6 +128,7 @@
       hot: true,
       visible: true,
       map: null,
+      areas: [],
     });
     refreshHot();
   }
@@ -166,7 +158,7 @@
 
 <style lang="less">
   .layer-list {
-    border: 1px solid var(--color-border-4);
+    border: 1px solid var(--color-border-3);
     width: 100%;
     ul {
       min-height: 160px;
@@ -183,21 +175,24 @@
       height: 24px !important;
     }
   }
+  .arco-icon {
+    font-size: 14px;
+  }
 
   .layer-item {
     display: flex;
     width: 100%;
     list-style: none;
-    border-bottom: 1px solid var(--color-border-4);
+    border-bottom: 1px solid var(--color-border-2);
     &.title {
       font-weight: bold;
       div {
-        background: var(--color-fill-4);
+        background: var(--color-fill-2);
       }
     }
     > div {
       height: 24px;
-      border-right: 1px solid var(--color-border-4);
+      border-right: 1px solid var(--color-border-2);
       text-align: center;
       line-height: 24px;
       font-size: 12px;
@@ -220,9 +215,6 @@
         font-size: 12px;
         line-height: 24px;
       }
-      .arco-icon {
-        font-size: 14px;
-      }
     }
     .layer-option {
       width: 120px;
@@ -244,6 +236,7 @@
     }
     .arco-input-wrapper {
       height: 100%;
+      background-color: rgb(250, 250, 250);
     }
     button {
       width: 100%;

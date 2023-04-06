@@ -15,11 +15,14 @@
     "@vue/runtime-core": "^3.2.47",
     "@vue/shared": "^3.2.47",
     "@vueuse/core": "^9.13.0",
+    "d3-quadtree": "^3.0.1",
     "lodash-es": "^4.17.21",
+    "pinia": "^2.0.33",
     "vue": "^3.2.45",
     "vue-router": "4"
   },
   "devDependencies": {
+    "@types/d3-quadtree": "^3.0.2",
     "@types/lodash-es": "^4.17.7",
     "@types/node": "^18.15.10",
     "@vitejs/plugin-vue": "^4.0.0",

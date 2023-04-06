@@ -26,7 +26,7 @@ export class CanvasUtil {
     return getTouchedPosBetweenTwoPoints(from, to);
   }
   // 获取点击位置的网格
-  getRect(xGrid: number, yGrid: number): [number, number, number, number] {
+  getRect(xGrid: number, yGrid: number): Box{
     return [
       xGrid * this.config.gridSize + 1,
       yGrid * this.config.gridSize + 1,

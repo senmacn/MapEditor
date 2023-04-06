@@ -24,6 +24,7 @@
     "removeComments": true,
     "paths": {
       "@/*": ["src/*"],
+      "#/*": ["types/*"],
     }
   },
   "include": [

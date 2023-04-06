@@ -11,9 +11,15 @@ declare global {
 
   declare type Fn = () => void;
 
-  export type Writable<T> = {
+  declare type Writable<T> = {
     -readonly [P in keyof T]: T[P];
   };
+
+  declare type Indexable<T> = {
+    [key: string]: T;
+  };
+
+  declare type Mutable<T> = { -readonly [P in keyof T]: T[P] };
 
   declare type Nullable<T> = T | null;
   declare type NonNullable<T> = T extends null | undefined ? never : T;
@@ -24,14 +30,15 @@ declare global {
   declare type Indexable<T = any> = {
     [key: string]: T;
   };
+
   declare type Point = [number, number];
   declare type PointA = { x: number; y: number };
 
-  declare global {
-    import '@arco-design/web-vue/es/components';
-    import './components';
-    import './auto-import';
-  }
+  declare type Box = [number, number, number, number];
+
+  import '@arco-design/web-vue/es/components';
+  import './components';
+  import './auto-import';
 }
 
 declare module 'vue' {

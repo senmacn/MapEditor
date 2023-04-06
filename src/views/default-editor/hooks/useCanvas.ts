@@ -1,18 +1,13 @@
 import { isFunction } from 'lodash-es';
-import { CanvasConfig, CanvasExtendImp } from '../common/types';
+import { CanvasExtendImp } from '../common/types';
+import message from '@arco-design/web-vue/es/message';
+import { useEditorConfig } from '@/store/modules/editor-config';
 
 export type CanvasInstance = CanvasExtendImp & CanvasRenderingContext2D;
 
 export class ExtendCanvas implements CanvasExtendImp {
   private canvasInstance: CanvasRenderingContext2D | null = null;
-  private canvasConfig: CanvasConfig = {
-    style: {},
-    zoom: 1,
-    lineWidth: 1,
-    color: 'red',
-    density: 1,
-    autoConnect: true,
-  };
+  private canvasConfig = useEditorConfig();
   // 橡皮擦用
   private lastPoint: PointA | null = null;
   // canvas 存储历史用于保存、撤销、还原操作
@@ -22,11 +17,8 @@ export class ExtendCanvas implements CanvasExtendImp {
     max: -1,
   };
   constructor() {}
-  setupCanvas(canvasInstance: CanvasRenderingContext2D, config?: CanvasConfig) {
+  setupCanvas(canvasInstance: CanvasRenderingContext2D) {
     this.canvasInstance = canvasInstance;
-    if (config) {
-      this.canvasConfig = config;
-    }
     if (this.historyState.current < 0) {
       this.save();
     }
@@ -63,12 +55,10 @@ export class ExtendCanvas implements CanvasExtendImp {
       ctx.putImageData(data, 0, 0);
     }
   }
-
   // 清空
   clean() {
     const ctx = this.getCanvas();
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-    this.save();
   }
   // 橡皮擦
   erase = (point: PointA, isLast: boolean = false) => {
@@ -113,30 +103,78 @@ export class ExtendCanvas implements CanvasExtendImp {
     ctx.quadraticCurveTo(controlPoint.x, controlPoint.y, endPoint.x, endPoint.y);
     ctx.stroke();
   }
-  // 普通直线
-  drawLine(beginPoint: PointA, endPoint: PointA) {
+  drawCircle(point: PointA, radius: number, fill: boolean = false) {
     const ctx = this.getCanvas();
-    ctx.strokeStyle = this.canvasConfig.color;
     ctx.beginPath();
     ctx.lineWidth = this.canvasConfig.lineWidth;
+    ctx.strokeStyle = this.canvasConfig.color;
+    ctx.arc(point.x, point.y, radius, 0, 360);
+    fill ? ctx.fill() : ctx.stroke();
+  }
+  drawLine(beginPoint: PointA, endPoint: PointA) {
+    const ctx = this.getCanvas();
+    ctx.beginPath();
+    ctx.lineWidth = this.canvasConfig.lineWidth;
+    ctx.strokeStyle = this.canvasConfig.color;
     ctx.moveTo(beginPoint.x, beginPoint.y);
     ctx.lineTo(endPoint.x, endPoint.y);
     ctx.stroke();
   }
-  // 画虚线
-  drawDashLine(beginPoint: PointA, endPoint: PointA) {
+  drawRect(beginPoint: PointA, endPoint: PointA, fill: boolean = false) {
     const ctx = this.getCanvas();
-    ctx.setLineDash([5, 5]);
-    ctx.strokeStyle = 'gray';
-    ctx.lineWidth = this.canvasConfig.lineWidth;
     ctx.beginPath();
-    ctx.moveTo(beginPoint.x, beginPoint.y);
-    ctx.lineTo(endPoint.x, endPoint.y);
-    ctx.stroke();
+    ctx.lineWidth = this.canvasConfig.lineWidth;
+    ctx.strokeStyle = this.canvasConfig.color;
+    fill
+      ? ctx.fillRect(
+          beginPoint.x,
+          beginPoint.y,
+          endPoint.x - beginPoint.x,
+          endPoint.y - beginPoint.y,
+        )
+      : ctx.strokeRect(
+          beginPoint.x,
+          beginPoint.y,
+          endPoint.x - beginPoint.x,
+          endPoint.y - beginPoint.y,
+        );
+  }
+  drawText(point: PointA, text: string) {
+    const ctx = this.getCanvas();
+    ctx.font = '14px serif';
+    ctx.fillText(text, point.x - text.length * 5, point.y);
   }
   getImageData() {
     const ctx = this.getCanvas();
     return ctx.getImageData(0, 0, ctx.canvas.width, ctx.canvas.height);
+  }
+  mixin(data: ImageData) {
+    const ctx = this.getCanvas();
+    const oldImageData = this.getImageData();
+    const newData = data.data;
+    const length = oldImageData.data.length / 4;
+    let flag = 0;
+    for (let index = 0; index < length; index++) {
+      if (
+        newData[index * 4] > 0 ||
+        newData[index * 4 + 1] > 0 ||
+        newData[index * 4 + 2] > 0 ||
+        newData[index * 4 + 3] > 0
+      ) {
+        oldImageData.data[index * 4] = newData[index * 4];
+        oldImageData.data[index * 4 + 1] = newData[index * 4 + 1];
+        oldImageData.data[index * 4 + 2] = newData[index * 4 + 2];
+        oldImageData.data[index * 4 + 3] = newData[index * 4 + 3];
+        flag++;
+      }
+    }
+    if (flag === 0) {
+      message.warning('该区域未包含有效点！');
+      return false;
+    }
+    ctx.putImageData(oldImageData, 0, 0);
+    ctx.save();
+    return true;
   }
 }
 
