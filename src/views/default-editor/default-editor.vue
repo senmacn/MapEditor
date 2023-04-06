@@ -2,11 +2,11 @@
   <div class="map-editor">
     <div :class="hideOptionRef ? 'content-box full-screen' : 'content-box'">
       <div class="scroller" @contextmenu="handleWrapperContextmenu">
-        <base-canvas :layer="baseLayer" v-show="baseLayer.visible" />
-        <template v-for="layer in extendLayersRef" :key="layer.uuid">
+        <template v-for="layer in layersRef" :key="layer.uuid">
           <default-canvas :layer="layer" v-show="layer.visible" />
         </template>
-        <mask-canvas v-if="visibleRef" />
+        <area-canvas ref="areaCanvasRef" v-if="controller.isDrawingArea()" />
+        <mask-canvas v-show="controller.isDrawingShape() || controller.isCheckingArea()" />
       </div>
     </div>
     <div :class="hideOptionRef ? 'option-box hide' : 'option-box'">
@@ -22,35 +22,29 @@
         v-else
         @click="() => changeHideState(false)"
       />
-      <default-options @update-style="handleUpdateStyle" @update-config="handleUpdateConfig" />
+      <default-options @end-edit-area="handleEndEditArea" />
     </div>
+    <status-bar></status-bar>
   </div>
 </template>
 
 <script setup lang="ts">
-  import { computed, provide, reactive, ref, watch } from 'vue';
+  import { Ref, provide, ref } from 'vue';
   import defaultCanvas from './default-canvas.vue';
-  import baseCanvas from './base-canvas.vue';
   import maskCanvas from './mask-canvas.vue';
+  import areaCanvas from './area-canvas.vue';
+  import statusBar from './components/status-bar.vue';
   import defaultOptions from './default-options.vue';
-  import { createCanvasConfigContext } from './hooks/useCanvasConfig';
   import { getRandomDomId } from '../../utils/uuid';
-  import controller, { CanvasOption } from './common/canvas-controller';
+  import controller from './common/canvas-state-controller';
   import { useToggle } from '@vueuse/core';
-  import { CanvasConfig, Layer } from './common/types';
+  import { Layer } from './common/types';
+  import Area from './common/area';
 
-  const baseLayer = reactive<Layer>({
-    uuid: getRandomDomId(),
-    name: '背景图层',
-    level: 0,
-    visible: true,
-    hot: false,
-    map: null,
-    keep: true,
-  });
+  const [hideOptionRef, changeHideState] = useToggle(false);
 
+  // 图层数据
   const layersRef = ref<Layer[]>([
-    baseLayer,
     {
       uuid: getRandomDomId(),
       name: '默认图层',
@@ -58,47 +52,30 @@
       hot: true,
       visible: true,
       map: null,
+      areas: [],
     },
-  ]);
+  ]) as Ref<Layer[]>;
   provide('layers', layersRef);
 
-  const extendLayersRef = computed<Layer[]>(() => layersRef.value.slice(1));
-
-  const canvasConfigRef = reactive<CanvasConfig>({
-    style: {},
-    zoom: 1,
-    color: 'red',
-    lineWidth: 1,
-    density: 1,
-    autoConnect: true,
-  });
-  createCanvasConfigContext(canvasConfigRef);
-
-  function handleUpdateStyle(key: string, value: string) {
-    canvasConfigRef.style[key] = value;
-  }
-
-  function handleUpdateConfig(key: string, value: any) {
-    canvasConfigRef[key] = value;
-  }
-
-  const visibleRef = ref(false);
-  watch(
-    () => controller.getState(),
-    () => {
-      if (controller.getState() === CanvasOption.DrawLine) {
-        visibleRef.value = true;
-      } else {
-        visibleRef.value = false;
+  // 区域编辑
+  const areaCanvasRef = ref<Recordable>();
+  function handleEndEditArea(name: string, complete: boolean) {
+    if (complete && areaCanvasRef.value) {
+      const area: Area = areaCanvasRef.value.getCreatedArea();
+      for (let index = layersRef.value.length - 1; index >= 0; index--) {
+        const element = layersRef.value[index];
+        if (element.hot) {
+          area.setName(name);
+          element.areas.push(area);
+        }
       }
-    },
-  );
+    }
+    controller.endDrawingArea();
+  }
 
-  const [hideOptionRef, changeHideState] = useToggle(false);
-
+  // TODO: 右键菜单事件
   function handleWrapperContextmenu(e: MouseEvent) {
     if (e.target && (e.target as any).nodeName == 'CANVAS') {
-
     }
   }
 </script>
@@ -107,7 +84,7 @@
   .map-editor {
     display: flex;
     height: 100%;
-    background-color: var(--color-bg-1);
+    background-color: rgb(248, 248, 248);
     margin-bottom: 10px;
   }
   .content-box {
@@ -116,6 +93,7 @@
     margin: 10px;
     max-width: calc(100vw - 484px);
     padding: 10px;
+    background-color: var(--color-bg-1);
     &.full-screen {
       max-width: 96vw;
     }
@@ -134,6 +112,7 @@
     margin: 10px;
     padding: 10px;
     border: 1px dashed #cccccc;
+    background-color: var(--color-bg-1);
     &.hide {
       width: 0;
       position: absolute;
@@ -143,7 +122,7 @@
   .option-control {
     position: absolute;
     top: 40%;
-    background: white;
+    background-color: transparent;
     cursor: pointer;
   }
   .option-control-right {
