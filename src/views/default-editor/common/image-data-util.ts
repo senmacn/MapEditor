@@ -1,7 +1,7 @@
 import { getDistance } from './canvas-util';
 
 // 是否是点
-function _isPointInData(data: Uint8ClampedArray, startIndex: number) {
+export function isPointInData(data: Uint8ClampedArray, startIndex: number) {
   return data[startIndex] || data[startIndex + 1] || data[startIndex + 2] || data[startIndex + 3];
 }
 
@@ -33,12 +33,27 @@ export function getPosition(imageData: ImageData) {
   for (let yIndex = 0; yIndex < imageData.height; yIndex++) {
     for (let xIndex = 0; xIndex < imageData.width; xIndex++) {
       const pointStartIndex = xIndex * 4 + yIndex * 4 * imageData.width;
-      if (_isPointInData(imageData.data, pointStartIndex)) {
+      if (isPointInData(imageData.data, pointStartIndex)) {
         positions.push([xIndex, yIndex]);
       }
     }
   }
   return positions;
+}
+
+// 获取范围内点的数量
+export function getPositionCount(imageData: ImageData, x, y, width, height): number {
+  let count = 0;
+  // imageData.data 大小为 height * width * 4，每4个值组成一个点，从左向右从上到下
+  for (let yIndex = y; yIndex < y + height; yIndex++) {
+    for (let xIndex = x; xIndex < x + width; xIndex++) {
+      const pointStartIndex = xIndex * 4 + yIndex * 4 * imageData.width;
+      if (isPointInData(imageData.data, pointStartIndex)) {
+        count++;
+      }
+    }
+  }
+  return count;
 }
 
 /**
@@ -60,56 +75,56 @@ export function getConnectEndPoint(imageData: ImageData, point: PointA, lineWidt
     for (let xIndex = startX; xIndex <= endX; xIndex++) {
       if (startX == xIndex || startY == yIndex) continue;
       const pointStartIndex = xIndex * 4 + yIndex * 4 * imageData.width;
-      if (_isPointInData(imageData.data, pointStartIndex)) {
+      if (isPointInData(imageData.data, pointStartIndex)) {
         // 查看九宫格内是否只有X个连接点(是否是端点)
         let connectPointCount = 0;
         // [x - 1, y -1]
         const leftTopStartIndex = pointStartIndex - 4 - 4 * imageData.width;
         leftTopStartIndex >= 0 &&
           leftTopStartIndex < data.length &&
-          _isPointInData(data, leftTopStartIndex) &&
+          isPointInData(data, leftTopStartIndex) &&
           ++connectPointCount;
         // [x - 1, y]
         const leftStartIndex = pointStartIndex - 4;
         leftStartIndex >= 0 &&
           leftStartIndex < data.length &&
-          _isPointInData(data, leftStartIndex) &&
+          isPointInData(data, leftStartIndex) &&
           ++connectPointCount;
         // [x - 1, y + 1]
         const leftBottomStartIndex = pointStartIndex - 4 + 4 * imageData.width;
         leftBottomStartIndex >= 0 &&
           leftBottomStartIndex < data.length &&
-          _isPointInData(data, leftBottomStartIndex) &&
+          isPointInData(data, leftBottomStartIndex) &&
           ++connectPointCount;
         // [x, y - 1]
         const topStartIndex = pointStartIndex - 4 * imageData.width;
         topStartIndex >= 0 &&
           topStartIndex < data.length &&
-          _isPointInData(data, topStartIndex) &&
+          isPointInData(data, topStartIndex) &&
           ++connectPointCount;
         // [x + 1, y - 1]
         const rightTopStartIndex = pointStartIndex + 4 - 4 * imageData.width;
         rightTopStartIndex >= 0 &&
           rightTopStartIndex < data.length &&
-          _isPointInData(data, rightTopStartIndex) &&
+          isPointInData(data, rightTopStartIndex) &&
           ++connectPointCount;
         // [x + 1, y]
         const rightStartIndex = pointStartIndex + 4;
         rightStartIndex >= 0 &&
           rightStartIndex < data.length &&
-          _isPointInData(data, rightStartIndex) &&
+          isPointInData(data, rightStartIndex) &&
           ++connectPointCount;
         // [x + 1, y + 1]
         const rightBottomStartIndex = pointStartIndex + 4 + 4 * imageData.width;
         rightBottomStartIndex >= 0 &&
           rightBottomStartIndex < data.length &&
-          _isPointInData(data, rightBottomStartIndex) &&
+          isPointInData(data, rightBottomStartIndex) &&
           ++connectPointCount;
         // [x, y + 1]
         const bottomStartIndex = pointStartIndex + 4 * imageData.width;
         bottomStartIndex >= 0 &&
           bottomStartIndex < data.length &&
-          _isPointInData(data, bottomStartIndex) &&
+          isPointInData(data, bottomStartIndex) &&
           ++connectPointCount;
         // canvas 在两个像素间绘制线时，由于无法绘制0.5px，1px直线会补全变为2px
         if (connectPointCount <= lineWidth + 2) {
@@ -143,7 +158,7 @@ export function getImageDataBoundRect(imageData: ImageData): Box {
   for (let yIndex = 0; yIndex < imageData.height; yIndex++) {
     for (let xIndex = 0; xIndex < imageData.width; xIndex++) {
       const pointStartIndex = xIndex * 4 + yIndex * 4 * imageData.width;
-      if (_isPointInData(imageData.data, pointStartIndex)) {
+      if (isPointInData(imageData.data, pointStartIndex)) {
         if (xIndex < minX) {
           minX = xIndex;
         }

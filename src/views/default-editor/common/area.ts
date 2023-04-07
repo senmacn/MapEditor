@@ -1,4 +1,7 @@
+import { getShortUuid } from '@/utils/uuid';
+
 export default class Area {
+  private uuid;
   private name: string;
   private draw = false;
   private data: ImageData;
@@ -6,8 +9,15 @@ export default class Area {
   private boundRect: Box = [0, 0, 0, 0];
   private borderPoint: Point[] = [];
   constructor(name: string, data: ImageData) {
+    this.uuid = getShortUuid();
     this.name = name;
     this.data = data;
+  }
+  getUuid() {
+    return this.uuid;
+  }
+  isSame(area: Partial<Area>) {
+    return area.getUuid && area.getUuid() === this.uuid;
   }
   getName() {
     return this.name;
@@ -28,7 +38,10 @@ export default class Area {
     this.data = value;
   }
   getCenterPoint(): PointA {
-    return { x: this.boundRect[0] + this.boundRect[2] / 2, y: this.boundRect[1] + this.boundRect[3] / 2 };
+    return {
+      x: this.boundRect[0] + this.boundRect[2] / 2,
+      y: this.boundRect[1] + this.boundRect[3] / 2,
+    };
   }
   getBoundRect() {
     return this.boundRect;

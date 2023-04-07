@@ -16,7 +16,12 @@
   import controller, { CanvasOption } from './common/canvas-state-controller';
   import { getPos } from './common/canvas-util';
   import { onMounted } from 'vue';
-  import { emitPersistLineEvent, emitPersistShapeEvent, onClickAreaEvent } from './common/event';
+  import {
+    emitPersistLineEvent,
+    emitPersistShapeEvent,
+    onClickAreaEvent,
+    onDeleteAreaEvent,
+  } from './common/event';
   import * as canvasUtil from './common/canvas-util';
   import { useEditorConfig } from '@/store/modules/editor-config';
   import Area from './common/area';
@@ -96,12 +101,17 @@
   }
 
   onClickAreaEvent((_, area: Area | null) => {
+    ctxRef.clean();
     if (area) {
       const rect = area.getBoundRect();
       ctxRef.setLineDash([8, 8]);
       ctxRef.drawRect({ x: rect[0], y: rect[1] }, { x: rect[0] + rect[2], y: rect[1] + rect[3] });
       ctxRef.drawText(area.getCenterPoint(), area.getName());
     }
+  });
+
+  onDeleteAreaEvent(() => {
+    ctxRef.clean();
   });
 
   // 挂载时初始化

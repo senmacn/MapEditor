@@ -29,7 +29,7 @@ class CanvasStateController {
   private areaState = ref(CanvasAreaOption.AreaCheck);
   private state = ref(CanvasOption.None);
   private active = false;
-  private currentArea = ref<Area | null>();
+  private currentArea = ref<Area | null>(null);
   constructor() {}
   getState() {
     return this.state.value;
@@ -71,7 +71,7 @@ class CanvasStateController {
     return this.areaState.value === CanvasAreaOption.AreaEdit;
   }
   isCheckingArea() {
-    return (this.areaState.value === CanvasAreaOption.AreaCheck && !isNull(this.currentArea.value));
+    return this.areaState.value === CanvasAreaOption.AreaCheck && !isNull(this.currentArea.value);
   }
   reset() {
     this.setState(CanvasOption.FollowMouse);
