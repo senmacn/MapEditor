@@ -126,6 +126,7 @@
   }
   // 判断是否需要自动连接
   function _autoConnect(curPoint: PointA) {
+    // TODO: 只获取附近的dataImage数据
     const endPoint = imageDataUtil.getConnectEndPoint(
       ctxRef.getImageData(),
       curPoint,
@@ -223,7 +224,7 @@
     const data = ctxRef.getImageData();
     const area = new Area('新区域', data);
     area.setData(data);
-    area.setBoundRect(imageDataUtil.getImageDataBoundRect(data));    
+    area.setBoundRect(imageDataUtil.getImageDataBoundRect(data));
     return area;
   }
   defineExpose({

@@ -8,8 +8,9 @@
   import * as canvasUtil from './common/canvas-util';
   import useCanvas from './hooks/useCanvas';
   import { useEditorConfig } from '@/store/modules/editor-config';
-  import { emitClickAreaEvent } from './common/event';
+  import { emitClickAreaEvent, onDeleteAreaEvent } from './common/event';
   import controller from './common/canvas-state-controller';
+  import { isNullOrUnDef } from '@/utils/is';
 
   const props = defineProps({
     layer: {
@@ -21,17 +22,6 @@
   const ctxRef = useCanvas();
   const configRef = useEditorConfig();
 
-  // 背景图片
-  watch(
-    () => props.layer?.map,
-    () => {
-      if (props.layer) {
-        const layer = document.getElementById(props.layer?.uuid);
-        if (!layer) return;
-        layer.style.setProperty('background-image', 'url(' + props.layer?.map + ')');
-      }
-    },
-  );
   // 初始化
   let setUpState = false;
   function setup() {
@@ -81,6 +71,29 @@
     }
   }
 
+  onDeleteAreaEvent(() => {
+    if (props.layer && props.layer.hot) {
+      const area = controller.getCurrentArea();
+      if (area != null) {
+        const index = props.layer.areas.findIndex((value) => value.isSame(area));
+        if (index > -1) {
+          controller.setCurrentArea(null);
+          props.layer.areas.splice(index, 1);
+          ctxRef.clean();
+          if (props.layer.areas.length > 0) {
+            ctxRef.putImageData(props.layer.areas[0].getData(), 0, 0);
+            props.layer.areas.forEach((area, index) => {
+              if (index !== 0) {
+                // TODO: 优化mixin
+                ctxRef.mixin(area.getData());
+              }
+            });
+          }
+        }
+      }
+    }
+  });
+
   // 添加区域时渲染
   watch(
     () => props.layer?.areas,
@@ -99,6 +112,18 @@
       }
     },
     { deep: true },
+  );
+
+  // 背景图片
+  watch(
+    () => props.layer?.map,
+    () => {
+      if (props.layer) {
+        const layer = document.getElementById(props.layer?.uuid);
+        if (!layer) return;
+        layer.style.setProperty('background-image', 'url(' + props.layer?.map + ')');
+      }
+    },
   );
 
   // zoom配置修改时，修改canvas大小

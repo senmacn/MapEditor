@@ -57,91 +57,17 @@
         </a-button>
       </a-col>
       <a-col :span="6">
-        <a-button status="danger" @click="" disabled>
+        <a-button
+          status="danger"
+          @click="emitDeleteAreaEvent"
+          :disabled="!controller.getCurrentArea()"
+        >
           <icon-delete />
           删除
         </a-button>
       </a-col>
     </a-row>
-    <a-row class="option-group edit-options">
-      <a-col class="row-label" :span="4">
-        <span class="group-label">工具： </span>
-      </a-col>
-      <a-col :span="3">
-        <a-tooltip content="画笔">
-          <a-button
-            :class="[controller.getState() === CanvasOption.FollowMouse && 'actived']"
-            @click="() => handleChangeOptionState(CanvasOption.FollowMouse)"
-            :disabled="!controller.isDrawingArea()"
-          >
-            <icon-edit />
-          </a-button>
-        </a-tooltip>
-      </a-col>
-      <a-col :span="3">
-        <a-tooltip content="橡皮">
-          <a-button
-            :class="[controller.getState() === CanvasOption.FollowMouseClear && 'actived']"
-            @click="() => handleChangeOptionState(CanvasOption.FollowMouseClear)"
-            :disabled="!controller.isDrawingArea()"
-          >
-            <icon-eraser />
-          </a-button>
-        </a-tooltip>
-      </a-col>
-      <a-col :span="3">
-        <a-tooltip content="撤销">
-          <a-button @click="emitCanvasUndoEvent" :disabled="!controller.isDrawingArea()">
-            <icon-undo />
-          </a-button>
-        </a-tooltip>
-      </a-col>
-      <a-col :span="3">
-        <a-tooltip content="还原">
-          <a-button @click="emitCanvasRedoEvent" :disabled="!controller.isDrawingArea()">
-            <icon-redo />
-          </a-button>
-        </a-tooltip>
-      </a-col>
-    </a-row>
-    <a-row class="option-group edit-options">
-      <a-col class="row-label" :span="4">
-        <span class="group-label">形状： </span>
-      </a-col>
-      <a-col :span="3">
-        <a-tooltip content="直线">
-          <a-button
-            :class="[controller.getState() === CanvasOption.DrawLine && 'actived']"
-            @click="() => handleChangeOptionState(CanvasOption.DrawLine)"
-            :disabled="!controller.isDrawingArea()"
-          >
-            <img :src="LinePNG" class="arco-icon" />
-          </a-button>
-        </a-tooltip>
-      </a-col>
-      <a-col :span="3">
-        <a-tooltip content="圆">
-          <a-button
-            :class="[controller.getState() === CanvasOption.DrawCircle && 'actived']"
-            @click="() => handleChangeOptionState(CanvasOption.DrawCircle)"
-            :disabled="!controller.isDrawingArea()"
-          >
-            <img :src="CirclePNG" class="arco-icon" />
-          </a-button>
-        </a-tooltip>
-      </a-col>
-      <a-col :span="3">
-        <a-tooltip content="矩形">
-          <a-button
-            :class="[controller.getState() === CanvasOption.DrawRect && 'actived']"
-            @click="() => handleChangeOptionState(CanvasOption.DrawRect)"
-            :disabled="!controller.isDrawingArea()"
-          >
-            <img :src="RectPNG" class="arco-icon" />
-          </a-button>
-        </a-tooltip>
-      </a-col>
-    </a-row>
+    <edit-options></edit-options>
     <a-row class="option-group">
       <a-col class="row-label" :span="4">设置：</a-col>
       <a-col :span="12">
@@ -186,24 +112,21 @@
   import modal from '@arco-design/web-vue/es/modal';
   import message from '@arco-design/web-vue/es/message';
   import ControlledSlider, { useControllerSlider } from '../../components/controlled-slider';
-  import controller, { CanvasOption } from './common/canvas-state-controller';
-  import { emitCanvasUndoEvent, emitCanvasRedoEvent } from './common/event';
+  import controller from './common/canvas-state-controller';
+  import { emitDeleteAreaEvent } from './common/event';
   import LayerList from './components/layer-list.vue';
-  import * as imageDataUtil from './common/image-data-util';
+  import EditOptions from './components/edit-options.vue';
   import { Layer } from './common/types';
   import { useColorPicker } from '../../hooks/useColorPicker';
   import { useLoading } from '../../components/Loading';
   import { exportFile } from '../../utils/file';
-  import CirclePNG from '@/assets/icons/circle.png';
-  import RectPNG from '@/assets/icons/rect.png';
-  import LinePNG from '@/assets/icons/line.png';
   import { useEditorConfig } from '@/store/modules/editor-config';
+  import { dataToBin } from './common/quadtree-utils';
 
   const emit = defineEmits<{
     (e: 'end-edit-area', name: string, complete: boolean): void;
   }>();
 
-  let allPositionData = '';
   const configRef = useEditorConfig();
   const layersRef: Ref<Layer[]> = inject('layers', [] as any);
 
@@ -211,7 +134,7 @@
   function getPosition() {
     modal.confirm({
       title: '确认',
-      content: '下载当前显示图层的坐标数据！',
+      content: '下载当前显示图层的坐标数据',
       onOk: () => {
         const layers = unref(layersRef);
         new Promise((resolve) => {
@@ -224,14 +147,17 @@
                   message.warning('获取图层数据失败！');
                   break;
                 }
-                allPositionData = imageDataUtil.getPosition(layer.ctx.getImageData()).join(' ');
+                layer.areas.forEach((area) => {
+                  exportFile(
+                    area.getName() + '.data.bin',
+                    dataToBin(area.getData(), ...area.getBoundRect()),
+                  );
+                });
               }
             }
             resolve(true);
           }, 10);
         }).finally(() => closeLoading());
-        exportFile('data.json', allPositionData);
-        allPositionData = '';
       },
     });
   }
@@ -251,10 +177,6 @@
     }
     emit('end-edit-area', areaNameRef.value, complete);
     areaNameRef.value = '';
-  }
-
-  function handleChangeOptionState(state: CanvasOption) {
-    controller.setState(state);
   }
 
   const [registerControllerSlider] = useControllerSlider({
@@ -338,7 +260,5 @@
   .result {
     margin-top: 400px;
     margin-left: 200px;
-  }
-  .auto-connect {
   }
 </style>
