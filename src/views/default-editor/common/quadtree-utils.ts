@@ -39,17 +39,19 @@ export function dataToBin(imageData: ImageData, x: number, y: number, xWidth, xH
       for (let _x = 0; _x < layerBlocks; _x++) {
         // 最后一层计算
         if (layerWidth === 1) {
-          const pointStartIndex = _x * 4 + _y * 4 * imageData.width;
+          // 加上区域的偏移量 [x, y] -> [0, 0]
+          const pointStartIndex = (_x - x) * 4 + (_y - y) * 4 * imageData.width;
           if (isPointInData(imageData.data, pointStartIndex)) {
             layerData = layerData + '01';
           } else {
             layerData = layerData + '00';
           }
         } else {
+          // 加上区域的偏移量 [x, y] -> [0, 0]
           const count = getPositionCount(
             imageData,
-            _x * layerWidth,
-            _y * layerWidth,
+            (_x - x) * layerWidth,
+            (_y - y) * layerWidth,
             layerWidth,
             layerWidth,
           );

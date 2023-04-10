@@ -48,7 +48,9 @@
             movedPoints.push(point);
             break;
           } else {
-            _autoConnect(point);
+            setTimeout(() => {
+              _autoConnect(point);
+            });
           }
         }
         beginPoint = point;
@@ -79,7 +81,7 @@
         }
       }
     },
-    10,
+    5,
     { leading: true },
   );
   function handleMouseUp(e: MouseEvent) {
@@ -130,7 +132,6 @@
   }
   // 判断是否需要自动连接
   function _autoConnect(curPoint: PointA) {
-    // TODO: 只获取附近的dataImage数据
     const endPoint = imageDataUtil.getConnectEndPoint(
       ctxRef.getImageData(),
       curPoint,
@@ -146,7 +147,7 @@
     const currentArea = controller.getCurrentArea();
     if (currentArea !== null) {
       const data = currentArea.getData();
-      ctxRef.putImageData(data, 0, 0);
+      ctxRef.putImageData(data, currentArea.getBoundRect()[0], currentArea.getBoundRect()[1]);
     }
   });
   onCanvasRedoEvent(() => {

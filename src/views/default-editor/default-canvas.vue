@@ -78,7 +78,6 @@
       if (area != null) {
         const index = props.layer.areas.findIndex((value) => value.isSame(area));
         if (index > -1) {
-          controller.setCurrentArea(null);
           props.layer.areas.splice(index, 1);
           ctxRef.clean();
           if (props.layer.areas.length > 0) {
@@ -93,6 +92,9 @@
               }
             });
           }
+          setTimeout(() => {
+            controller.setCurrentArea(null);
+          });
         }
       }
     }
@@ -105,7 +107,7 @@
       if (props.layer?.areas) {
         for (let index = 0; index < props.layer.areas.length; index++) {
           const area = props.layer.areas[index];
-          if (!area.getDrawAreaComplete) {
+          if (!area.getDrawAreaComplete()) {
             if (ctxRef.mixin(area)) {
               area.drawAreaComplete();
             } else {

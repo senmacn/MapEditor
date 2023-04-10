@@ -26,7 +26,7 @@ export default class Area {
   setName(value: string) {
     this.name = value;
   }
-  get getDrawAreaComplete() {
+  getDrawAreaComplete() {
     return this.draw;
   }
   drawAreaComplete() {

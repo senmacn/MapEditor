@@ -1,31 +1,10 @@
+import Area from './area';
 import { getDistance } from './canvas-util';
 
 // 是否是点
 export function isPointInData(data: Uint8ClampedArray, startIndex: number) {
   return data[startIndex] || data[startIndex + 1] || data[startIndex + 2] || data[startIndex + 3];
 }
-
-// 获取数据中颜色为rgba的坐标
-// export function getPositionByRGBAColor(
-//   imageData: ImageData,
-//   rgba: [number, number, number, number],
-// ) {
-//   const positions: number[][] = [];
-//   // imageData.data 大小为 height * width * 4，每4个值组成一个点，从左向右从上到下
-//   for (let yIndex = 0; yIndex < imageData.height; yIndex++) {
-//     for (let xIndex = 0; xIndex < imageData.width; xIndex++) {
-//       const pointStartIndex = xIndex * 4 + yIndex * 4 * imageData.width;
-//       if (
-//         [0, 1, 2].every(
-//           (index) => Math.abs(rgba[index] - imageData.data[pointStartIndex + index]) <= 1,
-//         )
-//       ) {
-//         positions.push([xIndex, yIndex]);
-//       }
-//     }
-//   }
-//   return positions;
-// }
 
 export function getPosition(imageData: ImageData) {
   const positions: Point[] = [];
@@ -58,7 +37,7 @@ export function getPositionCount(imageData: ImageData, x, y, width, height): num
 
 /**
  * 获取可以自动连接的端点（根据线段宽度，判断的范围不同）
- * @param imageData 画布信息
+ * @param imageData 画布信息(部分)
  * @param point 点
  * @param lineWidth 线段宽度
  * @returns
@@ -66,14 +45,14 @@ export function getPositionCount(imageData: ImageData, x, y, width, height): num
 export function getConnectEndPoint(imageData: ImageData, point: PointA, lineWidth: number) {
   const endPoints: PointA[] = [];
   const data = imageData.data;
-  const checkLength = Math.floor(15 + lineWidth / 2);
+  const checkLength = Math.floor(12 + lineWidth / 2);
   const startX = point.x - checkLength > 0 ? point.x - checkLength : 0,
-    startY = point.y - checkLength > 0 ? point.y - checkLength : checkLength,
+    startY = point.y - checkLength > 0 ? point.y - checkLength : 0,
     endX = point.x + checkLength,
     endY = point.y + checkLength;
   for (let yIndex = startY; yIndex <= endY; yIndex++) {
     for (let xIndex = startX; xIndex <= endX; xIndex++) {
-      if (startX == xIndex || startY == yIndex) continue;
+      if (point.x == xIndex || point.y == yIndex) continue;
       const pointStartIndex = xIndex * 4 + yIndex * 4 * imageData.width;
       if (isPointInData(imageData.data, pointStartIndex)) {
         // 查看九宫格内是否只有X个连接点(是否是端点)
@@ -133,7 +112,7 @@ export function getConnectEndPoint(imageData: ImageData, point: PointA, lineWidt
       }
     }
   }
-  let minDistance = 30;
+  let minDistance = 24;
   let minDistancePoint: PointA | null = null;
   for (const endPoint of endPoints) {
     const distance = getDistance(endPoint, point);
@@ -175,54 +154,55 @@ export function getImageDataBoundRect(imageData: ImageData): Box {
       }
     }
   }
-  return flag ? [minX, minY, maxX - minX, maxY - minY] : [0, 0, 0, 0];
+  // +1 否则会少一个点
+  return flag ? [minX, minY, maxX - minX + 1, maxY - minY + 1] : [0, 0, 0, 0];
 }
 
-// 获取封闭曲线
-function getClosedCurvePoints(points) {
-  let intersectPArray: Recordable[] = [];
-  var isLine = true;
-  for (var i = 0; i < points.length; i++) {
-    let p = points[i];
-    for (var j = points.length - 1; j >= 0; j--) {
-      if (j - i < points.length / 2) continue;
-      let eP = points[j];
-      let xDis = p.x - eP.x;
-      let yDis = p.y - eP.y;
-      let dis = Math.sqrt(Math.pow(xDis, 2) + Math.pow(yDis, 2));
-
-      if (Math.abs(xDis) >= 20 && Math.abs(yDis) >= 20) {
-        isLine = false;
+/**
+ * 获取描完封闭曲线内部的点后的imageData
+ * @param area 封闭区域
+ * @returns 包含内部点的imagedata
+ */
+export function getClosedCurvePointsData(area: Area) {
+  const rect = area.getBoundRect();
+  const imageData = area.getData();
+  const boundPoints = getPosition(imageData);
+  for (let yIndex = 0; yIndex < rect[3]; yIndex++) {
+    for (let xIndex = 0; xIndex < rect[2]; xIndex++) {
+      const pointStartIndex = xIndex * 4 + yIndex * 4 * imageData.width;
+      // 是点的话直接加入（加上偏移量）
+      if (isPointInData(imageData.data, pointStartIndex)) {
+      } else {
+        // 跳过边界上的
+        if (xIndex === 0 || xIndex === rect[2] - 1 || yIndex === 0 || yIndex === rect[3] - 1) {
+          continue;
+        } else {
+          if (isPointInPolygon([xIndex, yIndex], boundPoints)) {
+            // 描点
+            imageData.data[pointStartIndex] = 1;
+          }
+        }
       }
+    }
+  }
+  return imageData;
+}
 
-      if (dis <= 10) {
-        //dis=0才是真正有交叉点的情况,但是用户不一定每次都能画出完美存在交叉点的圈 这种情况下应给予一个合理的误差值
-        intersectPArray.push({
-          p: p,
-          dis: dis,
-          leftIdx: i,
-          rightIdx: j,
-        });
+function isPointInPolygon(point, polygon) {
+  let crossing = 0;
+
+  for (let i = 0, len = polygon.length; i < len; i++) {
+    const p1 = polygon[i];
+    const p2 = polygon[(i + 1) % len];
+
+    if (point[1] >= Math.min(p1[1], p2[1]) && point[1] < Math.max(p1[1], p2[1])) {
+      const x = ((point[1] - p1[1]) * (p2[0] - p1[0])) / (p2[1] - p1[1]) + p1[0];
+
+      if (x > point[0]) {
+        crossing++;
       }
     }
   }
 
-  if (isLine) {
-    console.log('绘制的是直线');
-    return null;
-  }
-  if (intersectPArray.length == 0) {
-    console.log('不存在交叉点');
-    return null;
-  }
-
-  intersectPArray.sort((a, b) => {
-    return a.dis - b.dis;
-  });
-  let intersectP = intersectPArray[0];
-  if (intersectP.leftIdx < intersectP.rightIdx) {
-    return points.slice(intersectP.leftIdx, intersectP.rightIdx + 1);
-  } else {
-    return points.slice(intersectP.rightIdx, intersectP.leftIdx + 1);
-  }
+  return crossing % 2 == 1;
 }

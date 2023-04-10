@@ -1,7 +1,6 @@
 import { isFunction } from 'lodash-es';
 import { CanvasExtendImp } from '../common/types';
 import { useEditorConfig } from '@/store/modules/editor-config';
-import * as imageDataUtil from '../common/image-data-util';
 import Area from '../common/area';
 
 export type CanvasInstance = CanvasExtendImp & CanvasRenderingContext2D;
@@ -9,7 +8,14 @@ export type CanvasInstance = CanvasExtendImp & CanvasRenderingContext2D;
 interface CanvasHistory {
   data: ImageData | null;
   // x1: number; y1: number; width: number; height: number;
-  rect: Box;
+  // rect: Box;
+}
+
+function getIntegerPoint(point: PointA) {
+  return {
+    x: Math.ceil(point.x),
+    y: Math.ceil(point.y),
+  };
 }
 
 export class ExtendCanvas implements CanvasExtendImp {
@@ -18,17 +24,20 @@ export class ExtendCanvas implements CanvasExtendImp {
   // 橡皮擦用
   private lastPoint: PointA | null = null;
   // canvas 存储历史用于保存、撤销、还原操作
-  private canvasHistory: CanvasHistory[] = [{ data: null, rect: [0, 0, 0, 0] }];
+  private canvasHistory: CanvasHistory[] = [{ data: null }];
   private historyState = {
     current: 0,
     max: 0,
   };
+  private HISTORY_MAX = 10;
   constructor() {}
   setupCanvas(canvasInstance: CanvasRenderingContext2D) {
     this.canvasInstance = canvasInstance;
     if (this.historyState.current < 0) {
       this.save();
     }
+    this.HISTORY_MAX = 10 - Math.floor(this.canvasConfig.size.width / 1000);
+    this.HISTORY_MAX = this.HISTORY_MAX < 2 ? 2 : this.HISTORY_MAX;
   }
   getCanvas() {
     if (this.canvasInstance) return this.canvasInstance;
@@ -37,9 +46,9 @@ export class ExtendCanvas implements CanvasExtendImp {
   save() {
     const ctx = this.getCanvas();
     const fullData = ctx.getImageData(0, 0, ctx.canvas.width, ctx.canvas.height);
-    const boundRect = imageDataUtil.getImageDataBoundRect(fullData);
-    const data = ctx.getImageData(...boundRect);
-    if (this.historyState.max === 9) {
+    // const boundRect = imageDataUtil.getImageDataBoundRect(fullData);
+    // const data = ctx.getImageData(...boundRect);
+    if (this.historyState.max === this.HISTORY_MAX) {
       this.canvasHistory.shift();
       this.historyState.max = this.historyState.current;
     } else {
@@ -47,8 +56,8 @@ export class ExtendCanvas implements CanvasExtendImp {
       this.historyState.max = this.historyState.current;
     }
     this.canvasHistory.push({
-      data: data,
-      rect: boundRect,
+      data: fullData,
+      // rect: boundRect,
     });
   }
   redo() {
@@ -58,7 +67,7 @@ export class ExtendCanvas implements CanvasExtendImp {
       if (!data) return;
       this.clean();
       if (data.data) {
-        ctx.putImageData(data.data, data.rect[0], data.rect[1]);
+        ctx.putImageData(data.data, 0, 0);
       }
     }
   }
@@ -69,14 +78,14 @@ export class ExtendCanvas implements CanvasExtendImp {
       if (!data) return;
       this.clean();
       if (data.data) {
-        ctx.putImageData(data.data, data.rect[0], data.rect[1]);
+        ctx.putImageData(data.data, 0, 0);
       }
     }
   }
   // 清空
-  clean() {
+  clean(props?: Box) {
     const ctx = this.getCanvas();
-    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+    props ? ctx.clearRect(...props) : ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
   }
   // 橡皮擦
   erase = (point: PointA, isLast: boolean = false) => {
@@ -112,6 +121,9 @@ export class ExtendCanvas implements CanvasExtendImp {
   // 贝塞尔曲线
   drawSmoothLine(beginPoint: PointA, controlPoint: PointA, endPoint: PointA) {
     const ctx = this.getCanvas();
+    beginPoint = getIntegerPoint(beginPoint);
+    controlPoint = getIntegerPoint(controlPoint);
+    endPoint = getIntegerPoint(endPoint);
     ctx.strokeStyle = this.canvasConfig.color;
     ctx.beginPath();
     ctx.moveTo(beginPoint.x, beginPoint.y);
@@ -123,6 +135,7 @@ export class ExtendCanvas implements CanvasExtendImp {
   }
   drawCircle(point: PointA, radius: number, fill: boolean = false) {
     const ctx = this.getCanvas();
+    point = getIntegerPoint(point);
     ctx.beginPath();
     ctx.lineWidth = this.canvasConfig.lineWidth;
     ctx.strokeStyle = this.canvasConfig.color;
@@ -131,6 +144,8 @@ export class ExtendCanvas implements CanvasExtendImp {
   }
   drawLine(beginPoint: PointA, endPoint: PointA) {
     const ctx = this.getCanvas();
+    beginPoint = getIntegerPoint(beginPoint);
+    endPoint = getIntegerPoint(endPoint);
     ctx.beginPath();
     ctx.lineWidth = this.canvasConfig.lineWidth;
     ctx.strokeStyle = this.canvasConfig.color;
@@ -140,6 +155,8 @@ export class ExtendCanvas implements CanvasExtendImp {
   }
   drawRect(beginPoint: PointA, endPoint: PointA, fill: boolean = false) {
     const ctx = this.getCanvas();
+    beginPoint = getIntegerPoint(beginPoint);
+    endPoint = getIntegerPoint(endPoint);
     ctx.beginPath();
     ctx.lineWidth = this.canvasConfig.lineWidth;
     ctx.strokeStyle = this.canvasConfig.color;

@@ -5,7 +5,7 @@ export interface CanvasExtendImp {
   save: () => void;
   redo: () => void;
   undo: () => void;
-  clean: () => void;
+  clean: (props?: Box) => void;
   erase(point: PointA, isLast?: boolean): void;
   drawSmoothLine: (beginPoint: PointA, controlPoint: PointA, endPoint: PointA) => void;
   drawLine: (beginPoint: PointA, endPoint: PointA) => void;
