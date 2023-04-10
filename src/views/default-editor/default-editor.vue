@@ -62,6 +62,7 @@
   function handleEndEditArea(name: string, complete: boolean) {
     if (complete && areaCanvasRef.value) {
       const area: Area = areaCanvasRef.value.getCreatedArea();
+      if (!area) return;
       for (let index = layersRef.value.length - 1; index >= 0; index--) {
         const element = layersRef.value[index];
         if (element.hot) {
@@ -103,7 +104,7 @@
     position: relative;
     height: 100%;
     width: 100%;
-    padding: 5px;
+    border: 3px solid rgb(143, 143, 143);
     overflow: auto;
   }
   .option-box {

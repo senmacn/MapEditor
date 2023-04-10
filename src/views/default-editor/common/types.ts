@@ -12,8 +12,8 @@ export interface CanvasExtendImp {
   drawCircle: (point: PointA, radius: number, fill?: boolean) => void;
   drawRect: (beginPoint: PointA, endPoint: PointA, fill?: boolean) => void;
   drawText: (point: PointA, text: string) => void;
-  getImageData: () => ImageData;
-  mixin: (data: ImageData) => boolean;
+  getImageData: (props?: [number, number, number, number]) => ImageData;
+  mixin: (area: Area) => boolean;
 }
 
 export interface Layer {

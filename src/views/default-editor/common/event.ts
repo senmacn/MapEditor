@@ -32,11 +32,16 @@ const clickAreaBus = useEventBus<Symbol>(clickAreaEvent);
 const onClickAreaEvent = (listener: EventBusListener) => clickAreaBus.on(listener);
 const emitClickAreaEvent = (payload: Area | null) => clickAreaBus.emit(clickAreaEvent, payload);
 
+const editAreaEvent = Symbol('editArea');
+const editAreaBus = useEventBus<Symbol>(editAreaEvent);
+const onEditAreaEvent = (listener: EventBusListener) => editAreaBus.on(listener);
+const emitEditAreaEvent = () => editAreaBus.emit(editAreaEvent);
+
 // 删除区域
 const deleteAreaEvent = Symbol('deleteArea');
 const deleteAreaBus = useEventBus<Symbol>(deleteAreaEvent);
 const onDeleteAreaEvent = (listener: EventBusListener) => deleteAreaBus.on(listener);
-const emitDeleteAreaEvent = (payload: Recordable) => deleteAreaBus.emit(deleteAreaEvent, payload);
+const emitDeleteAreaEvent = () => deleteAreaBus.emit(deleteAreaEvent);
 
 export {
   onCanvasRedoEvent,
@@ -49,6 +54,8 @@ export {
   emitPersistShapeEvent,
   onClickAreaEvent,
   emitClickAreaEvent,
+  onEditAreaEvent,
+  emitEditAreaEvent,
   onDeleteAreaEvent,
   emitDeleteAreaEvent,
 };

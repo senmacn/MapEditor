@@ -175,5 +175,54 @@ export function getImageDataBoundRect(imageData: ImageData): Box {
       }
     }
   }
-  return flag ? [minX - 3, minY - 3, maxX - minX + 3, maxY - minY + 3] : [0, 0, 0, 0];
+  return flag ? [minX, minY, maxX - minX, maxY - minY] : [0, 0, 0, 0];
+}
+
+// 获取封闭曲线
+function getClosedCurvePoints(points) {
+  let intersectPArray: Recordable[] = [];
+  var isLine = true;
+  for (var i = 0; i < points.length; i++) {
+    let p = points[i];
+    for (var j = points.length - 1; j >= 0; j--) {
+      if (j - i < points.length / 2) continue;
+      let eP = points[j];
+      let xDis = p.x - eP.x;
+      let yDis = p.y - eP.y;
+      let dis = Math.sqrt(Math.pow(xDis, 2) + Math.pow(yDis, 2));
+
+      if (Math.abs(xDis) >= 20 && Math.abs(yDis) >= 20) {
+        isLine = false;
+      }
+
+      if (dis <= 10) {
+        //dis=0才是真正有交叉点的情况,但是用户不一定每次都能画出完美存在交叉点的圈 这种情况下应给予一个合理的误差值
+        intersectPArray.push({
+          p: p,
+          dis: dis,
+          leftIdx: i,
+          rightIdx: j,
+        });
+      }
+    }
+  }
+
+  if (isLine) {
+    console.log('绘制的是直线');
+    return null;
+  }
+  if (intersectPArray.length == 0) {
+    console.log('不存在交叉点');
+    return null;
+  }
+
+  intersectPArray.sort((a, b) => {
+    return a.dis - b.dis;
+  });
+  let intersectP = intersectPArray[0];
+  if (intersectP.leftIdx < intersectP.rightIdx) {
+    return points.slice(intersectP.leftIdx, intersectP.rightIdx + 1);
+  } else {
+    return points.slice(intersectP.rightIdx, intersectP.leftIdx + 1);
+  }
 }

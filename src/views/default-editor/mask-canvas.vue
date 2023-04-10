@@ -1,9 +1,6 @@
 <template>
   <canvas
     id="mask-canvas"
-    width="1000"
-    height="1000"
-    :style="canvasUtil.getZoomChangeStyle(configRef.zoom)"
     @mousemove="handleMouseMove"
     @mouseup.stop="handleMouseUp"
     @mousedown.stop="handleMouseDown"
@@ -15,7 +12,7 @@
   import useCanvas from './hooks/useCanvas';
   import controller, { CanvasOption } from './common/canvas-state-controller';
   import { getPos } from './common/canvas-util';
-  import { onMounted } from 'vue';
+  import { onMounted, watch } from 'vue';
   import {
     emitPersistLineEvent,
     emitPersistShapeEvent,
@@ -25,6 +22,7 @@
   import * as canvasUtil from './common/canvas-util';
   import { useEditorConfig } from '@/store/modules/editor-config';
   import Area from './common/area';
+  import debounce from 'lodash-es/debounce';
 
   // canvas相关
   const ctxRef = useCanvas();
@@ -55,26 +53,31 @@
       }
     }
   }
-  function handleMouseMove(e: MouseEvent) {
-    if (e.button !== 0 || !controller.getActive()) return;
-    ctxRef.clean();
-    endPoint = getPos(e);
-    ctxRef.setLineDash([5, 5]);
-    switch (controller.getState()) {
-      case CanvasOption.DrawLine: {
-        ctxRef.drawLine(beginPoint, endPoint);
-        break;
+  const handleMouseMove = debounce(
+    function (e: MouseEvent) {
+      if (e.button !== 0 || !controller.getActive()) return;
+      ctxRef.clean();
+      endPoint = getPos(e);
+      ctxRef.setLineDash([5, 5]);
+      switch (controller.getState()) {
+        case CanvasOption.DrawLine: {
+          ctxRef.drawLine(beginPoint, endPoint);
+          break;
+        }
+        case CanvasOption.DrawCircle: {
+          ctxRef.drawCircle(beginPoint, canvasUtil.getDistance(beginPoint, endPoint));
+          break;
+        }
+        case CanvasOption.DrawRect: {
+          ctxRef.drawRect(beginPoint, endPoint);
+          break;
+        }
       }
-      case CanvasOption.DrawCircle: {
-        ctxRef.drawCircle(beginPoint, canvasUtil.getDistance(beginPoint, endPoint));
-        break;
-      }
-      case CanvasOption.DrawRect: {
-        ctxRef.drawRect(beginPoint, endPoint);
-        break;
-      }
-    }
-  }
+    },
+    10,
+    { leading: true, trailing: true },
+  );
+
   function handleMouseUp(e: MouseEvent) {
     if (!controller.getActive()) return;
     endPoint = getPos(e);
@@ -118,19 +121,35 @@
   onMounted(() => {
     let maskCanvas: HTMLCanvasElement | null = document.querySelector('#mask-canvas');
     if (maskCanvas == null) return;
+    maskCanvas.width = configRef.size.x;
+    maskCanvas.height = configRef.size.y;
     let ctx = maskCanvas.getContext('2d', {
       willReadFrequently: true,
     }) as CanvasRenderingContext2D;
     ctxRef.setupCanvas(ctx);
   });
+
+  // zoom配置修改时，修改canvas大小
+  watch(
+    () => configRef.zoom,
+    () => {
+      if (configRef.zoom) {
+        const maskCanvas = document.getElementById('mask-canvas');
+        if (!maskCanvas) return;
+        const style = canvasUtil.getZoomChangeStyle(configRef.zoom);
+        maskCanvas.style.setProperty('transform', style.transform);
+        maskCanvas.style.setProperty('top', style.top);
+        maskCanvas.style.setProperty('left', style.left);
+      }
+    },
+  );
 </script>
 
 <style scoped lang="less">
-  #maskCanvas {
+  #mask-canvas {
     position: absolute;
     top: 0;
     left: 0;
-    border: 3px solid rgb(143, 143, 143);
     background-repeat: no-repeat;
     background-size: contain;
     position: absolute;

@@ -1,20 +1,23 @@
 <template>
   <div class="default-option">
-    <a-row class="option-group">
+    <a-row class="option-group" style="height: 100px">
       <a-col class="row-label" :span="4">
         <span class="group-label">文件： </span>
       </a-col>
-      <a-col :span="6">
-        <a-button type="primary" disabled @click="">保存</a-button>
+      <a-col :span="18">
+        <a-button type="primary" @click="handleChangeMapSize">设置地图尺寸</a-button>
+      </a-col>
+      <a-col :span="6" :offset="4">
+        <a-button disabled @click="">保存</a-button>
       </a-col>
       <a-col :span="6">
-        <a-button type="primary" disabled @click="">加载</a-button>
+        <a-button disabled @click="">加载</a-button>
       </a-col>
       <a-col :span="6">
         <a-button type="primary" @click="getPosition">下载坐标</a-button>
       </a-col>
     </a-row>
-    <a-row class="option-group">
+    <a-row class="option-group" style="height: 250px">
       <a-col class="row-label" :span="4">
         <span class="group-label">图层： </span>
       </a-col>
@@ -22,53 +25,12 @@
         <layer-list></layer-list>
       </a-col>
     </a-row>
-    <a-row class="option-group">
-      <a-col class="row-label" :span="4">
-        <span class="group-label">区域： </span>
-      </a-col>
-      <a-col :span="12">
-        <a-button-group>
-          <a-input type="text" placeholder="区域标识" v-model="areaNameRef"></a-input>
-          <a-button
-            type="primary"
-            v-if="!controller.isDrawingArea()"
-            @click="handleStartDrawingArea"
-          >
-            新增区域
-          </a-button>
-          <a-button type="primary" v-else @click="handleEndDrawingArea(true)"> 完成区域 </a-button>
-        </a-button-group>
-      </a-col>
-      <a-col :span="6" v-if="controller.isDrawingArea()">
-        <a-button @click="handleEndDrawingArea(false)">取消</a-button>
-      </a-col>
-      <a-col :offset="4" :span="6">
-        <a-button
-          @click=""
-          v-if="!controller.isDrawingArea()"
-          :disabled="!controller.getCurrentArea()"
-        >
-          <icon-edit />
-          编辑
-        </a-button>
-        <a-button @click="" v-else disabled>
-          <icon-edit />
-          完成
-        </a-button>
-      </a-col>
-      <a-col :span="6">
-        <a-button
-          status="danger"
-          @click="emitDeleteAreaEvent"
-          :disabled="!controller.getCurrentArea()"
-        >
-          <icon-delete />
-          删除
-        </a-button>
-      </a-col>
-    </a-row>
+    <area-options
+      style="height: 100px"
+      @end-edit-area="(...props) => emit('end-edit-area', ...props)"
+    />
     <edit-options></edit-options>
-    <a-row class="option-group">
+    <a-row class="option-group" style="height: 200px">
       <a-col class="row-label" :span="4">设置：</a-col>
       <a-col :span="12">
         <div class="auto-connect">
@@ -97,14 +59,13 @@
           @change="(num: number) => configRef.setLineWidth(num)"
         />
       </a-col>
-    </a-row>
-    <a-row>
       <a-col :span="20" :offset="4">
         比例：
         <controlled-slider @register="registerControllerSlider"></controlled-slider>
       </a-col>
     </a-row>
   </div>
+  <change-map-size-modal :visible="changeMapSizeModalVisible" @close="changeMapSizeModalVisible = false"></change-map-size-modal>
 </template>
 
 <script setup lang="ts">
@@ -112,10 +73,10 @@
   import modal from '@arco-design/web-vue/es/modal';
   import message from '@arco-design/web-vue/es/message';
   import ControlledSlider, { useControllerSlider } from '../../components/controlled-slider';
-  import controller from './common/canvas-state-controller';
-  import { emitDeleteAreaEvent } from './common/event';
   import LayerList from './components/layer-list.vue';
+  import AreaOptions from './components/area-options.vue';
   import EditOptions from './components/edit-options.vue';
+  import ChangeMapSizeModal from './components/change-map-size-modal.vue';
   import { Layer } from './common/types';
   import { useColorPicker } from '../../hooks/useColorPicker';
   import { useLoading } from '../../components/Loading';
@@ -162,21 +123,9 @@
     });
   }
 
-  const areaNameRef = ref('');
-  function handleStartDrawingArea() {
-    if (!areaNameRef.value.length) {
-      message.warning('请填写区域标识！');
-      return;
-    }
-    controller.startDrawingArea();
-  }
-  function handleEndDrawingArea(complete: boolean) {
-    if (complete && !areaNameRef.value.length) {
-      message.warning('请填写区域标识！');
-      return;
-    }
-    emit('end-edit-area', areaNameRef.value, complete);
-    areaNameRef.value = '';
+  const changeMapSizeModalVisible = ref(false);
+  function handleChangeMapSize() {
+    changeMapSizeModalVisible.value = true;
   }
 
   const [registerControllerSlider] = useControllerSlider({
@@ -229,6 +178,14 @@
       display: flex;
       align-items: center;
     }
+    .arco-btn.actived {
+      color: var(--color-text-2);
+      background-color: var(--color-secondary-active);
+      border-color: transparent;
+    }
+    .option-group {
+      border-bottom: 1px solid var(--color-border-2);
+    }
     .arco-btn {
       font-size: 12px;
       width: 80px;
@@ -238,20 +195,6 @@
       img {
         filter: opacity(0.2);
       }
-    }
-    .arco-btn.actived {
-      color: var(--color-text-2);
-      background-color: var(--color-secondary-active);
-      border-color: transparent;
-    }
-    .option-group {
-      border-bottom: 1px solid var(--color-border-2);
-    }
-    .edit-options button {
-      font-size: 12px;
-      width: 40px;
-      height: 32px;
-      padding: 0 4px;
     }
   }
   .arco-input-wrapper {
