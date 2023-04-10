@@ -29,6 +29,7 @@
   const configRef = useEditorConfig();
   let beginPoint: PointA = { x: 0, y: 0 };
   let endPoint: PointA = { x: 0, y: 0 };
+  let prevPoint: PointA = { x: 0, y: 0 };
 
   // 鼠标事件根据不同按钮按下后分别处理
   function handleMouseDown(e: MouseEvent) {
@@ -37,8 +38,8 @@
       case CanvasOption.None: {
         if (controller.isCheckingArea()) {
           if (!controller.getCurrentArea()?.checkPointInArea(canvasUtil.getPos(e))) {
+            ctxRef.clean(controller.getCurrentArea()?.getBoundRect() || [0, 0, 0, 0]);
             controller.setCurrentArea(null);
-            ctxRef.clean();
           }
         }
         break;
@@ -48,6 +49,7 @@
       case CanvasOption.DrawRect: {
         const point = getPos(e);
         beginPoint = point;
+        prevPoint = beginPoint;
         controller.setActive(true);
         break;
       }
@@ -56,8 +58,18 @@
   const handleMouseMove = debounce(
     function (e: MouseEvent) {
       if (e.button !== 0 || !controller.getActive()) return;
-      ctxRef.clean();
       endPoint = getPos(e);
+      // 清除
+      const radius = Math.sqrt(
+        Math.pow(beginPoint.x - prevPoint.x, 2) + Math.pow(beginPoint.y - prevPoint.y, 2),
+      );
+      ctxRef.clean([
+        beginPoint.x - radius - 50,
+        beginPoint.y - radius - 50,
+        // 扩大一点范围防止少
+        2 * radius + 100,
+        2 * radius + 100,
+      ]);
       ctxRef.setLineDash([5, 5]);
       switch (controller.getState()) {
         case CanvasOption.DrawLine: {
@@ -73,8 +85,9 @@
           break;
         }
       }
+      prevPoint = getPos(e);
     },
-    10,
+    5,
     { leading: true, trailing: true },
   );
 
@@ -95,7 +108,17 @@
         break;
       }
     }
-    ctxRef.clean();
+    // 清除
+    const radius = Math.sqrt(
+      Math.pow(beginPoint.x - prevPoint.x, 2) + Math.pow(beginPoint.y - prevPoint.y, 2),
+    );
+    ctxRef.clean([
+      beginPoint.x - radius - 50,
+      beginPoint.y - radius - 50,
+      // 扩大一点范围防止少
+      2 * radius + 100,
+      2 * radius + 100,
+    ]);
     controller.setActive(false);
   }
   function handleMouseOut() {
@@ -104,7 +127,6 @@
   }
 
   onClickAreaEvent((_, area: Area | null) => {
-    ctxRef.clean();
     if (area) {
       const rect = area.getBoundRect();
       ctxRef.setLineDash([8, 8]);
@@ -114,7 +136,7 @@
   });
 
   onDeleteAreaEvent(() => {
-    ctxRef.clean();
+    ctxRef.clean(controller.getCurrentArea()?.getBoundRect() || [0, 0, 0, 0]);
   });
 
   // 挂载时初始化

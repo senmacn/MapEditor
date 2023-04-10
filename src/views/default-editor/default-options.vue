@@ -65,7 +65,10 @@
       </a-col>
     </a-row>
   </div>
-  <change-map-size-modal :visible="changeMapSizeModalVisible" @close="changeMapSizeModalVisible = false"></change-map-size-modal>
+  <change-map-size-modal
+    :visible="changeMapSizeModalVisible"
+    @close="changeMapSizeModalVisible = false"
+  ></change-map-size-modal>
 </template>
 
 <script setup lang="ts">
@@ -83,6 +86,7 @@
   import { exportFile } from '../../utils/file';
   import { useEditorConfig } from '@/store/modules/editor-config';
   import { dataToBin } from './common/quadtree-utils';
+  import { getClosedCurvePointsData } from './common/image-data-util';
 
   const emit = defineEmits<{
     (e: 'end-edit-area', name: string, complete: boolean): void;
@@ -91,7 +95,7 @@
   const configRef = useEditorConfig();
   const layersRef: Ref<Layer[]> = inject('layers', [] as any);
 
-  const [openLoading, closeLoading] = useLoading({ tip: '计算中！', minTime: 1000 });
+  const [openLoading, closeLoading] = useLoading({ tip: '计算中！', minTime: 1500 });
   function getPosition() {
     modal.confirm({
       title: '确认',
@@ -109,10 +113,8 @@
                   break;
                 }
                 layer.areas.forEach((area) => {
-                  exportFile(
-                    area.getName() + '.data.bin',
-                    dataToBin(area.getData(), ...area.getBoundRect()),
-                  );
+                  const data = getClosedCurvePointsData(area);
+                  exportFile(area.getName() + '.data.bin', dataToBin(data, ...area.getBoundRect()));
                 });
               }
             }
