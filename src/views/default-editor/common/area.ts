@@ -4,9 +4,10 @@ export default class Area {
   private uuid;
   private name: string;
   private draw = false;
-  private data: ImageData;
   // x1 y1 width height
   private boundRect: Box = [0, 0, 0, 0];
+  // rect 内的data
+  private data: ImageData;
   private borderPoint: Point[] = [];
   constructor(name: string, data: ImageData) {
     this.uuid = getShortUuid();

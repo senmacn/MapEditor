@@ -92,4 +92,14 @@
   }
 </script>
 
-<style></style>
+<style scoped>
+  .edit-options {
+    height: 60px;
+  }
+  .edit-options button {
+    font-size: 12px;
+    width: 40px;
+    height: 32px;
+    padding: 0 4px;
+  }
+</style>

@@ -1,9 +1,16 @@
 import { isFunction } from 'lodash-es';
 import { CanvasExtendImp } from '../common/types';
-import message from '@arco-design/web-vue/es/message';
 import { useEditorConfig } from '@/store/modules/editor-config';
+import * as imageDataUtil from '../common/image-data-util';
+import Area from '../common/area';
 
 export type CanvasInstance = CanvasExtendImp & CanvasRenderingContext2D;
+
+interface CanvasHistory {
+  data: ImageData | null;
+  // x1: number; y1: number; width: number; height: number;
+  rect: Box;
+}
 
 export class ExtendCanvas implements CanvasExtendImp {
   private canvasInstance: CanvasRenderingContext2D | null = null;
@@ -11,10 +18,10 @@ export class ExtendCanvas implements CanvasExtendImp {
   // 橡皮擦用
   private lastPoint: PointA | null = null;
   // canvas 存储历史用于保存、撤销、还原操作
-  private canvasHistory: ImageData[] & Recordable = [];
+  private canvasHistory: CanvasHistory[] = [{ data: null, rect: [0, 0, 0, 0] }];
   private historyState = {
-    current: -1,
-    max: -1,
+    current: 0,
+    max: 0,
   };
   constructor() {}
   setupCanvas(canvasInstance: CanvasRenderingContext2D) {
@@ -29,22 +36,30 @@ export class ExtendCanvas implements CanvasExtendImp {
   }
   save() {
     const ctx = this.getCanvas();
-    const data = ctx.getImageData(0, 0, ctx.canvas.width, ctx.canvas.height);
-    if (this.historyState.max === 19) {
+    const fullData = ctx.getImageData(0, 0, ctx.canvas.width, ctx.canvas.height);
+    const boundRect = imageDataUtil.getImageDataBoundRect(fullData);
+    const data = ctx.getImageData(...boundRect);
+    if (this.historyState.max === 9) {
       this.canvasHistory.shift();
       this.historyState.max = this.historyState.current;
     } else {
       this.canvasHistory.splice(++this.historyState.current);
       this.historyState.max = this.historyState.current;
     }
-    this.canvasHistory.push(data);
+    this.canvasHistory.push({
+      data: data,
+      rect: boundRect,
+    });
   }
   redo() {
     const ctx = this.getCanvas();
     if (this.historyState.current < this.historyState.max) {
       const data = this.canvasHistory[++this.historyState.current];
       if (!data) return;
-      ctx.putImageData(data, 0, 0);
+      this.clean();
+      if (data.data) {
+        ctx.putImageData(data.data, data.rect[0], data.rect[1]);
+      }
     }
   }
   undo() {
@@ -52,7 +67,10 @@ export class ExtendCanvas implements CanvasExtendImp {
     if (this.historyState.current > 0) {
       const data = this.canvasHistory[--this.historyState.current];
       if (!data) return;
-      ctx.putImageData(data, 0, 0);
+      this.clean();
+      if (data.data) {
+        ctx.putImageData(data.data, data.rect[0], data.rect[1]);
+      }
     }
   }
   // 清空
@@ -144,16 +162,23 @@ export class ExtendCanvas implements CanvasExtendImp {
     ctx.font = '14px serif';
     ctx.fillText(text, point.x - text.length * 5, point.y);
   }
-  getImageData() {
+  getImageData(props?: [number, number, number, number]) {
     const ctx = this.getCanvas();
-    return ctx.getImageData(0, 0, ctx.canvas.width, ctx.canvas.height);
+    return props
+      ? ctx.getImageData(...props)
+      : ctx.getImageData(0, 0, ctx.canvas.width, ctx.canvas.height);
   }
-  mixin(data: ImageData) {
+  /**
+   * 混入区域（只混入有数据的部分）
+   * @param area 区域数据
+   * @returns
+   */
+  mixin(area: Area) {
     const ctx = this.getCanvas();
-    const oldImageData = this.getImageData();
-    const newData = data.data;
+    const boundRect = area.getBoundRect();
+    const newData = area.getData().data;
+    const oldImageData = this.getImageData(boundRect);
     const length = oldImageData.data.length / 4;
-    let flag = 0;
     for (let index = 0; index < length; index++) {
       if (
         newData[index * 4] > 0 ||
@@ -165,15 +190,10 @@ export class ExtendCanvas implements CanvasExtendImp {
         oldImageData.data[index * 4 + 1] = newData[index * 4 + 1];
         oldImageData.data[index * 4 + 2] = newData[index * 4 + 2];
         oldImageData.data[index * 4 + 3] = newData[index * 4 + 3];
-        flag++;
       }
     }
-    if (flag === 0) {
-      message.warning('该区域未包含有效点！');
-      return false;
-    }
-    ctx.putImageData(oldImageData, 0, 0);
-    ctx.save();
+    ctx.putImageData(oldImageData, boundRect[0], boundRect[1]);
+    this.save();
     return true;
   }
 }

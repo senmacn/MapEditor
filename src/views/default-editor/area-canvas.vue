@@ -1,8 +1,6 @@
 <template>
   <canvas
     id="area-canvas"
-    width="1000"
-    height="1000"
     @mousemove.stop="handleMouseMove"
     @mouseup.stop="handleMouseUp"
     @mousedown.stop="handleMouseDown"
@@ -19,11 +17,14 @@
   import {
     onCanvasRedoEvent,
     onCanvasUndoEvent,
+    onEditAreaEvent,
     onPersistLineEvent,
     onPersistShapeEvent,
   } from './common/event';
   import Area from './common/area';
   import { useEditorConfig } from '@/store/modules/editor-config';
+  import debounce from 'lodash-es/debounce';
+  import message from '@arco-design/web-vue/es/message';
 
   // canvas相关
   const ctxRef = useCanvas();
@@ -63,28 +64,31 @@
     }
     controller.setActive(true);
   }
-  function handleMouseMove(e: MouseEvent) {
-    if (e.button !== 0 || !controller.getActive()) return;
-    switch (controller.getState()) {
-      case CanvasOption.FollowMouse: {
-        _drawSmoothLine(e);
-        break;
+
+  const handleMouseMove = debounce(
+    function (e: MouseEvent) {
+      if (e.button !== 0 || !controller.getActive()) return;
+      switch (controller.getState()) {
+        case CanvasOption.FollowMouse: {
+          _drawSmoothLine(e);
+          break;
+        }
+        case CanvasOption.FollowMouseClear: {
+          ctxRef.erase(canvasUtil.getPos(e));
+          break;
+        }
       }
-      case CanvasOption.FollowMouseClear: {
-        ctxRef.erase(canvasUtil.getPos(e));
-        break;
-      }
-    }
-  }
+    },
+    10,
+    { leading: true },
+  );
   function handleMouseUp(e: MouseEvent) {
     if (e.button !== 0 || !controller.getActive()) return;
     const curPoint = canvasUtil.getPos(e);
     switch (controller.getState()) {
       case CanvasOption.FollowMouse: {
-        if (canvasUtil.isPointOverlap(curPoint, beginPoint)) {
-          ctxRef.fillStyle = configRef.color;
-          ctxRef.fillRect(curPoint.x, curPoint.y, 1, 1);
-        } else {
+        // 不能画点
+        if (!canvasUtil.isPointOverlap(curPoint, beginPoint)) {
           const endPoint = _drawSmoothLine(e, true);
           if (configRef.autoConnect && endPoint) {
             _autoConnect(endPoint);
@@ -138,6 +142,13 @@
   }
 
   // 监听广播
+  onEditAreaEvent(() => {
+    const currentArea = controller.getCurrentArea();
+    if (currentArea !== null) {
+      const data = currentArea.getData();
+      ctxRef.putImageData(data, 0, 0);
+    }
+  });
   onCanvasRedoEvent(() => {
     if (controller.isDrawingArea()) {
       ctxRef.redo();
@@ -195,6 +206,8 @@
     if (setUpState) return;
     let editCanvas: HTMLCanvasElement = document.getElementById('area-canvas') as HTMLCanvasElement;
     if (editCanvas == null) return;
+    editCanvas.width = configRef.size.x;
+    editCanvas.height = configRef.size.y;
     let ctx = editCanvas.getContext('2d', {
       willReadFrequently: true,
     }) as CanvasRenderingContext2D;
@@ -221,10 +234,17 @@
 
   // 对外暴露
   function getCreatedArea() {
-    const data = ctxRef.getImageData();
+    // 先获取完整的数据内容
+    const fullData = ctxRef.getImageData();
+    const boundRect = imageDataUtil.getImageDataBoundRect(fullData);
+    if (boundRect.every((pos) => !pos)) {
+      message.warning('该区域未包含有效点！');
+      return null;
+    }
+    // 获取有数据的内容
+    const data = ctxRef.getImageData(boundRect);
     const area = new Area('新区域', data);
-    area.setData(data);
-    area.setBoundRect(imageDataUtil.getImageDataBoundRect(data));
+    area.setBoundRect(boundRect);
     return area;
   }
   defineExpose({
@@ -237,7 +257,6 @@
     position: absolute;
     top: 0;
     left: 0;
-    border: 3px solid rgb(143, 143, 143);
     background-repeat: no-repeat;
     background-size: contain;
   }

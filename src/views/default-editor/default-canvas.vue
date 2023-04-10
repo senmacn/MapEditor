@@ -10,7 +10,6 @@
   import { useEditorConfig } from '@/store/modules/editor-config';
   import { emitClickAreaEvent, onDeleteAreaEvent } from './common/event';
   import controller from './common/canvas-state-controller';
-  import { isNullOrUnDef } from '@/utils/is';
 
   const props = defineProps({
     layer: {
@@ -26,11 +25,13 @@
   let setUpState = false;
   function setup() {
     if (!props.layer || setUpState) return;
-    let editCanvas: HTMLCanvasElement = document.getElementById(
+    let defaultCanvas: HTMLCanvasElement = document.getElementById(
       props.layer.uuid,
     ) as HTMLCanvasElement;
-    if (editCanvas == null) return;
-    let ctx = editCanvas.getContext('2d', {
+    if (defaultCanvas == null) return;
+    defaultCanvas.width = configRef.size.x;
+    defaultCanvas.height = configRef.size.y;
+    let ctx = defaultCanvas.getContext('2d', {
       willReadFrequently: true,
     }) as CanvasRenderingContext2D;
     ctxRef.setupCanvas(ctx);
@@ -81,11 +82,14 @@
           props.layer.areas.splice(index, 1);
           ctxRef.clean();
           if (props.layer.areas.length > 0) {
-            ctxRef.putImageData(props.layer.areas[0].getData(), 0, 0);
+            ctxRef.putImageData(
+              props.layer.areas[0].getData(),
+              props.layer.areas[0].getBoundRect()[0],
+              props.layer.areas[0].getBoundRect()[1],
+            );
             props.layer.areas.forEach((area, index) => {
               if (index !== 0) {
-                // TODO: 优化mixin
-                ctxRef.mixin(area.getData());
+                ctxRef.mixin(area);
               }
             });
           }
@@ -102,7 +106,7 @@
         for (let index = 0; index < props.layer.areas.length; index++) {
           const area = props.layer.areas[index];
           if (!area.getDrawAreaComplete) {
-            if (ctxRef.mixin(area.getData())) {
+            if (ctxRef.mixin(area)) {
               area.drawAreaComplete();
             } else {
               props.layer.areas.splice(index, 1);
@@ -147,7 +151,6 @@
     position: absolute;
     top: 0;
     left: 0;
-    border: 3px solid rgb(143, 143, 143);
     background-repeat: no-repeat;
     background-size: contain;
   }

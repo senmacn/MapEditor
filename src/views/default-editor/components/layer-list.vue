@@ -5,63 +5,72 @@
       <div class="layer-name"> 名称 </div>
       <div class="layer-option"> 操作 </div>
     </div>
-    <transition-group name="list" tag="ul" class="arco-list-content">
-      <li class="layer-item arco-list-item" v-for="(layer, index) in layersRef" :key="layer.uuid">
-        <div
-          class="layer-index"
-          draggable
-          @dragenter="dragenter($event, index)"
-          @dragover="dragover($event, index)"
-          @dragstart="dragstart(index)"
-        >
-          <icon-fire v-if="layer.hot" />
-          {{ index + 1 }}
-        </div>
-        <div class="layer-name">
-          <a-input type="text" v-model="layer.name" />
-        </div>
-        <div class="layer-option">
-          <a-tooltip content="隐藏图层">
-            <a-button
-              type="text"
-              v-if="layer.visible"
-              status="success"
-              @click="() => changeLayerVisible(layer, false)"
-            >
+    <transition-group name="list" tag="ul">
+      <li class="layer-item" v-for="(layer, index) in layersRef" :key="layer.uuid">
+        <div class="layer-content">
+          <div
+            class="layer-index"
+            draggable
+            @dragenter="dragenter($event, index)"
+            @dragover.prevent
+            @dragstart="dragstart(index)"
+          >
+            <icon-fire v-if="layer.hot" />
+            {{ index + 1 }}
+          </div>
+          <div class="layer-name">
+            <a-input type="text" v-model="layer.name" />
+          </div>
+          <div class="layer-option">
+            <a-tooltip content="隐藏图层">
+              <a-button
+                type="text"
+                v-if="layer.visible"
+                status="success"
+                @click="() => changeLayerVisible(layer, false)"
+              >
+                <template #icon>
+                  <icon-eye />
+                </template>
+              </a-button>
+            </a-tooltip>
+            <a-tooltip content="显示图层">
+              <a-button
+                type="text"
+                status="normal"
+                v-if="!layer.visible"
+                @click="() => changeLayerVisible(layer, true)"
+              >
+                <template #icon>
+                  <icon-eye-invisible />
+                </template>
+              </a-button>
+            </a-tooltip>
+            <a-upload @beforeUpload="(file) => handleUploadFile(file, index)" accept=".png,.jpg">
+              <template #upload-button>
+                <a-tooltip content="上传底图">
+                  <a-button type="text" :class="layer.map ? 'success' : 'none'">
+                    <template #icon>
+                      <icon-file-image />
+                    </template>
+                  </a-button>
+                </a-tooltip>
+              </template>
+            </a-upload>
+            <a-button type="text" status="warning" @click="() => handleLayerDelete(index)">
               <template #icon>
-                <icon-eye />
+                <icon-delete />
               </template>
             </a-button>
-          </a-tooltip>
-          <a-tooltip content="显示图层">
-            <a-button
-              type="text"
-              status="normal"
-              v-if="!layer.visible"
-              @click="() => changeLayerVisible(layer, true)"
-            >
-              <template #icon>
-                <icon-eye-invisible />
-              </template>
-            </a-button>
-          </a-tooltip>
-          <a-upload @beforeUpload="(file) => handleUploadFile(file, index)" accept=".png,.jpg">
-            <template #upload-button>
-              <a-tooltip content="上传底图">
-                <a-button type="text" :class="layer.map ? 'success' : 'none'">
-                  <template #icon>
-                    <icon-file-image />
-                  </template>
-                </a-button>
-              </a-tooltip>
-            </template>
-          </a-upload>
-          <a-button type="text" status="warning" @click="() => handleLayerDelete(index)">
-            <template #icon>
-              <icon-delete />
-            </template>
-          </a-button>
+          </div>
         </div>
+        <ul class="layer-areas" v-if="layer.hot && layer.areas.length">
+          <li class="area-item" v-for="area in layer.areas" :key="area.getName()">
+            <div class="area-index"></div>
+            <div class="area-name"><icon-mosaic /> {{ area.getName() }} </div>
+            <div class="area-option"> </div>
+          </li>
+        </ul>
       </li>
     </transition-group>
     <a-tooltip content="添加图层">
@@ -151,16 +160,13 @@
       refreshHot();
     }
   }
-  function dragover(e: MouseEvent, index: number) {
-    e.preventDefault();
-  }
 </script>
 
 <style lang="less">
   .layer-list {
     border: 1px solid var(--color-border-3);
     width: 100%;
-    ul {
+    > ul {
       min-height: 160px;
       max-height: 160px;
       padding: 0;
@@ -180,25 +186,26 @@
   }
 
   .layer-item {
-    display: flex;
-    width: 100%;
     list-style: none;
     border-bottom: 1px solid var(--color-border-2);
     &.title {
+      display: flex;
       font-weight: bold;
-      div {
-        background: var(--color-fill-2);
-      }
+      background: var(--color-fill-2);
+      text-align: center;
     }
-    > div {
+    .layer-content {
+      display: flex;
+      justify-content: center;
+    }
+    .layer-index,
+    .layer-name,
+    .layer-option {
       height: 24px;
       border-right: 1px solid var(--color-border-2);
       text-align: center;
       line-height: 24px;
       font-size: 12px;
-    }
-    > div:last-child {
-      border-right: 0;
     }
     .layer-index {
       cursor: grab;
@@ -218,6 +225,7 @@
     }
     .layer-option {
       width: 120px;
+      border-right: 0;
       button {
         height: 24px;
       }
@@ -241,6 +249,28 @@
     button {
       width: 100%;
       height: 24px;
+    }
+  }
+
+  .layer-areas {
+    width: 100%;
+    height: 20px;
+    padding: 0;
+    margin: 0;
+    border-top: 1px solid var(--color-border-2);
+    line-height: 20px;
+    .area-item {
+      display: flex;
+      text-align: center;
+    }
+    .area-index {
+      width: 60px;
+    }
+    .area-name {
+      flex: 1;
+    }
+    .area-option {
+      width: 120px;
     }
   }
 
