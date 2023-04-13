@@ -1,7 +1,11 @@
 import Area from './area';
 
+export type CanvasInstance = CanvasExtendImp & CanvasRenderingContext2D;
+
 export interface CanvasExtendImp {
   setupCanvas: (canvas: CanvasRenderingContext2D) => void;
+  setOffset: (offset: Offset) => void;
+  getOffset: () => Offset;
   save: () => void;
   redo: () => void;
   undo: () => void;
@@ -25,5 +29,5 @@ export interface Layer {
   map: string | ArrayBuffer | null;
   hot: boolean;
   areas: Area[];
-  ctx?: CanvasExtendImp;
+  ctxs: CanvasInstance[];
 }

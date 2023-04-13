@@ -9,7 +9,7 @@
 </template>
 
 <script setup lang="ts">
-  import { onBeforeUnmount, onMounted, watch } from 'vue';
+  import { onBeforeUnmount, onMounted } from 'vue';
   import controller, { CanvasOption } from './common/canvas-state-controller';
   import * as canvasUtil from './common/canvas-util';
   import * as imageDataUtil from './common/image-data-util';
@@ -25,6 +25,13 @@
   import { useEditorConfig } from '@/store/modules/editor-config';
   import debounce from 'lodash-es/debounce';
   import message from '@arco-design/web-vue/es/message';
+
+  const props = defineProps({
+    offset: {
+      type: Object as PropType<Offset>,
+      default: { x: 0, y: 0 },
+    },
+  });
 
   // canvas相关
   const ctxRef = useCanvas();
@@ -187,19 +194,19 @@
   });
 
   // zoom配置修改时，修改canvas大小
-  watch(
-    () => configRef.zoom,
-    () => {
-      if (configRef.zoom) {
-        const layer = document.getElementById('area-canvas');
-        if (!layer) return;
-        const style = canvasUtil.getZoomChangeStyle(configRef.zoom);
-        layer.style.setProperty('transform', style.transform);
-        layer.style.setProperty('top', style.top);
-        layer.style.setProperty('left', style.left);
-      }
-    },
-  );
+  // watch(
+  //   () => configRef.zoom,
+  //   () => {
+  //     if (configRef.zoom) {
+  //       const layer = document.getElementById('area-canvas');
+  //       if (!layer) return;
+  //       const style = canvasUtil.getZoomChangeStyle(configRef.zoom);
+  //       layer.style.setProperty('transform', style.transform);
+  //       layer.style.setProperty('top', style.top);
+  //       layer.style.setProperty('left', style.left);
+  //     }
+  //   },
+  // );
 
   // 初始化
   let setUpState = false;
@@ -207,8 +214,9 @@
     if (setUpState) return;
     let editCanvas: HTMLCanvasElement = document.getElementById('area-canvas') as HTMLCanvasElement;
     if (editCanvas == null) return;
-    editCanvas.width = configRef.size.x;
-    editCanvas.height = configRef.size.y;
+    const flag = configRef.size.x > 5000 || configRef.size.y > 5000;
+    editCanvas.width = flag ? 5000 : configRef.size.x;
+    editCanvas.height = flag ? 5000 : configRef.size.y;
     let ctx = editCanvas.getContext('2d', {
       willReadFrequently: true,
     }) as CanvasRenderingContext2D;
@@ -244,7 +252,7 @@
     }
     // 获取有数据的内容
     const data = ctxRef.getImageData(boundRect);
-    const area = new Area('新区域', data);
+    const area = new Area('新区域', data, Object.assign({}, props.offset));
     area.setBoundRect(boundRect);
     return area;
   }
@@ -258,7 +266,6 @@
     position: absolute;
     top: 0;
     left: 0;
-    background-repeat: no-repeat;
-    background-size: contain;
+    /* border: 1px dotted black; */
   }
 </style>

@@ -51,7 +51,7 @@
           @click="() => handleChangeOptionState(CanvasOption.DrawLine)"
           :disabled="!controller.isDrawingArea()"
         >
-          <img :src="LinePNG" class="arco-icon" />
+          <icon-oblique-line />
         </a-button>
       </a-tooltip>
     </a-col>
@@ -62,7 +62,18 @@
           @click="() => handleChangeOptionState(CanvasOption.DrawCircle)"
           :disabled="!controller.isDrawingArea()"
         >
-          <img :src="CirclePNG" class="arco-icon" />
+          <svg
+            viewBox="0 0 48 48"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            stroke="currentColor"
+            class="arco-icon arco-icon-oblique-line"
+            stroke-width="4"
+            stroke-linecap="butt"
+            stroke-linejoin="miter"
+          >
+            <circle r="23" cx="24" cy="24" />
+          </svg>
         </a-button>
       </a-tooltip>
     </a-col>
@@ -73,7 +84,18 @@
           @click="() => handleChangeOptionState(CanvasOption.DrawRect)"
           :disabled="!controller.isDrawingArea()"
         >
-          <img :src="RectPNG" class="arco-icon" />
+          <svg
+            viewBox="0 0 48 48"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            stroke="currentColor"
+            class="arco-icon arco-icon-oblique-line"
+            stroke-width="5"
+            stroke-linecap="butt"
+            stroke-linejoin="miter"
+          >
+            <rect width="48" height="48" />
+          </svg>
         </a-button>
       </a-tooltip>
     </a-col>
@@ -83,9 +105,6 @@
 <script setup lang="ts">
   import controller, { CanvasOption } from '../common/canvas-state-controller';
   import { emitCanvasUndoEvent, emitCanvasRedoEvent } from '../common/event';
-  import CirclePNG from '@/assets/icons/circle.png';
-  import RectPNG from '@/assets/icons/rect.png';
-  import LinePNG from '@/assets/icons/line.png';
 
   function handleChangeOptionState(state: CanvasOption) {
     controller.setState(state);

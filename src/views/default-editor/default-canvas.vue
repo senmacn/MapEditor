@@ -1,5 +1,5 @@
 <template>
-  <canvas :id="layer?.uuid" width="1000" height="1000" @click="handleClick"></canvas>
+  <canvas :id="canvasId" width="5000" height="5000" @click="handleClick" :style="style"></canvas>
 </template>
 
 <script setup lang="ts">
@@ -8,14 +8,22 @@
   import * as canvasUtil from './common/canvas-util';
   import useCanvas from './hooks/useCanvas';
   import { useEditorConfig } from '@/store/modules/editor-config';
-  import { emitClickAreaEvent, onDeleteAreaEvent } from './common/event';
+  import { emitClickAreaEvent } from './common/event';
   import controller from './common/canvas-state-controller';
+  import { nextTick } from 'vue';
 
   const props = defineProps({
+    posKey: {
+      type: Array as PropType<number[]>,
+      default: [0, 0],
+    },
     layer: {
       type: Object as PropType<Layer>,
     },
   });
+
+  const canvasId = props.layer?.uuid + '-' + props.posKey[0] + '-' + props.posKey[1];
+  const style = `top: ${props.posKey[1] * 5000}px; left: ${props.posKey[0] * 5000}px;`;
 
   // canvas相关
   const ctxRef = useCanvas();
@@ -25,19 +33,19 @@
   let setUpState = false;
   function setup() {
     if (!props.layer || setUpState) return;
-    let defaultCanvas: HTMLCanvasElement = document.getElementById(
-      props.layer.uuid,
-    ) as HTMLCanvasElement;
+    let defaultCanvas: HTMLCanvasElement = document.getElementById(canvasId) as HTMLCanvasElement;
     if (defaultCanvas == null) return;
-    defaultCanvas.width = configRef.size.x;
-    defaultCanvas.height = configRef.size.y;
+    const flag = configRef.size.x > 5000 || configRef.size.y > 5000;
+    defaultCanvas.width = flag ? 5000 : configRef.size.x;
+    defaultCanvas.height = flag ? 5000 : configRef.size.y;
     let ctx = defaultCanvas.getContext('2d', {
       willReadFrequently: true,
     }) as CanvasRenderingContext2D;
     ctxRef.setupCanvas(ctx);
+    ctxRef.setOffset({ x: props.posKey[0] * 5000, y: props.posKey[1] * 5000 });
     // drawCanvas();
 
-    props.layer.ctx = ctxRef;
+    props.layer.ctxs?.push(ctxRef);
     setUpState = true;
   }
   // 挂载或者显示时初始化
@@ -59,101 +67,47 @@
     if (props.layer?.areas && props.layer.areas.length > 0) {
       let areas: any[] = [];
       for (const area of props.layer.areas) {
-        if (area.checkPointInArea(canvasUtil.getPos(e))) {
+        if (
+          area.checkPointInArea(canvasUtil.getPos(e), {
+            x: props.posKey[0] * 5000,
+            y: props.posKey[1] * 5000,
+          })
+        ) {
           areas.push(area);
         }
       }
       if (areas.length > 0) {
-        controller.setCurrentArea(areas[0]);
-        emitClickAreaEvent(areas[0]);
+        // 先重置，否则mask-area的offset会错误
+        controller.setCurrentArea(null);
+        nextTick(() => {
+          controller.setCurrentArea(areas[0]);
+          emitClickAreaEvent(areas[0]);
+        });
       } else {
         controller.setCurrentArea(null);
       }
     }
   }
 
-  onDeleteAreaEvent(() => {
-    if (props.layer && props.layer.hot) {
-      const area = controller.getCurrentArea();
-      if (area != null) {
-        const index = props.layer.areas.findIndex((value) => value.isSame(area));
-        if (index > -1) {
-          props.layer.areas.splice(index, 1);
-          ctxRef.clean();
-          if (props.layer.areas.length > 0) {
-            ctxRef.putImageData(
-              props.layer.areas[0].getData(),
-              props.layer.areas[0].getBoundRect()[0],
-              props.layer.areas[0].getBoundRect()[1],
-            );
-            props.layer.areas.forEach((area, index) => {
-              if (index !== 0) {
-                ctxRef.mixin(area);
-              }
-            });
-          }
-          setTimeout(() => {
-            controller.setCurrentArea(null);
-          });
-        }
-      }
-    }
-  });
-
-  // 添加区域时渲染
-  watch(
-    () => props.layer?.areas,
-    () => {
-      if (props.layer?.areas) {
-        for (let index = 0; index < props.layer.areas.length; index++) {
-          const area = props.layer.areas[index];
-          if (!area.getDrawAreaComplete()) {
-            if (ctxRef.mixin(area)) {
-              area.drawAreaComplete();
-            } else {
-              props.layer.areas.splice(index, 1);
-            }
-          }
-        }
-      }
-    },
-    { deep: true },
-  );
-
-  // 背景图片
-  watch(
-    () => props.layer?.map,
-    () => {
-      if (props.layer) {
-        const layer = document.getElementById(props.layer?.uuid);
-        if (!layer) return;
-        layer.style.setProperty('background-image', 'url(' + props.layer?.map + ')');
-      }
-    },
-  );
-
   // zoom配置修改时，修改canvas大小
-  watch(
-    () => configRef.zoom,
-    () => {
-      if (configRef) {
-        const layer = document.getElementById(props.layer?.uuid || '');
-        if (!layer) return;
-        const style = canvasUtil.getZoomChangeStyle(configRef.zoom);
-        layer.style.setProperty('transform', style.transform);
-        layer.style.setProperty('top', style.top);
-        layer.style.setProperty('left', style.left);
-      }
-    },
-  );
+  // watch(
+  //   () => configRef.zoom,
+  //   () => {
+  //     if (configRef) {
+  //       const layer = document.getElementById(canvasId);
+  //       if (!layer) return;
+  //       const style = canvasUtil.getZoomChangeStyle(configRef.zoom);
+  //       layer.style.setProperty('transform', style.transform);
+  //       layer.style.setProperty('top', style.top);
+  //       layer.style.setProperty('left', style.left);
+  //     }
+  //   },
+  // );
 </script>
 
 <style scoped lang="less">
   canvas {
     position: absolute;
-    top: 0;
-    left: 0;
-    background-repeat: no-repeat;
-    background-size: contain;
+    /* border: 1px dotted black; */
   }
 </style>

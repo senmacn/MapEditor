@@ -59,10 +59,10 @@
           @change="(num: number) => configRef.setLineWidth(num)"
         />
       </a-col>
-      <a-col :span="20" :offset="4">
+      <!-- <a-col :span="20" :offset="4">
         比例：
         <controlled-slider @register="registerControllerSlider"></controlled-slider>
-      </a-col>
+      </a-col> -->
     </a-row>
   </div>
   <change-map-size-modal
@@ -87,6 +87,7 @@
   import { useEditorConfig } from '@/store/modules/editor-config';
   import { dataToBin } from './common/quadtree-utils';
   import { getClosedCurvePointsData } from './common/image-data-util';
+  import { isNullOrUnDef } from '@/utils/is';
 
   const emit = defineEmits<{
     (e: 'end-edit-area', name: string, complete: boolean): void;
@@ -108,7 +109,7 @@
             for (let index = layers.length - 1; index >= 0; index--) {
               const layer = layers[index];
               if (layer.visible && layer.hot) {
-                if (layer.ctx == null) {
+                if (isNullOrUnDef(layer.ctxs) || layer.ctxs?.length === 0) {
                   message.warning('获取图层数据失败！');
                   break;
                 }
@@ -147,6 +148,7 @@
 
 <style lang="less">
   .default-option {
+    color: #d4d4d4;
     .arco-upload-wrapper {
       width: auto;
     }
@@ -193,14 +195,10 @@
       width: 80px;
       height: 32px;
     }
-    .arco-btn-disabled {
-      img {
-        filter: opacity(0.2);
-      }
+    .arco-input-wrapper {
+      background-color: transparent;
+      border-color: var(--color-fill-3);
     }
-  }
-  .arco-input-wrapper {
-    border-color: var(--color-fill-3);
   }
   .result {
     margin-top: 400px;

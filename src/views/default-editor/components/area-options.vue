@@ -1,5 +1,5 @@
 <template>
-  <a-row class="option-group area-options">
+  <a-row class="option-group area-options" @click.stop>
     <a-col class="row-label" :span="4">
       <span class="group-label">区域： </span>
     </a-col>
@@ -55,6 +55,7 @@
   import message from '@arco-design/web-vue/es/message';
   import controller from '../common/canvas-state-controller';
   import { emitEditAreaEvent, emitDeleteAreaEvent } from '../common/event';
+  import { checkFileName } from '@/utils/file';
 
   const emit = defineEmits<{
     (e: 'end-edit-area', name: string, complete: boolean): void;
@@ -66,11 +67,19 @@
       message.warning('请填写区域标识！');
       return;
     }
+    if (!checkFileName(areaNameRef.value)) {
+      message.warning('格式错误！区域标识只支持字母、数字、下划线！');
+      return;
+    }
     controller.startDrawingArea();
   }
   function handleEndDrawingArea(complete: boolean) {
     if (complete && !areaNameRef.value.length) {
       message.warning('请填写区域标识！');
+      return;
+    }
+    if (!checkFileName(areaNameRef.value)) {
+      message.warning('格式错误！区域标识只支持字母、数字、下划线！');
       return;
     }
     if (controller.getCurrentArea() == null) {

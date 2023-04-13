@@ -1,6 +1,7 @@
 <template>
   <canvas
     id="mask-canvas"
+    v-show="visible"
     @mousemove="handleMouseMove"
     @mouseup.stop="handleMouseUp"
     @mousedown.stop="handleMouseDown"
@@ -11,8 +12,8 @@
 <script setup lang="ts">
   import useCanvas from './hooks/useCanvas';
   import controller, { CanvasOption } from './common/canvas-state-controller';
-  import { getPos } from './common/canvas-util';
-  import { onMounted, watch } from 'vue';
+  import { getPos, transformToOffset } from './common/canvas-util';
+  import { onMounted } from 'vue';
   import {
     emitPersistLineEvent,
     emitPersistShapeEvent,
@@ -23,6 +24,17 @@
   import { useEditorConfig } from '@/store/modules/editor-config';
   import Area from './common/area';
   import debounce from 'lodash-es/debounce';
+
+  const props = defineProps({
+    visible: {
+      type: Boolean,
+      default: false,
+    },
+    offset: {
+      type: Object as PropType<Offset>,
+      default: { x: 0, y: 0 },
+    },
+  });
 
   // canvas相关
   const ctxRef = useCanvas();
@@ -37,8 +49,12 @@
     switch (controller.getState()) {
       case CanvasOption.None: {
         if (controller.isCheckingArea()) {
-          if (!controller.getCurrentArea()?.checkPointInArea(canvasUtil.getPos(e))) {
-            ctxRef.clean(controller.getCurrentArea()?.getBoundRect() || [0, 0, 0, 0]);
+          if (
+            !controller
+              .getCurrentArea()
+              ?.checkPointInArea(canvasUtil.getPos(e), { x: props.offset.x, y: props.offset.y })
+          ) {
+            ctxRef.clean();
             controller.setCurrentArea(null);
           }
         }
@@ -136,15 +152,16 @@
   });
 
   onDeleteAreaEvent(() => {
-    ctxRef.clean(controller.getCurrentArea()?.getBoundRect() || [0, 0, 0, 0]);
+    ctxRef.clean();
   });
 
   // 挂载时初始化
   onMounted(() => {
     let maskCanvas: HTMLCanvasElement | null = document.querySelector('#mask-canvas');
     if (maskCanvas == null) return;
-    maskCanvas.width = configRef.size.x;
-    maskCanvas.height = configRef.size.y;
+    const flag = configRef.size.x > 5000 || configRef.size.y > 5000;
+    maskCanvas.width = flag ? 5000 : configRef.size.x;
+    maskCanvas.height = flag ? 5000 : configRef.size.y;
     let ctx = maskCanvas.getContext('2d', {
       willReadFrequently: true,
     }) as CanvasRenderingContext2D;
@@ -152,19 +169,19 @@
   });
 
   // zoom配置修改时，修改canvas大小
-  watch(
-    () => configRef.zoom,
-    () => {
-      if (configRef.zoom) {
-        const maskCanvas = document.getElementById('mask-canvas');
-        if (!maskCanvas) return;
-        const style = canvasUtil.getZoomChangeStyle(configRef.zoom);
-        maskCanvas.style.setProperty('transform', style.transform);
-        maskCanvas.style.setProperty('top', style.top);
-        maskCanvas.style.setProperty('left', style.left);
-      }
-    },
-  );
+  // watch(
+  //   () => configRef.zoom,
+  //   () => {
+  //     if (configRef.zoom) {
+  //       const maskCanvas = document.getElementById('mask-canvas');
+  //       if (!maskCanvas) return;
+  //       const style = canvasUtil.getZoomChangeStyle(configRef.zoom);
+  //       maskCanvas.style.setProperty('transform', style.transform);
+  //       maskCanvas.style.setProperty('top', style.top);
+  //       maskCanvas.style.setProperty('left', style.left);
+  //     }
+  //   },
+  // );
 </script>
 
 <style scoped lang="less">
@@ -172,9 +189,7 @@
     position: absolute;
     top: 0;
     left: 0;
-    background-repeat: no-repeat;
-    background-size: contain;
-    position: absolute;
     z-index: 999;
+    /* border: 1px dotted black; */
   }
 </style>

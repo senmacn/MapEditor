@@ -138,6 +138,7 @@
       visible: true,
       map: null,
       areas: [],
+      ctxs: [],
     });
     refreshHot();
   }
@@ -254,7 +255,6 @@
 
   .layer-areas {
     width: 100%;
-    height: 20px;
     padding: 0;
     margin: 0;
     border-top: 1px solid var(--color-border-2);
@@ -262,6 +262,7 @@
     .area-item {
       display: flex;
       text-align: center;
+      height: 20px;
     }
     .area-index {
       width: 60px;

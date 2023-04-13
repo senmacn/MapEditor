@@ -128,6 +128,7 @@ export function getConnectEndPoint(imageData: ImageData, point: PointA, lineWidt
 }
 
 // 获取矩形轮廓
+// TODO: 在画的过程中计算 xmin ymin xmax ymax
 export function getImageDataBoundRect(imageData: ImageData): Box {
   let minX = imageData.height;
   let minY = imageData.width;
