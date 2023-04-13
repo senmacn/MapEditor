@@ -47,6 +47,9 @@ export const useEditorConfig = defineStore({
     getAutoConnect(): boolean {
       return this.autoConnect;
     },
+    getSize(): Recordable<number> {
+      return this.size;
+    },
   },
   actions: {
     setStyle(value: Recordable<string>) {

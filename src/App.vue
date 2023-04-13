@@ -35,6 +35,6 @@
 
 <style lang="less">
   .arco-vue-body {
-    background-color: var(--color-fill-2);
+    background-color: #252526;
   }
 </style>

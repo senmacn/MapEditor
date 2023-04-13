@@ -11,10 +11,12 @@
 
 <script setup lang="ts">
   import { computed } from 'vue';
-  import controller, { CanvasOption } from '../common/canvas-state-controller';
+  import controller from '../common/canvas-state-controller';
 
   const statusRef = computed(() => {
-    return controller.isDrawingArea() ? '区域编辑' : '区域查看';
+    return controller.isDrawingArea()
+      ? '区域编辑<' + (controller.getCurrentArea()?.getName() || 'newArea') + '>'
+      : '区域查看';
   });
 </script>
 
@@ -27,8 +29,8 @@
     height: 20px;
     line-height: 20px;
     padding: 0 15px;
-    border-top: 1px solid rgb(235, 235, 235);
-    background-color: var(--color-bg-1);
+    color: white;
+    background-color: rgb(0, 122, 204);
   }
   .status-bar .wrapper {
     display: flex;

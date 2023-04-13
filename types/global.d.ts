@@ -33,6 +33,7 @@ declare global {
 
   declare type Point = [number, number];
   declare type PointA = { x: number; y: number };
+  declare type Offset = { x: number; y: number };
 
   declare type Box = [number, number, number, number];
 

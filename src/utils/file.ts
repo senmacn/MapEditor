@@ -17,3 +17,8 @@ function getDownloadUri(data: ArrayBuffer) {
   const blob = new Blob([data]);
   return URL.createObjectURL(blob);
 }
+
+export function checkFileName(fileName: string) {
+  var reg = /^[a-zA-Z0-9_]{2,16}$/;
+  return reg.test(fileName);
+}

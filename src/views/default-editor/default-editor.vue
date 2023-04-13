@@ -1,12 +1,25 @@
 <template>
   <div class="map-editor">
     <div :class="hideOptionRef ? 'content-box full-screen' : 'content-box'">
-      <div class="scroller" @contextmenu="handleWrapperContextmenu">
+      <div
+        ref="scrollerRef"
+        :class="['scroller', controller.isDrawingArea() ? 'active' : '']"
+        @contextmenu="handleWrapperContextmenu"
+      >
         <template v-for="layer in layersRef" :key="layer.uuid">
-          <default-canvas :layer="layer" v-show="layer.visible" />
+          <canvas-array :layer="layer" v-show="layer.visible" />
         </template>
-        <area-canvas ref="areaCanvasRef" v-if="controller.isDrawingArea()" />
-        <mask-canvas v-show="controller.isDrawingShape() || controller.isCheckingArea()" />
+        <area-canvas
+          ref="areaCanvasRef"
+          v-if="controller.isDrawingArea()"
+          :style="styleRef"
+          :offset="offsetRef"
+        />
+        <mask-canvas
+          :visible="controller.isDrawingShape() || controller.isCheckingArea()"
+          :style="styleRef"
+          :offset="offsetRef"
+        />
       </div>
     </div>
     <div :class="hideOptionRef ? 'option-box hide' : 'option-box'">
@@ -29,17 +42,18 @@
 </template>
 
 <script setup lang="ts">
-  import { Ref, provide, ref } from 'vue';
-  import defaultCanvas from './default-canvas.vue';
+  import { Ref, provide, ref, watch } from 'vue';
+  import canvasArray from './canvas-array.vue';
   import maskCanvas from './mask-canvas.vue';
   import areaCanvas from './area-canvas.vue';
   import statusBar from './components/status-bar.vue';
   import defaultOptions from './default-options.vue';
   import { getRandomDomId } from '../../utils/uuid';
   import controller from './common/canvas-state-controller';
-  import { useToggle } from '@vueuse/core';
+  import { useScroll, useToggle } from '@vueuse/core';
   import { Layer } from './common/types';
   import Area from './common/area';
+  import { useEditorConfig } from '@/store/modules/editor-config';
 
   const [hideOptionRef, changeHideState] = useToggle(false);
 
@@ -53,6 +67,7 @@
       visible: true,
       map: null,
       areas: [],
+      ctxs: [],
     },
   ]) as Ref<Layer[]>;
   provide('layers', layersRef);
@@ -74,6 +89,44 @@
     controller.endDrawingArea();
   }
 
+  const configRef = useEditorConfig();
+  // 滚动位置
+  const scrollerRef = ref();
+  const { x, y } = useScroll(scrollerRef);
+  // 位置相关
+  const offsetRef = ref<Offset>({ x: 0, y: 0 });
+  const styleRef = ref('');
+  watch(
+    [
+      () => controller.isDrawingArea(),
+      () => controller.isDrawingShape(),
+      () => controller.isCheckingArea(),
+    ],
+    () => {
+      if (
+        controller.isDrawingArea() ||
+        controller.isDrawingShape() ||
+        controller.isCheckingArea()
+      ) {
+        const top =
+          y.value - 1500 > 0
+            ? y.value + 5000 > configRef.size.y
+              ? configRef.size.y - 5000
+              : y.value
+            : 0;
+        const left =
+          x.value - 1500 > 0
+            ? x.value + 5000 > configRef.size.x
+              ? configRef.size.x - 5000
+              : x.value
+            : 0;
+        offsetRef.value.x = left;
+        offsetRef.value.y = top;
+        styleRef.value = `top: ${top}px; left: ${left}px;`;
+      }
+    },
+  );
+
   // TODO: 右键菜单事件
   function handleWrapperContextmenu(e: MouseEvent) {
     if (e.target && (e.target as any).nodeName == 'CANVAS') {
@@ -85,16 +138,16 @@
   .map-editor {
     display: flex;
     height: 100%;
-    background-color: rgb(248, 248, 248);
+    background-color: #1e1e1e;
     margin-bottom: 10px;
   }
   .content-box {
     flex: 1;
-    border: 1px dashed #cccccc;
+    border-radius: 3px;
     margin: 10px;
     max-width: calc(100vw - 484px);
     padding: 10px;
-    background-color: var(--color-bg-1);
+    background-color: rgb(51, 51, 51);
     &.full-screen {
       max-width: 96vw;
     }
@@ -104,16 +157,19 @@
     position: relative;
     height: 100%;
     width: 100%;
-    border: 3px solid rgb(143, 143, 143);
+    border: 3px solid #5a5a5a;
     overflow: auto;
+  }
+  .scroller.active {
+    border: 3px solid #c9cdd4;
   }
   .option-box {
     position: relative;
-    width: 400px;
-    margin: 10px;
+    width: 405px;
+    margin: 10px 10px 10px 5px;
     padding: 10px;
-    border: 1px dashed #cccccc;
-    background-color: var(--color-bg-1);
+    border-radius: 3px;
+    background-color: rgb(51, 51, 51);
     &.hide {
       width: 0;
       position: absolute;
@@ -127,9 +183,9 @@
     cursor: pointer;
   }
   .option-control-right {
-    right: 406px;
+    right: 411px;
   }
   .option-control-left {
-    right: 495px;
+    right: 500px;
   }
 </style>

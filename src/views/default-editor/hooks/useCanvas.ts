@@ -1,10 +1,7 @@
 import { isFunction } from 'lodash-es';
-import { CanvasExtendImp } from '../common/types';
+import { CanvasExtendImp, CanvasInstance } from '../common/types';
 import { useEditorConfig } from '@/store/modules/editor-config';
 import Area from '../common/area';
-
-export type CanvasInstance = CanvasExtendImp & CanvasRenderingContext2D;
-
 interface CanvasHistory {
   data: ImageData | null;
   // x1: number; y1: number; width: number; height: number;
@@ -18,9 +15,40 @@ function getIntegerPoint(point: PointA) {
   };
 }
 
+/**
+ * canvas 直接操作的封装
+ * @returns CanvasInstance
+ */
+export default function useCanvas(): CanvasInstance {
+  const extendCanvas = new ExtendCanvas();
+  // 代理一下
+  return new Proxy(extendCanvas, {
+    get: (obj: any, prop) => {
+      if (Reflect.has(obj, prop)) {
+        return obj[prop];
+      } else {
+        const ctx = obj.getCanvas() as any;
+        const value = ctx[prop];
+        return isFunction(value) ? value.bind(ctx) : value;
+      }
+    },
+    set: (obj, prop, newValue) => {
+      if (Reflect.has(obj, prop)) {
+        obj[prop] = newValue;
+      } else {
+        const ctx = obj.getCanvas() as any;
+        ctx[prop] = newValue;
+      }
+      return true;
+    },
+  }) as CanvasInstance;
+}
+
 export class ExtendCanvas implements CanvasExtendImp {
   private canvasInstance: CanvasRenderingContext2D | null = null;
   private canvasConfig = useEditorConfig();
+  // 用于计算偏移
+  private offset: Offset = { x: 0, y: 0 };
   // 橡皮擦用
   private lastPoint: PointA | null = null;
   // canvas 存储历史用于保存、撤销、还原操作
@@ -38,6 +66,12 @@ export class ExtendCanvas implements CanvasExtendImp {
     }
     this.HISTORY_MAX = 10 - Math.floor(this.canvasConfig.size.width / 1000);
     this.HISTORY_MAX = this.HISTORY_MAX < 2 ? 2 : this.HISTORY_MAX;
+  }
+  getOffset() {
+    return this.offset;
+  }
+  setOffset(offset: Offset) {
+    this.offset = offset;
   }
   getCanvas() {
     if (this.canvasInstance) return this.canvasInstance;
@@ -177,6 +211,7 @@ export class ExtendCanvas implements CanvasExtendImp {
   drawText(point: PointA, text: string) {
     const ctx = this.getCanvas();
     ctx.font = '14px serif';
+    ctx.fillStyle = 'white';
     ctx.fillText(text, point.x - text.length * 5, point.y);
   }
   getImageData(props?: [number, number, number, number]) {
@@ -193,8 +228,27 @@ export class ExtendCanvas implements CanvasExtendImp {
   mixin(area: Area) {
     const ctx = this.getCanvas();
     const boundRect = area.getBoundRect();
-    const newData = area.getData().data;
-    const oldImageData = this.getImageData(boundRect);
+    // 计算去除偏移后的边框
+    const tsBoundRect = transformFromOffset(boundRect, area.getOffset(), this.offset);
+    // 不在当前区域，直接跳过
+    if (!tsBoundRect) return true;
+    // 离屏渲染，渲染该区域到cache上，再取在当前canvas块上的内容
+    let cacheCanvas = document.createElement('canvas');
+    cacheCanvas.width = boundRect[2];
+    cacheCanvas.height = boundRect[3];
+    let cacheCtx = cacheCanvas.getContext('2d', {
+      willReadFrequently: true,
+    });
+    const data = area.getData();
+    cacheCtx?.putImageData(data, 0, 0);
+    const rect: Box = [
+      tsBoundRect[0] > 0 ? 0 : boundRect[2] - tsBoundRect[2],
+      tsBoundRect[1] > 0 ? 0 : boundRect[3] - tsBoundRect[3],
+      tsBoundRect[2],
+      tsBoundRect[3],
+    ];
+    const newData = cacheCtx?.getImageData(...rect).data as Uint8ClampedArray;
+    const oldImageData = this.getImageData(tsBoundRect);
     const length = oldImageData.data.length / 4;
     for (let index = 0; index < length; index++) {
       if (
@@ -209,37 +263,47 @@ export class ExtendCanvas implements CanvasExtendImp {
         oldImageData.data[index * 4 + 3] = newData[index * 4 + 3];
       }
     }
-    ctx.putImageData(oldImageData, boundRect[0], boundRect[1]);
+    ctx.putImageData(oldImageData, tsBoundRect[0], tsBoundRect[1]);
     this.save();
     return true;
   }
 }
 
-/**
- * canvas 直接操作的封装
- * @returns CanvasInstance
- */
-export default function useCanvas(): CanvasInstance {
-  const extendCanvas = new ExtendCanvas();
-  // 代理一下
-  return new Proxy(extendCanvas, {
-    get: (obj: any, prop) => {
-      if (Reflect.has(obj, prop)) {
-        return obj[prop];
-      } else {
-        const ctx = obj.getCanvas() as any;
-        const value = ctx[prop];
-        return isFunction(value) ? value.bind(ctx) : value;
-      }
-    },
-    set: (obj, prop, newValue) => {
-      if (Reflect.has(obj, prop)) {
-        obj[prop] = newValue;
-      } else {
-        const ctx = obj.getCanvas() as any;
-        ctx[prop] = newValue;
-      }
-      return true;
-    },
-  }) as CanvasInstance;
+// 根据二者偏移量计算实际位置
+function transformFromOffset(rect: Box, areaOffset: Offset, canvasOffset: Offset): Box | null {
+  const newRect: Box = [0, 0, 0, 0];
+  let x = rect[0] + areaOffset.x - canvasOffset.x;
+  let y = rect[1] + areaOffset.y - canvasOffset.y;
+  if (x < 0) {
+    newRect[0] = 0;
+    if (x + rect[2] < 0) {
+      return null;
+    }
+    newRect[2] = x + rect[2];
+  } else {
+    newRect[0] = x;
+    if (x + rect[2] > 5000) {
+      newRect[2] = 5000 - x;
+    } else {
+      newRect[2] = rect[2];
+    }
+  }
+  if (y < 0) {
+    newRect[1] = 0;
+    if (y + rect[3] < 0) {
+      return null;
+    }
+    newRect[3] = y + rect[3];
+  } else {
+    newRect[1] = y;
+    if (y + rect[3] > 5000) {
+      newRect[3] = 5000 - y;
+    } else {
+      newRect[3] = rect[3];
+    }
+  }
+  if (x > 5000 || y > 5000) {
+    return null;
+  }
+  return newRect;
 }

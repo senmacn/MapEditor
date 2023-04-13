@@ -8,11 +8,12 @@ export default class Area {
   private boundRect: Box = [0, 0, 0, 0];
   // rect 内的data
   private data: ImageData;
-  private borderPoint: Point[] = [];
-  constructor(name: string, data: ImageData) {
+  private offset: Offset;
+  constructor(name: string, data: ImageData, offset: Offset) {
     this.uuid = getShortUuid();
     this.name = name;
     this.data = data;
+    this.offset = offset;
   }
   getUuid() {
     return this.uuid;
@@ -25,6 +26,9 @@ export default class Area {
   }
   setName(value: string) {
     this.name = value;
+  }
+  getOffset() {
+    return this.offset;
   }
   getDrawAreaComplete() {
     return this.draw;
@@ -50,19 +54,13 @@ export default class Area {
   setBoundRect(value: Box) {
     this.boundRect = value;
   }
-  getBorderPoint() {
-    return this.borderPoint;
-  }
-  setBorderPoint(value: Point[]) {
-    this.borderPoint = value;
-  }
   // 点是否在区域矩形轮廓内部
-  checkPointInArea(point: PointA) {
+  checkPointInArea(point: PointA, offset: Offset) {
     return (
-      point.x > this.boundRect[0] &&
-      point.x < this.boundRect[0] + this.boundRect[2] &&
-      point.y > this.boundRect[1] &&
-      point.y < this.boundRect[1] + this.boundRect[3]
+      point.x + offset.x > this.boundRect[0] + this.offset.x &&
+      point.x + offset.x < this.boundRect[0] + this.offset.x + this.boundRect[2] &&
+      point.y + offset.y > this.boundRect[1] + this.offset.y &&
+      point.y + offset.y < this.boundRect[1] + this.offset.y + this.boundRect[3]
     );
   }
 }
