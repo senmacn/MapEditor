@@ -12,7 +12,7 @@
 <script setup lang="ts">
   import useCanvas from './hooks/useCanvas';
   import controller, { CanvasOption } from './common/canvas-state-controller';
-  import { getPos, transformToOffset } from './common/canvas-util';
+  import { getPos } from './common/canvas-util';
   import { onMounted } from 'vue';
   import {
     emitPersistLineEvent,
@@ -112,6 +112,9 @@
     endPoint = getPos(e);
     switch (controller.getState()) {
       case CanvasOption.DrawLine: {
+        if (canvasUtil.isPointOverlap(beginPoint, endPoint)) {
+          break;
+        }
         emitPersistLineEvent(beginPoint, endPoint);
         break;
       }
@@ -144,6 +147,7 @@
 
   onClickAreaEvent((_, area: Area | null) => {
     if (area) {
+      ctxRef.clean();
       const rect = area.getBoundRect();
       ctxRef.setLineDash([8, 8]);
       ctxRef.drawRect({ x: rect[0], y: rect[1] }, { x: rect[0] + rect[2], y: rect[1] + rect[3] });
