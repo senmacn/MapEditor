@@ -43,6 +43,12 @@ const deleteAreaBus = useEventBus<Symbol>(deleteAreaEvent);
 const onDeleteAreaEvent = (listener: EventBusListener) => deleteAreaBus.on(listener);
 const emitDeleteAreaEvent = () => deleteAreaBus.emit(deleteAreaEvent);
 
+// 聚焦区域
+const focusAreaEvent = Symbol('focusArea');
+const focusAreaBus = useEventBus<Symbol>(focusAreaEvent);
+const onFocusAreaEvent = (listener: EventBusListener) => focusAreaBus.on(listener);
+const emitFocusAreaEvent = (payload) => focusAreaBus.emit(focusAreaEvent, payload);
+
 export {
   onCanvasRedoEvent,
   emitCanvasRedoEvent,
@@ -58,4 +64,6 @@ export {
   emitEditAreaEvent,
   onDeleteAreaEvent,
   emitDeleteAreaEvent,
+  onFocusAreaEvent,
+  emitFocusAreaEvent,
 };

@@ -103,6 +103,18 @@
   //     }
   //   },
   // );
+  watch(
+    () => controller.isEditingArea(),
+    () => {
+      let defaultCanvas: HTMLCanvasElement = document.getElementById(canvasId) as HTMLCanvasElement;
+      if (defaultCanvas == null) return;
+      if (controller.isEditingArea()) {
+        defaultCanvas.style.visibility = 'hidden';
+      } else {
+        defaultCanvas.style.visibility = 'visible';
+      }
+    },
+  );
 </script>
 
 <style scoped lang="less">

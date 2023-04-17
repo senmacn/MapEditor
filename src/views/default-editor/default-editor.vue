@@ -37,12 +37,12 @@
       />
       <default-options @end-edit-area="handleEndEditArea" />
     </div>
-    <status-bar></status-bar>
+    <status-bar :offsetX="x" :offsetY="y"></status-bar>
   </div>
 </template>
 
 <script setup lang="ts">
-  import { Ref, provide, ref, watch } from 'vue';
+  import { Ref, nextTick, provide, ref, watch } from 'vue';
   import canvasArray from './canvas-array.vue';
   import maskCanvas from './mask-canvas.vue';
   import areaCanvas from './area-canvas.vue';
@@ -54,6 +54,7 @@
   import { Layer } from './common/types';
   import Area from './common/area';
   import { useEditorConfig } from '@/store/modules/editor-config';
+  import { emitClickAreaEvent, onFocusAreaEvent } from './common/event';
 
   const [hideOptionRef, changeHideState] = useToggle(false);
 
@@ -91,7 +92,7 @@
 
   const configRef = useEditorConfig();
   // 滚动位置
-  const scrollerRef = ref();
+  const scrollerRef = ref<HTMLElement>();
   const { x, y } = useScroll(scrollerRef);
   // 位置相关
   const offsetRef = ref<Offset>({ x: 0, y: 0 });
@@ -126,6 +127,22 @@
       }
     },
   );
+
+  onFocusAreaEvent((_, area: Area) => {
+    const scroller = scrollerRef.value;
+    if (scroller) {
+      // TODO: 优化聚焦
+      scroller.scroll({
+        left: area.getOffset().x + area.getBoundRect()[0],
+        top: area.getOffset().y + area.getBoundRect()[1],
+      });
+      controller.setCurrentArea(null);
+      nextTick(() => {
+        controller.setCurrentArea(area);
+        emitClickAreaEvent(area);
+      });
+    }
+  });
 
   // TODO: 右键菜单事件
   function handleWrapperContextmenu(e: MouseEvent) {

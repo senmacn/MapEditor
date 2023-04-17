@@ -5,6 +5,7 @@ import { isNull } from '@/utils/is';
 
 export enum CanvasAreaOption {
   AreaCheck,
+  AreaAdd,
   AreaEdit,
 }
 
@@ -59,8 +60,8 @@ class CanvasStateController {
   setCurrentArea(area: Area | null) {
     this.currentArea.value = area;
   }
-  startDrawingArea() {
-    this.areaState.value = CanvasAreaOption.AreaEdit;
+  startDrawingArea(isAdd: boolean) {
+    this.areaState.value = isAdd ? CanvasAreaOption.AreaAdd : CanvasAreaOption.AreaEdit;
     this.setState(CanvasOption.FollowMouse);
   }
   endDrawingArea() {
@@ -68,6 +69,12 @@ class CanvasStateController {
     this.setState(CanvasOption.None);
   }
   isDrawingArea() {
+    return (
+      this.areaState.value === CanvasAreaOption.AreaEdit ||
+      this.areaState.value === CanvasAreaOption.AreaAdd
+    );
+  }
+  isEditingArea() {
     return this.areaState.value === CanvasAreaOption.AreaEdit;
   }
   isCheckingArea() {

@@ -73,16 +73,8 @@
           props.layer.areas.splice(index, 1);
           props.layer.ctxs.forEach((ctx) => ctx.clean());
           if (props.layer.areas.length > 0) {
-            props.layer.ctxs.forEach((ctx) => {
-              props.layer &&
-                ctx.putImageData(
-                  props.layer?.areas[0].getData(),
-                  props.layer?.areas[0].getBoundRect()[0],
-                  props.layer?.areas[0].getBoundRect()[1],
-                );
-            });
             props.layer.areas.forEach((area, index) => {
-              if (index !== 0 && props.layer) {
+              if (props.layer) {
                 props.layer.ctxs.forEach((ctx) => {
                   ctx.mixin(area);
                 });
@@ -100,7 +92,7 @@
 
 <style lang="less" scoped>
   .canvas-array {
-    position: relative;
+    position: absolute;
     overflow: hidden;
   }
 </style>

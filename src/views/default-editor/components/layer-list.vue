@@ -46,6 +46,18 @@
                 </template>
               </a-button>
             </a-tooltip>
+            <a-tooltip content="显示区域">
+              <a-button
+                type="text"
+                @click="() => handleChangeAreaVisible(layer.uuid)"
+                status="normal"
+              >
+                <template #icon>
+                  <icon-menu-fold v-if="!hiddenAreaMapRef[layer.uuid]" />
+                  <icon-menu-unfold v-else />
+                </template>
+              </a-button>
+            </a-tooltip>
             <a-upload @beforeUpload="(file) => handleUploadFile(file, index)" accept=".png,.jpg">
               <template #upload-button>
                 <a-tooltip content="上传底图">
@@ -64,13 +76,10 @@
             </a-button>
           </div>
         </div>
-        <ul class="layer-areas" v-if="layer.hot && layer.areas.length">
-          <li class="area-item" v-for="area in layer.areas" :key="area.getName()">
-            <div class="area-index"></div>
-            <div class="area-name"><icon-mosaic /> {{ area.getName() }} </div>
-            <div class="area-option"> </div>
-          </li>
-        </ul>
+        <area-list
+          v-if="!hiddenAreaMapRef[layer.uuid] && layer.areas.length"
+          :areas="layer.areas"
+        />
       </li>
     </transition-group>
     <a-tooltip content="添加图层">
@@ -81,6 +90,7 @@
 
 <script setup lang="ts">
   import { Ref, inject, ref } from 'vue';
+  import AreaList from './area-list.vue';
   import modal from '@arco-design/web-vue/es/modal';
   import { getRandomDomId } from '../../../utils/uuid';
   import { useLoading } from '../../../components/Loading';
@@ -97,19 +107,31 @@
       if (element.visible && !isHot) {
         element.hot = true;
         isHot = true;
+        hiddenAreaMapRef.value[element.uuid] = false;
       }
     }
   };
-
   function changeLayerVisible(layer: Layer, visible: boolean) {
     layer.visible = visible;
     refreshHot();
   }
-
+  function handleLayerAdd() {
+    layersRef.value.push({
+      uuid: getRandomDomId(),
+      name: '图层' + (layersRef.value.length + 1),
+      level: layersRef.value.length ? layersRef.value[layersRef.value.length - 1].level + 1 : 1,
+      hot: true,
+      visible: true,
+      map: null,
+      areas: [],
+      ctxs: [],
+    });
+    refreshHot();
+  }
   function handleLayerDelete(index: number) {
     modal.confirm({
       title: '确认',
-      content: `即将删除图层[${layersRef.value[index].name}],该操作不可逆，请仔细确认！`,
+      content: `删除[${layersRef.value[index].name}]的操作不可逆，请仔细确认！`,
       onOk: () => {
         layersRef.value.splice(index, 1);
         refreshHot();
@@ -129,19 +151,6 @@
     };
     return Promise.reject() as any;
   }
-  function handleLayerAdd() {
-    layersRef.value.push({
-      uuid: getRandomDomId(),
-      name: '图层' + (layersRef.value.length + 1),
-      level: layersRef.value.length ? layersRef.value[layersRef.value.length - 1].level + 1 : 1,
-      hot: true,
-      visible: true,
-      map: null,
-      areas: [],
-      ctxs: [],
-    });
-    refreshHot();
-  }
 
   const dragIndexRef = ref(0);
   function dragstart(index: number) {
@@ -160,6 +169,11 @@
       dragIndexRef.value = index;
       refreshHot();
     }
+  }
+
+  const hiddenAreaMapRef = ref<Recordable<boolean>>({});
+  function handleChangeAreaVisible(uuid: string) {
+    hiddenAreaMapRef.value[uuid] = !hiddenAreaMapRef.value[uuid];
   }
 </script>
 
@@ -184,6 +198,9 @@
   }
   .arco-icon {
     font-size: 14px;
+  }
+  .arco-icon-fire {
+    color: rgb(255, 50, 48) !important;
   }
 
   .layer-item {
@@ -225,7 +242,7 @@
       }
     }
     .layer-option {
-      width: 120px;
+      width: 140px;
       border-right: 0;
       button {
         height: 24px;
@@ -247,50 +264,5 @@
       height: 100%;
       background-color: rgb(250, 250, 250);
     }
-    button {
-      width: 100%;
-      height: 24px;
-    }
-  }
-
-  .layer-areas {
-    width: 100%;
-    padding: 0;
-    margin: 0;
-    border-top: 1px solid var(--color-border-2);
-    line-height: 20px;
-    .area-item {
-      display: flex;
-      text-align: center;
-      height: 20px;
-    }
-    .area-index {
-      width: 60px;
-    }
-    .area-name {
-      flex: 1;
-    }
-    .area-option {
-      width: 120px;
-    }
-  }
-
-  .list-move,
-  .list-enter-active,
-  .list-leave-active {
-    transition: all 0.5s ease;
-  }
-  .list-enter-from,
-  .list-leave-to {
-    opacity: 0;
-    transform: translateX(30px);
-  }
-  /* 确保将离开的元素从布局流中删除
-  以便能够正确地计算移动的动画。 */
-  .list-leave-active {
-    position: absolute;
-  }
-  .arco-icon-fire {
-    color: rgb(255, 50, 48) !important;
   }
 </style>

@@ -71,7 +71,7 @@
       message.warning('格式错误！区域标识只支持字母、数字、下划线！');
       return;
     }
-    controller.startDrawingArea();
+    controller.startDrawingArea(true);
   }
   function handleEndDrawingArea(complete: boolean) {
     if (complete && !areaNameRef.value.length) {
@@ -82,7 +82,8 @@
       message.warning('格式错误！区域标识只支持字母、数字、下划线！');
       return;
     }
-    if (controller.getCurrentArea() == null) {
+    // 编辑、新增逻辑不同
+    if (!controller.isEditingArea()) {
       emit('end-edit-area', areaNameRef.value, complete);
       areaNameRef.value = '';
     } else {
@@ -96,7 +97,7 @@
 
   function handleStartEditArea() {
     areaNameRef.value = controller.getCurrentArea()?.getName() || '';
-    controller.startDrawingArea();
+    controller.startDrawingArea(false);
     setTimeout(() => {
       emitEditAreaEvent();
     }, 50);
