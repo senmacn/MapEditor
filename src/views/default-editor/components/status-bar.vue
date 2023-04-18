@@ -2,10 +2,7 @@
   <div class="status-bar">
     <div class="wrapper">
       <div class="status-col"> 状态: {{ statusRef }}</div>
-      <div>
-        <icon-drag-arrow />
-      </div>
-      <div> {{ pos }} </div>
+      <div> <icon-drag-arrow /> {{ pos }} </div>
     </div>
   </div>
 </template>
@@ -14,18 +11,7 @@
   import { computed } from 'vue';
   import controller from '../common/canvas-state-controller';
   import { useMouse } from '@vueuse/core';
-
-  const props = defineProps({
-    offsetX: {
-      type: Number,
-      default: 0,
-    },
-    offsetY: {
-      type: Number,
-      default: 0,
-    },
-  });
-  const mouseRef = useMouse();
+  import { useCanvasState } from '@/store/modules/canvas-state';
 
   const statusRef = computed(() => {
     return controller.isDrawingArea()
@@ -33,9 +19,11 @@
       : '区域查看';
   });
 
+  const state = useCanvasState();
+  const mouseRef = useMouse();
   const pos = computed(() => {
-    let pureX = Number(mouseRef.x.value) + props.offsetX - 23;
-    let pureY = Number(mouseRef.y.value) + props.offsetY - 76;
+    let pureX = Number(mouseRef.x.value) + state.getOffset.x - 23;
+    let pureY = Number(mouseRef.y.value) + state.getOffset.y - 76;
     if (pureX < 0 || pureY < 0) return 'x: 0   y: 0';
     return `x: ${pureX}   y: ${pureY}`;
   });
@@ -58,8 +46,11 @@
     font-size: 12px;
     > div {
       padding: 0 10px;
-      min-width: 100px;
+      min-width: 150px;
       border-right: 1px solid rgb(235, 235, 235);
+    }
+    .arco-icon {
+      margin-right: 10px;
     }
     .status-col {
       width: 180px;

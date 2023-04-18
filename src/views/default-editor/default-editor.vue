@@ -1,62 +1,41 @@
 <template>
   <div class="map-editor">
     <div :class="hideOptionRef ? 'content-box full-screen' : 'content-box'">
-      <div
-        ref="scrollerRef"
-        :class="['scroller', controller.isDrawingArea() ? 'active' : '']"
-        @contextmenu="handleWrapperContextmenu"
-      >
-        <template v-for="layer in layersRef" :key="layer.uuid">
-          <canvas-array :layer="layer" v-show="layer.visible" />
-        </template>
-        <area-canvas
-          ref="areaCanvasRef"
-          v-if="controller.isDrawingArea()"
-          :style="styleRef"
-          :offset="offsetRef"
-        />
-        <mask-canvas
-          :visible="controller.isDrawingShape() || controller.isCheckingArea()"
-          :style="styleRef"
-          :offset="offsetRef"
-        />
-      </div>
+      <div ref="hRuler" class="ruler h-ruler"></div>
+      <div ref="vRuler" class="ruler v-ruler"></div>
+      <canvas-container ref="areaCanvasRef" />
     </div>
     <div :class="hideOptionRef ? 'option-box hide' : 'option-box'">
       <icon-right-circle
         class="option-control option-control-right"
         size="28"
         v-if="!hideOptionRef"
-        @click="() => changeHideState(true)"
+        @click="handleChangeHideState(true)"
       />
       <icon-left-circle
         class="option-control option-control-left"
         size="28"
         v-else
-        @click="() => changeHideState(false)"
+        @click="handleChangeHideState(false)"
       />
       <default-options @end-edit-area="handleEndEditArea" />
     </div>
-    <status-bar :offsetX="x" :offsetY="y"></status-bar>
+    <status-bar></status-bar>
   </div>
 </template>
 
 <script setup lang="ts">
-  import { Ref, nextTick, provide, ref, watch } from 'vue';
-  import canvasArray from './canvas-array.vue';
-  import maskCanvas from './mask-canvas.vue';
-  import areaCanvas from './area-canvas.vue';
-  import statusBar from './components/status-bar.vue';
-  import defaultOptions from './default-options.vue';
+  import { Ref, provide, ref, watch } from 'vue';
+  import StatusBar from './components/status-bar.vue';
+  import CanvasContainer from './canvas-container.vue';
+  import DefaultOptions from './default-options.vue';
   import { getRandomDomId } from '../../utils/uuid';
   import controller from './common/canvas-state-controller';
-  import { useScroll, useToggle } from '@vueuse/core';
+  import { useToggle } from '@vueuse/core';
   import { Layer } from './common/types';
   import Area from './common/area';
-  import { useEditorConfig } from '@/store/modules/editor-config';
-  import { emitClickAreaEvent, onFocusAreaEvent } from './common/event';
-
-  const [hideOptionRef, changeHideState] = useToggle(false);
+  import useRuler from '@/hooks/useRuler';
+  import { useCanvasState } from '@/store/modules/canvas-state';
 
   // 图层数据
   const layersRef = ref<Layer[]>([
@@ -72,6 +51,41 @@
     },
   ]) as Ref<Layer[]>;
   provide('layers', layersRef);
+
+  // 标尺相关
+  const vRuler = ref();
+  const vRulerInstance = useRuler(vRuler, {
+    type: 'horizontal',
+    height: 30,
+    mainLineSize: 25,
+    font: '11px sans-serif',
+  });
+  const hRuler = ref();
+  const hRulerInstance = useRuler(hRuler, {
+    type: 'vertical',
+    width: 30,
+    mainLineSize: 25,
+    font: '11px sans-serif',
+  });
+  // 滚动条滚动时修改标尺offset
+  const state = useCanvasState();
+  watch(
+    () => state.getOffset,
+    () => {
+      vRulerInstance.scroll(state.getOffset.x);
+      hRulerInstance.scroll(state.getOffset.y);
+    },
+  );
+  // 工具展示 + 标尺根据宽度调整
+  const [hideOptionRef, changeHideState] = useToggle(false);
+  function handleChangeHideState(value: boolean) {
+    changeHideState(value);
+    // 延迟一下更新标尺
+    setTimeout(() => {
+      vRulerInstance.resize();
+      hRulerInstance.resize();
+    });
+  }
 
   // 区域编辑
   const areaCanvasRef = ref<Recordable>();
@@ -89,66 +103,6 @@
     }
     controller.endDrawingArea();
   }
-
-  const configRef = useEditorConfig();
-  // 滚动位置
-  const scrollerRef = ref<HTMLElement>();
-  const { x, y } = useScroll(scrollerRef);
-  // 位置相关
-  const offsetRef = ref<Offset>({ x: 0, y: 0 });
-  const styleRef = ref('');
-  watch(
-    [
-      () => controller.isDrawingArea(),
-      () => controller.isDrawingShape(),
-      () => controller.isCheckingArea(),
-    ],
-    () => {
-      if (
-        controller.isDrawingArea() ||
-        controller.isDrawingShape() ||
-        controller.isCheckingArea()
-      ) {
-        const top =
-          y.value - 1500 > 0
-            ? y.value + 5000 > configRef.size.y
-              ? configRef.size.y - 5000
-              : y.value
-            : 0;
-        const left =
-          x.value - 1500 > 0
-            ? x.value + 5000 > configRef.size.x
-              ? configRef.size.x - 5000
-              : x.value
-            : 0;
-        offsetRef.value.x = left;
-        offsetRef.value.y = top;
-        styleRef.value = `top: ${top}px; left: ${left}px;`;
-      }
-    },
-  );
-
-  onFocusAreaEvent((_, area: Area) => {
-    const scroller = scrollerRef.value;
-    if (scroller) {
-      // TODO: 优化聚焦
-      scroller.scroll({
-        left: area.getOffset().x + area.getBoundRect()[0],
-        top: area.getOffset().y + area.getBoundRect()[1],
-      });
-      controller.setCurrentArea(null);
-      nextTick(() => {
-        controller.setCurrentArea(area);
-        emitClickAreaEvent(area);
-      });
-    }
-  });
-
-  // TODO: 右键菜单事件
-  function handleWrapperContextmenu(e: MouseEvent) {
-    if (e.target && (e.target as any).nodeName == 'CANVAS') {
-    }
-  }
 </script>
 
 <style lang="less">
@@ -159,31 +113,21 @@
     margin-bottom: 10px;
   }
   .content-box {
+    position: relative;
     flex: 1;
     border-radius: 3px;
-    margin: 10px;
-    max-width: calc(100vw - 484px);
-    padding: 10px;
+    margin-right: 10px;
+    padding-left: 30px;
+    padding-top: 30px;
     background-color: rgb(51, 51, 51);
     &.full-screen {
       max-width: 96vw;
     }
   }
-
-  .scroller {
-    position: relative;
-    height: 100%;
-    width: 100%;
-    border: 3px solid #5a5a5a;
-    overflow: auto;
-  }
-  .scroller.active {
-    border: 3px solid #c9cdd4;
-  }
   .option-box {
     position: relative;
     width: 405px;
-    margin: 10px 10px 10px 5px;
+    margin-bottom: 5px;
     padding: 10px;
     border-radius: 3px;
     background-color: rgb(51, 51, 51);
@@ -192,17 +136,31 @@
       position: absolute;
       right: -500px;
     }
+    .option-control {
+      position: absolute;
+      top: 40%;
+      background-color: transparent;
+      cursor: pointer;
+    }
+    .option-control-right {
+      right: 411px;
+    }
+    .option-control-left {
+      right: 500px;
+    }
   }
-  .option-control {
+
+  .ruler {
     position: absolute;
-    top: 40%;
-    background-color: transparent;
-    cursor: pointer;
   }
-  .option-control-right {
-    right: 411px;
+  .h-ruler {
+    left: 0px;
+    height: calc(100% - 40px);
+    width: 28px;
   }
-  .option-control-left {
-    right: 500px;
+  .v-ruler {
+    top: 0px;
+    height: 28px;
+    width: calc(100% - 33px);
   }
 </style>
