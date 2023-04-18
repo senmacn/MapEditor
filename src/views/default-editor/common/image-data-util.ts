@@ -42,10 +42,15 @@ export function getPositionCount(imageData: ImageData, x, y, width, height): num
  * @param lineWidth 线段宽度
  * @returns
  */
-export function getConnectEndPoint(imageData: ImageData, point: PointA, lineWidth: number) {
+export function getConnectEndPoint(
+  imageData: ImageData,
+  point: PointA,
+  lineWidth: number,
+  scope: number,
+) {
   const endPoints: PointA[] = [];
   const data = imageData.data;
-  const checkLength = Math.floor(12 + lineWidth / 2);
+  const checkLength = Math.floor(scope / 2 + lineWidth / 2);
   const startX = point.x - checkLength > 0 ? point.x - checkLength : 0,
     startY = point.y - checkLength > 0 ? point.y - checkLength : 0,
     endX = point.x + checkLength,
@@ -112,7 +117,7 @@ export function getConnectEndPoint(imageData: ImageData, point: PointA, lineWidt
       }
     }
   }
-  let minDistance = 24;
+  let minDistance = scope;
   let minDistancePoint: PointA | null = null;
   for (const endPoint of endPoints) {
     const distance = getDistance(endPoint, point);

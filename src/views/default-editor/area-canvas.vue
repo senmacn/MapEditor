@@ -48,7 +48,7 @@
         const point = canvasUtil.getPos(e);
         movedPoints = [];
         // 开启自动连接时才连接
-        if (configRef.autoConnect) {
+        if (configRef.getAutoConnect) {
           // 可以连接最后一点的时候直接连接，否则调用自动连接函数进行连接
           if (lastedPoint && canvasUtil.getDistance(lastedPoint, point) < 30) {
             beginPoint = lastedPoint;
@@ -99,7 +99,7 @@
         // 不能画点
         if (!canvasUtil.isPointOverlap(curPoint, beginPoint)) {
           const endPoint = _drawSmoothLine(e, true);
-          if (configRef.autoConnect && endPoint) {
+          if (configRef.getAutoConnect && endPoint) {
             _autoConnect(endPoint);
           }
         }
@@ -143,6 +143,7 @@
       ctxRef.getImageData(),
       curPoint,
       configRef.lineWidth,
+      configRef.getAutoConnectScope
     );
     if (endPoint != null) {
       ctxRef.drawLine(curPoint, endPoint);
@@ -214,9 +215,9 @@
     if (setUpState) return;
     let editCanvas: HTMLCanvasElement = document.getElementById('area-canvas') as HTMLCanvasElement;
     if (editCanvas == null) return;
-    const flag = configRef.size.x > 5000 || configRef.size.y > 5000;
-    editCanvas.width = flag ? 5000 : configRef.size.x;
-    editCanvas.height = flag ? 5000 : configRef.size.y;
+    const flag = configRef.getSize.x > 5000 || configRef.getSize.y > 5000;
+    editCanvas.width = flag ? 5000 : configRef.getSize.x;
+    editCanvas.height = flag ? 5000 : configRef.getSize.y;
     let ctx = editCanvas.getContext('2d', {
       willReadFrequently: true,
     }) as CanvasRenderingContext2D;
