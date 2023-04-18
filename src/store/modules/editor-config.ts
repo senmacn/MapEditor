@@ -7,6 +7,7 @@ export interface EditorConfig {
   lineWidth: number;
   zoom: number;
   autoConnect: boolean;
+  autoConnectScope: number;
   size: Recordable<number>;
 }
 
@@ -16,6 +17,7 @@ const editorConfig: EditorConfig = {
   color: 'red',
   lineWidth: 1,
   autoConnect: true,
+  autoConnectScope: 24,
   size: {
     x: 1000,
     y: 1000,
@@ -36,16 +38,19 @@ export const useEditorConfig = defineStore({
       return this.style;
     },
     getZoom(): number {
-      return this.zoom;
+      return Number(this.zoom);
     },
     getColor(): string {
       return this.color;
     },
     getLineWidth(): number {
-      return this.lineWidth;
+      return Number(this.lineWidth);
     },
     getAutoConnect(): boolean {
       return this.autoConnect;
+    },
+    getAutoConnectScope(): number {
+      return Number(this.autoConnectScope);
     },
     getSize(): Recordable<number> {
       return this.size;
@@ -71,6 +76,10 @@ export const useEditorConfig = defineStore({
     setAutoConnect(value: boolean) {
       localStorage.setItem('editor-config-autoConnect', JSON.stringify(value));
       this.autoConnect = value;
+    },
+    setAutoConnectScope(value: number) {
+      localStorage.setItem('editor-config-autoConnectScope', JSON.stringify(value));
+      this.autoConnectScope = value;
     },
     setSize(value: Recordable) {
       localStorage.setItem('editor-config-size', JSON.stringify(value));
