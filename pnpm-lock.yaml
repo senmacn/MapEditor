@@ -2,6 +2,7 @@ lockfileVersion: 5.4
 
 specifiers:
   '@arco-design/web-vue': ^2.44.1
+  '@scena/ruler': ^0.18.3
   '@simonwep/pickr': ^1.8.2
   '@types/d3-quadtree': ^3.0.2
   '@types/lodash-es': ^4.17.7
@@ -28,6 +29,7 @@ specifiers:
 
 dependencies:
   '@arco-design/web-vue': 2.44.1_vue@3.2.47
+  '@scena/ruler': 0.18.3
   '@simonwep/pickr': 1.8.2
   '@vue/runtime-core': 3.2.47
   '@vue/shared': 3.2.47
@@ -382,6 +384,14 @@ packages:
       '@babel/helper-validator-identifier': 7.19.1
       to-fast-properties: 2.0.0
 
+  /@daybrush/utils/1.11.0:
+    resolution: {integrity: sha512-/T0Oe7KkfUoCusFj1cJ6N+Tu+jFZXVkaKqDBcDY3P0goJfcfaT+4+oG8aHi4LDgBErNjP6uvC3IEOSMe2ka/yQ==}
+    dev: false
+
+  /@egjs/list-differ/1.0.1:
+    resolution: {integrity: sha512-OTFTDQcWS+1ZREOdCWuk5hCBgYO4OsD30lXcOCyVOAjXMhgL5rBRDnt/otb6Nz8CzU0L/igdcaQBDLWc4t9gvg==}
+    dev: false
+
   /@esbuild/android-arm/0.16.17:
     resolution: {integrity: sha512-N9x1CMXVhtWEAMS7pNNONyA14f71VPQN9Cnavj1XQh6T7bskqiLLrSca4O0Vr8Wdcga943eThxnVp3JLnBMYtw==}
     engines: {node: '>=12'}
@@ -660,6 +670,20 @@ packages:
       estree-walker: 2.0.2
       picomatch: 2.3.1
     dev: true
+
+  /@scena/react-ruler/0.17.1:
+    resolution: {integrity: sha512-ZgLSlNByevYMH2G7QzId49eojyfqd0zUNASIRIJm89X8ub1ipaMqaTPsSXS+yJspgiYFeVSjL8KCC/Yc1SMzLg==}
+    dependencies:
+      '@daybrush/utils': 1.11.0
+      framework-utils: 1.1.0
+    dev: false
+
+  /@scena/ruler/0.18.3:
+    resolution: {integrity: sha512-Q1q3BBh2Jd18cMSpmrLhi1/N6l79aaH4L7G0flzYqvcGPljhB31vdJyKL4qwVO0Pgy8k2rGC3phYprr1QEhOIQ==}
+    dependencies:
+      croact: 1.0.0
+      croact-ruler: 0.16.1
+    dev: false
 
   /@simonwep/pickr/1.8.2:
     resolution: {integrity: sha512-/l5w8BIkrpP6n1xsetx9MWPWlU6OblN5YgZZphxan0Tq4BByTCETL6lyIeY8lagalS2Nbt4F2W034KHLIiunKA==}
@@ -1067,6 +1091,19 @@ packages:
     requiresBuild: true
     dev: false
 
+  /croact-ruler/0.16.1:
+    resolution: {integrity: sha512-uj+60mlEMh+OWa5L9KjTyQgQOGI07TWyWbL9+kMrgIc74EJuV9AnwVXGII7b8JvHHxU6BzVFxXY7rj15EydOCQ==}
+    dependencies:
+      '@scena/react-ruler': 0.17.1
+    dev: false
+
+  /croact/1.0.0:
+    resolution: {integrity: sha512-VpPknTd65rB3VgRVchQiX5pQAqx/qaZVCNVzY3rwCpqYjQKVPHZ5YwdkHX9jTxkg5lKxrUmFzj/5SNUJ7S4dNA==}
+    dependencies:
+      '@daybrush/utils': 1.11.0
+      '@egjs/list-differ': 1.0.1
+    dev: false
+
   /csstype/2.6.21:
     resolution: {integrity: sha512-Z1PhmomIfypOpoMjRQB70jfvy/wxT50qW08YXO5lMIJkrdq4yOTR+AW7FqutScmB9NkLwxo+jU+kZLbofZZq/w==}
 
@@ -1202,6 +1239,10 @@ packages:
     dependencies:
       to-regex-range: 5.0.1
     dev: true
+
+  /framework-utils/1.1.0:
+    resolution: {integrity: sha512-KAfqli5PwpFJ8o3psRNs8svpMGyCSAe8nmGcjQ0zZBWN2H6dZDnq+ABp3N3hdUmFeMrLtjOCTXD4yplUJIWceg==}
+    dev: false
 
   /fs-extra/10.1.0:
     resolution: {integrity: sha512-oRXApq54ETRj4eMiFzGnHWGy+zo5raudjuxN0b8H7s/RU2oW0Wvsx9O0ACRN/kRq9E8Vu/ReskGB5o3ji+FzHQ==}
