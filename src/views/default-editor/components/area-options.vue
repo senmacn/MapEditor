@@ -35,11 +35,7 @@
       </a-button>
     </a-col>
     <a-col :span="4">
-      <a-button
-        status="danger"
-        @click="emitDeleteAreaEvent"
-        :disabled="!controller.getCurrentArea()"
-      >
+      <a-button status="danger" @click="handleDeleteArea" :disabled="!controller.getCurrentArea()">
         <icon-delete />
         删除
       </a-button>
@@ -54,6 +50,7 @@
   import { emitEditAreaEvent, emitDeleteAreaEvent } from '../common/event';
   import { checkFileName } from '@/utils/file';
   import { isNull } from '@/utils/is';
+  import modal from '@arco-design/web-vue/es/modal';
 
   const emit = defineEmits<{
     (e: 'end-edit-area', name: string, complete: boolean): void;
@@ -76,7 +73,7 @@
       message.warning('请填写区域标识！');
       return;
     }
-    if (!checkFileName(areaNameRef.value)) {
+    if (complete && !checkFileName(areaNameRef.value)) {
       message.warning('格式错误！区域标识只支持字母、数字、下划线！');
       return;
     }
@@ -99,6 +96,16 @@
     setTimeout(() => {
       emitEditAreaEvent();
     }, 30);
+  }
+
+  function handleDeleteArea() {
+    modal.confirm({
+      title: '确认',
+      content: '删除当前选中的区域【' + controller.getCurrentArea()?.getName() + '】？',
+      onOk: () => {
+        emitDeleteAreaEvent();
+      },
+    });
   }
 
   const editBtnDisabled = computed(

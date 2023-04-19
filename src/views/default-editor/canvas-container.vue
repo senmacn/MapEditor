@@ -25,7 +25,7 @@
   import AreaCanvas from './area-canvas.vue';
   import AreaViewer from './area-viewer.vue';
   import { useEditorConfig } from '@/store/modules/editor-config';
-  import { emitClickAreaEvent, onFocusAreaEvent } from './common/event';
+  import { onFocusAreaEvent } from './common/event';
   import controller from './common/canvas-state-controller';
   import { useScroll } from '@vueuse/core';
   import { useCanvasState } from '@/store/modules/canvas-state';
@@ -37,6 +37,7 @@
   const state = useCanvasState();
   const scrollerRef = ref<HTMLElement>();
   const { x, y } = useScroll(scrollerRef, { throttle: 50 });
+  // TODO: 优化偏移
   const offsetRef = ref<Offset>({ x: 0, y: 0 });
   watch([() => x.value, () => y.value], () => {
     state.setOffset({ x: x.value, y: y.value });
@@ -73,7 +74,6 @@
       controller.setCurrentArea(null);
       nextTick(() => {
         controller.setCurrentArea(area);
-        emitClickAreaEvent(area);
       });
     }
   });
