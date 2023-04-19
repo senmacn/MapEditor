@@ -9,12 +9,11 @@
 </template>
 
 <script setup lang="ts">
-  import { nextTick, ref, watch } from 'vue';
+  import { ref, watch } from 'vue';
   import { Layer } from './common/types';
   import { useEditorConfig } from '@/store/modules/editor-config';
   import controller from './common/canvas-state-controller';
-  import { emitClickAreaEvent, onDeleteAreaEvent } from './common/event';
-  import * as canvasUtil from './common/canvas-util';
+  import { onDeleteAreaEvent } from './common/event';
 
   const props = defineProps({
     layer: {
@@ -128,5 +127,8 @@
     .moveable {
       position: absolute;
     }
+  }
+  .moveable-control-box {
+    z-index: 500 !important;
   }
 </style>

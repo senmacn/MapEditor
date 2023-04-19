@@ -9,13 +9,12 @@
 </template>
 
 <script setup lang="ts">
-  import { onBeforeUnmount, onMounted, onUnmounted } from 'vue';
+  import { onBeforeUnmount, onMounted } from 'vue';
   import controller, { CanvasOption } from './common/canvas-state-controller';
   import * as canvasUtil from './common/canvas-util';
   import * as imageDataUtil from './common/image-data-util';
   import useCanvas from './hooks/useCanvas';
   import {
-    offEditAreaEvent,
     onCanvasRedoEvent,
     onCanvasUndoEvent,
     onEditAreaEvent,
@@ -151,7 +150,7 @@
     }
   }
   // 监听广播
-  function editAreaEvent() {
+  onEditAreaEvent(function () {
     const currentArea = controller.getCurrentArea();
     if (currentArea !== null) {
       currentArea.cancelSelect();
@@ -162,10 +161,6 @@
         currentArea.getBoundRect()[1] - props.offset.y,
       );
     }
-  }
-  onEditAreaEvent(editAreaEvent);
-  onUnmounted(() => {
-    offEditAreaEvent(editAreaEvent);
   });
 
   onCanvasRedoEvent(() => {

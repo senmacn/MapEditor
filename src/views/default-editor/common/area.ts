@@ -2,7 +2,6 @@ import Moveable from 'moveable';
 import { getShortUuid } from '@/utils/uuid';
 import controller from './canvas-state-controller';
 import { nextTick } from 'vue';
-import { emitClickAreaEvent } from './event';
 
 export default class Area {
   private uuid;
@@ -91,7 +90,6 @@ export default class Area {
     controller.setCurrentArea(null);
     nextTick(() => {
       controller.setCurrentArea(this);
-      emitClickAreaEvent(this);
       // @ts-ignore
       document.getElementsByClassName(this.uuid).item(0).style.visibility = 'visible';
       this.moveable?.setState({ draggable: true });

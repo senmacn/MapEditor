@@ -222,6 +222,7 @@ export class ExtendCanvas implements CanvasExtendImp {
   }
   /**
    * 混入区域（只混入有数据的部分）
+   * TODO: 好像不需要了，可以删除。。。
    * @param area 区域数据
    * @returns
    */

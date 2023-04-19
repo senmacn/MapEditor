@@ -89,7 +89,6 @@
 <script setup lang="ts">
   import { Ref, inject, onMounted, ref, unref } from 'vue';
   import modal from '@arco-design/web-vue/es/modal';
-  import message from '@arco-design/web-vue/es/message';
   import ControlledSlider, { useControllerSlider } from '../../components/controlled-slider';
   import LayerList from './components/layer-list.vue';
   import AreaOptions from './components/area-options.vue';
