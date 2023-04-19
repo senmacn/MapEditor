@@ -17,10 +17,7 @@
       </a-button>
     </a-col>
     <a-col :span="4">
-      <a-button
-        @click="handleStartEditArea"
-        :disabled="!controller.getCurrentArea() || controller.isDrawingArea()"
-      >
+      <a-button @click="handleStartEditArea" :disabled="editBtnDisabled">
         <icon-edit />
         编辑
       </a-button>
@@ -51,11 +48,12 @@
 </template>
 
 <script setup lang="ts">
-  import { ref } from 'vue';
+  import { computed, ref } from 'vue';
   import message from '@arco-design/web-vue/es/message';
   import controller from '../common/canvas-state-controller';
   import { emitEditAreaEvent, emitDeleteAreaEvent } from '../common/event';
   import { checkFileName } from '@/utils/file';
+  import { isNull } from '@/utils/is';
 
   const emit = defineEmits<{
     (e: 'end-edit-area', name: string, complete: boolean): void;
@@ -100,8 +98,12 @@
     controller.startDrawingArea(false);
     setTimeout(() => {
       emitEditAreaEvent();
-    }, 50);
+    }, 30);
   }
+
+  const editBtnDisabled = computed(
+    () => isNull(controller.getCurrentArea()) || controller.isDrawingArea(),
+  );
 </script>
 
 <style lang="less" scoped>

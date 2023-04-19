@@ -47,7 +47,6 @@
       visible: true,
       map: null,
       areas: [],
-      ctxs: [],
     },
   ]) as Ref<Layer[]>;
   provide('layers', layersRef);

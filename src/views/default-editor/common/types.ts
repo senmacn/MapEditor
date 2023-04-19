@@ -29,5 +29,4 @@ export interface Layer {
   map: string | ArrayBuffer | null;
   hot: boolean;
   areas: Area[];
-  ctxs: CanvasInstance[];
 }

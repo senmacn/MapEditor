@@ -102,7 +102,6 @@
   import { useEditorConfig } from '@/store/modules/editor-config';
   import { dataToBin } from './common/quadtree-utils';
   import { getClosedCurvePointsData } from './common/image-data-util';
-  import { isNullOrUnDef } from '@/utils/is';
 
   const emit = defineEmits<{
     (e: 'end-edit-area', name: string, complete: boolean): void;
@@ -124,10 +123,6 @@
             for (let index = layers.length - 1; index >= 0; index--) {
               const layer = layers[index];
               if (layer.visible && layer.hot) {
-                if (isNullOrUnDef(layer.ctxs) || layer.ctxs?.length === 0) {
-                  message.warning('获取图层数据失败！');
-                  break;
-                }
                 layer.areas.forEach((area) => {
                   const data = getClosedCurvePointsData(area);
                   exportFile(area.getName() + '.data.bin', dataToBin(data, ...area.getBoundRect()));
