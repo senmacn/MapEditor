@@ -74,7 +74,7 @@
       return;
     }
     if (complete && !checkFileName(areaNameRef.value)) {
-      message.warning('格式错误！区域标识只支持字母、数字、下划线！');
+      message.warning('格式错误！区域标识只支持字母、数字和 . _ - 等符号！');
       return;
     }
     // 编辑、新增逻辑不同

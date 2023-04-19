@@ -65,12 +65,13 @@
   // 聚焦区域事件
   onFocusAreaEvent((_, area: Area) => {
     const scroller = scrollerRef.value;
+    let left = area.getBoundRect()[0] - 400;
+    left = left > 0 ? left : 0;
+    let top = area.getBoundRect()[1] - 200;
+    top = top > 0 ? top : 0;
     if (scroller) {
       // TODO: 优化聚焦
-      scroller.scroll({
-        left: area.getBoundRect()[0],
-        top: area.getBoundRect()[1],
-      });
+      scroller.scroll({ left, top });
       controller.setCurrentArea(null);
       nextTick(() => {
         controller.setCurrentArea(area);
