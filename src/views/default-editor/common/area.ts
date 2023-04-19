@@ -36,7 +36,7 @@ export default class Area {
     cacheCtx.font = '24px serif';
     cacheCtx.fillStyle = 'red';
     cacheCtx.fillText(this.name, this.boundRect[2] / 2, this.boundRect[3] / 2);
-    const dataUrl = cacheCanvas.toDataURL('image/webp', 0.5);
+    const dataUrl = cacheCanvas.toDataURL('image/webp', 0.1);
     this.img = dataUrl;
     return this.img;
   }
