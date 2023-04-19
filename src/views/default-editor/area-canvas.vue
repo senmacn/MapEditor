@@ -9,12 +9,13 @@
 </template>
 
 <script setup lang="ts">
-  import { onBeforeUnmount, onMounted } from 'vue';
+  import { onBeforeUnmount, onMounted, onUnmounted } from 'vue';
   import controller, { CanvasOption } from './common/canvas-state-controller';
   import * as canvasUtil from './common/canvas-util';
   import * as imageDataUtil from './common/image-data-util';
   import useCanvas from './hooks/useCanvas';
   import {
+    offEditAreaEvent,
     onCanvasRedoEvent,
     onCanvasUndoEvent,
     onEditAreaEvent,
@@ -143,21 +144,30 @@
       ctxRef.getImageData(),
       curPoint,
       configRef.lineWidth,
-      configRef.getAutoConnectScope
+      configRef.getAutoConnectScope,
     );
     if (endPoint != null) {
       ctxRef.drawLine(curPoint, endPoint);
     }
   }
-
   // 监听广播
-  onEditAreaEvent(() => {
+  function editAreaEvent() {
     const currentArea = controller.getCurrentArea();
     if (currentArea !== null) {
+      currentArea.cancelSelect();
       const data = currentArea.getData();
-      ctxRef.putImageData(data, currentArea.getBoundRect()[0], currentArea.getBoundRect()[1]);
+      ctxRef.putImageData(
+        data,
+        currentArea.getBoundRect()[0] - props.offset.x,
+        currentArea.getBoundRect()[1] - props.offset.y,
+      );
     }
+  }
+  onEditAreaEvent(editAreaEvent);
+  onUnmounted(() => {
+    offEditAreaEvent(editAreaEvent);
   });
+
   onCanvasRedoEvent(() => {
     if (controller.isDrawingArea()) {
       ctxRef.redo();
@@ -253,8 +263,9 @@
     }
     // 获取有数据的内容
     const data = ctxRef.getImageData(boundRect);
-    const area = new Area('新区域', data, Object.assign({}, props.offset));
-    area.setBoundRect(boundRect);
+    boundRect[0] = boundRect[0] + props.offset.x;
+    boundRect[1] = boundRect[1] + props.offset.y;
+    const area = new Area('新区域', data, Object.assign({}, boundRect));
     return area;
   }
   defineExpose({

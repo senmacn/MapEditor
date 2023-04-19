@@ -29,6 +29,7 @@ const emitPersistShapeEvent = (payload: any[]) => persistShapeBus.emit(persistSh
 // 点选区域框
 const clickAreaEvent = Symbol('clickArea');
 const clickAreaBus = useEventBus<Symbol>(clickAreaEvent);
+// TODO: 可能可以删除
 const onClickAreaEvent = (listener: EventBusListener) => clickAreaBus.on(listener);
 const emitClickAreaEvent = (payload: Area | null) => clickAreaBus.emit(clickAreaEvent, payload);
 
@@ -36,6 +37,7 @@ const editAreaEvent = Symbol('editArea');
 const editAreaBus = useEventBus<Symbol>(editAreaEvent);
 const onEditAreaEvent = (listener: EventBusListener) => editAreaBus.on(listener);
 const emitEditAreaEvent = () => editAreaBus.emit(editAreaEvent);
+const offEditAreaEvent = (listener: EventBusListener) => editAreaBus.off(listener);
 
 // 删除区域
 const deleteAreaEvent = Symbol('deleteArea');
@@ -62,6 +64,7 @@ export {
   emitClickAreaEvent,
   onEditAreaEvent,
   emitEditAreaEvent,
+  offEditAreaEvent,
   onDeleteAreaEvent,
   emitDeleteAreaEvent,
   onFocusAreaEvent,

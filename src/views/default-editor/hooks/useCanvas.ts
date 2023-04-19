@@ -229,7 +229,7 @@ export class ExtendCanvas implements CanvasExtendImp {
     const ctx = this.getCanvas();
     const boundRect = area.getBoundRect();
     // 计算去除偏移后的边框
-    const tsBoundRect = transformFromOffset(boundRect, area.getOffset(), this.offset);
+    const tsBoundRect = transformFromOffset(boundRect, this.offset);
     // 不在当前区域，直接跳过
     if (!tsBoundRect) return true;
     // 离屏渲染，渲染该区域到cache上，再取在当前canvas块上的内容
@@ -270,10 +270,10 @@ export class ExtendCanvas implements CanvasExtendImp {
 }
 
 // 根据二者偏移量计算实际位置
-function transformFromOffset(rect: Box, areaOffset: Offset, canvasOffset: Offset): Box | null {
+function transformFromOffset(rect: Box, canvasOffset: Offset): Box | null {
   const newRect: Box = [0, 0, 0, 0];
-  let x = rect[0] + areaOffset.x - canvasOffset.x;
-  let y = rect[1] + areaOffset.y - canvasOffset.y;
+  let x = rect[0] - canvasOffset.x;
+  let y = rect[1] - canvasOffset.y;
   if (x < 0) {
     newRect[0] = 0;
     if (x + rect[2] < 0) {

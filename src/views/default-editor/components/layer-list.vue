@@ -124,7 +124,6 @@
       visible: true,
       map: null,
       areas: [],
-      ctxs: [],
     });
     refreshHot();
   }

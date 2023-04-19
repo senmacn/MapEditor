@@ -77,9 +77,6 @@ class CanvasStateController {
   isEditingArea() {
     return this.areaState.value === CanvasAreaOption.AreaEdit;
   }
-  isCheckingArea() {
-    return this.areaState.value === CanvasAreaOption.AreaCheck && !isNull(this.currentArea.value);
-  }
   reset() {
     this.setState(CanvasOption.FollowMouse);
   }
