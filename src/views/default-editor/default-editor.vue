@@ -18,7 +18,7 @@
         v-else
         @click="handleChangeHideState(false)"
       />
-      <default-options @end-edit-area="handleEndEditArea" />
+      <default-options @load-saves="handleLoadSaves" @end-edit-area="handleEndEditArea" />
       <thin-options v-if="hideOptionRef" @end-edit-area="handleEndEditArea" />
     </div>
     <status-bar></status-bar>
@@ -85,7 +85,7 @@
     setTimeout(() => {
       vRulerInstance.resize();
       hRulerInstance.resize();
-    });
+    }, 210);
   }
 
   // 区域编辑
@@ -103,6 +103,15 @@
       }
     }
     controller.endDrawingArea();
+  }
+
+  function handleLoadSaves(layers) {
+    layersRef.value.forEach((layer) => {
+      layer.areas.forEach((area) => {
+        area.destroy();
+      });
+    });
+    layersRef.value = layers;
   }
 </script>
 
