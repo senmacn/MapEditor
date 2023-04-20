@@ -8,7 +8,7 @@
         <a-button type="primary" @click="handleChangeMapSize">设置地图尺寸</a-button>
       </a-col>
       <a-col :span="6" :offset="4">
-        <a-button type="primary" @click="handleCreateSaves">保存</a-button>
+        <a-button type="primary" @click="handleCreateSaves"> 保存 </a-button>
       </a-col>
       <a-col :span="6">
         <a-upload @beforeUpload="(file) => handleLoadSaves(file)" accept=".json">
@@ -31,7 +31,7 @@
     </a-row>
     <area-options
       style="height: 100px"
-      @end-edit-area="(...props) => emit('end-edit-area', ...props)"
+      @end-edit-area="(...props) => emit('end-edit-area', props[0], props[1])"
     />
     <edit-options></edit-options>
     <a-row class="option-group" style="height: 200px">
@@ -123,7 +123,9 @@
       content: '导出当前编辑的数据存档？',
       onOk: () => {
         exportFile(
-          'test.json',
+          `map_data_${configRef.getSize.x}x${
+            configRef.getSize.y
+          }.${new Date().toLocaleString()}.json`,
           createSaves([configRef.getSize.x, configRef.getSize.y], toRaw(layersRef.value)),
           'json',
         );
@@ -138,16 +140,17 @@
     var reader = new FileReader(); //调用FileReader
     reader.readAsText(file); //将文件读取为 text
     reader.onload = function (evt) {
-      const result = loadSaves(String(evt.target?.result), [
-        configRef.getSize.x,
-        configRef.getSize.y,
-      ]);
-      if (result === null) {
-        message.warning('存档尺寸错误！请确认当前地图尺寸设置是否正确！');
+      try {
+        const result = loadSaves(String(evt.target?.result), [
+          configRef.getSize.x,
+          configRef.getSize.y,
+        ]);
+        emit('load-saves', result?.layers);
+        closeLoadLoading();
+      } catch (e: any) {
+        message.warning(e.message);
+        closeLoadLoading();
       }
-      emit('load-saves', result?.layers);
-
-      closeLoadLoading();
     };
     return Promise.reject() as any;
   }

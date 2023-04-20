@@ -31,10 +31,18 @@
     () => {
       if (props.layer) {
         const layer = document.getElementById(props.layer?.uuid);
-        if (!layer) return;
-        layer.style.setProperty('background-image', 'url(' + props.layer?.map + ')');
+        if (!layer) {
+          const map = props.layer.map;
+          props.layer.map = null;
+          setTimeout(() => {
+            if (props.layer) props.layer.map = map;
+          }, 50);
+        } else {
+          layer.style.setProperty('background-image', 'url(' + props.layer?.map + ')');
+        }
       }
     },
+    { immediate: true },
   );
 
   // 添加区域时渲染
