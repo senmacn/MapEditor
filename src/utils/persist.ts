@@ -34,7 +34,9 @@ export function createSaves(size: [number, number], layers: Layer[]) {
 export function loadSaves(str: string, curSize: [number, number]) {
   const pureObj = JSON.parse(str) as Saves;
   if (curSize[0] !== pureObj.size[0] || curSize[1] !== pureObj.size[1]) {
-    return null;
+    throw new Error(
+      `该存档尺寸为${pureObj.size[0]}px x ${pureObj.size[1]}px！请确认当前地图尺寸设置是否正确！`,
+    );
   }
   const saves: Saves = {
     size: [...pureObj.size],

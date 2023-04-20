@@ -15,7 +15,6 @@ declare module '@vue/runtime-core' {
     ADivider: typeof import('@arco-design/web-vue')['Divider']
     ADoption: typeof import('@arco-design/web-vue')['Doption']
     ADropdown: typeof import('@arco-design/web-vue')['Dropdown']
-    ADroption: typeof import('@arco-design/web-vue')['Droption']
     AInput: typeof import('@arco-design/web-vue')['Input']
     AInputNumber: typeof import('@arco-design/web-vue')['InputNumber']
     AModal: typeof import('@arco-design/web-vue')['Modal']
