@@ -8,10 +8,14 @@
         <a-button type="primary" @click="handleChangeMapSize">设置地图尺寸</a-button>
       </a-col>
       <a-col :span="6" :offset="4">
-        <a-button disabled @click="">保存</a-button>
+        <a-button type="primary" @click="handleCreateSaves">保存</a-button>
       </a-col>
       <a-col :span="6">
-        <a-button disabled @click="">加载</a-button>
+        <a-upload @beforeUpload="(file) => handleLoadSaves(file)" accept=".json">
+          <template #upload-button>
+            <a-button type="primary" @click="">加载</a-button>
+          </template>
+        </a-upload>
       </a-col>
       <a-col :span="6">
         <a-button type="primary" @click="getPosition">下载坐标</a-button>
@@ -87,7 +91,7 @@
 </template>
 
 <script setup lang="ts">
-  import { Ref, inject, onMounted, ref, unref } from 'vue';
+  import { Ref, inject, onMounted, ref, toRaw, unref } from 'vue';
   import modal from '@arco-design/web-vue/es/modal';
   import ControlledSlider, { useControllerSlider } from '../../components/controlled-slider';
   import LayerList from './components/layer-list.vue';
@@ -101,13 +105,52 @@
   import { useEditorConfig } from '@/store/modules/editor-config';
   import { dataToBin } from './common/quadtree-utils';
   import { getClosedCurvePointsData } from './common/image-data-util';
+  import { createSaves } from '@/utils/persist';
+  import { loadSaves } from '@/utils/persist';
+  import message from '@arco-design/web-vue/es/message';
 
   const emit = defineEmits<{
     (e: 'end-edit-area', name: string, complete: boolean): void;
+    (e: 'load-saves', layers: any): void;
   }>();
 
   const configRef = useEditorConfig();
   const layersRef: Ref<Layer[]> = inject('layers', [] as any);
+
+  function handleCreateSaves() {
+    modal.confirm({
+      title: '确认',
+      content: '导出当前编辑的数据存档？',
+      onOk: () => {
+        exportFile(
+          'test.json',
+          createSaves([configRef.getSize.x, configRef.getSize.y], toRaw(layersRef.value)),
+          'json',
+        );
+      },
+    });
+  }
+
+  const [openLoadLoading, closeLoadLoading] = useLoading({ tip: '加载中！', minTime: 2000 });
+  function handleLoadSaves(file: File) {
+    openLoadLoading();
+
+    var reader = new FileReader(); //调用FileReader
+    reader.readAsText(file); //将文件读取为 text
+    reader.onload = function (evt) {
+      const result = loadSaves(String(evt.target?.result), [
+        configRef.getSize.x,
+        configRef.getSize.y,
+      ]);
+      if (result === null) {
+        message.warning('存档尺寸错误！请确认当前地图尺寸设置是否正确！');
+      }
+      emit('load-saves', result?.layers);
+
+      closeLoadLoading();
+    };
+    return Promise.reject() as any;
+  }
 
   const [openLoading, closeLoading] = useLoading({ tip: '计算中！', minTime: 1500 });
   function getPosition() {

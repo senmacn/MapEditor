@@ -14,6 +14,7 @@
   import { useEditorConfig } from '@/store/modules/editor-config';
   import controller from './common/canvas-state-controller';
   import { onDeleteAreaEvent } from './common/event';
+  import Area from './common/area';
 
   const props = defineProps({
     layer: {
@@ -38,6 +39,14 @@
 
   // 添加区域时渲染
   const areaViewer = ref();
+  function render(area: Area) {
+    if (areaViewer.value) {
+      area.render(areaViewer.value);
+      area.drawAreaComplete();
+    } else {
+      setTimeout(() => render(area), 50);
+    }
+  }
   watch(
     () => props.layer?.areas,
     () => {
@@ -45,14 +54,13 @@
         for (let index = 0; index < props.layer.areas.length; index++) {
           const area = props.layer.areas[index];
           // 绘制
-          if (!area.getDrawAreaComplete() && areaViewer.value) {
-            area.render(areaViewer.value);
-            area.drawAreaComplete();
+          if (!area.getDrawAreaComplete()) {
+            render(area);
           }
         }
       }
     },
-    { deep: true },
+    { deep: true, immediate: true },
   );
 
   onDeleteAreaEvent(() => {

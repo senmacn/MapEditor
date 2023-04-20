@@ -2,9 +2,16 @@
   <div class="thin-option">
     <a-divider></a-divider>
     <a-tooltip content="图层">
-      <a-button type="text">
-        <icon-layers />
-      </a-button>
+      <a-dropdown trigger="click" popup-container=".thin-option" @select="">
+        <a-button type="text">
+          <icon-layers />
+        </a-button>
+        <template #content>
+          <a-doption class="layer-item" v-for="layer in layersRef" :key="layer.uuid">
+            {{ layer.name }}
+          </a-doption>
+        </template>
+      </a-dropdown>
     </a-tooltip>
     <a-divider></a-divider>
 
@@ -148,7 +155,7 @@
 </template>
 
 <script setup lang="ts">
-  import { computed, ref } from 'vue';
+  import { Ref, computed, inject, ref } from 'vue';
   import message from '@arco-design/web-vue/es/message';
   import { emitEditAreaEvent, emitDeleteAreaEvent } from './common/event';
   import { checkFileName } from '@/utils/file';
@@ -156,6 +163,9 @@
   import modal from '@arco-design/web-vue/es/modal';
   import controller, { CanvasOption } from './common/canvas-state-controller';
   import { emitCanvasUndoEvent, emitCanvasRedoEvent } from './common/event';
+  import { Layer } from './common/types';
+
+  const layersRef: Ref<Layer[]> = inject('layers', [] as any);
 
   /**
    * area-options
@@ -228,7 +238,7 @@
   }
 </script>
 
-<style lang="less" scoped>
+<style lang="less">
   .thin-option {
     position: absolute;
     top: 0;
@@ -241,6 +251,9 @@
     }
     .arco-divider {
       margin: 10px 0;
+    }
+    .arco-trigger-popup-wrapper {
+      transform: translate(-50px, -40px);
     }
   }
 </style>
