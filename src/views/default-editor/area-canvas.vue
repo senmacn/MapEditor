@@ -125,8 +125,8 @@
         ctxRef.drawLine(beginPoint, endPoint);
       } else {
         endPoint = {
-          x: (lastTwoPoints[0].x + lastTwoPoints[1].x) / 2,
-          y: (lastTwoPoints[0].y + lastTwoPoints[1].y) / 2,
+          x: Math.floor((lastTwoPoints[0].x + lastTwoPoints[1].x) / 2),
+          y: Math.floor((lastTwoPoints[0].y + lastTwoPoints[1].y) / 2),
         };
         ctxRef.drawSmoothLine(beginPoint, controlPoint, endPoint);
       }

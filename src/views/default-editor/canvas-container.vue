@@ -37,7 +37,6 @@
   const state = useCanvasState();
   const scrollerRef = ref<HTMLElement>();
   const { x, y } = useScroll(scrollerRef, { throttle: 50 });
-  // TODO: 优化偏移
   const offsetRef = ref<Offset>({ x: 0, y: 0 });
   watch([() => x.value, () => y.value], () => {
     state.setOffset({ x: x.value, y: y.value });
@@ -46,16 +45,16 @@
   watch([() => controller.isDrawingArea(), () => controller.isDrawingShape()], () => {
     if (controller.isDrawingArea() || controller.isDrawingShape()) {
       const top =
-        y.value - 1500 > 0
+        y.value - 2000 > 0
           ? y.value + 5000 > configRef.size.y
             ? configRef.size.y - 5000
-            : y.value
+            : y.value - 2000
           : 0;
       const left =
-        x.value - 1500 > 0
+        x.value - 2000 > 0
           ? x.value + 5000 > configRef.size.x
             ? configRef.size.x - 5000
-            : x.value
+            : x.value - 2000
           : 0;
       offsetRef.value.x = left;
       offsetRef.value.y = top;
@@ -65,12 +64,12 @@
   // 聚焦区域事件
   onFocusAreaEvent((_, area: Area) => {
     const scroller = scrollerRef.value;
-    let left = area.getBoundRect()[0] - 400;
-    left = left > 0 ? left : 0;
-    let top = area.getBoundRect()[1] - 200;
-    top = top > 0 ? top : 0;
     if (scroller) {
-      // TODO: 优化聚焦
+      const boundRect = area.getBoundRect();
+      let left = boundRect[0] - scroller.clientWidth / 2 + boundRect[2] / 2;
+      left = left > 0 ? Math.floor(left) : 0;
+      let top = boundRect[1] - scroller.clientHeight / 2 + boundRect[3] / 2;
+      top = top > 0 ? Math.floor(top) : 0;
       scroller.scroll({ left, top });
       controller.setCurrentArea(null);
       nextTick(() => {
