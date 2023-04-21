@@ -10,7 +10,7 @@
           @click="() => handleChangeOptionState(CanvasOption.FollowMouse)"
           :disabled="!controller.isDrawingArea()"
         >
-          <icon-edit />
+          <icon-pen-fill />
         </a-button>
       </a-tooltip>
     </a-col>

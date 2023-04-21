@@ -1,7 +1,11 @@
 <template>
-  <div ref="scrollerRef" :class="['scroller', controller.isDrawingArea() ? 'active' : '']">
+  <div
+    id="scroller"
+    ref="scrollerRef"
+    :class="['scroller', controller.isDrawingArea() ? 'active' : '']"
+  >
     <template v-for="layer in layersRef" :key="layer.uuid">
-      <canvas-array :layer="layer" v-show="layer.visible" />
+      <area-viewer :layer="layer" v-show="layer.visible" />
     </template>
     <area-canvas
       ref="areaCanvasRef"
@@ -9,11 +13,7 @@
       :style="styleRef"
       :offset="offsetRef"
     />
-    <mask-canvas
-      :visible="controller.isDrawingShape() || controller.isCheckingArea()"
-      :style="styleRef"
-      :offset="offsetRef"
-    />
+    <mask-canvas :visible="controller.isDrawingShape()" :style="styleRef" :offset="offsetRef" />
   </div>
 </template>
 
@@ -21,11 +21,11 @@
   import type Area from './common/area';
   import type { Layer } from './common/types';
   import { Ref, inject, nextTick, ref, watch } from 'vue';
-  import canvasArray from './canvas-array.vue';
-  import maskCanvas from './mask-canvas.vue';
-  import areaCanvas from './area-canvas.vue';
+  import MaskCanvas from './mask-canvas.vue';
+  import AreaCanvas from './area-canvas.vue';
+  import AreaViewer from './area-viewer.vue';
   import { useEditorConfig } from '@/store/modules/editor-config';
-  import { emitClickAreaEvent, onFocusAreaEvent } from './common/event';
+  import { onFocusAreaEvent } from './common/event';
   import controller from './common/canvas-state-controller';
   import { useScroll } from '@vueuse/core';
   import { useCanvasState } from '@/store/modules/canvas-state';
@@ -42,49 +42,38 @@
     state.setOffset({ x: x.value, y: y.value });
   });
   const styleRef = ref('');
-  watch(
-    [
-      () => controller.isDrawingArea(),
-      () => controller.isDrawingShape(),
-      () => controller.isCheckingArea(),
-    ],
-    () => {
-      if (
-        controller.isDrawingArea() ||
-        controller.isDrawingShape() ||
-        controller.isCheckingArea()
-      ) {
-        const top =
-          y.value - 1500 > 0
-            ? y.value + 5000 > configRef.size.y
-              ? configRef.size.y - 5000
-              : y.value
-            : 0;
-        const left =
-          x.value - 1500 > 0
-            ? x.value + 5000 > configRef.size.x
-              ? configRef.size.x - 5000
-              : x.value
-            : 0;
-        offsetRef.value.x = left;
-        offsetRef.value.y = top;
-        styleRef.value = `top: ${top}px; left: ${left}px;`;
-      }
-    },
-  );
+  watch([() => controller.isDrawingArea(), () => controller.isDrawingShape()], () => {
+    if (controller.isDrawingArea() || controller.isDrawingShape()) {
+      const top =
+        y.value - 2000 > 0
+          ? y.value + 5000 > configRef.size.y
+            ? configRef.size.y - 5000
+            : y.value - 2000
+          : 0;
+      const left =
+        x.value - 2000 > 0
+          ? x.value + 5000 > configRef.size.x
+            ? configRef.size.x - 5000
+            : x.value - 2000
+          : 0;
+      offsetRef.value.x = left;
+      offsetRef.value.y = top;
+      styleRef.value = `top: ${top}px; left: ${left}px;`;
+    }
+  });
   // 聚焦区域事件
   onFocusAreaEvent((_, area: Area) => {
     const scroller = scrollerRef.value;
     if (scroller) {
-      // TODO: 优化聚焦
-      scroller.scroll({
-        left: area.getOffset().x + area.getBoundRect()[0],
-        top: area.getOffset().y + area.getBoundRect()[1],
-      });
+      const boundRect = area.getBoundRect();
+      let left = boundRect[0] - scroller.clientWidth / 2 + boundRect[2] / 2;
+      left = left > 0 ? Math.floor(left) : 0;
+      let top = boundRect[1] - scroller.clientHeight / 2 + boundRect[3] / 2;
+      top = top > 0 ? Math.floor(top) : 0;
+      scroller.scroll({ left, top });
       controller.setCurrentArea(null);
       nextTick(() => {
         controller.setCurrentArea(area);
-        emitClickAreaEvent(area);
       });
     }
   });

@@ -125,8 +125,8 @@
         ctxRef.drawLine(beginPoint, endPoint);
       } else {
         endPoint = {
-          x: (lastTwoPoints[0].x + lastTwoPoints[1].x) / 2,
-          y: (lastTwoPoints[0].y + lastTwoPoints[1].y) / 2,
+          x: Math.floor((lastTwoPoints[0].x + lastTwoPoints[1].x) / 2),
+          y: Math.floor((lastTwoPoints[0].y + lastTwoPoints[1].y) / 2),
         };
         ctxRef.drawSmoothLine(beginPoint, controlPoint, endPoint);
       }
@@ -143,21 +143,26 @@
       ctxRef.getImageData(),
       curPoint,
       configRef.lineWidth,
-      configRef.getAutoConnectScope
+      configRef.getAutoConnectScope,
     );
     if (endPoint != null) {
       ctxRef.drawLine(curPoint, endPoint);
     }
   }
-
   // 监听广播
-  onEditAreaEvent(() => {
+  onEditAreaEvent(function () {
     const currentArea = controller.getCurrentArea();
     if (currentArea !== null) {
+      currentArea.cancelSelect();
       const data = currentArea.getData();
-      ctxRef.putImageData(data, currentArea.getBoundRect()[0], currentArea.getBoundRect()[1]);
+      ctxRef.putImageData(
+        data,
+        currentArea.getBoundRect()[0] - props.offset.x,
+        currentArea.getBoundRect()[1] - props.offset.y,
+      );
     }
   });
+
   onCanvasRedoEvent(() => {
     if (controller.isDrawingArea()) {
       ctxRef.redo();
@@ -253,8 +258,9 @@
     }
     // 获取有数据的内容
     const data = ctxRef.getImageData(boundRect);
-    const area = new Area('新区域', data, Object.assign({}, props.offset));
-    area.setBoundRect(boundRect);
+    boundRect[0] = boundRect[0] + props.offset.x;
+    boundRect[1] = boundRect[1] + props.offset.y;
+    const area = new Area('新区域', data, Object.assign({}, boundRect));
     return area;
   }
   defineExpose({

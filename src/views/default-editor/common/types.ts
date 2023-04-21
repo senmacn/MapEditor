@@ -17,17 +17,13 @@ export interface CanvasExtendImp {
   drawRect: (beginPoint: PointA, endPoint: PointA, fill?: boolean) => void;
   drawText: (point: PointA, text: string) => void;
   getImageData: (props?: [number, number, number, number]) => ImageData;
-  mixin: (area: Area) => boolean;
 }
 
 export interface Layer {
   uuid: string;
   name: string;
-  // 没啥用，待删除
-  level: number;
   visible: boolean;
   map: string | ArrayBuffer | null;
   hot: boolean;
   areas: Area[];
-  ctxs: CanvasInstance[];
 }

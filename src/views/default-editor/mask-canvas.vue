@@ -14,15 +14,9 @@
   import controller, { CanvasOption } from './common/canvas-state-controller';
   import { getPos } from './common/canvas-util';
   import { onMounted } from 'vue';
-  import {
-    emitPersistLineEvent,
-    emitPersistShapeEvent,
-    onClickAreaEvent,
-    onDeleteAreaEvent,
-  } from './common/event';
+  import { emitPersistLineEvent, emitPersistShapeEvent, onDeleteAreaEvent } from './common/event';
   import * as canvasUtil from './common/canvas-util';
   import { useEditorConfig } from '@/store/modules/editor-config';
-  import Area from './common/area';
   import debounce from 'lodash-es/debounce';
 
   const props = defineProps({
@@ -47,19 +41,6 @@
   function handleMouseDown(e: MouseEvent) {
     if (e.button !== 0) return;
     switch (controller.getState()) {
-      case CanvasOption.None: {
-        if (controller.isCheckingArea()) {
-          if (
-            !controller
-              .getCurrentArea()
-              ?.checkPointInArea(canvasUtil.getPos(e), { x: props.offset.x, y: props.offset.y })
-          ) {
-            ctxRef.clean();
-            controller.setCurrentArea(null);
-          }
-        }
-        break;
-      }
       case CanvasOption.DrawLine:
       case CanvasOption.DrawCircle:
       case CanvasOption.DrawRect: {
@@ -144,16 +125,6 @@
     // ctxRef.clean();
     controller.setActive(false);
   }
-
-  onClickAreaEvent((_, area: Area | null) => {
-    if (area) {
-      ctxRef.clean();
-      const rect = area.getBoundRect();
-      ctxRef.setLineDash([8, 8]);
-      ctxRef.drawRect({ x: rect[0], y: rect[1] }, { x: rect[0] + rect[2], y: rect[1] + rect[3] });
-      ctxRef.drawText(area.getCenterPoint(), area.getName());
-    }
-  });
 
   onDeleteAreaEvent(() => {
     ctxRef.clean();

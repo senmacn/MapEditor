@@ -17,10 +17,7 @@
       </a-button>
     </a-col>
     <a-col :span="4">
-      <a-button
-        @click="handleStartEditArea"
-        :disabled="!controller.getCurrentArea() || controller.isDrawingArea()"
-      >
+      <a-button @click="handleStartEditArea" :disabled="editBtnDisabled">
         <icon-edit />
         编辑
       </a-button>
@@ -38,11 +35,7 @@
       </a-button>
     </a-col>
     <a-col :span="4">
-      <a-button
-        status="danger"
-        @click="emitDeleteAreaEvent"
-        :disabled="!controller.getCurrentArea()"
-      >
+      <a-button status="danger" @click="handleDeleteArea" :disabled="!controller.getCurrentArea()">
         <icon-delete />
         删除
       </a-button>
@@ -51,11 +44,13 @@
 </template>
 
 <script setup lang="ts">
-  import { ref } from 'vue';
+  import { computed, ref } from 'vue';
   import message from '@arco-design/web-vue/es/message';
   import controller from '../common/canvas-state-controller';
   import { emitEditAreaEvent, emitDeleteAreaEvent } from '../common/event';
   import { checkFileName } from '@/utils/file';
+  import { isNull } from '@/utils/is';
+  import modal from '@arco-design/web-vue/es/modal';
 
   const emit = defineEmits<{
     (e: 'end-edit-area', name: string, complete: boolean): void;
@@ -78,8 +73,8 @@
       message.warning('请填写区域标识！');
       return;
     }
-    if (!checkFileName(areaNameRef.value)) {
-      message.warning('格式错误！区域标识只支持字母、数字、下划线！');
+    if (complete && !checkFileName(areaNameRef.value)) {
+      message.warning('格式错误！区域标识只支持字母、数字和 . _ - 等符号！');
       return;
     }
     // 编辑、新增逻辑不同
@@ -100,8 +95,22 @@
     controller.startDrawingArea(false);
     setTimeout(() => {
       emitEditAreaEvent();
-    }, 50);
+    }, 30);
   }
+
+  function handleDeleteArea() {
+    modal.confirm({
+      title: '确认',
+      content: '删除当前选中的区域【' + controller.getCurrentArea()?.getName() + '】？',
+      onOk: () => {
+        emitDeleteAreaEvent();
+      },
+    });
+  }
+
+  const editBtnDisabled = computed(
+    () => isNull(controller.getCurrentArea()) || controller.isDrawingArea(),
+  );
 </script>
 
 <style lang="less" scoped>
