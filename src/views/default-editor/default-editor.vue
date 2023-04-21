@@ -18,7 +18,8 @@
         v-else
         @click="handleChangeHideState(false)"
       />
-      <default-options @end-edit-area="handleEndEditArea" />
+      <default-options @load-saves="handleLoadSaves" @end-edit-area="handleEndEditArea" />
+      <thin-options v-if="hideOptionRef" @end-edit-area="handleEndEditArea" />
     </div>
     <status-bar></status-bar>
   </div>
@@ -29,6 +30,7 @@
   import StatusBar from './components/status-bar.vue';
   import CanvasContainer from './canvas-container.vue';
   import DefaultOptions from './default-options.vue';
+  import ThinOptions from './thin-options.vue';
   import { getRandomDomId } from '../../utils/uuid';
   import controller from './common/canvas-state-controller';
   import { useToggle } from '@vueuse/core';
@@ -47,7 +49,6 @@
       visible: true,
       map: null,
       areas: [],
-      ctxs: [],
     },
   ]) as Ref<Layer[]>;
   provide('layers', layersRef);
@@ -84,7 +85,7 @@
     setTimeout(() => {
       vRulerInstance.resize();
       hRulerInstance.resize();
-    });
+    }, 210);
   }
 
   // 区域编辑
@@ -103,6 +104,15 @@
     }
     controller.endDrawingArea();
   }
+
+  function handleLoadSaves(layers) {
+    layersRef.value.forEach((layer) => {
+      layer.areas.forEach((area) => {
+        area.destroy();
+      });
+    });
+    layersRef.value = layers;
+  }
 </script>
 
 <style lang="less">
@@ -120,21 +130,24 @@
     padding-left: 30px;
     padding-top: 30px;
     background-color: rgb(51, 51, 51);
+    transition: width 0.2s ease;
     &.full-screen {
-      max-width: 96vw;
+      max-width: 95vw;
     }
   }
   .option-box {
     position: relative;
     width: 405px;
+    height: 100%;
     margin-bottom: 5px;
     padding: 10px;
     border-radius: 3px;
     background-color: rgb(51, 51, 51);
+    transition: width 0.2s ease;
     &.hide {
       width: 0;
       position: absolute;
-      right: -500px;
+      right: -100px;
     }
     .option-control {
       position: absolute;
@@ -146,7 +159,7 @@
       right: 411px;
     }
     .option-control-left {
-      right: 500px;
+      right: 150px;
     }
   }
 

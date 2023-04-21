@@ -8,10 +8,14 @@
         <a-button type="primary" @click="handleChangeMapSize">设置地图尺寸</a-button>
       </a-col>
       <a-col :span="6" :offset="4">
-        <a-button disabled @click="">保存</a-button>
+        <a-button type="primary" @click="handleCreateSaves"> 保存 </a-button>
       </a-col>
       <a-col :span="6">
-        <a-button disabled @click="">加载</a-button>
+        <a-upload @beforeUpload="(file) => handleLoadSaves(file)" accept=".json">
+          <template #upload-button>
+            <a-button type="primary" @click="">加载</a-button>
+          </template>
+        </a-upload>
       </a-col>
       <a-col :span="6">
         <a-button type="primary" @click="getPosition">下载坐标</a-button>
@@ -27,7 +31,7 @@
     </a-row>
     <area-options
       style="height: 100px"
-      @end-edit-area="(...props) => emit('end-edit-area', ...props)"
+      @end-edit-area="(...props) => emit('end-edit-area', props[0], props[1])"
     />
     <edit-options></edit-options>
     <a-row class="option-group" style="height: 200px">
@@ -87,9 +91,8 @@
 </template>
 
 <script setup lang="ts">
-  import { Ref, inject, onMounted, ref, unref } from 'vue';
+  import { Ref, inject, onMounted, ref, toRaw, unref } from 'vue';
   import modal from '@arco-design/web-vue/es/modal';
-  import message from '@arco-design/web-vue/es/message';
   import ControlledSlider, { useControllerSlider } from '../../components/controlled-slider';
   import LayerList from './components/layer-list.vue';
   import AreaOptions from './components/area-options.vue';
@@ -102,14 +105,55 @@
   import { useEditorConfig } from '@/store/modules/editor-config';
   import { dataToBin } from './common/quadtree-utils';
   import { getClosedCurvePointsData } from './common/image-data-util';
-  import { isNullOrUnDef } from '@/utils/is';
+  import { createSaves } from '@/utils/persist';
+  import { loadSaves } from '@/utils/persist';
+  import message from '@arco-design/web-vue/es/message';
 
   const emit = defineEmits<{
     (e: 'end-edit-area', name: string, complete: boolean): void;
+    (e: 'load-saves', layers: any): void;
   }>();
 
   const configRef = useEditorConfig();
   const layersRef: Ref<Layer[]> = inject('layers', [] as any);
+
+  function handleCreateSaves() {
+    modal.confirm({
+      title: '确认',
+      content: '导出当前编辑的数据存档？',
+      onOk: () => {
+        exportFile(
+          `map_data_${configRef.getSize.x}x${
+            configRef.getSize.y
+          }.${new Date().toLocaleString()}.json`,
+          createSaves([configRef.getSize.x, configRef.getSize.y], toRaw(layersRef.value)),
+          'json',
+        );
+      },
+    });
+  }
+
+  const [openLoadLoading, closeLoadLoading] = useLoading({ tip: '加载中！', minTime: 2000 });
+  function handleLoadSaves(file: File) {
+    openLoadLoading();
+
+    var reader = new FileReader(); //调用FileReader
+    reader.readAsText(file); //将文件读取为 text
+    reader.onload = function (evt) {
+      try {
+        const result = loadSaves(String(evt.target?.result), [
+          configRef.getSize.x,
+          configRef.getSize.y,
+        ]);
+        emit('load-saves', result?.layers);
+        closeLoadLoading();
+      } catch (e: any) {
+        message.warning(e.message);
+        closeLoadLoading();
+      }
+    };
+    return Promise.reject() as any;
+  }
 
   const [openLoading, closeLoading] = useLoading({ tip: '计算中！', minTime: 1500 });
   function getPosition() {
@@ -124,10 +168,6 @@
             for (let index = layers.length - 1; index >= 0; index--) {
               const layer = layers[index];
               if (layer.visible && layer.hot) {
-                if (isNullOrUnDef(layer.ctxs) || layer.ctxs?.length === 0) {
-                  message.warning('获取图层数据失败！');
-                  break;
-                }
                 layer.areas.forEach((area) => {
                   const data = getClosedCurvePointsData(area);
                   exportFile(area.getName() + '.data.bin', dataToBin(data, ...area.getBoundRect()));
