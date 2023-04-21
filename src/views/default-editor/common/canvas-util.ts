@@ -24,10 +24,3 @@ export function getZoomChangeStyle(zoom: number) {
     top: 500 * (zoom - 1) + 'px',
   };
 }
-
-export function transformToOffset(rect: Box, fromOffset: Offset, toOffset: Offset): Box {
-  const x = rect[0] - toOffset.x + fromOffset.x;
-  const y = rect[1] - toOffset.y + fromOffset.y;
-  return [x, y, rect[2], rect[3]];
-}
-

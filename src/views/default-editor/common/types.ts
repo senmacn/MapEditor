@@ -23,8 +23,6 @@ export interface CanvasExtendImp {
 export interface Layer {
   uuid: string;
   name: string;
-  // 没啥用，待删除
-  level: number;
   visible: boolean;
   map: string | ArrayBuffer | null;
   hot: boolean;
