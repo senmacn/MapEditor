@@ -170,6 +170,14 @@
               if (layer.visible && layer.hot) {
                 layer.areas.forEach((area) => {
                   const data = getClosedCurvePointsData(area);
+                  // TODO: 测试getClosedCurvePointsData函数 TEST START
+                  // const mask = document.getElementById('mask-canvas') as HTMLCanvasElement;
+                  // mask.style.display = 'block';
+                  // const ctx = mask.getContext('2d', {
+                  //   willReadFrequently: true,
+                  // }) as CanvasRenderingContext2D;
+                  // ctx.putImageData(data, 0, 0);
+                  // TEST END
                   exportFile(area.getName() + '.data.bin', dataToBin(data, ...area.getBoundRect()));
                 });
               }
