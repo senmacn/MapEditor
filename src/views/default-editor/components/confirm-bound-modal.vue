@@ -59,7 +59,7 @@
     dataRef.value = data;
     Object.assign(_boundRect, boundRect);
     points = getPosition(dataRef.value);
-    scale = boundRect[2] > boundRect[3] ? 500 / boundRect[2] : 500 / boundRect[3]
+    scale = boundRect[2] > boundRect[3] ? 500 / boundRect[2] : 500 / boundRect[3];
 
     // 计算哪些边缘（点）可以选择
     const selectVisible = unref(selectVisibleRef);
@@ -106,10 +106,11 @@
   function executeBoundSelected(flagCount: number) {
     const data = unref(dataRef);
     if (!data) return;
+    const selectVisible = unref(selectVisibleRef);
     const _points: Point[] = [];
     if (flagCount === 1) {
       // 根据上右下左类型判断计算 x y 坐标
-      if (selectVisibleRef.value.top) {
+      if (selectVisible.top) {
         const boundPoints = points.filter((p) => p[1] === 0);
         const max = maxBy(boundPoints, (p) => p[0]) as Point;
         const min = minBy(boundPoints, (p) => p[0]) as Point;
@@ -117,29 +118,25 @@
           _points.push([index, 0]);
         }
       }
-      if (selectVisibleRef.value.right) {
-        const boundPoints = points.filter((p) => {
-          // 对于坐标需要-1(0 ===> length -1)
-          return p[0] >= _boundRect[2] - 1;
-        });
+      if (selectVisible.right) {
+        // 对于坐标需要-1(0 ===> length -1)
+        const boundPoints = points.filter((p) => p[0] >= _boundRect[2] - 1);
         const max = maxBy(boundPoints, (p) => p[1]) as Point;
         const min = minBy(boundPoints, (p) => p[1]) as Point;
         for (let index = min[1] + 1; index < max[1]; index++) {
           _points.push([_boundRect[2] - 1, index]);
         }
       }
-      if (selectVisibleRef.value.bottom) {
-        const boundPoints = points.filter((p) => {
-          // 对于坐标需要-1(0 ===> length -1)
-          return p[1] >= _boundRect[3] - 1;
-        });
+      if (selectVisible.bottom) {
+        // 对于坐标需要-1(0 ===> length -1)
+        const boundPoints = points.filter((p) => p[1] >= _boundRect[3] - 1);
         const max = maxBy(boundPoints, (p) => p[0]) as Point;
         const min = minBy(boundPoints, (p) => p[0]) as Point;
         for (let index = min[0] + 1; index < max[0]; index++) {
           _points.push([index, _boundRect[3] - 1]);
         }
       }
-      if (selectVisibleRef.value.left) {
+      if (selectVisible.left) {
         const boundPoints = points.filter((p) => p[0] === 0);
         const max = maxBy(boundPoints, (p) => p[1]) as Point;
         const min = minBy(boundPoints, (p) => p[1]) as Point;
@@ -148,13 +145,64 @@
         }
       }
     } else if (flagCount === 2) {
+      // 将上述上右下左单边加上四个角的点组合起来
+      if (selectVisible.topLeft) {
+        // 上边、左边和左上角端点
+        const topBoundPoints = points.filter((p) => p[1] === 0);
+        const topMax = maxBy(topBoundPoints, (p) => p[0]) as Point;
+        for (let index = 0; index < topMax[0]; index++) {
+          _points.push([index, 0]);
+        }
+        const leftBoundPoints = points.filter((p) => p[0] === 0);
+        const leftMax = maxBy(leftBoundPoints, (p) => p[1]) as Point;
+        for (let index = 0; index < leftMax[1]; index++) {
+          _points.push([0, index]);
+        }
+      }
+      if (selectVisible.topRight) {
+        // 上边、右边和右上角端点
+        const topBoundPoints = points.filter((p) => p[1] === 0);
+        const topMin = minBy(topBoundPoints, (p) => p[0]) as Point;
+        for (let index = topMin[0]; index <= _boundRect[2] - 1; index++) {
+          _points.push([index, 0]);
+        }
+        const rightBoundPoints = points.filter((p) => p[0] >= _boundRect[2] - 1);
+        const rightMax = maxBy(rightBoundPoints, (p) => p[1]) as Point;
+        for (let index = 0; index < rightMax[1]; index++) {
+          _points.push([_boundRect[2] - 1, index]);
+        }
+      }
+      if (selectVisible.bottomRight) {
+        // 底边、右边和右下端点
+        const bottomBoundPoints = points.filter((p) => p[1] === _boundRect[3] - 1);
+        const bottomMin = minBy(bottomBoundPoints, (p) => p[0]) as Point;
+        for (let index = bottomMin[0]; index <= _boundRect[2] - 1; index++) {
+          _points.push([index, _boundRect[3] - 1]);
+        }
+        const rightBoundPoints = points.filter((p) => p[0] >= _boundRect[2] - 1);
+        const rightMax = minBy(rightBoundPoints, (p) => p[1]) as Point;
+        for (let index = rightMax[1]; index < _boundRect[3] - 1; index++) {
+          _points.push([_boundRect[2] - 1, index]);
+        }
+      }
+      if (selectVisible.bottomLeft) {
+        // 底边、左边和左下端点
+        const bottomBoundPoints = points.filter((p) => p[1] === _boundRect[3] - 1);
+        const bottomMax = maxBy(bottomBoundPoints, (p) => p[0]) as Point;
+        for (let index = 0; index <= bottomMax[0]; index++) {
+          _points.push([index, _boundRect[3] - 1]);
+        }
+        const leftBoundPoints = points.filter((p) => p[0] === 0);
+        const leftMin = minBy(leftBoundPoints, (p) => p[1]) as Point;
+        for (let index = leftMin[1]; index < _boundRect[3] - 1; index++) {
+          _points.push([0, index]);
+        }
+      }
     } else {
       // TODO: 暂时先不考虑
     }
     mixedData = mixinData(data, _points);
     if (confirmCanvasRef.value) {
-      // confirmCanvasRef.value.width = mixedData.width;
-      // confirmCanvasRef.value.height = mixedData.height;
       confirmCtxRef.value = confirmCanvasRef.value.getContext('2d', {
         willReadFrequently: true,
       }) as CanvasRenderingContext2D;
