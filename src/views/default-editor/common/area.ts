@@ -100,6 +100,7 @@ export default class Area {
     );
   }
   select() {
+    if (controller.getCurrentArea() === this) return;
     // 先重置，否则mask-area的offset会错误
     controller.setCurrentArea(null);
     nextTick(() => {
@@ -110,9 +111,12 @@ export default class Area {
     });
   }
   cancelSelect() {
-    // @ts-ignore
-    document.getElementsByClassName(this.uuid).item(0).style.visibility = 'hidden';
     this.moveable?.setState({ draggable: false });
+    // 插件修改draggable的时候会显示外框，造成被选中的效果，需要移除
+    setTimeout(() => {
+      // @ts-ignore
+      document.getElementsByClassName(this.uuid).item(0).style.visibility = 'hidden';
+    }, 5);
   }
   render(target: HTMLElement) {
     this.target = target;
@@ -126,6 +130,7 @@ export default class Area {
     const height = 'height: ' + this.boundRect[3] + 'px;';
     const backgroundImage = 'background-image: ' + 'url(' + this.getImage() + ');';
     instance.setAttribute('style', top + left + height + width + backgroundImage);
+    instance.ondblclick = this.select.bind(this);
     target.appendChild(instance);
     this.instance = instance;
     // 创建moveable
@@ -151,12 +156,11 @@ export default class Area {
       .on('dragEnd', ({ target }) => {
         this.boundRect[0] = parseInt(target.style.left.replace('px', ''));
         this.boundRect[1] = parseInt(target.style.top.replace('px', ''));
-      })
-      // 在这里处理点击逻辑
-      .on('click', ({ inputEvent }) => {
-        inputEvent.stopPropagation();
-        this.select();
       });
+    // 刚渲染完未被点击时不允许拖拽
+    setTimeout(() => {
+      this.cancelSelect();
+    }, 5);
   }
   destroy() {
     this.instance && this.target?.removeChild(this.instance);
