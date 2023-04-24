@@ -53,6 +53,7 @@ export function loadSaves(str: string, curSize: [number, number]) {
           if (areas.length > 0) {
             newLayer[key] = [];
             for (let area of areas) {
+              // imagedata 的 data 序列化后为普通的（序列化）数组，因此得重新生成 Uint8ClampedArray
               const newArray: any[] = [];
               Object.keys(area['data'].data).forEach((key) => {
                 newArray[Number(key)] = area['data'].data[key];

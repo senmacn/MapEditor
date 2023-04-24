@@ -119,7 +119,6 @@
     layersRef.value.push({
       uuid: getRandomDomId(),
       name: '图层' + (layersRef.value.length + 1),
-      level: layersRef.value.length ? layersRef.value[layersRef.value.length - 1].level + 1 : 1,
       hot: true,
       visible: true,
       map: null,

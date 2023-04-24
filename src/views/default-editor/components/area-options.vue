@@ -80,12 +80,10 @@
     // 编辑、新增逻辑不同
     if (!controller.isEditingArea()) {
       emit('end-edit-area', areaNameRef.value, complete);
-      areaNameRef.value = '';
     } else {
       complete && emitDeleteAreaEvent();
       setTimeout(() => {
         emit('end-edit-area', areaNameRef.value, complete);
-        areaNameRef.value = '';
       }, 50);
     }
   }
