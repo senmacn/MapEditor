@@ -258,6 +258,7 @@
     }
     // 获取有数据的内容
     const data = ctxRef.getImageData(boundRect);
+    // 计算偏移
     boundRect[0] = boundRect[0] + props.offset.x;
     boundRect[1] = boundRect[1] + props.offset.y;
     const area = new Area('新区域', data, Object.assign({}, boundRect));

@@ -23,6 +23,10 @@
     </div>
     <status-bar></status-bar>
   </div>
+  <confirm-bound-modal
+    ref="confirmBoundModelRef"
+    @confirm-end="handleConfirmBound"
+  ></confirm-bound-modal>
 </template>
 
 <script setup lang="ts">
@@ -31,6 +35,7 @@
   import CanvasContainer from './canvas-container.vue';
   import DefaultOptions from './default-options.vue';
   import ThinOptions from './thin-options.vue';
+  import ConfirmBoundModal from './components/confirm-bound-modal.vue';
   import { getRandomDomId } from '../../utils/uuid';
   import controller from './common/canvas-state-controller';
   import { useToggle } from '@vueuse/core';
@@ -38,13 +43,15 @@
   import Area from './common/area';
   import useRuler from '@/hooks/useRuler';
   import { useCanvasState } from '@/store/modules/canvas-state';
+  import { useEditorConfig } from '@/store/modules/editor-config';
+
+  const configRef = useEditorConfig();
 
   // 图层数据
   const layersRef = ref<Layer[]>([
     {
       uuid: getRandomDomId(),
       name: '默认图层',
-      level: 1,
       hot: true,
       visible: true,
       map: null,
@@ -90,10 +97,32 @@
 
   // 区域编辑
   const areaCanvasRef = ref<Recordable>();
-  function handleEndEditArea(name: string, complete: boolean) {
+  const awaitConfirmBound = ref();
+  const confirmBoundModelRef = ref();
+  async function handleEndEditArea(name: string, complete: boolean) {
     if (complete && areaCanvasRef.value) {
       const area: Area = areaCanvasRef.value.getCreatedArea();
       if (!area) return;
+      // 确定是否可能需要封边
+      const boundRect = area.getBoundRect();
+      if (
+        boundRect[0] === 0 ||
+        boundRect[1] === 0 ||
+        boundRect[0] + boundRect[2] >= Number(configRef.getSize.x) ||
+        boundRect[1] + boundRect[3] >= Number(configRef.getSize.y)
+      ) {
+        const confirm = new Promise((resolve) => {
+          awaitConfirmBound.value = resolve;
+          confirmBoundModelRef.value?.setUpConfirmArea({
+            data: area.getData(),
+            boundRect: boundRect,
+          });
+        });
+        const confirmData = (await confirm) as ImageData;
+        if (!confirmData) return;
+        area.setData(confirmData);
+      }
+
       for (let index = layersRef.value.length - 1; index >= 0; index--) {
         const element = layersRef.value[index];
         if (element.hot) {
@@ -103,6 +132,13 @@
       }
     }
     controller.endDrawingArea();
+  }
+  function handleConfirmBound(data: ImageData, cancel: boolean) {
+    if (cancel) {
+      awaitConfirmBound.value && awaitConfirmBound.value(null);
+    } else {
+      awaitConfirmBound.value && awaitConfirmBound.value(data);
+    }
   }
 
   function handleLoadSaves(layers) {

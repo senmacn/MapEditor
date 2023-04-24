@@ -2,6 +2,7 @@ import Moveable from 'moveable';
 import { getShortUuid } from '@/utils/uuid';
 import controller from './canvas-state-controller';
 import { nextTick } from 'vue';
+import { getPosition } from './image-data-util';
 
 export default class Area {
   private uuid;
@@ -9,6 +10,7 @@ export default class Area {
   private draw = false;
   // 边框 x1 y1 width height
   private boundRect: Box = [0, 0, 0, 0];
+  private boundRectPoints: Point[] | undefined;
   // rect 内的data
   private data: ImageData;
   // 渲染的图片
@@ -75,6 +77,18 @@ export default class Area {
   }
   setBoundRect(value: Box) {
     this.boundRect = value;
+  }
+  // 获取区域轮廓点
+  getBoundRectPoints() {
+    if (!this.boundRectPoints) {
+      const points = getPosition(this.data);
+      points.forEach((point) => {
+        point[0] = point[0] + this.boundRect[0];
+        point[1] = point[1] + this.boundRect[1];
+      });
+      this.boundRectPoints = points;
+    }
+    return this.boundRectPoints;
   }
   // 点是否在区域矩形轮廓内部
   checkPointInArea(point: PointA, offset: Offset) {

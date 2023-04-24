@@ -13,7 +13,7 @@
       <a-col :span="6">
         <a-upload @beforeUpload="(file) => handleLoadSaves(file)" accept=".json">
           <template #upload-button>
-            <a-button type="primary" @click="">加载</a-button>
+            <a-button type="primary">加载</a-button>
           </template>
         </a-upload>
       </a-col>

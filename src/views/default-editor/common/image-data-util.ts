@@ -6,20 +6,6 @@ export function isPointInData(data: Uint8ClampedArray, startIndex: number) {
   return data[startIndex] || data[startIndex + 1] || data[startIndex + 2] || data[startIndex + 3];
 }
 
-export function getPosition(imageData: ImageData) {
-  const positions: Point[] = [];
-  // imageData.data 大小为 height * width * 4，每4个值组成一个点，从左向右从上到下
-  for (let yIndex = 0; yIndex < imageData.height; yIndex++) {
-    for (let xIndex = 0; xIndex < imageData.width; xIndex++) {
-      const pointStartIndex = xIndex * 4 + yIndex * 4 * imageData.width;
-      if (isPointInData(imageData.data, pointStartIndex)) {
-        positions.push([xIndex, yIndex]);
-      }
-    }
-  }
-  return positions;
-}
-
 // 获取范围内点的数量
 export function getPositionCount(imageData: ImageData, x, y, width, height): number {
   let count = 0;
@@ -132,6 +118,68 @@ export function getConnectEndPoint(
   return null;
 }
 
+// 拷贝imageData
+export function copyImageData(imageData) {
+  return new ImageData(new Uint8ClampedArray(imageData.data), imageData.width, imageData.height);
+}
+
+/**
+ * 混入区域（只混入有数据的部分）
+ * @param imageData 原imageData
+ * @param area 新imageData
+ * @returns 新imageData
+ */
+export function mixinData(imageData: ImageData, points: Point[]) {
+  const newData = copyImageData(imageData);
+  for (let i = 0; i < points.length; i++) {
+    const point = points[i];
+    const pointStartIndex = (point[0] + point[1] * imageData.width) * 4;
+    newData.data[pointStartIndex] = 255;
+    newData.data[pointStartIndex + 1] = 0;
+    newData.data[pointStartIndex + 2] = 0;
+    newData.data[pointStartIndex + 3] = 255;
+  }
+  return newData;
+}
+
+/**
+ * 获取缩放计算后的imagedata
+ * @param imageData 原data
+ * @param scale 缩放比例
+ * @returns 新data
+ */
+export function scaleImageData(imageData: ImageData, scale: number) {
+  var scaled = new ImageData(
+    Math.floor(imageData.width * scale),
+    Math.floor(imageData.height * scale),
+  );
+  for (var row = 0; row < imageData.height; row++) {
+    for (var col = 0; col < imageData.width; col++) {
+      var sourcePixel = [
+        imageData.data[(row * imageData.width + col) * 4 + 0],
+        imageData.data[(row * imageData.width + col) * 4 + 1],
+        imageData.data[(row * imageData.width + col) * 4 + 2],
+        imageData.data[(row * imageData.width + col) * 4 + 3],
+      ];
+      // 防止scale小于1时跳过某些值
+      const _scale = scale >= 1 ? 1 : 1;
+      for (var y = 0; y < _scale; y++) {
+        var destRow = Math.floor(row * scale) + y;
+        for (var x = 0; x < _scale; x++) {
+          var destCol = Math.floor(col * scale) + x;
+          for (var i = 0; i < 4; i++) {
+            // 防止放缩的时候，有值的点被后续压进来的无值点覆盖
+            if (!scaled.data[(destRow * scaled.width + destCol) * 4 + i]) {
+              scaled.data[(destRow * scaled.width + destCol) * 4 + i] = sourcePixel[i];
+            }
+          }
+        }
+      }
+    }
+  }
+  return scaled;
+}
+
 // 获取矩形轮廓
 // TODO: 在画的过程中计算 xmin ymin xmax ymax
 export function getImageDataBoundRect(imageData: ImageData): Box {
@@ -162,6 +210,21 @@ export function getImageDataBoundRect(imageData: ImageData): Box {
   }
   // +1 否则会少一个点
   return flag ? [minX, minY, maxX - minX + 1, maxY - minY + 1] : [0, 0, 0, 0];
+}
+
+// 获取imageData中的点
+export function getPosition(imageData: ImageData) {
+  const positions: Point[] = [];
+  // imageData.data 大小为 height * width * 4，每4个值组成一个点，从左向右从上到下
+  for (let yIndex = 0; yIndex < imageData.height; yIndex++) {
+    for (let xIndex = 0; xIndex < imageData.width; xIndex++) {
+      const pointStartIndex = xIndex * 4 + yIndex * 4 * imageData.width;
+      if (isPointInData(imageData.data, pointStartIndex)) {
+        positions.push([xIndex, yIndex]);
+      }
+    }
+  }
+  return positions;
 }
 
 /**
