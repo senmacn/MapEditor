@@ -178,7 +178,11 @@
                   // }) as CanvasRenderingContext2D;
                   // ctx.putImageData(data, 0, 0);
                   // TEST END
-                  exportFile(area.getName() + '.data.bin', dataToBin(data, ...area.getBoundRect()));
+                  const boundRect = toRaw(area.getBoundRect());
+                  exportFile(
+                    area.getName() + '.data.bin',
+                    dataToBin(data, boundRect[0], boundRect[1], boundRect[2], boundRect[3]),
+                  );
                 });
               }
             }
