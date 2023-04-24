@@ -121,9 +121,11 @@
     ]);
     controller.setActive(false);
   }
-  function handleMouseOut() {
+  function handleMouseOut(e) {
+    // 鼠标划出视为在划出点放开鼠标
     // ctxRef.clean();
-    controller.setActive(false);
+    handleMouseUp(e);
+    // controller.setActive(false);
   }
 
   onDeleteAreaEvent(() => {
