@@ -1,7 +1,7 @@
 import { isFunction } from 'lodash-es';
 import { CanvasExtendImp, CanvasInstance } from '../common/types';
 import { useEditorConfig } from '@/store/modules/editor-config';
-import Area from '../common/area';
+
 interface CanvasHistory {
   data: ImageData | null;
   // x1: number; y1: number; width: number; height: number;
@@ -131,7 +131,14 @@ export class ExtendCanvas implements CanvasExtendImp {
       //设置擦除路径
       ctx.beginPath();
       // 清除上一次erase产生的圆和内部内容
-      ctx.arc(this.lastPoint.x, this.lastPoint.y, 11, 0, Math.PI * 2, false);
+      ctx.arc(
+        this.lastPoint.x,
+        this.lastPoint.y,
+        this.canvasConfig.getEraseSize + 1,
+        0,
+        Math.PI * 2,
+        false,
+      );
       // 通过clip设置下一步清空时，只影响arc的内容
       ctx.clip();
       ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
@@ -140,10 +147,10 @@ export class ExtendCanvas implements CanvasExtendImp {
     // 画橡皮（圆）
     if (!isLast) {
       ctx.save();
-      ctx.strokeStyle = 'black';
+      ctx.strokeStyle = 'white';
       ctx.lineWidth = 1;
       ctx.beginPath();
-      ctx.arc(point.x, point.y, 10, 0, Math.PI * 2, false);
+      ctx.arc(point.x, point.y, this.canvasConfig.getEraseSize, 0, Math.PI * 2, false);
       ctx.clip();
       ctx.stroke();
       ctx.restore();
