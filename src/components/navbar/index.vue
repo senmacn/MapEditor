@@ -38,13 +38,12 @@
   import defaultAvatar from '@/assets/images/defaultAvatar.png';
 
   enum RouterEnum {
-    GridEditor = 'grid-editor',
     DefaultEditor = 'default-editor',
   }
 
   const { isFullscreen, toggle: toggleFullScreen } = useFullscreen();
 
-  const routerRef = ref(RouterEnum.GridEditor);
+  const routerRef = ref(RouterEnum.DefaultEditor);
   onMounted(() => {
     const href = location.href;
     if (href.includes(RouterEnum.DefaultEditor)) {
