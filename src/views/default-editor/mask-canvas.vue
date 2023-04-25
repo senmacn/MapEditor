@@ -17,7 +17,6 @@
   import { emitPersistLineEvent, emitPersistShapeEvent, onDeleteAreaEvent } from './common/event';
   import * as canvasUtil from './common/canvas-util';
   import { useEditorConfig } from '@/store/modules/editor-config';
-  import debounce from 'lodash-es/debounce';
 
   const props = defineProps({
     visible: {
@@ -52,41 +51,37 @@
       }
     }
   }
-  const handleMouseMove = debounce(
-    function (e: MouseEvent) {
-      if (e.button !== 0 || !controller.getActive()) return;
-      endPoint = getPos(e);
-      // 清除
-      const radius = Math.sqrt(
-        Math.pow(beginPoint.x - prevPoint.x, 2) + Math.pow(beginPoint.y - prevPoint.y, 2),
-      );
-      ctxRef.clean([
-        beginPoint.x - radius - 50,
-        beginPoint.y - radius - 50,
-        // 扩大一点范围防止少
-        2 * radius + 100,
-        2 * radius + 100,
-      ]);
-      ctxRef.setLineDash([5, 5]);
-      switch (controller.getState()) {
-        case CanvasOption.DrawLine: {
-          ctxRef.drawLine(beginPoint, endPoint);
-          break;
-        }
-        case CanvasOption.DrawCircle: {
-          ctxRef.drawCircle(beginPoint, canvasUtil.getDistance(beginPoint, endPoint));
-          break;
-        }
-        case CanvasOption.DrawRect: {
-          ctxRef.drawRect(beginPoint, endPoint);
-          break;
-        }
+  const handleMouseMove = function (e: MouseEvent) {
+    if (e.button !== 0 || !controller.getActive()) return;
+    endPoint = getPos(e);
+    // 清除
+    const radius = Math.sqrt(
+      Math.pow(beginPoint.x - prevPoint.x, 2) + Math.pow(beginPoint.y - prevPoint.y, 2),
+    );
+    ctxRef.clean([
+      beginPoint.x - radius - 50,
+      beginPoint.y - radius - 50,
+      // 扩大一点范围防止少
+      2 * radius + 100,
+      2 * radius + 100,
+    ]);
+    ctxRef.setLineDash([5, 5]);
+    switch (controller.getState()) {
+      case CanvasOption.DrawLine: {
+        ctxRef.drawLine(beginPoint, endPoint);
+        break;
       }
-      prevPoint = getPos(e);
-    },
-    5,
-    { leading: true, trailing: true },
-  );
+      case CanvasOption.DrawCircle: {
+        ctxRef.drawCircle(beginPoint, canvasUtil.getDistance(beginPoint, endPoint));
+        break;
+      }
+      case CanvasOption.DrawRect: {
+        ctxRef.drawRect(beginPoint, endPoint);
+        break;
+      }
+    }
+    prevPoint = getPos(e);
+  };
 
   function handleMouseUp(e: MouseEvent) {
     if (!controller.getActive()) return;

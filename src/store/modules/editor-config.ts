@@ -5,6 +5,7 @@ export interface EditorConfig {
   style: Recordable<string>;
   color: string;
   lineWidth: number;
+  eraseSize: number;
   zoom: number;
   autoConnect: boolean;
   autoConnectScope: number;
@@ -16,6 +17,7 @@ const editorConfig: EditorConfig = {
   zoom: 1,
   color: 'red',
   lineWidth: 1,
+  eraseSize: 10,
   autoConnect: true,
   autoConnectScope: 24,
   size: {
@@ -26,7 +28,11 @@ const editorConfig: EditorConfig = {
 Object.keys(editorConfig).forEach((key) => {
   const storage = localStorage.getItem('editor-config-' + key);
   if (storage) {
-    editorConfig[key] = JSON.parse(storage);
+    if (typeof editorConfig[key] === 'number') {
+      editorConfig[key] = Number(JSON.parse(storage));
+    } else {
+      editorConfig[key] = JSON.parse(storage);
+    }
   }
 });
 
@@ -38,19 +44,22 @@ export const useEditorConfig = defineStore({
       return this.style;
     },
     getZoom(): number {
-      return Number(this.zoom);
+      return this.zoom;
     },
     getColor(): string {
       return this.color;
     },
     getLineWidth(): number {
-      return Number(this.lineWidth);
+      return this.lineWidth;
+    },
+    getEraseSize(): number {
+      return this.eraseSize;
     },
     getAutoConnect(): boolean {
       return this.autoConnect;
     },
     getAutoConnectScope(): number {
-      return Number(this.autoConnectScope);
+      return this.autoConnectScope;
     },
     getSize(): Recordable<number> {
       return this.size;
@@ -72,6 +81,10 @@ export const useEditorConfig = defineStore({
     setLineWidth(value: number) {
       localStorage.setItem('editor-config-lineWidth', JSON.stringify(value));
       this.lineWidth = value;
+    },
+    setEraseSize(value: number) {
+      localStorage.setItem('editor-config-eraseSize', JSON.stringify(value));
+      this.eraseSize = value;
     },
     setAutoConnect(value: boolean) {
       localStorage.setItem('editor-config-autoConnect', JSON.stringify(value));
