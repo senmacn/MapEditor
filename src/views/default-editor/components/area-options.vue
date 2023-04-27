@@ -112,10 +112,12 @@
 </script>
 
 <style lang="less" scoped>
-  .area-options button {
-    font-size: 12px;
-    width: 50px;
-    height: 32px;
-    padding: 0 4px;
+  .area-options {
+    button {
+      font-size: 12px;
+      width: 50px;
+      height: 32px;
+      padding: 0 4px;
+    }
   }
 </style>

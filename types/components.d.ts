@@ -20,6 +20,7 @@ declare module '@vue/runtime-core' {
     AInputNumber: typeof import('@arco-design/web-vue')['InputNumber']
     AModal: typeof import('@arco-design/web-vue')['Modal']
     AOption: typeof import('@arco-design/web-vue')['Option']
+    APopover: typeof import('@arco-design/web-vue')['Popover']
     ARow: typeof import('@arco-design/web-vue')['Row']
     ASelect: typeof import('@arco-design/web-vue')['Select']
     ASlider: typeof import('@arco-design/web-vue')['Slider']

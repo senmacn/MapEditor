@@ -34,55 +34,7 @@
       @end-edit-area="(...props) => emit('end-edit-area', props[0], props[1])"
     />
     <edit-options></edit-options>
-    <a-row class="option-group" style="height: 200px">
-      <a-col class="row-label" :span="4">设置：</a-col>
-      <a-col :span="8">
-        <div class="auto-connect">
-          <span>自动连接: </span>
-          <a-switch
-            :default-checked="configRef.autoConnect"
-            @change="(value: any) => configRef.setAutoConnect(value)"
-          />
-        </div>
-      </a-col>
-      <a-col :span="10">
-        <div>
-          <span>连接范围：</span>
-          <a-input-number
-            :disabled="!configRef.getAutoConnect"
-            mode="button"
-            size="small"
-            :max="60"
-            :min="18"
-            :step="2"
-            :default-value="configRef.getAutoConnectScope"
-            @change="(value) => configRef.setAutoConnectScope(Number(value))"
-          ></a-input-number>
-        </div>
-      </a-col>
-      <a-col class="pickr-wrapper" :span="8" :offset="4">
-        <span>线条颜色： </span>
-        <span id="pickr-instance"> </span>
-      </a-col>
-      <a-col :span="12">
-        <span>线条宽度： </span>
-        <a-input-number
-          mode="button"
-          size="small"
-          :max="10"
-          :min="1"
-          :step="1"
-          :precision="1"
-          :default-value="configRef.lineWidth"
-          :formatter="(value: number) => Number(value).toFixed(0)"
-          @change="(num: number) => configRef.setLineWidth(num)"
-        />
-      </a-col>
-      <!-- <a-col :span="20" :offset="4">
-        比例：
-        <controlled-slider @register="registerControllerSlider"></controlled-slider>
-      </a-col> -->
-    </a-row>
+    <edit-config></edit-config>
   </div>
   <change-map-size-modal
     :visible="changeMapSizeModalVisible"
@@ -91,15 +43,14 @@
 </template>
 
 <script setup lang="ts">
-  import { Ref, inject, onMounted, ref, toRaw, unref } from 'vue';
+  import { Ref, inject, ref, toRaw, unref } from 'vue';
   import modal from '@arco-design/web-vue/es/modal';
-  import ControlledSlider, { useControllerSlider } from '../../components/controlled-slider';
   import LayerList from './components/layer-list.vue';
   import AreaOptions from './components/area-options.vue';
   import EditOptions from './components/edit-options.vue';
+  import EditConfig from './components/edit-config.vue';
   import ChangeMapSizeModal from './components/change-map-size-modal.vue';
   import { Layer } from './common/types';
-  import { useColorPicker } from '../../hooks/useColorPicker';
   import { useLoading } from '../../components/Loading';
   import { exportFile } from '../../utils/file';
   import { useEditorConfig } from '@/store/modules/editor-config';
@@ -197,20 +148,6 @@
   function handleChangeMapSize() {
     changeMapSizeModalVisible.value = true;
   }
-
-  const [registerControllerSlider] = useControllerSlider({
-    onChange: function (val) {
-      configRef.setZoom(val);
-    },
-  });
-
-  const pickrInstance = useColorPicker('#pickr-instance');
-  onMounted(() => {
-    pickrInstance.init();
-    pickrInstance.on('save', (color) => {
-      configRef.setColor(color.toRGBA().toString());
-    });
-  });
 </script>
 
 <style lang="less">

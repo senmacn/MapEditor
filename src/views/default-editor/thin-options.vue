@@ -1,25 +1,27 @@
 <template>
   <div class="thin-option">
     <a-divider></a-divider>
-    <a-tooltip content="图层">
-      <a-dropdown trigger="click" popup-container=".thin-option" @select="">
-        <a-button type="text">
-          <icon-layers />
-        </a-button>
-        <template #content>
-          <a-doption class="layer-item" v-for="layer in layersRef" :key="layer.uuid">
-            {{ layer.name }}
-          </a-doption>
-        </template>
-      </a-dropdown>
-    </a-tooltip>
+    <a-popover trigger="hover" position="left">
+      <a-button type="text">
+        <icon-layers />
+      </a-button>
+      <template #content>
+        {{ hotLayerRef?.name }}
+      </template>
+    </a-popover>
     <a-divider></a-divider>
 
-    <a-tooltip content="新增">
-      <a-button type="text" :disabled="controller.isDrawingArea()" @click="handleStartDrawingArea">
+    <a-popover trigger="hover" position="left">
+      <a-button type="text" :disabled="controller.isDrawingArea()">
         <icon-plus />
       </a-button>
-    </a-tooltip>
+      <template #content>
+        <div class="thin-option-add">
+          <a-input placeholder="区域标识" v-model="areaNameRef"></a-input>
+          <a-button type="primary" @click="handleStartDrawingArea">新增</a-button>
+        </div>
+      </template>
+    </a-popover>
     <a-tooltip content="编辑">
       <a-button type="text" :disabled="editBtnDisabled" @click="handleStartEditArea">
         <icon-edit />
@@ -59,9 +61,10 @@
     <a-tooltip content="画笔">
       <a-button
         type="text"
+        class="edit-btn"
         :class="[controller.getState() === CanvasOption.FollowMouse && 'actived']"
         @click="() => handleChangeOptionState(CanvasOption.FollowMouse)"
-        :disabled="!controller.isDrawingArea()"
+        :disabled="!editableRef"
       >
         <icon-pen-fill />
       </a-button>
@@ -69,20 +72,21 @@
     <a-tooltip content="橡皮">
       <a-button
         type="text"
+        class="edit-btn"
         :class="[controller.getState() === CanvasOption.FollowMouseClear && 'actived']"
         @click="() => handleChangeOptionState(CanvasOption.FollowMouseClear)"
-        :disabled="!controller.isDrawingArea()"
+        :disabled="!editableRef"
       >
         <icon-eraser />
       </a-button>
     </a-tooltip>
     <a-tooltip content="撤销">
-      <a-button type="text" @click="emitCanvasUndoEvent" :disabled="!controller.isDrawingArea()">
+      <a-button type="text" class="edit-btn" @click="emitCanvasUndoEvent" :disabled="!editableRef">
         <icon-undo />
       </a-button>
     </a-tooltip>
     <a-tooltip content="还原">
-      <a-button type="text" @click="emitCanvasRedoEvent" :disabled="!controller.isDrawingArea()">
+      <a-button type="text" class="edit-btn" @click="emitCanvasRedoEvent" :disabled="!editableRef">
         <icon-redo />
       </a-button>
     </a-tooltip>
@@ -92,9 +96,10 @@
     <a-tooltip content="直线">
       <a-button
         type="text"
+        class="edit-btn"
         :class="[controller.getState() === CanvasOption.DrawLine && 'actived']"
         @click="() => handleChangeOptionState(CanvasOption.DrawLine)"
-        :disabled="!controller.isDrawingArea()"
+        :disabled="!editableRef"
       >
         <icon-oblique-line />
       </a-button>
@@ -103,9 +108,10 @@
     <a-tooltip content="圆">
       <a-button
         type="text"
+        class="edit-btn"
         :class="[controller.getState() === CanvasOption.DrawCircle && 'actived']"
         @click="() => handleChangeOptionState(CanvasOption.DrawCircle)"
-        :disabled="!controller.isDrawingArea()"
+        :disabled="!editableRef"
       >
         <svg
           viewBox="0 0 48 48"
@@ -125,9 +131,10 @@
     <a-tooltip content="矩形">
       <a-button
         type="text"
+        class="edit-btn"
         :class="[controller.getState() === CanvasOption.DrawRect && 'actived']"
         @click="() => handleChangeOptionState(CanvasOption.DrawRect)"
-        :disabled="!controller.isDrawingArea()"
+        :disabled="!editableRef"
       >
         <svg
           viewBox="0 0 48 48"
@@ -146,26 +153,41 @@
 
     <a-divider></a-divider>
 
-    <a-tooltip content="设置">
+    <a-popover trigger="hover" position="left">
       <a-button type="text">
         <icon-settings />
       </a-button>
-    </a-tooltip>
+      <template #content>
+        <div class="thin-options-config">
+          <edit-config></edit-config>
+        </div>
+      </template>
+    </a-popover>
   </div>
 </template>
 
 <script setup lang="ts">
   import { Ref, computed, inject, ref } from 'vue';
-  import message from '@arco-design/web-vue/es/message';
+  import EditConfig from './components/edit-config.vue';
   import { emitEditAreaEvent, emitDeleteAreaEvent } from './common/event';
-  import { checkFileName } from '@/utils/file';
   import { isNull } from '@/utils/is';
   import modal from '@arco-design/web-vue/es/modal';
   import controller, { CanvasOption } from './common/canvas-state-controller';
   import { emitCanvasUndoEvent, emitCanvasRedoEvent } from './common/event';
   import { Layer } from './common/types';
+  import { checkAreaName } from './common/util';
 
   const layersRef: Ref<Layer[]> = inject('layers', [] as any);
+  const hotLayerRef = computed(() => {
+    for (let index = layersRef.value.length - 1; index >= 0; index--) {
+      const element = layersRef.value[index];
+      if (element.hot) {
+        return element;
+      }
+    }
+  });
+
+  const editableRef = computed(() => controller.isDrawingArea());
 
   /**
    * area-options
@@ -176,25 +198,11 @@
 
   const areaNameRef = ref('');
   function handleStartDrawingArea() {
-    if (!areaNameRef.value.length) {
-      message.warning('请填写区域标识！');
-      return;
-    }
-    if (!checkFileName(areaNameRef.value)) {
-      message.warning('格式错误！区域标识只支持字母、数字、下划线！');
-      return;
-    }
+    if (!checkAreaName(areaNameRef.value)) return;
     controller.startDrawingArea(true);
   }
   function handleEndDrawingArea(complete: boolean) {
-    if (complete && !areaNameRef.value.length) {
-      message.warning('请填写区域标识！');
-      return;
-    }
-    if (complete && !checkFileName(areaNameRef.value)) {
-      message.warning('格式错误！区域标识只支持字母、数字和 . _ - 等符号！');
-      return;
-    }
+    if (complete && !checkAreaName(areaNameRef.value)) return;
     // 编辑、新增逻辑不同
     if (!controller.isEditingArea()) {
       emit('end-edit-area', areaNameRef.value, complete);
@@ -252,8 +260,18 @@
     .arco-divider {
       margin: 10px 0;
     }
-    .arco-trigger-popup-wrapper {
-      transform: translate(-50px, -40px);
+    button.edit-btn {
+      color: white;
     }
+    button.edit-btn.arco-btn-disabled {
+      color: var(--color-text-4);
+    }
+  }
+  .thin-option-add {
+    display: flex;
+  }
+  .thin-options-config {
+    width: 280px;
+    padding: 30px 10px 0;
   }
 </style>
