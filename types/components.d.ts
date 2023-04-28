@@ -35,6 +35,7 @@ declare module '@vue/runtime-core' {
     ControlledSlider: typeof import('./../src/components/controlled-slider/controlled-slider.vue')['default']
     IconCheck: typeof import('@arco-design/web-vue/es/icon')['IconCheck']
     IconClose: typeof import('@arco-design/web-vue/es/icon')['IconClose']
+    IconCloudDownload: typeof import('@arco-design/web-vue/es/icon')['IconCloudDownload']
     IconDelete: typeof import('@arco-design/web-vue/es/icon')['IconDelete']
     IconDownload: typeof import('@arco-design/web-vue/es/icon')['IconDownload']
     IconDownlod: typeof import('@arco-design/web-vue/es/icon')['IconDownlod']
