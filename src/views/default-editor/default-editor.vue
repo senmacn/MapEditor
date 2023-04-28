@@ -30,7 +30,7 @@
 </template>
 
 <script setup lang="ts">
-  import { Ref, provide, ref, watch } from 'vue';
+  import { Ref, onBeforeUnmount, onMounted, provide, ref, watch } from 'vue';
   import StatusBar from './components/status-bar.vue';
   import CanvasContainer from './canvas-container.vue';
   import DefaultOptions from './default-options.vue';
@@ -44,6 +44,7 @@
   import useRuler from '@/hooks/useRuler';
   import { useCanvasState } from '@/store/modules/canvas-state';
   import { useEditorConfig } from '@/store/modules/editor-config';
+  import modal from '@arco-design/web-vue/es/modal';
 
   const configRef = useEditorConfig();
 
@@ -67,6 +68,7 @@
     height: 30,
     mainLineSize: 25,
     font: '11px sans-serif',
+    range: [0, configRef.getSize.x],
   });
   const hRuler = ref();
   const hRulerInstance = useRuler(hRuler, {
@@ -74,6 +76,7 @@
     width: 30,
     mainLineSize: 25,
     font: '11px sans-serif',
+    range: [0, configRef.getSize.y],
   });
   // 滚动条滚动时修改标尺offset
   const state = useCanvasState();
@@ -149,12 +152,32 @@
     });
     layersRef.value = layers;
   }
+
+  function F5Check(e: KeyboardEvent) {
+    if (e.key === 'F5') {
+      e.preventDefault();
+      modal.confirm({
+        title: '确认',
+        content: '刷新页面可能会导致数据丢失，请确认您已保存数据！',
+        onOk: () => {
+          location.reload();
+        },
+      });
+    }
+  }
+  // 挂载时初始化
+  onMounted(() => {
+    window.addEventListener('keydown', F5Check);
+  });
+  onBeforeUnmount(() => {
+    window.removeEventListener('keydown', F5Check);
+  });
 </script>
 
 <style lang="less">
   .map-editor {
     display: flex;
-    height: 100%;
+    height: calc(100vh - 70px);
     background-color: #1e1e1e;
     margin-bottom: 10px;
   }
