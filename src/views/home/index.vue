@@ -1,23 +1,33 @@
 <template>
   <div class="home-container">
-    <div class="home-options">
-      <div class="button-wrapper">
-        <a-tooltip content="新建项目">
+    <div class="home-left">
+      <div class="home-info">
+        <div> 地图编辑器 </div>
+        <div> 版本：0.0.1 </div>
+      </div>
+      <div class="home-options">
+        <div class="button-wrapper">
           <a-button type="primary" @click="() => handleOpenProject('')">
             <icon-plus />
           </a-button>
-        </a-tooltip>
-      </div>
-      <div class="button-wrapper">
-        <a-tooltip content="从文件打开项目">
+          <div>新建项目</div>
+        </div>
+        <div class="button-wrapper">
           <a-button type="primary" @click="handleUploadProject">
             <icon-import />
           </a-button>
-        </a-tooltip>
+          <div>从文件打开项目</div>
+        </div>
+        <div class="button-wrapper" v-if="!isLocal()">
+          <a-button type="primary" @click="handleUploadProject">
+            <icon-cloud-download />
+          </a-button>
+          <div>获取桌面版</div>
+        </div>
       </div>
     </div>
-    <div class="history-list">
-      <a-list :bordered="false" :data="dataSource" :pagination-props="paginationProps">
+    <div class="history-list home-right">
+      <a-list size="small" :bordered="false" :data="dataSource" :pagination-props="paginationProps">
         <template #header>
           <div class="history-title"> - 历史记录 - </div>
         </template>
@@ -26,7 +36,7 @@
             <template #actions>
               <span @click="() => handleOpenProject(item.title)"><icon-launch />打开</span>
               <span><icon-download />下载</span>
-              <span><icon-heart />置顶</span>
+              <!-- <span><icon-heart />置顶</span> -->
               <span><icon-delete />删除</span>
             </template>
             <a-list-item-meta
@@ -42,6 +52,7 @@
 </template>
 
 <script setup lang="ts">
+  import { isLocal } from '@/utils/env';
   import type { LocalMapHistory } from './common/types';
   import { reactive, ref } from 'vue';
 
@@ -96,20 +107,39 @@
 
 <style lang="less">
   .home-container {
+    display: flex;
+    justify-content: space-around;
     height: 100vh;
-    width: 30vw;
-    min-width: 500px;
+    width: 50vw;
+    min-width: 600px;
     margin: 0 auto;
+    margin-top: 150px;
+  }
+  .home-left {
+    flex: 1;
+    padding: 20px;
+    height: 480px;
+    border: 1px solid #746c5f;
+  }
+  .home-info {
+    padding-left: 60px;
+    font-size: 16px;
+    font-weight: bold;
+    color: var(--color-text-1);
   }
   .home-options {
     display: flex;
-    justify-content: center;
-    margin-top: 50px;
+    flex-direction: column;
+    justify-content: space-around;
+    padding: 20px;
     .button-wrapper {
-      margin: 10px;
+      font-size: 16px;
+      line-height: 28px;
+      text-align: center;
+      margin-top: 50px;
       button {
-        width: 150px;
-        height: 150px;
+        width: 80%;
+        height: 60px;
         border-radius: 10px;
       }
       .arco-icon {
@@ -119,15 +149,15 @@
     }
   }
   .history-list {
+    flex: 1;
+    height: 480px;
     border: 1px solid #746c5f;
-    height: 534px;
     padding: 20px;
     .history-title {
       font-size: 16px;
       font-weight: bold;
     }
     .list-item {
-      border-bottom: 1px solid var(--color-fill-3);
       color: var(--color-text-2);
     }
     .top .arco-list-item-meta-title {
