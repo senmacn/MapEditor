@@ -1,18 +1,20 @@
+import electronApi from './electron/electron';
 import { isNullOrUnDef } from './is';
 
-interface LocalApi {
-  getLocalHistoryList(): Recordable[];
-  getLocalFileContent(fileName: string): string;
-  deleteLocalFile(fileName: string): void;
-  saveLocalFile(fileName: string): void;
+export interface LocalApi {
+  getLocalHistoryList(): Promise<Recordable[]>;
+  getLocalFileContent(fileName: string): Promise<string>;
+  deleteLocalFile(fileName: string): Promise<unknown>;
+  saveLocalFile(fileName: string, data: string): Promise<unknown>;
 }
 
-const localApiExists = !isNullOrUnDef(window['localApi']);
+const localApiExists = !isNullOrUnDef(window['electronAPI']);
 
 export function isLocal() {
   return localApiExists;
 }
 
 export function getLocalApi() {
-  return localApiExists ? (window['localApi'] as LocalApi) : null;
+  // TODO: {} as LocalApi
+  return localApiExists ? electronApi : {} as LocalApi;
 }

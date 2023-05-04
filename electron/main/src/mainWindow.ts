@@ -10,13 +10,25 @@ async function createWindow() {
       nodeIntegration: true,
       contextIsolation: true,
       sandbox: false,
-      webviewTag: false,
-      preload: join(app.getAppPath(), 'electron`/preload/dist/index.cjs'),
+      webviewTag: true,
+      preload: join(app.getAppPath(), 'electron/preload/dist/index.cjs'),
     },
     frame: true,
     minWidth: 1600,
     minHeight: 1024,
     resizable: true,
+  });
+
+  browserWindow.webContents.setWindowOpenHandler(({ url }) => {
+    return {
+      action: 'allow',
+      overrideBrowserWindowOptions: {
+        nodeIntegration: true,
+        webPreferences: {
+          preload: join(app.getAppPath(), 'electron/preload/dist/index.cjs'),
+        },
+      },
+    };
   });
 
   browserWindow.on('ready-to-show', () => {

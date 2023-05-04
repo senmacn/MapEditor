@@ -4,11 +4,17 @@
       <a-col class="row-label" :span="4">
         <span class="group-label">文件： </span>
       </a-col>
-      <a-col :span="18">
+      <a-col :span="6">
         <a-button type="primary" @click="handleChangeMapSize">设置地图尺寸</a-button>
       </a-col>
+      <a-col :span="6">
+        <a-button type="primary" @click="getPosition">下载坐标</a-button>
+      </a-col>
       <a-col :span="6" :offset="4">
-        <a-button type="primary" @click="handleCreateSaves"> 保存 </a-button>
+        <a-button type="primary" :disable="!isLocal()" @click="handleCreateSaves"> 保存 </a-button>
+      </a-col>
+      <a-col :span="6">
+        <a-button type="primary" @click="handleExportSaves"> 导出 </a-button>
       </a-col>
       <a-col :span="6">
         <a-upload @beforeUpload="(file) => handleLoadSaves(file)" accept=".json">
@@ -16,9 +22,6 @@
             <a-button type="primary">加载</a-button>
           </template>
         </a-upload>
-      </a-col>
-      <a-col :span="6">
-        <a-button type="primary" @click="getPosition">下载坐标</a-button>
       </a-col>
     </a-row>
     <a-row class="option-group" style="height: 250px">
@@ -43,7 +46,7 @@
 </template>
 
 <script setup lang="ts">
-  import { Ref, inject, ref, toRaw, unref } from 'vue';
+  import { Ref, inject, onMounted, ref, toRaw, unref } from 'vue';
   import modal from '@arco-design/web-vue/es/modal';
   import LayerList from './components/layer-list.vue';
   import AreaOptions from './components/area-options.vue';
@@ -59,24 +62,53 @@
   import { createSaves } from '@/utils/persist';
   import { loadSaves } from '@/utils/persist';
   import message from '@arco-design/web-vue/es/message';
+  import { getFormatDate } from '@/utils/date';
+  import { useRouter } from 'vue-router';
+  import { useLocalState } from '@/store/modules/local-state';
+  import { getLocalApi, isLocal } from '@/utils/env';
 
   const emit = defineEmits<{
     (e: 'end-edit-area', name: string, complete: boolean): void;
     (e: 'load-saves', layers: any): void;
   }>();
 
+  const localState = useLocalState();
   const configRef = useEditorConfig();
   const layersRef: Ref<Layer[]> = inject('layers', [] as any);
 
   function handleCreateSaves() {
     modal.confirm({
       title: '确认',
+      content: '保存当前编辑的数据存档？',
+      onOk: () => {
+        try {
+          const fileName =
+            localState.getFileName ||
+            `map_data_${configRef.getSize.x}x${configRef.getSize.y}.${getFormatDate(
+              new Date(),
+              'MM-dd_hh-mm',
+            )}.json`;
+          getLocalApi().saveLocalFile(
+            fileName,
+            createSaves([configRef.getSize.x, configRef.getSize.y], toRaw(layersRef.value)),
+          );
+          localState.setFileName(fileName);
+        } catch (_err) {
+          console.warn(_err);
+        }
+      },
+    });
+  }
+  function handleExportSaves() {
+    modal.confirm({
+      title: '确认',
       content: '导出当前编辑的数据存档？',
       onOk: () => {
         exportFile(
-          `map_data_${configRef.getSize.x}x${
-            configRef.getSize.y
-          }.${new Date().toLocaleString()}.json`,
+          `map_data_${configRef.getSize.x}x${configRef.getSize.y}.${getFormatDate(
+            new Date(),
+            'MM-dd_hh-mm',
+          )}.json`,
           createSaves([configRef.getSize.x, configRef.getSize.y], toRaw(layersRef.value)),
           'json',
         );
@@ -87,23 +119,21 @@
   const [openLoadLoading, closeLoadLoading] = useLoading({ tip: '加载中！', minTime: 2000 });
   function handleLoadSaves(file: File) {
     openLoadLoading();
-
     var reader = new FileReader(); //调用FileReader
     reader.readAsText(file); //将文件读取为 text
     reader.onload = function (evt) {
-      try {
-        const result = loadSaves(String(evt.target?.result), [
-          configRef.getSize.x,
-          configRef.getSize.y,
-        ]);
-        emit('load-saves', result?.layers);
-        closeLoadLoading();
-      } catch (e: any) {
-        message.warning(e.message);
-        closeLoadLoading();
-      }
+      _handleExecutionSave(String(evt.target?.result));
+      closeLoadLoading();
     };
     return Promise.reject() as any;
+  }
+  function _handleExecutionSave(data) {
+    try {
+      const result = loadSaves(data, [configRef.getSize.x, configRef.getSize.y]);
+      emit('load-saves', result?.layers);
+    } catch (e: any) {
+      message.warning(e.message);
+    }
   }
 
   const [openLoading, closeLoading] = useLoading({ tip: '计算中！', minTime: 1500 });
@@ -148,6 +178,25 @@
   function handleChangeMapSize() {
     changeMapSizeModalVisible.value = true;
   }
+
+  const { currentRoute } = useRouter();
+  const { query } = unref(currentRoute.value);
+  onMounted(() => {
+    const { name } = query;
+    if (name) {
+      localState.setFileName(name as string);
+      openLoadLoading();
+
+      getLocalApi()
+        .getLocalFileContent(name as string)
+        .then((data) => {
+          _handleExecutionSave(data);
+        })
+        .finally(() => {
+          closeLoadLoading();
+        });
+    }
+  });
 </script>
 
 <style lang="less">
