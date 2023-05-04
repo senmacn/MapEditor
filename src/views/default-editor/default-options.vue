@@ -76,6 +76,7 @@
   const configRef = useEditorConfig();
   const layersRef: Ref<Layer[]> = inject('layers', [] as any);
 
+  const localApi = getLocalApi();
   function handleCreateSaves() {
     modal.confirm({
       title: '确认',
@@ -88,10 +89,11 @@
               new Date(),
               'MM-dd_hh-mm',
             )}.json`;
-          getLocalApi().saveLocalFile(
-            fileName,
-            createSaves([configRef.getSize.x, configRef.getSize.y], toRaw(layersRef.value)),
-          );
+          localApi &&
+            localApi.saveLocalFile(
+              fileName,
+              createSaves([configRef.getSize.x, configRef.getSize.y], toRaw(layersRef.value)),
+            );
           localState.setFileName(fileName);
         } catch (_err) {
           console.warn(_err);
@@ -132,7 +134,10 @@
       const result = loadSaves(data, [configRef.getSize.x, configRef.getSize.y]);
       emit('load-saves', result?.layers);
     } catch (e: any) {
-      message.warning(e.message);
+      message.warning({
+        content: e.message,
+        duration: 60000,
+      });
     }
   }
 
@@ -187,14 +192,15 @@
       localState.setFileName(name as string);
       openLoadLoading();
 
-      getLocalApi()
-        .getLocalFileContent(name as string)
-        .then((data) => {
-          _handleExecutionSave(data);
-        })
-        .finally(() => {
-          closeLoadLoading();
-        });
+      localApi &&
+        localApi
+          .getLocalFileContent(name as string)
+          .then((data) => {
+            _handleExecutionSave(data);
+          })
+          .finally(() => {
+            closeLoadLoading();
+          });
     }
   });
 </script>

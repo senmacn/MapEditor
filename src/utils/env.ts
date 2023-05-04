@@ -17,5 +17,5 @@ export function isLocal() {
 
 export function getLocalApi() {
   // TODO: {} as LocalApi
-  return localApiExists ? electronApi : {} as LocalApi;
+  return localApiExists ? electronApi : null;
 }

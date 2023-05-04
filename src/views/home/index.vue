@@ -3,7 +3,7 @@
     <div class="home-left">
       <div class="home-info">
         <div> 地图编辑器 </div>
-        <div> 版本: 0.0.1 </div>
+        <div> 版本: v0.0.1 </div>
       </div>
       <div class="home-options">
         <div class="button-wrapper">
@@ -87,10 +87,10 @@
     total: dataSource.value.length,
   });
 
+  const localApi = getLocalApi();
   function refreshHistory() {
-    getLocalApi()
-      .getLocalHistoryList()
-      .then((data: LocalMapHistory[]) => {
+    localApi &&
+      localApi.getLocalHistoryList().then((data: LocalMapHistory[]) => {
         if (isArray(data)) {
           dataSource.value = data;
         }
@@ -104,23 +104,23 @@
   }
   function handleUploadProject() {}
   const editRef = ref(-1);
-  function handleEditProjectName(filename: string, newname: string) {    
-    getLocalApi()
-      .renameLocalFile(filename, newname)
-      .catch((err) => isObject(err) && err.showMessage && console.warn(err.showMessage))
-      .finally(() => {
-        editRef.value = -1;
-        refreshHistory();
-      });
+  function handleEditProjectName(filename: string, newname: string) {
+    localApi &&
+      localApi
+        .renameLocalFile(filename, newname)
+        .catch((err) => isObject(err) && err.showMessage && console.warn(err.showMessage))
+        .finally(() => {
+          editRef.value = -1;
+          refreshHistory();
+        });
   }
   function handleDownloadProject(filename: string) {
     modal.confirm({
       title: '确认',
       content: `下载${filename}?`,
       onOk: () => {
-        getLocalApi()
-          .getLocalFileContent(filename as string)
-          .then((data) => {
+        localApi &&
+          localApi.getLocalFileContent(filename as string).then((data) => {
             exportFile(filename, data, 'json');
           });
       },
@@ -131,7 +131,7 @@
       title: '确认',
       content: `删除数据存档${filename}?`,
       onOk: () => {
-        getLocalApi().deleteLocalFile(filename);
+        localApi && localApi.deleteLocalFile(filename);
         refreshHistory();
       },
     });
@@ -143,16 +143,19 @@
     display: flex;
     justify-content: space-around;
     height: 100vh;
-    width: 50vw;
+    width: 80vw;
     min-width: 600px;
     margin: 0 auto;
-    margin-top: 150px;
   }
   .home-left {
     flex: 1;
     padding: 20px;
     height: 480px;
     border: 1px solid #746c5f;
+  }
+  .home-left,
+  .home-right {
+    margin-top: 10%;
   }
   .home-info {
     padding-left: 60px;

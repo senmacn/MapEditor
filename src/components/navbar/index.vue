@@ -1,8 +1,12 @@
 <template>
-  <nav class="arco-nav">
-    <div class="arco-nav-logo">
-      <img src="../../assets/images/map.png" width="32" />
+  <nav class="arco-nav" :style="{ top: isLocal() ? '30px' : 0 }">
+    <div class="arco-nav-logo" v-if="!isLocal()">
+      <img src="../../assets/icons/map.svg" width="32" />
       <span>地图编辑器</span>
+    </div>
+    <div v-else class="arco-nav-left">
+      <span>当前项目：</span>
+      <span>{{ localState.getFileName || '新建编辑' }}</span>
     </div>
     <div class="arco-nav-right">
       <a-space size="large">
@@ -27,6 +31,10 @@
 <script setup lang="ts">
   import { useFullscreen } from '@vueuse/core';
   import defaultAvatar from '@/assets/images/defaultAvatar.png';
+  import { useLocalState } from '@/store/modules/local-state';
+  import { isLocal } from '@/utils/env';
+
+  const localState = useLocalState();
 
   const { isFullscreen, toggle: toggleFullScreen } = useFullscreen();
 </script>

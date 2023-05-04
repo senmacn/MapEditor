@@ -2,6 +2,9 @@ import { app, BrowserWindow } from 'electron';
 import { join } from 'path';
 import { URL } from 'url';
 import setupEvent from './setupEvent';
+import { setupTitlebar, attachTitlebarToWindow } from 'custom-electron-titlebar/main';
+
+setupTitlebar();
 
 async function createWindow() {
   const browserWindow = new BrowserWindow({
@@ -13,17 +16,26 @@ async function createWindow() {
       webviewTag: true,
       preload: join(app.getAppPath(), 'electron/preload/dist/index.cjs'),
     },
-    frame: true,
-    minWidth: 1600,
-    minHeight: 1024,
-    resizable: true,
+    icon: join(app.getAppPath(), 'src/assets/ico/map16.ico'),
+    titleBarStyle: 'hidden',
+    frame: false,
+    width: 1000,
+    height: 750,
+    resizable: false,
   });
+
+  attachTitlebarToWindow(browserWindow);
 
   browserWindow.webContents.setWindowOpenHandler(({}) => {
     return {
       action: 'allow',
       overrideBrowserWindowOptions: {
         nodeIntegration: true,
+        frame: false,
+        width: 1600,
+        height: 1024,
+        minWidth: 1600,
+        minHeight: 1024,
         webPreferences: {
           preload: join(app.getAppPath(), 'electron/preload/dist/index.cjs'),
         },
@@ -33,7 +45,6 @@ async function createWindow() {
 
   browserWindow.on('ready-to-show', () => {
     browserWindow?.show();
-    browserWindow.maximize();
 
     if (import.meta.env.DEV) {
       browserWindow?.webContents.openDevTools();
