@@ -1,18 +1,13 @@
 <template>
   <div class="arco-vue-site">
-    <navbar />
-    <div class="arco-vue-body">
-      <router-view />
-    </div>
+    <router-view />
   </div>
 </template>
 
-<script setup lang="ts">
-  import Navbar from './components/navbar/index.vue';
-</script>
+<script setup lang="ts"></script>
 
 <style lang="less">
-  .arco-vue-body {
+  .arco-vue-site {
     background-color: #252526;
   }
 </style>

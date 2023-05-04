@@ -21,8 +21,8 @@ const editorConfig: EditorConfig = {
   autoConnect: true,
   autoConnectScope: 24,
   size: {
-    x: 1000,
-    y: 1000,
+    x: 2000,
+    y: 2000,
   },
 };
 Object.keys(editorConfig).forEach((key) => {

@@ -1,27 +1,33 @@
 <template>
-  <div class="map-editor">
-    <div :class="hideOptionRef ? 'content-box full-screen' : 'content-box'">
-      <div ref="hRuler" class="ruler h-ruler"></div>
-      <div ref="vRuler" class="ruler v-ruler"></div>
-      <canvas-container ref="areaCanvasRef" />
+  <div class="arco-vue-body">
+    <navbar></navbar>
+    <div
+      class="map-editor"
+      :style="{ height: isLocal() ? 'calc(100vh - 100px)' : 'calc(100vh - 70px)' }"
+    >
+      <div :class="hideOptionRef ? 'content-box full-screen' : 'content-box'">
+        <div ref="hRuler" class="ruler h-ruler"></div>
+        <div ref="vRuler" class="ruler v-ruler"></div>
+        <canvas-container ref="areaCanvasRef" />
+      </div>
+      <div :class="hideOptionRef ? 'option-box hide' : 'option-box'">
+        <icon-right-circle
+          class="option-control option-control-right"
+          size="28"
+          v-if="!hideOptionRef"
+          @click="handleChangeHideState(true)"
+        />
+        <icon-left-circle
+          class="option-control option-control-left"
+          size="28"
+          v-else
+          @click="handleChangeHideState(false)"
+        />
+        <default-options @load-saves="handleLoadSaves" @end-edit-area="handleEndEditArea" />
+        <thin-options v-if="hideOptionRef" @end-edit-area="handleEndEditArea" />
+      </div>
+      <status-bar></status-bar>
     </div>
-    <div :class="hideOptionRef ? 'option-box hide' : 'option-box'">
-      <icon-right-circle
-        class="option-control option-control-right"
-        size="28"
-        v-if="!hideOptionRef"
-        @click="handleChangeHideState(true)"
-      />
-      <icon-left-circle
-        class="option-control option-control-left"
-        size="28"
-        v-else
-        @click="handleChangeHideState(false)"
-      />
-      <default-options @load-saves="handleLoadSaves" @end-edit-area="handleEndEditArea" />
-      <thin-options v-if="hideOptionRef" @end-edit-area="handleEndEditArea" />
-    </div>
-    <status-bar></status-bar>
   </div>
   <confirm-bound-modal
     ref="confirmBoundModelRef"
@@ -45,6 +51,8 @@
   import { useCanvasState } from '@/store/modules/canvas-state';
   import { useEditorConfig } from '@/store/modules/editor-config';
   import modal from '@arco-design/web-vue/es/modal';
+  import Navbar from '@/components/navbar/index.vue';
+  import { isLocal } from '@/utils/env';
 
   const configRef = useEditorConfig();
 
