@@ -3,7 +3,7 @@
     <div class="home-left">
       <div class="home-info">
         <div> 地图编辑器 </div>
-        <div> 版本：0.0.1 </div>
+        <div> 版本: 0.0.1 </div>
       </div>
       <div class="home-options">
         <div class="button-wrapper">
@@ -13,7 +13,7 @@
           <div>新建项目</div>
         </div>
         <div class="button-wrapper">
-          <a-button type="primary" @click="handleUploadProject">
+          <a-button type="primary" disabled @click="handleUploadProject">
             <icon-import />
           </a-button>
           <div>从文件打开项目</div>
@@ -36,24 +36,36 @@
       <a-list size="small" :bordered="false" :data="dataSource" :pagination-props="paginationProps">
         <template #header>
           <div class="history-title"> - 历史记录 - </div>
-          <a-button type="text" class="history-refresh" :disable="!isLocal()" @click="getHistory">
+          <a-button
+            type="text"
+            class="history-refresh"
+            :disable="!isLocal()"
+            @click="refreshHistory"
+          >
             <icon-refresh></icon-refresh>
             刷新
           </a-button>
         </template>
-        <template #item="{ item }">
+        <template #item="{ item, index }">
           <a-list-item class="list-item" action-layout="vertical">
             <template #actions>
-              <span @click="() => handleOpenProject(item.title)"><icon-launch />打开</span>
-              <span><icon-download />下载</span>
+              <span @click="handleOpenProject(item.title)"><icon-launch />打开</span>
+              <span @click="editRef = index"><icon-edit />重命名</span>
+              <span><icon-download @click="handleDownloadProject(item.title)" />下载</span>
               <!-- <span><icon-heart />置顶</span> -->
-              <span @click="() => handleDeleteProject(item.title)"><icon-delete />删除</span>
+              <span @click="handleDeleteProject(item.title)"><icon-delete />删除</span>
             </template>
-            <a-list-item-meta
-              :class="[item.top ? 'top' : '']"
-              :title="item.title"
-              :description="item.description"
-            />
+            <a-list-item-meta :class="[item.top ? 'top' : '']" :description="item.description">
+              <template #title>
+                <a-input
+                  v-if="index === editRef"
+                  v-model="item.title"
+                  type="text"
+                  @change="(val) => handleEditProjectName(item.title, val)"
+                />
+                <span v-else>{{ item.title }}</span>
+              </template>
+            </a-list-item-meta>
           </a-list-item>
         </template>
       </a-list>
@@ -65,8 +77,9 @@
   import { getLocalApi, isLocal } from '@/utils/env';
   import type { LocalMapHistory } from './common/types';
   import { reactive, ref } from 'vue';
-  import { isArray } from '@/utils/is';
+  import { isArray, isObject } from '@/utils/is';
   import modal from '@arco-design/web-vue/es/modal';
+  import { exportFile } from '@/utils/file';
 
   const dataSource = ref<LocalMapHistory[]>([]);
   const paginationProps = reactive({
@@ -74,7 +87,7 @@
     total: dataSource.value.length,
   });
 
-  function getHistory() {
+  function refreshHistory() {
     getLocalApi()
       .getLocalHistoryList()
       .then((data: LocalMapHistory[]) => {
@@ -83,20 +96,43 @@
         }
       });
   }
-  getHistory();
+  refreshHistory();
 
   function handleOpenProject(project: string) {
     // location.href = '/#/map-editor?name=' + project;
     window.open('/#/map-editor?name=' + project);
   }
   function handleUploadProject() {}
-  function handleDeleteProject(fileName: string) {
+  const editRef = ref(-1);
+  function handleEditProjectName(filename: string, newname: string) {    
+    getLocalApi()
+      .renameLocalFile(filename, newname)
+      .catch((err) => isObject(err) && err.showMessage && console.warn(err.showMessage))
+      .finally(() => {
+        editRef.value = -1;
+        refreshHistory();
+      });
+  }
+  function handleDownloadProject(filename: string) {
     modal.confirm({
       title: '确认',
-      content: `删除数据存档${fileName}?`,
+      content: `下载${filename}?`,
       onOk: () => {
-        getLocalApi().deleteLocalFile(fileName);
-        getHistory();
+        getLocalApi()
+          .getLocalFileContent(filename as string)
+          .then((data) => {
+            exportFile(filename, data, 'json');
+          });
+      },
+    });
+  }
+  function handleDeleteProject(filename: string) {
+    modal.confirm({
+      title: '确认',
+      content: `删除数据存档${filename}?`,
+      onOk: () => {
+        getLocalApi().deleteLocalFile(filename);
+        refreshHistory();
       },
     });
   }

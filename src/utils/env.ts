@@ -5,6 +5,7 @@ export interface LocalApi {
   getLocalHistoryList(): Promise<Recordable[]>;
   getLocalFileContent(fileName: string): Promise<string>;
   deleteLocalFile(fileName: string): Promise<unknown>;
+  renameLocalFile(fileName: string, newname: string): Promise<LocalResult<null>>;
   saveLocalFile(fileName: string, data: string): Promise<unknown>;
 }
 

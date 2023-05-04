@@ -7,6 +7,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
   getLocalFileContent: async (fileName: string) => {
     return await ipcRenderer.invoke('get-local-file-content', fileName);
   },
+  renameLocalFile: async (fileName: string, newname: string): Promise<LocalResult<null>> => {
+    return await ipcRenderer.invoke('rename-local-file', fileName, newname);
+  },
   deleteLocalFile: async (fileName: string) => {
     return await ipcRenderer.invoke('delete-local-file', fileName);
   },
