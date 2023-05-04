@@ -64,6 +64,7 @@ declare module '@vue/runtime-core' {
     IconPenFill: typeof import('@arco-design/web-vue/es/icon')['IconPenFill']
     IconPlus: typeof import('@arco-design/web-vue/es/icon')['IconPlus']
     IconRedo: typeof import('@arco-design/web-vue/es/icon')['IconRedo']
+    IconRefresh: typeof import('@arco-design/web-vue/es/icon')['IconRefresh']
     IconRightCircle: typeof import('@arco-design/web-vue/es/icon')['IconRightCircle']
     IconSettings: typeof import('@arco-design/web-vue/es/icon')['IconSettings']
     IconStar: typeof import('@arco-design/web-vue/es/icon')['IconStar']

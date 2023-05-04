@@ -24,12 +24,22 @@
           </a-button>
           <div>获取桌面版</div>
         </div>
+        <div class="button-wrapper" v-else>
+          <a-button type="primary" disabled @click="handleUploadProject">
+            <icon-cloud-download />
+          </a-button>
+          <div>检查更新</div>
+        </div>
       </div>
     </div>
     <div class="history-list home-right">
       <a-list size="small" :bordered="false" :data="dataSource" :pagination-props="paginationProps">
         <template #header>
           <div class="history-title"> - 历史记录 - </div>
+          <a-button type="text" class="history-refresh" :disable="!isLocal()" @click="getHistory">
+            <icon-refresh></icon-refresh>
+            刷新
+          </a-button>
         </template>
         <template #item="{ item }">
           <a-list-item class="list-item" action-layout="vertical">
@@ -37,7 +47,7 @@
               <span @click="() => handleOpenProject(item.title)"><icon-launch />打开</span>
               <span><icon-download />下载</span>
               <!-- <span><icon-heart />置顶</span> -->
-              <span><icon-delete />删除</span>
+              <span @click="() => handleDeleteProject(item.title)"><icon-delete />删除</span>
             </template>
             <a-list-item-meta
               :class="[item.top ? 'top' : '']"
@@ -52,57 +62,44 @@
 </template>
 
 <script setup lang="ts">
-  import { isLocal } from '@/utils/env';
+  import { getLocalApi, isLocal } from '@/utils/env';
   import type { LocalMapHistory } from './common/types';
   import { reactive, ref } from 'vue';
+  import { isArray } from '@/utils/is';
+  import modal from '@arco-design/web-vue/es/modal';
 
-  const dataSource = ref<LocalMapHistory[]>([
-    {
-      index: 1,
-      title: 'aaa',
-      description: '',
-      top: true,
-    },
-    {
-      index: 2,
-      title: 'aaa',
-      description: '',
-      top: true,
-    },
-    {
-      index: 3,
-      title: 'aaa',
-      description: '',
-      top: false,
-    },
-    {
-      index: 5,
-      title: 'aaa',
-      description: '',
-      top: false,
-    },
-    {
-      index: 5,
-      title: 'aaa',
-      description: '',
-      top: false,
-    },
-    {
-      index: 6,
-      title: 'aaa',
-      description: '',
-      top: false,
-    },
-  ]);
+  const dataSource = ref<LocalMapHistory[]>([]);
   const paginationProps = reactive({
     defaultPageSize: 5,
     total: dataSource.value.length,
   });
 
+  function getHistory() {
+    getLocalApi()
+      .getLocalHistoryList()
+      .then((data: LocalMapHistory[]) => {
+        if (isArray(data)) {
+          dataSource.value = data;
+        }
+      });
+  }
+  getHistory();
+
   function handleOpenProject(project: string) {
+    // location.href = '/#/map-editor?name=' + project;
     window.open('/#/map-editor?name=' + project);
   }
   function handleUploadProject() {}
+  function handleDeleteProject(fileName: string) {
+    modal.confirm({
+      title: '确认',
+      content: `删除数据存档${fileName}?`,
+      onOk: () => {
+        getLocalApi().deleteLocalFile(fileName);
+        getHistory();
+      },
+    });
+  }
 </script>
 
 <style lang="less">
@@ -156,6 +153,11 @@
     .history-title {
       font-size: 16px;
       font-weight: bold;
+    }
+    .history-refresh {
+      position: absolute;
+      top: 0;
+      right: 0;
     }
     .list-item {
       color: var(--color-text-2);

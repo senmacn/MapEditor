@@ -13,6 +13,10 @@ const routes: RouteRecordRaw[] = [
     path: '/map-editor',
     component: defaultEditor,
   },
+  {
+    path: '/:pathMatch(.*)',
+    redirect: '/home'
+  }
 ];
 
 const router = createRouter({

@@ -6,7 +6,7 @@ module.exports = async function () {
   return {
     directories: {
       output: 'dist-electron',
-      buildResources: 'buildResources',
+      // buildResources: 'buildResources',
     },
     files: ['electron/**/dist/**', 'dist/**'],
     win: {
