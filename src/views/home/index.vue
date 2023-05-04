@@ -59,7 +59,7 @@
               <template #title>
                 <a-input
                   v-if="index === editRef"
-                  v-model="item.title"
+                  :default-value="item.title"
                   type="text"
                   @change="(val) => handleEditProjectName(item.title, val)"
                 />
