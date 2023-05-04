@@ -19,7 +19,7 @@ async function createWindow() {
     resizable: true,
   });
 
-  browserWindow.webContents.setWindowOpenHandler(({ url }) => {
+  browserWindow.webContents.setWindowOpenHandler(({}) => {
     return {
       action: 'allow',
       overrideBrowserWindowOptions: {
@@ -33,6 +33,7 @@ async function createWindow() {
 
   browserWindow.on('ready-to-show', () => {
     browserWindow?.show();
+    browserWindow.maximize();
 
     if (import.meta.env.DEV) {
       browserWindow?.webContents.openDevTools();

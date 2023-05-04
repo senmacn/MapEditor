@@ -31,6 +31,11 @@ declare global {
     [key: string]: T;
   };
 
+  declare type LocalError = {
+    showMessage?: string;
+  } & Error;
+  declare type LocalResult<T> = LocalError | T;
+
   declare type Point = [number, number];
   declare type PointA = { x: number; y: number };
   declare type Offset = { x: number; y: number };

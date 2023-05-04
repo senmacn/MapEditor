@@ -7,6 +7,9 @@ class ElectronApi implements LocalApi {
   getLocalFileContent(fileName: string): Promise<string> {
     return window['electronAPI'].getLocalFileContent(fileName);
   }
+  renameLocalFile(fileName: string, newname: string): Promise<LocalResult<null>> {
+    return window['electronAPI'].renameLocalFile(fileName, newname);
+  }
   deleteLocalFile(fileName: string): Promise<unknown> {
     return window['electronAPI'].deleteLocalFile(fileName);
   }

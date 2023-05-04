@@ -8,6 +8,7 @@ import {
   statSync,
   readFileSync,
   rmSync,
+  renameSync,
 } from 'fs';
 import * as path from 'path';
 
@@ -46,13 +47,24 @@ export default function setupEvent(mainWindow: BrowserWindow) {
     return readFileSync(path.join(SAVES_DIR, fileName), 'utf8');
   });
 
+  ipcMain.handle(
+    'rename-local-file',
+    (_evt, fileName: string, newname: string): LocalResult<null> => {
+      try {
+        renameSync(path.join(SAVES_DIR, fileName), path.join(SAVES_DIR, newname));
+        return null;
+      } catch (err: any) {
+        err.showMessage = '重命名失败！';
+        return err as LocalError;
+      }
+    },
+  );
+
   ipcMain.handle('delete-local-file', (_evt, fileName: string) => {
     try {
       rmSync(path.join(SAVES_DIR, fileName));
       return;
     } catch (err) {
-      console.log(err);
-
       return err as Error;
     }
   });
@@ -64,8 +76,6 @@ export default function setupEvent(mainWindow: BrowserWindow) {
       });
       return;
     } catch (err) {
-      console.log(err);
-
       return err as Error;
     }
   });
