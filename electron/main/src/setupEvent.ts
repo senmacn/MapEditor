@@ -1,4 +1,4 @@
-import type { BrowserWindow } from 'electron';
+import { BrowserWindow, app } from 'electron';
 import { ipcMain } from 'electron';
 import {
   existsSync,
@@ -11,6 +11,8 @@ import {
   renameSync,
 } from 'fs';
 import * as path from 'path';
+import { join } from 'path';
+import { attachTitlebarToWindow } from 'custom-electron-titlebar/main';
 
 const DATA_DIR = 'data';
 const SAVES_DIR = 'data/saves';
@@ -75,6 +77,38 @@ export default function setupEvent(mainWindow: BrowserWindow) {
         encoding: 'utf8',
       });
       return;
+    } catch (err) {
+      return err as Error;
+    }
+  });
+
+  ipcMain.handle('new-window', (_evt, url: string): LocalResult<null> => {
+    try {
+      const win = new BrowserWindow({
+        frame: true,
+        width: 1600,
+        height: 1024,
+        minWidth: 1600,
+        minHeight: 1024,
+        icon: join(app.getAppPath(), 'src/assets/ico/map32.ico'),
+        titleBarStyle: 'hidden',
+        webPreferences: {
+          webSecurity: false,
+          nodeIntegration: true,
+          preload: join(app.getAppPath(), 'electron/preload/dist/index.cjs'),
+        },
+      });
+      attachTitlebarToWindow(win);
+      win.on('ready-to-show', () => {
+        win?.show();
+        if (import.meta.env.DEV) {
+          win?.webContents.openDevTools();
+        }
+      });
+      console.log(url);
+
+      win.loadURL(url);
+      return null;
     } catch (err) {
       return err as Error;
     }

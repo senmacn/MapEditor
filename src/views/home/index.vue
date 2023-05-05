@@ -100,7 +100,8 @@
 
   function handleOpenProject(project: string) {
     // location.href = '/#/map-editor?name=' + project;
-    window.open('/#/map-editor?name=' + project);
+    const url = location.href.slice().replace(/\#\/.+/, '#/map-editor?name=' + project);
+    isLocal() ? localApi?.newWindow(url) : window.open(url);
   }
   function handleUploadProject() {}
   const editRef = ref(-1);
