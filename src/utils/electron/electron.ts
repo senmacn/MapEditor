@@ -16,6 +16,9 @@ class ElectronApi implements LocalApi {
   saveLocalFile(fileName: string, data: string): Promise<unknown> {
     return window['electronAPI'].saveLocalFile(fileName, data);
   }
+  newWindow(url: string) : Promise<LocalResult<null>> {
+    return window['electronAPI'].newWindow(url);
+  }
 }
 
 const electronApi = new ElectronApi();

@@ -1,3 +1,7 @@
+function getVersion() {
+  return process.env.npm_package_version;
+}
+
 /**
  * @type {() => import('electron-builder').Configuration}
  * @see https://www.electron.build/configuration/configuration
@@ -6,12 +10,27 @@ module.exports = async function () {
   return {
     directories: {
       output: 'dist-electron',
-      // buildResources: 'buildResources',
+      buildResources: 'buildResources',
     },
-    files: ['electron/**/dist/**', 'dist/**'],
+    files: [
+      'electron/**/dist/**',
+      'dist/**',
+      '!**/node_modules/*/{CHANGELOG.md,README.md,README,readme.md,readme}',
+      '!**/node_modules/*/{test,__tests__,tests,powered-test,example,examples}',
+      '!**/node_modules/*.d.ts',
+      '!**/node_modules/.bin',
+      '!**/*.{iml,o,hprof,orig,pyc,pyo,rbc,swp,csproj,sln,xproj}',
+      '!.editorconfig',
+      '!**/._*',
+      '!**/{.DS_Store,.git,.hg,.svn,CVS,RCS,SCCS,.gitignore,.gitattributes}',
+      '!**/{__pycache__,thumbs.db,.flowconfig,.idea,.vs,.nyc_output}',
+      '!**/{appveyor.yml,.travis.yml,circle.yml}',
+      '!**/{npm-debug.log,yarn.lock,.yarn-integrity,.yarn-metadata.json}',
+    ],
+    icon: 'buildResources/map256.ico',
     win: {
-      target: ['portable', 'nsis'],
-      artifactName: 'map-editor-win.${ext}',
+      artifactName: 'mapeditor-win.${ext}',
+      icon: 'buildResources/map256.ico',
       target: [
         {
           // 打包成一个独立的 exe 安装程序
@@ -22,16 +41,23 @@ module.exports = async function () {
             'ia32',
           ],
         },
+        {
+          target: 'portable',
+        },
       ],
     },
     mac: {
       // 应用程序包名
-      artifactName: 'map-editor-mac.${ext}',
+      artifactName: 'mapeditor-mac.${ext}',
+      icon: 'buildResources/map256.ico',
       target: [
         // 要打的包的格式类型设置
         'dmg',
         'zip', // 这里注意更新的时候，mac只认zip格式的包
       ],
+    },
+    extraMetadata: {
+      version: getVersion(),
     },
     nsis: {
       // NSIS的路径包括自定义安装程序的脚本。默认为build/installer.nsh
