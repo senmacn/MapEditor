@@ -11,7 +11,7 @@
         <a-button type="primary" @click="getPosition">下载坐标</a-button>
       </a-col>
       <a-col :span="6" :offset="4">
-        <a-button type="primary" :disable="!isLocal()" @click="handleCreateSaves"> 保存 </a-button>
+        <a-button type="primary" :disabled="!isLocal()" @click="handleCreateSaves"> 保存 </a-button>
       </a-col>
       <a-col :span="6">
         <a-button type="primary" @click="handleExportSaves"> 导出 </a-button>

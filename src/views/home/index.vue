@@ -61,7 +61,7 @@
                   v-if="index === editRef"
                   :default-value="item.title"
                   type="text"
-                  @change="(val) => handleEditProjectName(item.title, val)"
+                  @blur="(e) => handleEditProjectName(item.title, e.target.value)"
                 />
                 <span v-else>{{ item.title }}</span>
               </template>
@@ -80,6 +80,7 @@
   import { isArray, isObject } from '@/utils/is';
   import modal from '@arco-design/web-vue/es/modal';
   import { exportFile } from '@/utils/file';
+  import message from '@arco-design/web-vue/es/message';
 
   const dataSource = ref<LocalMapHistory[]>([]);
   const paginationProps = reactive({
@@ -106,9 +107,16 @@
   function handleUploadProject() {}
   const editRef = ref(-1);
   function handleEditProjectName(filename: string, newname: string) {
+    if (filename === newname) {
+      editRef.value = -1;
+      return;
+    }
     localApi &&
       localApi
         .renameLocalFile(filename, newname)
+        .then(() => {
+          message.success('修改成功！');
+        })
         .catch((err) => isObject(err) && err.showMessage && console.warn(err.showMessage))
         .finally(() => {
           editRef.value = -1;
@@ -159,10 +167,11 @@
     margin-top: 10%;
   }
   .home-info {
-    padding-left: 60px;
     font-size: 16px;
     font-weight: bold;
+    line-height: 20px;
     color: var(--color-text-1);
+    text-align: center;
   }
   .home-options {
     display: flex;
@@ -204,6 +213,9 @@
     }
     .top .arco-list-item-meta-title {
       color: red !important;
+    }
+    .arco-list-item-meta-content {
+      width: 100%;
     }
   }
 </style>
