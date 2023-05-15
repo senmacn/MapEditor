@@ -77,8 +77,9 @@
           </div>
         </div>
         <area-list
-          v-if="!hiddenAreaMapRef[layer.uuid] && layer.areas.length"
+          v-if="!hiddenAreaMapRef[layer.uuid]"
           :areas="layer.areas"
+          :pins="layer.pins"
         />
       </li>
     </transition-group>
@@ -123,6 +124,7 @@
       visible: true,
       map: null,
       areas: [],
+      pins: [],
     });
     refreshHot();
   }

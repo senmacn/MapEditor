@@ -1,4 +1,4 @@
-import Area from './area';
+import { Area } from './area';
 import { getDistance } from './canvas-util';
 
 // 是否是点

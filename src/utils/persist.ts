@@ -1,5 +1,5 @@
 import { Layer } from '@/views/default-editor/common/types';
-import Area from '@/views/default-editor/common/area';
+import { Area } from '@/views/default-editor/common/area';
 
 interface Saves {
   size: [number, number];

@@ -1,4 +1,4 @@
-import Area from './area';
+import { Area, Pin } from './area';
 
 export type CanvasInstance = CanvasExtendImp & CanvasRenderingContext2D;
 
@@ -26,4 +26,5 @@ export interface Layer {
   map: string | ArrayBuffer | null;
   hot: boolean;
   areas: Area[];
+  pins: Pin[];
 }

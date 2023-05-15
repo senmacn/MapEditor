@@ -55,7 +55,7 @@ const onDeleteAreaEvent = (listener: EventBusListener) => {
 };
 const emitDeleteAreaEvent = () => deleteAreaBus.emit(deleteAreaEvent);
 
-// 聚焦区域
+// 快速定位
 const focusAreaEvent = Symbol('focusArea');
 const focusAreaBus = useEventBus<Symbol>(focusAreaEvent);
 const onFocusAreaEvent = (listener: EventBusListener) => {

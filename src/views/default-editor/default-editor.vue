@@ -46,7 +46,7 @@
   import controller from './common/canvas-state-controller';
   import { useToggle } from '@vueuse/core';
   import { Layer } from './common/types';
-  import Area from './common/area';
+  import { Area } from './common/area';
   import useRuler from '@/hooks/useRuler';
   import { useCanvasState } from '@/store/modules/canvas-state';
   import { useEditorConfig } from '@/store/modules/editor-config';
@@ -65,6 +65,7 @@
       visible: true,
       map: null,
       areas: [],
+      pins: [],
     },
   ]) as Ref<Layer[]>;
   provide('layers', layersRef);

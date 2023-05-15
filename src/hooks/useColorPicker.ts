@@ -1,3 +1,4 @@
+import { isNullOrUnDef } from '@/utils/is';
 import Pickr from '@simonwep/pickr';
 import { ref } from 'vue';
 
@@ -53,9 +54,11 @@ export function useColorPicker(el: string) {
       .map((num: number, index: number) =>
         index === 3 ? Number((num * 255).toFixed(0)) : Number(num.toFixed(0)),
       );
+  const hasInit = () => !isNullOrUnDef(pickrRef.value);
   return {
     init,
     on,
     getColor,
+    hasInit,
   };
 }

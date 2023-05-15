@@ -14,7 +14,8 @@
   import { useEditorConfig } from '@/store/modules/editor-config';
   import controller from './common/canvas-state-controller';
   import { onDeleteAreaEvent } from './common/event';
-  import Area from './common/area';
+  import { Area, Pin } from './common/area';
+  import { isString } from '@/utils/is';
 
   const props = defineProps({
     layer: {
@@ -47,12 +48,12 @@
 
   // 添加区域时渲染
   const areaViewer = ref();
-  function render(area: Area) {
+  function render(target: Area | Pin) {
     if (areaViewer.value) {
-      area.render(areaViewer.value);
-      area.drawAreaComplete();
+      target.render(areaViewer.value);
+      target.drawAreaComplete();
     } else {
-      setTimeout(() => render(area), 50);
+      setTimeout(() => render(target), 50);
     }
   }
   watch(
@@ -64,6 +65,21 @@
           // 绘制
           if (!area.getDrawAreaComplete()) {
             render(area);
+          }
+        }
+      }
+    },
+    { deep: true, immediate: true },
+  );
+  watch(
+    () => props.layer?.pins,
+    () => {
+      if (props.layer && props.layer.pins && props.layer.pins.length > 0) {
+        for (let index = 0; index < props.layer.pins.length; index++) {
+          const pin = props.layer.pins[index];
+          // 绘制
+          if (!pin.getDrawAreaComplete()) {
+            render(pin);
           }
         }
       }
@@ -86,8 +102,8 @@
 
   function handleClickOutArea(e: MouseEvent) {
     const target = e.target as HTMLElement;
-    // 区分点击空白处和区域
-    if (target.className.includes('layer-instance')) {
+    // 区分点击空白处和区域(排除svg点击干扰)
+    if (isString(target.className) && target.className.includes('layer-instance')) {
       // 关闭显示
       Array.from(document.getElementsByClassName('moveable-control-box')).forEach(
         (item: HTMLElement) => (item.style.visibility = 'hidden'),
@@ -98,6 +114,7 @@
       }
       // 这里只处理点击区域外的逻辑
       controller.setCurrentArea(null);
+      controller.setCurrentPin(null);
     } else {
       const id = target.id;
       Array.from(document.getElementsByClassName('moveable-control-box')).forEach(
@@ -148,6 +165,8 @@
     background-size: contain;
     .moveable {
       position: absolute;
+      font-size: 12px;
+      text-align: center;
     }
   }
   .moveable-control-box {
