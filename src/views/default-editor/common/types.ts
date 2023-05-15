@@ -1,4 +1,4 @@
-import { Area, Pin } from './area';
+import { Area, Pin } from '../draw-element';
 
 export type CanvasInstance = CanvasExtendImp & CanvasRenderingContext2D;
 

@@ -57,8 +57,8 @@
   import { useLoading } from '../../components/Loading';
   import { exportFile } from '../../utils/file';
   import { useEditorConfig } from '@/store/modules/editor-config';
-  import { dataToBin } from './common/quadtree-utils';
-  import { getClosedCurvePointsData } from './common/image-data-util';
+  import { dataToBin } from './utils/quadtree-utils';
+  import { getClosedCurvePointsData } from './utils/image-data-util';
   import { createSaves } from '@/utils/persist';
   import { loadSaves } from '@/utils/persist';
   import message from '@arco-design/web-vue/es/message';

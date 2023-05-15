@@ -11,8 +11,8 @@
 <script setup lang="ts">
   import { onBeforeUnmount, onMounted } from 'vue';
   import controller, { CanvasOption } from './common/canvas-state-controller';
-  import * as canvasUtil from './common/canvas-util';
-  import * as imageDataUtil from './common/image-data-util';
+  import * as canvasUtil from './utils/canvas-util';
+  import * as imageDataUtil from './utils/image-data-util';
   import useCanvas from './hooks/useCanvas';
   import {
     onCanvasRedoEvent,
@@ -21,7 +21,7 @@
     onPersistLineEvent,
     onPersistShapeEvent,
   } from './common/event';
-  import { Area } from './common/area';
+  import { Area } from './draw-element';
   import { useEditorConfig } from '@/store/modules/editor-config';
   import debounce from 'lodash-es/debounce';
   import message from '@arco-design/web-vue/es/message';

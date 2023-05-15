@@ -14,7 +14,7 @@
   import { useEditorConfig } from '@/store/modules/editor-config';
   import controller from './common/canvas-state-controller';
   import { onDeleteAreaEvent } from './common/event';
-  import { Area, Pin } from './common/area';
+  import { Area, Pin } from './draw-element';
   import { isString } from '@/utils/is';
 
   const props = defineProps({
