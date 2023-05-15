@@ -34,8 +34,8 @@
   import controller from './common/canvas-state-controller';
   import { useScroll } from '@vueuse/core';
   import { useCanvasState } from '@/store/modules/canvas-state';
-  import Contextmenu from './components/contextmenu.vue';
-  import PinModal from './components/pin-modal.vue';
+  import Contextmenu from './children/contextmenu.vue';
+  import PinModal from './children/pin-modal.vue';
 
   const layersRef: Ref<Layer[]> = inject('layers', [] as any);
   const configRef = useEditorConfig();

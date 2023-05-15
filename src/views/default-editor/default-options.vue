@@ -48,13 +48,13 @@
 <script setup lang="ts">
   import { Ref, inject, onMounted, ref, unref } from 'vue';
   import modal from '@arco-design/web-vue/es/modal';
-  import LayerList from './components/layer-list.vue';
-  import AreaOptions from './components/area-options.vue';
-  import EditOptions from './components/edit-options.vue';
-  import EditConfig from './components/edit-config.vue';
-  import ChangeMapSizeModal from './components/change-map-size-modal.vue';
+  import LayerList from './children/layer-list.vue';
+  import AreaOptions from './children/area-options.vue';
+  import EditOptions from './children/edit-options.vue';
+  import EditConfig from './children/edit-config.vue';
+  import ChangeMapSizeModal from './children/change-map-size-modal.vue';
   import { Layer } from './common/types';
-  import { useLoading } from '../../components/Loading';
+  import { useLoading } from '@/components/Loading';
   import { exportFile } from '../../utils/file';
   import { useEditorConfig } from '@/store/modules/editor-config';
   import { dataToBin } from './utils/quadtree-utils';

@@ -24,7 +24,7 @@
 <script setup lang="ts">
   import { useEditorConfig } from '@/store/modules/editor-config';
   import { ref, unref } from 'vue';
-  import { getPosition, mixinData, scaleImageData } from '../common/image-data-util';
+  import { getPosition, mixinData, scaleImageData } from '../utils/image-data-util';
   import { maxBy, minBy } from 'lodash-es';
 
   const emit = defineEmits<{
