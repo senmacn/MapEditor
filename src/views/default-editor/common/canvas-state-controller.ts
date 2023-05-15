@@ -1,7 +1,6 @@
 import { ref } from 'vue';
 import cursor from '@/assets/ico/cursor.ico';
-import { Area } from './area';
-import { isNull } from '@/utils/is';
+import { Area } from '../draw-element';
 
 export enum CanvasAreaOption {
   AreaCheck,

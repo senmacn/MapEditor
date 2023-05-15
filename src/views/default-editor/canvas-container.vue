@@ -22,7 +22,8 @@
 </template>
 
 <script setup lang="ts">
-  import { Area, DrawElement } from './common/area';
+  import Area from './draw-element/area';
+  import DrawElement from './draw-element';
   import type { Layer } from './common/types';
   import { Ref, inject, nextTick, provide, reactive, ref, watch } from 'vue';
   import MaskCanvas from './mask-canvas.vue';

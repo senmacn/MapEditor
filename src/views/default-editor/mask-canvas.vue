@@ -12,10 +12,10 @@
 <script setup lang="ts">
   import useCanvas from './hooks/useCanvas';
   import controller, { CanvasOption } from './common/canvas-state-controller';
-  import { getPos } from './common/canvas-util';
+  import { getPos } from './utils/canvas-util';
   import { onMounted } from 'vue';
   import { emitPersistLineEvent, emitPersistShapeEvent, onDeleteAreaEvent } from './common/event';
-  import * as canvasUtil from './common/canvas-util';
+  import * as canvasUtil from './utils/canvas-util';
   import { useEditorConfig } from '@/store/modules/editor-config';
 
   const props = defineProps({
