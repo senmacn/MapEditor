@@ -72,7 +72,7 @@
   import { isNull } from '@/utils/is';
   import cloneDeep from 'lodash-es/cloneDeep';
   import { Layer } from '../common/types';
-  import { Pin } from '../common/area';
+  import { Pin } from '../draw-element';
 
   const clickPositionRef = inject<Recordable>('clickPositionRef', { offsetX: 0, offsetY: 0 });
   const initFormModel = {

@@ -168,7 +168,7 @@
 
 <script setup lang="ts">
   import { Ref, computed, inject, ref } from 'vue';
-  import EditConfig from './components/edit-config.vue';
+  import EditConfig from './children/edit-config.vue';
   import { emitEditAreaEvent, emitDeleteAreaEvent } from './common/event';
   import { isNull } from '@/utils/is';
   import modal from '@arco-design/web-vue/es/modal';

@@ -22,7 +22,7 @@
 
 <script setup lang="ts">
   import { computed } from 'vue';
-  import { DrawElement, Area, Pin } from '../common/area';
+  import DrawElement, { Area, Pin } from '../draw-element';
   import { emitFocusAreaEvent } from '../common/event';
 
   const props = defineProps({

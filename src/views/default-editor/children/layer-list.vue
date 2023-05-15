@@ -94,7 +94,7 @@
   import AreaList from './area-list.vue';
   import modal from '@arco-design/web-vue/es/modal';
   import { getRandomDomId } from '../../../utils/uuid';
-  import { useLoading } from '../../../components/Loading';
+  import { useLoading } from '@/components/Loading';
   import { Layer } from '../common/types';
 
   const layersRef: Ref<Layer[]> = inject('layers', [] as any);

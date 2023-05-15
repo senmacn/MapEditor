@@ -2,7 +2,7 @@ import { getShortUuid } from '@/utils/uuid';
 import controller from '../common/canvas-state-controller';
 import { nextTick } from 'vue';
 import { getPosition } from '../utils/image-data-util';
-import DrawElement from '.';
+import DrawElement from './draw-element';
 
 export default class Area extends DrawElement {
   private boundRectPoints: Point[] | undefined;

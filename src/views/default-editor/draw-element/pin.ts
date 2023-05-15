@@ -2,7 +2,7 @@ import { getShortUuid } from '@/utils/uuid';
 import controller from '../common/canvas-state-controller';
 import { nextTick } from 'vue';
 import { renderSvg } from '@/utils/svg';
-import DrawElement from '.';
+import DrawElement from './draw-element';
 
 export default class Pin extends DrawElement {
   private level: number;

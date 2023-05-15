@@ -37,11 +37,11 @@
 
 <script setup lang="ts">
   import { Ref, onBeforeUnmount, onMounted, provide, ref, watch } from 'vue';
-  import StatusBar from './components/status-bar.vue';
+  import StatusBar from './children/status-bar.vue';
   import CanvasContainer from './canvas-container.vue';
   import DefaultOptions from './default-options.vue';
   import ThinOptions from './thin-options.vue';
-  import ConfirmBoundModal from './components/confirm-bound-modal.vue';
+  import ConfirmBoundModal from './children/confirm-bound-modal.vue';
   import { getRandomDomId } from '../../utils/uuid';
   import controller from './common/canvas-state-controller';
   import { useToggle } from '@vueuse/core';
