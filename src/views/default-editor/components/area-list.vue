@@ -1,10 +1,14 @@
 <template>
   <ul class="layer-areas">
-    <li class="area-item" v-for="area in areas" :key="area.getName()">
+    <li class="area-item" v-for="(area, index) in visibleList" :key="index">
       <div class="area-index"></div>
-      <div class="area-name"><icon-mosaic /> {{ area.getName() }} </div>
+      <div class="area-name">
+        <icon-mosaic v-if="(area instanceof Area)" />
+        <icon-pushpin v-else></icon-pushpin>
+        {{ area.getName() }}
+      </div>
       <div class="area-option">
-        <a-tooltip content="聚焦区域">
+        <a-tooltip content="快速定位">
           <a-button type="text" @click="handleGotoArea(area)">
             <template #icon>
               <icon-location />
@@ -17,7 +21,8 @@
 </template>
 
 <script setup lang="ts">
-  import Area from '../common/area';
+  import { computed } from 'vue';
+  import { DrawElement, Area, Pin } from '../common/area';
   import { emitFocusAreaEvent } from '../common/event';
 
   const props = defineProps({
@@ -25,9 +30,21 @@
       type: Array as PropType<Area[]>,
       default: () => [],
     },
+    pins: {
+      type: Array as PropType<Pin[]>,
+      default: () => [],
+    },
   });
 
-  function handleGotoArea(area: Area) {
+  const visibleList = computed(() => {
+    if (props.areas.length + props.pins.length > 0) {
+      return [...props.areas, ...props.pins];
+    } else {
+      return [];
+    }
+  });
+
+  function handleGotoArea(area: DrawElement) {
     emitFocusAreaEvent(area);
   }
 </script>

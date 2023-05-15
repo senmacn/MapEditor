@@ -7,6 +7,7 @@ import path from 'path';
 import AutoImport from 'unplugin-auto-import/vite';
 import Components from 'unplugin-vue-components/vite';
 import { ArcoResolver } from 'unplugin-vue-components/resolvers';
+import { createSvgIconsPlugin } from 'vite-plugin-svg-icons';
 // import { existsSync } from 'fs';
 
 const PACKAGE_ROOT = __dirname;
@@ -74,6 +75,12 @@ export default defineConfig({
         }),
       ],
       dts: 'types/components.d.ts',
+    }),
+    createSvgIconsPlugin({
+      iconDirs: [path.resolve(process.cwd(), 'src/assets/icons')],
+      symbolId: 'icon-[name]',
+      inject: 'body-last',
+      customDomId: '__svg__icons__dom__',
     }),
 
     // createStyleImportPlugin({

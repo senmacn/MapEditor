@@ -21,7 +21,7 @@
     onPersistLineEvent,
     onPersistShapeEvent,
   } from './common/event';
-  import Area from './common/area';
+  import { Area } from './common/area';
   import { useEditorConfig } from '@/store/modules/editor-config';
   import debounce from 'lodash-es/debounce';
   import message from '@arco-design/web-vue/es/message';

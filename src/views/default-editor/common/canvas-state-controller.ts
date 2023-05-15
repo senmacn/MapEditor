@@ -1,6 +1,6 @@
 import { ref } from 'vue';
 import cursor from '@/assets/ico/cursor.ico';
-import Area from './area';
+import { Area } from './area';
 import { isNull } from '@/utils/is';
 
 export enum CanvasAreaOption {
@@ -31,6 +31,7 @@ class CanvasStateController {
   private state = ref(CanvasOption.None);
   private active = false;
   private currentArea = ref<Area | null>(null);
+  private currentPin = ref<Recordable | null>(null);
   constructor() {}
   getState() {
     return this.state.value;
@@ -79,6 +80,12 @@ class CanvasStateController {
   }
   reset() {
     this.setState(CanvasOption.FollowMouse);
+  }
+  getCurrentPin() {
+    return this.currentPin.value;
+  }
+  setCurrentPin(pin: Recordable | null) {
+    this.currentPin.value = pin;
   }
 }
 

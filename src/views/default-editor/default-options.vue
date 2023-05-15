@@ -46,7 +46,7 @@
 </template>
 
 <script setup lang="ts">
-  import { Ref, inject, onMounted, ref, toRaw, unref } from 'vue';
+  import { Ref, inject, onMounted, ref, unref } from 'vue';
   import modal from '@arco-design/web-vue/es/modal';
   import LayerList from './components/layer-list.vue';
   import AreaOptions from './components/area-options.vue';
@@ -92,7 +92,7 @@
           localApi &&
             localApi.saveLocalFile(
               fileName,
-              createSaves([configRef.getSize.x, configRef.getSize.y], toRaw(layersRef.value)),
+              createSaves([configRef.getSize.x, configRef.getSize.y], layersRef.value),
             );
           localState.setFileName(fileName);
         } catch (_err) {
@@ -111,7 +111,7 @@
             new Date(),
             'MM-dd_hh-mm',
           )}.json`,
-          createSaves([configRef.getSize.x, configRef.getSize.y], toRaw(layersRef.value)),
+          createSaves([configRef.getSize.x, configRef.getSize.y], layersRef.value),
           'json',
         );
       },
@@ -164,7 +164,7 @@
                   // }) as CanvasRenderingContext2D;
                   // ctx.putImageData(data, 0, 0);
                   // TEST END
-                  const boundRect = toRaw(area.getBoundRect());
+                  const boundRect = area.getBoundRect();
                   exportFile(
                     area.getName() + '.data.bin',
                     dataToBin(data, boundRect[0], boundRect[1], boundRect[2], boundRect[3]),
