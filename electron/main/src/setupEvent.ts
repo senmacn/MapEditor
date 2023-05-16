@@ -105,7 +105,6 @@ export default function setupEvent(mainWindow: BrowserWindow) {
           win?.webContents.openDevTools();
         }
       });
-      console.log(url);
 
       win.loadURL(url);
       return null;

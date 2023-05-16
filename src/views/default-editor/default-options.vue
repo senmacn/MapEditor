@@ -5,7 +5,7 @@
         <span class="group-label">文件： </span>
       </a-col>
       <a-col :span="6">
-        <a-button type="primary" @click="handleChangeMapSize">设置地图尺寸</a-button>
+        <a-button type="primary" @click="handleChangeMapSize">尺寸设置</a-button>
       </a-col>
       <a-col :span="6">
         <a-button type="primary" @click="getPosition">下载坐标</a-button>
@@ -17,10 +17,12 @@
         <a-button type="primary" @click="handleExportSaves"> 导出 </a-button>
       </a-col>
       <a-col :span="6">
-        <a-upload @beforeUpload="(file) => handleLoadSaves(file)" accept=".json">
-          <template #upload-button>
-            <a-button type="primary">加载</a-button>
-          </template>
+        <a-upload
+          @beforeUpload="(file) => handleLoadSaves(file)"
+          accept=".json"
+          :showUploadList="false"
+        >
+          <a-button type="primary">加载</a-button>
         </a-upload>
       </a-col>
     </a-row>
@@ -47,7 +49,7 @@
 
 <script setup lang="ts">
   import { Ref, inject, onMounted, ref, unref } from 'vue';
-  import modal from '@arco-design/web-vue/es/modal';
+  import modal from 'ant-design-vue/lib/modal';
   import LayerList from './children/layer-list.vue';
   import AreaOptions from './children/area-options.vue';
   import EditOptions from './children/edit-options.vue';
@@ -61,11 +63,11 @@
   import { getClosedCurvePointsData } from './utils/image-data-util';
   import { createSaves } from '@/utils/persist';
   import { loadSaves } from '@/utils/persist';
-  import message from '@arco-design/web-vue/es/message';
   import { getFormatDate } from '@/utils/date';
   import { useRouter } from 'vue-router';
   import { useLocalState } from '@/store/modules/local-state';
   import { getLocalApi, isLocal } from '@/utils/env';
+  import { message } from 'ant-design-vue';
 
   const emit = defineEmits<{
     (e: 'end-edit-area', name: string, complete: boolean): void;
@@ -201,6 +203,8 @@
           .finally(() => {
             closeLoadLoading();
           });
+    } else {
+      localState.setFileName('新建项目');
     }
   });
 </script>
@@ -208,17 +212,17 @@
 <style lang="less">
   .default-option {
     color: #d4d4d4;
-    .arco-upload-wrapper {
+    .ant-upload-wrapper {
       width: auto;
     }
-    .arco-select {
+    .ant-select {
       width: 90px;
       height: 38px;
     }
-    .arco-row {
+    .ant-row {
       align-items: center;
       margin: 10px;
-      .arco-col {
+      .ant-col {
         margin-bottom: 6px;
         font-size: 12px;
       }
@@ -226,37 +230,37 @@
         font-weight: bold;
         font-size: 14px;
       }
-      .arco-btn-group {
+      .ant-btn-group {
         .pcr-button {
           height: 32px;
           width: 32px;
           margin-left: 1px;
         }
       }
-      .arco-input-number {
-        width: 100px;
+      .ant-input-number {
+        width: 80px;
       }
     }
     .pickr-wrapper {
       display: flex;
       align-items: center;
     }
-    .arco-btn.actived {
-      color: var(--color-text-2);
-      background-color: var(--color-secondary-active);
+    .ant-btn.actived {
+      color: @color-text-2;
+      background-color: @color-bg-1;
       border-color: transparent;
     }
     .option-group {
-      border-bottom: 1px solid var(--color-border-2);
+      border-bottom: 1px solid @color-border-1;
     }
-    .arco-btn {
+    .ant-btn {
       font-size: 12px;
       width: 80px;
       height: 32px;
     }
-    .arco-input-wrapper {
+    .ant-input-wrapper {
       background-color: transparent;
-      border-color: var(--color-fill-3);
+      border-color: @color-fill-3;
     }
   }
   .result {

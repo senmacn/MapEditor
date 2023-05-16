@@ -5,7 +5,7 @@
       <div class="auto-connect">
         <span>自动连接: </span>
         <a-switch
-          :default-checked="configRef.autoConnect"
+          :checked="configRef.autoConnect"
           @change="(value: any) => configRef.setAutoConnect(value)"
         />
       </div>
@@ -15,12 +15,10 @@
         <span>连接范围：</span>
         <a-input-number
           :disabled="!configRef.getAutoConnect"
-          mode="button"
-          size="small"
           :max="60"
           :min="18"
           :step="2"
-          :default-value="configRef.getAutoConnectScope"
+          :value="configRef.getAutoConnectScope"
           @change="(value) => configRef.setAutoConnectScope(Number(value))"
         ></a-input-number>
       </div>
@@ -33,7 +31,6 @@
       <span>线条宽度： </span>
       <a-input-number
         mode="button"
-        size="small"
         :max="10"
         :min="1"
         :step="1"
@@ -51,7 +48,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue';
+  import { onMounted } from 'vue';
   import { useEditorConfig } from '@/store/modules/editor-config';
   import { useColorPicker } from '@/hooks/useColorPicker';
   import ControlledSlider, { useControllerSlider } from '@/components/controlled-slider';
@@ -73,6 +70,4 @@ import { onMounted } from 'vue';
   });
 </script>
 
-<style lang="less">
-
-</style>
+<style lang="less"></style>

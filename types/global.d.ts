@@ -42,9 +42,8 @@ declare global {
 
   declare type Box = [number, number, number, number];
 
-  import '@arco-design/web-vue/es/components';
-  import './components';
-  import './auto-import';
+  import '@ant-design/icons-vue';
+  import 'ant-design-vue/typings/global';
 }
 
 declare module 'vue' {

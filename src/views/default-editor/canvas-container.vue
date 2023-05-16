@@ -104,7 +104,6 @@
   const contextmenuRef = ref();
   function handleClickMenu(e: MouseEvent) {
     e.preventDefault();
-    console.log(e);
     
     clickPositionRef.x = e.x;
     clickPositionRef.y = e.y;

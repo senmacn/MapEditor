@@ -1,17 +1,20 @@
 <template>
   <v-contextmenu ref="contextmenu">
-    <v-contextmenu-item> 跳转到UE5 </v-contextmenu-item>
+    <v-contextmenu-item>
+      <link-outlined />
+      跳转到[UE]
+    </v-contextmenu-item>
     <v-contextmenu-divider />
     <v-contextmenu-item @click="handleInsertPin">
-      <icon-pushpin />
+      <pushpin-outlined />
       插入地图钉
     </v-contextmenu-item>
     <v-contextmenu-item @click="handleEditPin">
-      <icon-edit />
+      <edit-outlined />
       修改地图钉
     </v-contextmenu-item>
-    <v-contextmenu-item @click="handleEditPin">
-      <icon-edit />
+    <v-contextmenu-item @click="handleDeletePin">
+      <edit-outlined />
       删除地图钉
     </v-contextmenu-item>
     <v-contextmenu-divider />
@@ -22,6 +25,8 @@
 
 <script setup lang="ts">
   import { inject, ref } from 'vue';
+  import { LinkOutlined, PushpinOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons-vue';
+
 
   const emit = defineEmits<{
     (e: 'show-pin-modal', create: boolean): void;
@@ -44,6 +49,10 @@
 
   function handleHideContextMenu() {
     contextmenu.value.hide();
+  }
+
+  function handleDeletePin() {
+
   }
 
   defineExpose({

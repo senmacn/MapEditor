@@ -8,25 +8,25 @@
       <div class="home-options">
         <div class="button-wrapper">
           <a-button type="primary" @click="() => handleOpenProject('')">
-            <icon-plus />
+            <plus-outlined />
           </a-button>
           <div>新建项目</div>
         </div>
         <div class="button-wrapper">
           <a-button type="primary" disabled @click="handleUploadProject">
-            <icon-import />
+            <import-outlined />
           </a-button>
           <div>从文件打开项目</div>
         </div>
         <div class="button-wrapper" v-if="!isLocal()">
           <a-button type="primary" @click="handleUploadProject">
-            <icon-cloud-download />
+            <download-outlined />
           </a-button>
           <div>获取桌面版</div>
         </div>
         <div class="button-wrapper" v-else>
           <a-button type="primary" disabled @click="handleUploadProject">
-            <icon-cloud-download />
+            <cloud-outlined />
           </a-button>
           <div>检查更新</div>
         </div>
@@ -42,18 +42,18 @@
             :disable="!isLocal()"
             @click="refreshHistory"
           >
-            <icon-refresh></icon-refresh>
+            <sync-outlined></sync-outlined>
             刷新
           </a-button>
         </template>
         <template #item="{ item, index }">
           <a-list-item class="list-item" action-layout="vertical">
             <template #actions>
-              <span @click="handleOpenProject(item.title)"><icon-launch />打开</span>
-              <span @click="editRef = index"><icon-edit />重命名</span>
-              <span><icon-download @click="handleDownloadProject(item.title)" />下载</span>
-              <!-- <span><icon-heart />置顶</span> -->
-              <span @click="handleDeleteProject(item.title)"><icon-delete />删除</span>
+              <span @click="handleOpenProject(item.title)"><launch-outlined />打开</span>
+              <span @click="editRef = index"><edit-outlined />重命名</span>
+              <span><download-outlined @click="handleDownloadProject(item.title)" />下载</span>
+              <!-- <span><heart-outlined />置顶</span> -->
+              <span @click="handleDeleteProject(item.title)"><delete-outlined />删除</span>
             </template>
             <a-list-item-meta :class="[item.top ? 'top' : '']" :description="item.description">
               <template #title>
@@ -78,9 +78,18 @@
   import type { LocalMapHistory } from './common/types';
   import { reactive, ref } from 'vue';
   import { isArray, isObject } from '@/utils/is';
-  import modal from '@arco-design/web-vue/es/modal';
+  import modal from 'ant-design-vue/lib/modal';
   import { exportFile } from '@/utils/file';
-  import message from '@arco-design/web-vue/es/message';
+  import { message } from 'ant-design-vue';
+  import {
+    PlusOutlined,
+    ImportOutlined,
+    CloudOutlined,
+    DownloadOutlined,
+    EditOutlined,
+    DeleteOutlined,
+    SyncOutlined,
+  } from '@ant-design/icons-vue';
 
   const dataSource = ref<LocalMapHistory[]>([]);
   const paginationProps = reactive({
@@ -148,74 +157,74 @@
 </script>
 
 <style lang="less">
-  .home-container {
-    display: flex;
-    justify-content: space-around;
-    height: 100vh;
-    width: 80vw;
-    min-width: 600px;
-    margin: 0 auto;
-  }
-  .home-left {
-    flex: 1;
-    padding: 20px;
-    height: 480px;
-    border: 1px solid #746c5f;
-  }
-  .home-left,
-  .home-right {
-    margin-top: 10%;
-  }
-  .home-info {
-    font-size: 16px;
-    font-weight: bold;
-    line-height: 20px;
-    color: var(--color-text-1);
-    text-align: center;
-  }
-  .home-options {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-around;
-    padding: 20px;
-    .button-wrapper {
-      font-size: 16px;
-      line-height: 28px;
-      text-align: center;
-      margin-top: 50px;
-      button {
-        width: 80%;
-        height: 60px;
-        border-radius: 10px;
-      }
-      .arco-icon {
-        width: 22px;
-        height: 22px;
-      }
+    .home-container {
+      display: flex;
+      justify-content: space-around;
+      height: 100vh;
+      width: 80vw;
+      min-width: 600px;
+      margin: 0 auto;
     }
-  }
-  .history-list {
-    flex: 1;
-    height: 480px;
-    border: 1px solid #746c5f;
-    padding: 20px;
-    .history-title {
+    .home-left {
+      flex: 1;
+      padding: 20px;
+      height: 480px;
+      border: 1px solid #746c5f;
+    }
+    .home-left,
+    .home-right {
+      margin-top: 10%;
+    }
+    .home-info {
       font-size: 16px;
       font-weight: bold;
+      line-height: 20px;
+      color: @color-text-1;
+      text-align: center;
     }
-    .history-refresh {
-      position: absolute;
-      top: 0;
-      right: 0;
+    .home-options {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-around;
+      padding: 20px;
+      .button-wrapper {
+        font-size: 16px;
+        line-height: 28px;
+        text-align: center;
+        margin-top: 35px;
+        button {
+          width: 80%;
+          height: 60px;
+          border-radius: 10px;
+        }
+        .anticon{
+          width: 22px;
+          height: 22px;
+        }
+      }
     }
-    .list-item {
-      color: var(--color-text-2);
+    .history-list {
+      flex: 1;
+      height: 480px;
+      border: 1px solid #746c5f;
+      padding: 20px;
+      .history-title {
+        font-size: 16px;
+        font-weight: bold;
+      }
+      .history-refresh {
+        position: absolute;
+        top: 0;
+        right: 0;
+      }
+      .list-item {
+        color: @color-text-2;
+      }
+      .top .ant-list-item-meta-title {
+        color: red !important;
+      }
+      .ant-list-item-meta-content {
+        width: 100%;
+      }
     }
-    .top .arco-list-item-meta-title {
-      color: red !important;
-    }
-    .arco-list-item-meta-content {
-      width: 100%;
-    }
-  }
 </style>

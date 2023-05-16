@@ -4,11 +4,11 @@
     <div class="modal-content">
       <div class="map-size">
         <span>长度:</span>
-        <a-input v-model="xRef"> <template #append> px </template></a-input>
+        <a-input v-model:value="xRef"> <template #append> px </template></a-input>
       </div>
       <div class="map-size">
         <span>宽度:</span>
-        <a-input v-model="yRef"> <template #append> px </template></a-input>
+        <a-input v-model:value="yRef"> <template #append> px </template></a-input>
       </div>
     </div>
   </a-modal>
@@ -16,7 +16,7 @@
 
 <script setup lang="ts">
   import { ref, watch } from 'vue';
-  import modal from '@arco-design/web-vue/es/modal';
+  import modal from 'ant-design-vue/lib/modal';
   import { useEditorConfig } from '@/store/modules/editor-config';
 
   const emit = defineEmits<{
@@ -59,13 +59,13 @@
 </script>
 
 <style lang="less">
-  .arco-modal {
+  .ant-modal {
     border-radius: 4px;
-    .arco-modal-body {
+    .ant-modal-body {
       padding: 0;
       border-radius: 4px;
     }
-    .arco-modal-footer {
+    .ant-modal-footer {
       padding: 8px 10px;
       button {
         width: 80px;
@@ -75,8 +75,8 @@
   }
   .modal-title {
     padding: 8px;
-    border-bottom: 1px solid var(--color-neutral-3);
-    background-color: var(--color-neutral-2);
+    border-bottom: 1px solid @color-border-2;
+    background-color: @color-bg-2;
     text-align: center;
   }
   .modal-content {
@@ -89,7 +89,7 @@
       width: 120px;
       text-align: center;
     }
-    .arco-input-wrapper {
+    .ant-input-wrapper {
       width: 250px;
     }
   }

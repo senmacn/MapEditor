@@ -4,7 +4,7 @@
       <span class="group-label">区域： </span>
     </a-col>
     <a-col :span="20">
-      <a-input type="text" placeholder="区域标识" v-model="areaNameRef"></a-input>
+      <a-input type="text" placeholder="区域标识" v-model:value="areaNameRef"></a-input>
     </a-col>
     <a-col :span="4" :offset="4">
       <a-button
@@ -12,32 +12,27 @@
         :disabled="controller.isDrawingArea()"
         @click="handleStartDrawingArea"
       >
-        <icon-plus />
-        新增
+        <template #icon><plus-outlined /> </template>新增
       </a-button>
     </a-col>
     <a-col :span="4">
       <a-button @click="handleStartEditArea" :disabled="editBtnDisabled">
-        <icon-edit />
-        编辑
+        <template #icon><edit-outlined /> </template>编辑
       </a-button>
     </a-col>
     <a-col :span="4">
       <a-button :disabled="!controller.isDrawingArea()" @click="handleEndDrawingArea(true)">
-        <icon-check />
-        完成
+        <template #icon><check-outlined /> </template>完成
       </a-button>
     </a-col>
     <a-col :span="4">
       <a-button :disabled="!controller.isDrawingArea()" @click="handleEndDrawingArea(false)">
-        <icon-close />
-        取消
+        <template #icon><close-outlined /> </template>取消
       </a-button>
     </a-col>
     <a-col :span="4">
       <a-button status="danger" @click="handleDeleteArea" :disabled="!controller.getCurrentArea()">
-        <icon-delete />
-        删除
+        <template #icon><delete-outlined /> </template>删除
       </a-button>
     </a-col>
   </a-row>
@@ -45,12 +40,19 @@
 
 <script setup lang="ts">
   import { computed, ref } from 'vue';
-  import message from '@arco-design/web-vue/es/message';
+  import { message } from 'ant-design-vue';
   import controller from '../common/canvas-state-controller';
   import { emitEditAreaEvent, emitDeleteAreaEvent } from '../common/event';
   import { checkFileName } from '@/utils/file';
   import { isNull } from '@/utils/is';
-  import modal from '@arco-design/web-vue/es/modal';
+  import modal from 'ant-design-vue/lib/modal';
+  import {
+    PlusOutlined,
+    EditOutlined,
+    CheckOutlined,
+    CloseOutlined,
+    DeleteOutlined,
+  } from '@ant-design/icons-vue';
 
   const emit = defineEmits<{
     (e: 'end-edit-area', name: string, complete: boolean): void;
@@ -111,13 +113,16 @@
   );
 </script>
 
-<style lang="less" scoped>
+<style lang="less">
   .area-options {
-    button {
+    button.ant-btn {
       font-size: 12px;
       width: 50px;
       height: 32px;
       padding: 0 4px;
+    }
+    .ant-btn > .anticon + span {
+      margin-left: 0;
     }
   }
 </style>

@@ -3,7 +3,7 @@
     <span class="slider-value">{{ VALUES[valueIndexRef] * 100 + '%' }}</span>
     <a-button @click="handleDown">
       <template #icon>
-        <icon-minus />
+        <minus-outlined />
       </template>
     </a-button>
     <a-slider
@@ -13,12 +13,12 @@
       :show-tooltip="false"
       :marks="VALUE_MARKS"
       :step="0.25"
-      v-model="sliderValueRef"
+      v-model:value="sliderValueRef"
       @change="handleChange"
     ></a-slider>
     <a-button @click="handleUp">
       <template #icon>
-        <icon-plus />
+        <plus-outlined />
       </template>
     </a-button>
   </div>
@@ -27,6 +27,7 @@
 <script setup lang="ts">
   import { Ref, ref, unref, watch } from 'vue';
   import { ControlledSliderAction, ControlledSliderProps } from './types';
+  import { MinusOutlined, PlusOutlined } from '@ant-design/icons-vue';
 
   const VALUES = [0.25, 0.5, 1, 1.5, 2];
   const VALUE_MARKS = {
@@ -115,15 +116,15 @@
     font-size: 8px;
     font-weight: bold;
   }
-  .arco-slider {
+  .ant-slider {
     width: 100%;
-    &.arco-slider-with-marks {
+    &.ant-slider-with-marks {
       margin-bottom: 12px;
       padding-right: 16px;
       padding-left: 10px;
     }
 
-    .arco-slider-marks .arco-slider-mark {
+    .ant-slider-marks .ant-slider-mark {
       font-size: 8px;
     }
   }

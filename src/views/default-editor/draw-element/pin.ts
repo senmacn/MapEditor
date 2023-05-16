@@ -37,6 +37,9 @@ export default class Pin extends DrawElement {
   setLevel(level: number): void {
     this.level = level;
   }
+  setIcon(icon: string): void {
+    this.icon = icon;
+  }
   setColor(color: string): void {
     this.color = color;
   }
