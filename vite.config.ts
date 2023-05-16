@@ -1,14 +1,9 @@
 import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
 import vueJsx from '@vitejs/plugin-vue-jsx';
-// import { createStyleImportPlugin } from 'vite-plugin-style-import';
 import { renderer } from 'unplugin-auto-expose';
 import path from 'path';
-import AutoImport from 'unplugin-auto-import/vite';
-import Components from 'unplugin-vue-components/vite';
-import { ArcoResolver } from 'unplugin-vue-components/resolvers';
 import { createSvgIconsPlugin } from 'vite-plugin-svg-icons';
-// import { existsSync } from 'fs';
 
 const PACKAGE_ROOT = __dirname;
 
@@ -30,9 +25,7 @@ export default defineConfig({
   css: {
     preprocessorOptions: {
       less: {
-        modifyVars: {
-          prefix: 'arco-vue',
-        },
+        additionalData: '@import "@/style/_variable.less";',
       },
     },
   },
@@ -41,6 +34,7 @@ export default defineConfig({
     outDir: 'dist',
     emptyOutDir: true,
     assetsDir: '.',
+    sourcemap: true,
     lib: {
       entry: 'src/main.ts',
       formats: ['es'],
@@ -55,7 +49,12 @@ export default defineConfig({
   },
   define: { 'process.env': {} },
   optimizeDeps: {
-    include: ['@vue/runtime-core', '@vue/shared'],
+    include: [
+      '@vue/runtime-core',
+      '@vue/shared',
+      'ant-design-vue/es/locale/zh_CN',
+      'ant-design-vue/es/locale/en_US',
+    ],
   },
   plugins: [
     vue(),
@@ -63,49 +62,11 @@ export default defineConfig({
     renderer.vite({
       preloadEntry: path.join(PACKAGE_ROOT, 'electron/preload/src/index.ts'),
     }),
-    AutoImport({
-      resolvers: [ArcoResolver()],
-      dts: 'types/auto-import.d.ts',
-    }),
-    Components({
-      resolvers: [
-        ArcoResolver({
-          resolveIcons: true,
-          sideEffect: process.env.NODE_ENV === 'production',
-        }),
-      ],
-      dts: 'types/components.d.ts',
-    }),
     createSvgIconsPlugin({
       iconDirs: [path.resolve(process.cwd(), 'src/assets/icons')],
       symbolId: 'icon-[name]',
       inject: 'body-last',
       customDomId: '__svg__icons__dom__',
     }),
-
-    // createStyleImportPlugin({
-    //   libs: [
-    //     {
-    //       libraryName: '@arco-design/web-vue',
-    //       esModule: true,
-    //       resolveStyle: (name) => {
-    //         // css
-    //         return getArcoStylePath(name);
-    //       },
-    //     },
-    //   ],
-    // }),
   ],
 });
-
-// function getArcoStylePath(name) {
-//   const names = name.split('-');
-//   const arcoPath = `@arco-design/web-vue/es/${name}/style/index.css`;
-
-//   if (existsSync(path.join(__dirname, './node_modules/' + arcoPath))) {
-//     return arcoPath;
-//   } else {
-//     names.pop();
-//     return names.length ? getArcoStylePath(names.join('-')) : '';
-//   }
-// }

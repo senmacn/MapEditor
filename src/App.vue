@@ -1,5 +1,5 @@
 <template>
-  <div class="arco-vue-site">
+  <div class="ant-vue-site">
     <router-view />
   </div>
 </template>
@@ -7,7 +7,7 @@
 <script setup lang="ts"></script>
 
 <style lang="less">
-  .arco-vue-site {
+  .ant-vue-site {
     background-color: #252526;
   }
 </style>

@@ -8,7 +8,7 @@ export function createLoading(props?: Partial<LoadingProps>, target?: HTMLElemen
   let vm: Nullable<VNode> = null;
   const data = reactive({
     tip: '',
-    loading: true,
+    loading: false,
     ...props,
   });
 

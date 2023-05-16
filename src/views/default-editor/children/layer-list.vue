@@ -15,75 +15,61 @@
             @dragover.prevent
             @dragstart="dragstart(index)"
           >
-            <icon-fire v-if="layer.hot" />
+            <fire-outlined v-if="layer.hot" />
             {{ index + 1 }}
           </div>
           <div class="layer-name">
-            <a-input type="text" v-model="layer.name" />
+            <a-input type="text" v-model:value="layer.name" />
           </div>
           <div class="layer-option">
-            <a-tooltip content="隐藏图层">
-              <a-button
-                type="text"
-                v-if="layer.visible"
-                status="success"
-                @click="() => changeLayerVisible(layer, false)"
+            <a-space>
+              <a-tooltip title="隐藏图层" v-if="layer.visible">
+                <a-button
+                  type="text"
+                  class="success-color"
+                  @click="() => changeLayerVisible(layer, false)"
+                >
+                  <template #icon><eye-outlined /></template>
+                </a-button>
+              </a-tooltip>
+              <a-tooltip title="显示图层" v-else>
+                <a-button type="text" @click="() => changeLayerVisible(layer, true)">
+                  <template #icon><eye-invisible-outlined /></template>
+                </a-button>
+              </a-tooltip>
+              <a-tooltip title="显示区域">
+                <a-button type="text" @click="() => handleChangeAreaVisible(layer.uuid)">
+                  <template #icon>
+                    <menu-fold-outlined v-if="!hiddenAreaMapRef[layer.uuid]" />
+                    <menu-unfold-outlined v-else />
+                  </template>
+                </a-button>
+              </a-tooltip>
+              <a-upload
+                @beforeUpload="(file) => handleUploadFile(file, index)"
+                accept=".png,.jpg"
+                :showUploadList="false"
               >
-                <template #icon>
-                  <icon-eye />
-                </template>
-              </a-button>
-            </a-tooltip>
-            <a-tooltip content="显示图层">
-              <a-button
-                type="text"
-                status="normal"
-                v-if="!layer.visible"
-                @click="() => changeLayerVisible(layer, true)"
-              >
-                <template #icon>
-                  <icon-eye-invisible />
-                </template>
-              </a-button>
-            </a-tooltip>
-            <a-tooltip content="显示区域">
-              <a-button
-                type="text"
-                @click="() => handleChangeAreaVisible(layer.uuid)"
-                status="normal"
-              >
-                <template #icon>
-                  <icon-menu-fold v-if="!hiddenAreaMapRef[layer.uuid]" />
-                  <icon-menu-unfold v-else />
-                </template>
-              </a-button>
-            </a-tooltip>
-            <a-upload @beforeUpload="(file) => handleUploadFile(file, index)" accept=".png,.jpg">
-              <template #upload-button>
-                <a-tooltip content="上传底图">
+                <a-tooltip title="上传底图">
                   <a-button type="text" :class="layer.map ? 'success' : 'none'">
                     <template #icon>
-                      <icon-file-image />
+                      <file-image-outlined />
                     </template>
                   </a-button>
                 </a-tooltip>
-              </template>
-            </a-upload>
-            <a-button type="text" status="warning" @click="() => handleLayerDelete(index)">
-              <template #icon>
-                <icon-delete />
-              </template>
-            </a-button>
+              </a-upload>
+              <a-button type="text" @click="() => handleLayerDelete(index)">
+                <template #icon>
+                  <delete-outlined />
+                </template>
+              </a-button>
+            </a-space>
           </div>
         </div>
-        <area-list
-          v-if="!hiddenAreaMapRef[layer.uuid]"
-          :areas="layer.areas"
-          :pins="layer.pins"
-        />
+        <area-list v-if="!hiddenAreaMapRef[layer.uuid]" :areas="layer.areas" :pins="layer.pins" />
       </li>
     </transition-group>
-    <a-tooltip content="添加图层">
+    <a-tooltip title="添加图层">
       <a-button @click="handleLayerAdd">+</a-button>
     </a-tooltip>
   </div>
@@ -92,10 +78,19 @@
 <script setup lang="ts">
   import { Ref, inject, ref } from 'vue';
   import AreaList from './area-list.vue';
-  import modal from '@arco-design/web-vue/es/modal';
+  import modal from 'ant-design-vue/lib/modal';
   import { getRandomDomId } from '../../../utils/uuid';
   import { useLoading } from '@/components/Loading';
   import { Layer } from '../common/types';
+  import {
+    FileImageOutlined,
+    FireOutlined,
+    EyeOutlined,
+    EyeInvisibleOutlined,
+    DeleteOutlined,
+    MenuFoldOutlined,
+    MenuUnfoldOutlined,
+  } from '@ant-design/icons-vue';
 
   const layersRef: Ref<Layer[]> = inject('layers', [] as any);
 
@@ -179,7 +174,7 @@
 
 <style lang="less">
   .layer-list {
-    border: 1px solid var(--color-border-3);
+    border: 1px solid rgba(74, 83, 102, 0.5);
     width: 100%;
     > ul {
       min-height: 160px;
@@ -191,25 +186,25 @@
     ul::-webkit-scrollbar {
       display: none;
     }
-    > .arco-btn {
+    > .ant-btn {
       width: 100% !important;
       height: 24px !important;
     }
   }
-  .arco-icon {
+  .anticon {
     font-size: 14px;
   }
-  .arco-icon-fire {
+  .anticon-fire {
     color: rgb(255, 50, 48) !important;
   }
 
   .layer-item {
     list-style: none;
-    border-bottom: 1px solid var(--color-border-2);
+    border-bottom: 1px solid rgba(74, 83, 102, 0.5);
     &.title {
       display: flex;
       font-weight: bold;
-      background: var(--color-fill-2);
+      background: rgba(74, 83, 102, 0.5);
       text-align: center;
     }
     .layer-content {
@@ -220,7 +215,7 @@
     .layer-name,
     .layer-option {
       height: 24px;
-      border-right: 1px solid var(--color-border-2);
+      border-right: 1px solid rgba(74, 83, 102, 0.5);
       text-align: center;
       line-height: 24px;
       font-size: 12px;
@@ -231,10 +226,11 @@
     }
     .layer-name {
       flex: 1;
-      input.arco-input {
+      input.ant-input {
         font-size: 12px;
         line-height: 24px;
         text-align: center;
+        height: 100%;
       }
       span {
         font-size: 12px;
@@ -244,8 +240,10 @@
     .layer-option {
       width: 140px;
       border-right: 0;
-      button {
-        height: 24px;
+      .ant-btn {
+        display: inline-block;
+        height: 18px;
+        width: 18px;
       }
       .success {
         color: rgb(0, 180, 42);
@@ -256,13 +254,6 @@
       .none {
         color: #ccc;
       }
-    }
-    .arco-upload-wrapper {
-      display: inline-block;
-    }
-    .arco-input-wrapper {
-      height: 100%;
-      background-color: rgb(250, 250, 250);
     }
   }
 </style>

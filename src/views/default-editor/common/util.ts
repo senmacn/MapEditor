@@ -1,5 +1,5 @@
 import { checkFileName } from '@/utils/file';
-import message from '@arco-design/web-vue/es/message';
+import { message } from 'ant-design-vue';
 
 export function checkAreaName(areaName: string) {
   if (!areaName.length) {

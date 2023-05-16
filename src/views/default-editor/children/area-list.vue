@@ -3,15 +3,15 @@
     <li class="area-item" v-for="(area, index) in visibleList" :key="index">
       <div class="area-index"></div>
       <div class="area-name">
-        <icon-mosaic v-if="(area instanceof Area)" />
-        <icon-pushpin v-else></icon-pushpin>
+        <border-outlined v-if="(area instanceof Area)" />
+        <pushpin-outlined v-else></pushpin-outlined>
         {{ area.getName() }}
       </div>
       <div class="area-option">
-        <a-tooltip content="快速定位">
+        <a-tooltip title="快速定位">
           <a-button type="text" @click="handleGotoArea(area)">
             <template #icon>
-              <icon-location />
+              <aim-outlined />
             </template>
           </a-button>
         </a-tooltip>
@@ -24,6 +24,7 @@
   import { computed } from 'vue';
   import DrawElement, { Area, Pin } from '../draw-element';
   import { emitFocusAreaEvent } from '../common/event';
+  import { PushpinOutlined, BorderOutlined, AimOutlined } from '@ant-design/icons-vue';
 
   const props = defineProps({
     areas: {
@@ -54,7 +55,7 @@
     width: 100%;
     padding: 0;
     margin: 0;
-    border-top: 1px solid var(--color-border-2);
+    border-top: 1px solid @color-border-2;
     line-height: 20px;
     .area-item {
       display: flex;
@@ -66,12 +67,12 @@
     }
     .area-name {
       flex: 1;
-      border-right: 1px solid var(--color-border-3);
+      border-right: 1px solid @color-border-2;
     }
     .area-option {
       width: 140px;
     }
-    .arco-btn {
+    .ant-btn {
       width: 100%;
       height: 100%;
     }

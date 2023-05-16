@@ -3,7 +3,7 @@
     <a-divider></a-divider>
     <a-popover trigger="hover" position="left">
       <a-button type="text">
-        <icon-layers />
+        <layers-outlined />
       </a-button>
       <template #content>
         {{ hotLayerRef?.name }}
@@ -13,52 +13,52 @@
 
     <a-popover trigger="hover" position="left">
       <a-button type="text" :disabled="controller.isDrawingArea()">
-        <icon-plus />
+        <plus-outlined />
       </a-button>
       <template #content>
         <div class="thin-option-add">
-          <a-input placeholder="区域标识" v-model="areaNameRef"></a-input>
+          <a-input placeholder="区域标识" v-model:value="areaNameRef"></a-input>
           <a-button type="primary" @click="handleStartDrawingArea">新增</a-button>
         </div>
       </template>
     </a-popover>
-    <a-tooltip content="编辑">
+    <a-tooltip title="编辑">
       <a-button type="text" :disabled="editBtnDisabled" @click="handleStartEditArea">
-        <icon-edit />
+        <edit-outlined />
       </a-button>
     </a-tooltip>
-    <a-tooltip content="完成">
+    <a-tooltip title="完成">
       <a-button
         type="text"
         :disabled="!controller.isDrawingArea()"
         @click="handleEndDrawingArea(true)"
       >
-        <icon-check />
+        <check-outlined />
       </a-button>
     </a-tooltip>
-    <a-tooltip content="取消">
+    <a-tooltip title="取消">
       <a-button
         type="text"
         :disabled="!controller.isDrawingArea()"
         @click="handleEndDrawingArea(false)"
       >
-        <icon-close />
+        <close-outlined />
       </a-button>
     </a-tooltip>
-    <a-tooltip content="删除">
+    <a-tooltip title="删除">
       <a-button
         type="text"
         status="danger"
         :disabled="!controller.getCurrentArea()"
         @click="handleDeleteArea"
       >
-        <icon-delete />
+        <delete-outlined />
       </a-button>
     </a-tooltip>
 
     <a-divider></a-divider>
 
-    <a-tooltip content="画笔">
+    <a-tooltip title="画笔">
       <a-button
         type="text"
         class="edit-btn"
@@ -66,10 +66,10 @@
         @click="() => handleChangeOptionState(CanvasOption.FollowMouse)"
         :disabled="!editableRef"
       >
-        <icon-pen-fill />
+        <edit-filled />
       </a-button>
     </a-tooltip>
-    <a-tooltip content="橡皮">
+    <a-tooltip title="橡皮">
       <a-button
         type="text"
         class="edit-btn"
@@ -77,23 +77,23 @@
         @click="() => handleChangeOptionState(CanvasOption.FollowMouseClear)"
         :disabled="!editableRef"
       >
-        <icon-eraser />
+        <edit-filled />
       </a-button>
     </a-tooltip>
-    <a-tooltip content="撤销">
+    <a-tooltip title="撤销">
       <a-button type="text" class="edit-btn" @click="emitCanvasUndoEvent" :disabled="!editableRef">
-        <icon-undo />
+        <undo-outlined />
       </a-button>
     </a-tooltip>
-    <a-tooltip content="还原">
+    <a-tooltip title="还原">
       <a-button type="text" class="edit-btn" @click="emitCanvasRedoEvent" :disabled="!editableRef">
-        <icon-redo />
+        <redo-outlined />
       </a-button>
     </a-tooltip>
 
     <a-divider></a-divider>
 
-    <a-tooltip content="直线">
+    <a-tooltip title="直线">
       <a-button
         type="text"
         class="edit-btn"
@@ -101,11 +101,11 @@
         @click="() => handleChangeOptionState(CanvasOption.DrawLine)"
         :disabled="!editableRef"
       >
-        <icon-oblique-line />
+        <minus-outlined />
       </a-button>
     </a-tooltip>
 
-    <a-tooltip content="圆">
+    <a-tooltip title="圆">
       <a-button
         type="text"
         class="edit-btn"
@@ -118,7 +118,7 @@
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
           stroke="currentColor"
-          class="arco-icon arco-icon-oblique-line"
+          class="anticon"
           stroke-width="4"
           stroke-linecap="butt"
           stroke-linejoin="miter"
@@ -128,7 +128,7 @@
       </a-button>
     </a-tooltip>
 
-    <a-tooltip content="矩形">
+    <a-tooltip title="矩形">
       <a-button
         type="text"
         class="edit-btn"
@@ -141,7 +141,7 @@
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
           stroke="currentColor"
-          class="arco-icon arco-icon-oblique-line"
+          class="anticon"
           stroke-width="5"
           stroke-linecap="butt"
           stroke-linejoin="miter"
@@ -155,7 +155,7 @@
 
     <a-popover trigger="hover" position="left">
       <a-button type="text">
-        <icon-settings />
+        <setting-outlined />
       </a-button>
       <template #content>
         <div class="thin-options-config">
@@ -171,11 +171,23 @@
   import EditConfig from './children/edit-config.vue';
   import { emitEditAreaEvent, emitDeleteAreaEvent } from './common/event';
   import { isNull } from '@/utils/is';
-  import modal from '@arco-design/web-vue/es/modal';
+  import modal from 'ant-design-vue/lib/modal';
   import controller, { CanvasOption } from './common/canvas-state-controller';
   import { emitCanvasUndoEvent, emitCanvasRedoEvent } from './common/event';
   import { Layer } from './common/types';
   import { checkAreaName } from './common/util';
+  import {
+    PlusOutlined,
+    EditOutlined,
+    CheckOutlined,
+    CloseOutlined,
+    DeleteOutlined,
+    SettingOutlined,
+    UndoOutlined,
+    RedoOutlined,
+    EditFilled,
+    MinusOutlined,
+  } from '@ant-design/icons-vue';
 
   const layersRef: Ref<Layer[]> = inject('layers', [] as any);
   const hotLayerRef = computed(() => {
@@ -254,17 +266,17 @@
     width: 50px;
     height: 100%;
     background-color: rgb(51, 51, 51);
-    .arco-btn {
+    .ant-btn {
       width: 100%;
     }
-    .arco-divider {
+    .ant-divider {
       margin: 10px 0;
     }
     button.edit-btn {
       color: white;
     }
-    button.edit-btn.arco-btn-disabled {
-      color: var(--color-text-4);
+    button.edit-btn.ant-btn-disabled {
+      color: @color-text-4;
     }
   }
   .thin-option-add {

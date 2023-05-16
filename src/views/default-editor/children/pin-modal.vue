@@ -2,58 +2,62 @@
   <a-modal
     class="pin-modal"
     :width="360"
-    :mask="true"
-    :mask-closable="true"
-    simple
     :visible="visibleRef"
+    :closable="false"
     :onCancel="handleCancel"
     :title="null"
     :footer="null"
   >
     <div class="pin-wrapper">
       <div class="title">地图钉配置</div>
-      <a-form ref="pinFormRef" :model="formModel" size="mini" layout="horizontal">
+      <a-form
+        ref="pinFormRef"
+        :model="formModel"
+        :labelCol="{ span: 4 }"
+        :wrapperCol="{ span: 20 }"
+        labelAlign="right"
+      >
         <a-form-item
-          field="name"
+          name="name"
           label="名称"
           :validate-trigger="['change', 'input']"
           :rules="[{ required: true, message: '请填写名称！' }]"
         >
-          <a-input size="mini" v-model="formModel.name" />
+          <a-input size="small" v-model:value="formModel.name" />
         </a-form-item>
-        <a-form-item field="description" label="描述">
+        <a-form-item name="description" label="描述">
           <a-textarea
-            size="mini"
-            v-model="formModel.description"
+            size="small"
+            v-model:value="formModel.description"
             auto-size
             show-word-limit
             :max-length="100"
           />
         </a-form-item>
-        <a-form-item field="level" label="等级">
-          <a-rate size="mini" v-model="formModel.level" allow-half />
+        <a-form-item name="level" label="等级">
+          <a-rate size="small" v-model:value="formModel.level" allow-half />
         </a-form-item>
-        <a-form-item field="icon" label="图标">
-          <a-radio-group type="button" v-model="formModel.icon" size="mini">
-            <a-radio value="flag">
+        <a-form-item name="icon" label="图标">
+          <a-radio-group type="button" v-model:value="formModel.icon" size="small">
+            <a-radio-button value="flag">
               <svg-icon name="flag" :size="16"></svg-icon>
-            </a-radio>
-            <a-radio value="pin">
+            </a-radio-button>
+            <a-radio-button value="pin">
               <svg-icon name="pin" :size="16"></svg-icon>
-            </a-radio>
+            </a-radio-button>
           </a-radio-group>
         </a-form-item>
-        <a-form-item field="size" label="尺寸">
-          <a-radio-group v-model="formModel.size" size="mini" type="button">
-            <a-radio value="40">Small</a-radio>
-            <a-radio value="60">Medium</a-radio>
-            <a-radio value="80">Large</a-radio>
+        <a-form-item name="size" label="尺寸">
+          <a-radio-group v-model:value="formModel.size" size="small" type="button">
+            <a-radio-button value="40">Small</a-radio-button>
+            <a-radio-button value="60">Medium</a-radio-button>
+            <a-radio-button value="80">Large</a-radio-button>
           </a-radio-group>
         </a-form-item>
-        <a-form-item field="color" label="颜色">
+        <a-form-item name="color" label="颜色">
           <span id="pickr-instance"> </span>
         </a-form-item>
-        <a-form-item field="position" label="坐标">
+        <a-form-item name="position" label="坐标">
           <span>{{ clickPositionRef?.offsetX }}, {{ clickPositionRef?.offsetY }}</span>
         </a-form-item>
       </a-form>
@@ -88,12 +92,11 @@
 
   const visibleRef = ref(false);
   let isCreate = false;
+  let uuid = '';
   const layersRef: Ref<Layer[]> = inject('layers', [] as any);
   const pinFormRef = ref();
   function handleOk() {
-    pinFormRef.value.validate().then((err) => {
-      if (err) return;
-
+    pinFormRef.value.validate().then(() => {
       const size = Number(formModel.size);
       formModel.position = {
         x: clickPositionRef.offsetX - size / 2,
@@ -114,6 +117,16 @@
             );
             element.pins.push(pin);
           } else {
+            element.pins.forEach((sitPin) => {
+              if (sitPin.getUuid() === uuid) {
+                sitPin.setName(formModel.name);
+                sitPin.setDescription(formModel.description);
+                sitPin.setLevel(formModel.level);
+                sitPin.setIcon(formModel.icon);
+                sitPin.setColor(formModel.color);
+                sitPin.setBoundRect([formModel.position.x, formModel.position.y, size, size]);
+              }
+            });
           }
         }
       }
@@ -141,13 +154,14 @@
     },
   );
 
-  function setPin(pin) {
+  function setPin(pin: Pin) {
     if (isNull(pin)) {
       Object.assign(formModel, cloneDeep(initFormModel));
-
       isCreate = true;
     } else {
       isCreate = false;
+      Object.assign(formModel, pin);
+      uuid = pin.getUuid();
     }
     visibleRef.value = true;
   }
@@ -158,22 +172,27 @@
 
 <style lang="less">
   .pin-modal {
-    .arco-modal-header {
+    .ant-modal-header {
       display: none;
     }
-    .arco-modal-simple {
-      padding: 0;
+    .ant-modal-content {
+      padding: 4px;
     }
     .pin-wrapper {
-      padding: 8px;
-      margin-right: 20px;
       overflow: auto;
+      span,
+      label {
+        font-size: 12px;
+      }
     }
     .title {
       line-height: 40px;
       font-size: 14px;
       font-weight: bold;
       text-align: center;
+    }
+    .ant-form {
+      padding: 0 20px;
     }
     .button-group {
       display: flex;
@@ -182,16 +201,13 @@
       width: 80%;
       height: 50px;
       margin: 0 auto;
-      .arco-btn {
+      .ant-btn {
         width: 70px;
         height: 35px;
         font-size: 12px;
       }
     }
-    span {
-      font-size: 12px;
-    }
-    .arco-radio-button-content {
+    .ant-radio-button-content {
       padding: 4px;
     }
   }

@@ -2,7 +2,7 @@
   <div class="status-bar">
     <div class="wrapper">
       <div class="status-col"> 状态: {{ statusRef }}</div>
-      <div> <icon-drag-arrow /> {{ pos }} </div>
+      <div> <drag-outlined /> {{ pos }} </div>
     </div>
   </div>
 </template>
@@ -12,6 +12,7 @@
   import controller from '../common/canvas-state-controller';
   import { useMouse } from '@vueuse/core';
   import { useCanvasState } from '@/store/modules/canvas-state';
+  import { DragOutlined } from '@ant-design/icons-vue';
 
   const statusRef = computed(() => {
     return controller.isDrawingArea()
@@ -49,7 +50,7 @@
       min-width: 150px;
       border-right: 1px solid rgb(235, 235, 235);
     }
-    .arco-icon {
+    .anticon {
       margin-right: 10px;
     }
     .status-col {

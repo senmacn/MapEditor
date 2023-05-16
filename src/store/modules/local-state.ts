@@ -12,6 +12,7 @@ export const useLocalState = defineStore({
   },
   actions: {
     setFileName(filename: string) {
+      document.title = filename;
       this.filename = filename;
     },
   },

@@ -1,5 +1,5 @@
 <template>
-  <div class="arco-vue-body">
+  <div class="ant-vue-body">
     <navbar></navbar>
     <div
       class="map-editor"
@@ -11,13 +11,13 @@
         <canvas-container ref="areaCanvasRef" />
       </div>
       <div :class="hideOptionRef ? 'option-box hide' : 'option-box'">
-        <icon-right-circle
+        <right-circle-outlined
           class="option-control option-control-right"
           size="28"
           v-if="!hideOptionRef"
           @click="handleChangeHideState(true)"
         />
-        <icon-left-circle
+        <left-circle-outlined
           class="option-control option-control-left"
           size="28"
           v-else
@@ -50,9 +50,10 @@
   import useRuler from '@/hooks/useRuler';
   import { useCanvasState } from '@/store/modules/canvas-state';
   import { useEditorConfig } from '@/store/modules/editor-config';
-  import modal from '@arco-design/web-vue/es/modal';
   import Navbar from '@/components/navbar/index.vue';
   import { isLocal } from '@/utils/env';
+  import modal from 'ant-design-vue/lib/modal';
+  import { LeftCircleOutlined, RightCircleOutlined } from '@ant-design/icons-vue';
 
   const configRef = useEditorConfig();
 
@@ -200,7 +201,7 @@
     background-color: rgb(51, 51, 51);
     transition: width 0.2s ease;
     &.full-screen {
-      max-width: 95vw;
+      max-width: calc(100% - 60px);
     }
   }
   .option-box {
@@ -222,9 +223,10 @@
       top: 40%;
       background-color: transparent;
       cursor: pointer;
+      font-size: 20px;
     }
     .option-control-right {
-      right: 411px;
+      right: 400px;
     }
     .option-control-left {
       right: 150px;
