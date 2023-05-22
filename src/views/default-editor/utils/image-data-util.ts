@@ -12,9 +12,11 @@ export function getPositionCount(imageData: ImageData, x, y, width, height): num
   // imageData.data 大小为 height * width * 4，每4个值组成一个点，从左向右从上到下
   for (let yIndex = y; yIndex < y + height; yIndex++) {
     for (let xIndex = x; xIndex < x + width; xIndex++) {
-      const pointStartIndex = xIndex * 4 + yIndex * 4 * imageData.width;
-      if (isPointInData(imageData.data, pointStartIndex)) {
-        count++;
+      if (yIndex >= 0 && xIndex >= 0) {
+        const pointStartIndex = xIndex * 4 + yIndex * 4 * imageData.width;
+        if (isPointInData(imageData.data, pointStartIndex)) {
+          count++;
+        }
       }
     }
   }

@@ -1,6 +1,6 @@
 <template>
   <a-modal :visible="visible" @cancel="emit('close')" @ok="handleChange" :closable="false">
-    <div class="modal-title">确认</div>
+    <div class="modal-title">尺寸设置</div>
     <div class="modal-content">
       <div class="map-size">
         <span>长度:</span>
@@ -75,8 +75,7 @@
   }
   .modal-title {
     padding: 8px;
-    border-bottom: 1px solid @color-border-2;
-    background-color: @color-bg-2;
+    border-bottom: 1px solid @color-modal-border;
     text-align: center;
   }
   .modal-content {

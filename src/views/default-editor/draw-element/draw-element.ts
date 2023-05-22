@@ -77,8 +77,8 @@ export default class DrawElement implements DrawElementInterface {
     /* draggable */
     this.moveable
       .on('drag', ({ target, left, top }) => {
-        target!.style.left = `${left}px`;
-        target!.style.top = `${top}px`;
+        target.style.left = `${left}px`;
+        target.style.top = `${top}px`;
       })
       .on('dragEnd', ({ target }) => {
         this.boundRect[0] = parseInt(target.style.left.replace('px', ''));

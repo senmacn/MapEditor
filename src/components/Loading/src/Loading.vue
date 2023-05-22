@@ -13,7 +13,7 @@
   import { PropType } from 'vue';
   import { SizeEnum } from './typing';
 
-  const props = defineProps({
+  defineProps({
     tip: {
       type: String as PropType<string>,
       default: '',

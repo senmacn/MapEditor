@@ -108,10 +108,8 @@
       Array.from(document.getElementsByClassName('moveable-control-box')).forEach(
         (item: HTMLElement) => (item.style.visibility = 'hidden'),
       );
-      const currentArea = controller.getCurrentArea();
-      if (currentArea !== null) {
-        currentArea.cancelSelect();
-      }
+      controller.getCurrentArea()?.cancelSelect();
+      controller.getCurrentPin()?.cancelSelect();
       // 这里只处理点击区域外的逻辑
       controller.setCurrentArea(null);
       controller.setCurrentPin(null);

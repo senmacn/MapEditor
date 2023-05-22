@@ -9,7 +9,7 @@
     :footer="null"
   >
     <div class="pin-wrapper">
-      <div class="title">地图钉配置</div>
+      <div class="title">配置</div>
       <a-form
         ref="pinFormRef"
         :model="formModel"
@@ -38,20 +38,48 @@
           <a-rate size="small" v-model:value="formModel.level" allow-half />
         </a-form-item>
         <a-form-item name="icon" label="图标">
-          <a-radio-group type="button" v-model:value="formModel.icon" size="small">
-            <a-radio-button value="flag">
-              <svg-icon name="flag" :size="16"></svg-icon>
-            </a-radio-button>
-            <a-radio-button value="pin">
-              <svg-icon name="pin" :size="16"></svg-icon>
-            </a-radio-button>
+          <a-radio-group
+            class="icon-radios"
+            type="button"
+            v-model:value="formModel.icon"
+            size="small"
+          >
+            <a-space>
+              <a-radio-button :value="PinIcon.star">
+                <img src="@/assets/images/star.png" alt="star" />
+              </a-radio-button>
+              <a-radio-button :value="PinIcon.more">
+                <img src="@/assets/images/more.png" alt="more" />
+              </a-radio-button>
+              <a-radio-button :value="PinIcon.chest">
+                <img src="@/assets/images/chest.png" alt="chest" />
+              </a-radio-button>
+              <a-radio-button :value="PinIcon.backpack">
+                <img src="@/assets/images/backpack.png" alt="backpack" />
+              </a-radio-button>
+              <a-radio-button :value="PinIcon.book">
+                <img src="@/assets/images/book.png" alt="book" />
+              </a-radio-button>
+              <a-radio-button :value="PinIcon.animal">
+                <img src="@/assets/images/animal.png" alt="animal" />
+              </a-radio-button>
+              <a-radio-button :value="PinIcon.monster">
+                <img src="@/assets/images/monster.png" alt="monster" />
+              </a-radio-button>
+              <a-radio-button :value="PinIcon.special">
+                <img src="@/assets/images/special.png" alt="special" />
+              </a-radio-button>
+              <a-radio-button :value="PinIcon.world">
+                <img src="@/assets/images/world.png" alt="world" />
+              </a-radio-button>
+            </a-space>
           </a-radio-group>
         </a-form-item>
         <a-form-item name="size" label="尺寸">
           <a-radio-group v-model:value="formModel.size" size="small" type="button">
-            <a-radio-button value="40">Small</a-radio-button>
-            <a-radio-button value="60">Medium</a-radio-button>
-            <a-radio-button value="80">Large</a-radio-button>
+            <a-radio-button value="40">40</a-radio-button>
+            <a-radio-button value="60">60</a-radio-button>
+            <a-radio-button value="80">80</a-radio-button>
           </a-radio-group>
         </a-form-item>
         <a-form-item name="color" label="颜色">
@@ -71,19 +99,18 @@
 
 <script setup lang="ts">
   import { Ref, inject, reactive, ref, watch } from 'vue';
-  import SvgIcon from '@/components/svg-icon.vue';
   import { useColorPicker } from '@/hooks/useColorPicker';
   import { isNull } from '@/utils/is';
   import cloneDeep from 'lodash-es/cloneDeep';
   import { Layer } from '../common/types';
-  import { Pin } from '../draw-element';
+  import { Pin, PinIcon } from '../draw-element';
 
   const clickPositionRef = inject<Recordable>('clickPositionRef', { offsetX: 0, offsetY: 0 });
   const initFormModel = {
     name: '',
     description: '',
     color: 'red',
-    icon: 'flag',
+    icon: PinIcon.star,
     size: '60',
     level: 2.5,
     position: { x: 0, y: 0 },
@@ -186,13 +213,26 @@
       }
     }
     .title {
-      line-height: 40px;
+      line-height: 36px;
       font-size: 14px;
       font-weight: bold;
       text-align: center;
+      color: @color-text-1;
+      border-bottom: 1px solid @color-modal-border;
     }
     .ant-form {
-      padding: 0 20px;
+      padding: 20px 20px 0;
+    }
+    .icon-radios.ant-radio-group .ant-radio-button-wrapper {
+      padding: 0;
+      height: 32px;
+      img {
+        width: 28px;
+        height: 28px;
+      }
+    }
+    .ant-space {
+      flex-wrap: wrap;
     }
     .button-group {
       display: flex;

@@ -1,7 +1,7 @@
 import DrawElement from './draw-element';
 import Area from './area';
-import Pin from './pin';
+import Pin, { PinIcon } from './pin';
 
-export { Area, Pin };
+export { Area, Pin, PinIcon };
 
 export default DrawElement;

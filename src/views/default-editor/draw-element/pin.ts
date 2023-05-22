@@ -1,13 +1,26 @@
 import { getShortUuid } from '@/utils/uuid';
 import controller from '../common/canvas-state-controller';
-import { nextTick } from 'vue';
-import { renderSvg } from '@/utils/svg';
+import { nextTick, render } from 'vue';
 import DrawElement from './draw-element';
+
+export enum PinIcon {
+  star = 'star',
+  more = 'more',
+  chest = 'chest',
+  backpack = 'backpack',
+  book = 'book',
+  animal = 'animal',
+  monster = 'monster',
+  special = 'special',
+  world = 'world',
+}
 
 export default class Pin extends DrawElement {
   private level: number;
+
   private color: string;
-  private icon: string;
+
+  private icon: PinIcon;
 
   constructor(
     name: string,
@@ -16,7 +29,7 @@ export default class Pin extends DrawElement {
     color: string,
     position: PointA,
     size: number,
-    icon: string,
+    icon: PinIcon,
   ) {
     super();
     this.uuid = getShortUuid();
@@ -37,7 +50,7 @@ export default class Pin extends DrawElement {
   setLevel(level: number): void {
     this.level = level;
   }
-  setIcon(icon: string): void {
+  setIcon(icon: PinIcon): void {
     this.icon = icon;
   }
   setColor(color: string): void {
@@ -54,9 +67,12 @@ export default class Pin extends DrawElement {
     const width = 'width: ' + this.boundRect[2] + 'px;';
     const height = 'height: ' + this.boundRect[3] + 'px;';
     instance.setAttribute('style', top + left + height + width);
-    setTimeout(() => {
-      renderSvg(instance, this.icon, { color: this.color, size: this.boundRect[2] });
-    });
+    const imgElement = document.createElement('img');
+    imgElement.setAttribute('src', 'src/assets/images/' + this.icon + '.png');
+    imgElement.setAttribute('width', this.boundRect[2] + 'px');
+    imgElement.setAttribute('height', this.boundRect[2] + 'px');
+
+    instance.appendChild(imgElement);
     // TODO: hover
     // instance.onmouseenter = ;
     // instance.onmouseleave = ;

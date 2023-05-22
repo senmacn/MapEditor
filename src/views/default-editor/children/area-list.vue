@@ -3,7 +3,7 @@
     <li class="area-item" v-for="(area, index) in visibleList" :key="index">
       <div class="area-index"></div>
       <div class="area-name">
-        <border-outlined v-if="(area instanceof Area)" />
+        <border-outlined v-if="area instanceof Area" />
         <pushpin-outlined v-else></pushpin-outlined>
         {{ area.getName() }}
       </div>
@@ -55,7 +55,7 @@
     width: 100%;
     padding: 0;
     margin: 0;
-    border-top: 1px solid @color-border-2;
+    border-top: 1px solid @color-border-table;
     line-height: 20px;
     .area-item {
       display: flex;
@@ -67,7 +67,7 @@
     }
     .area-name {
       flex: 1;
-      border-right: 1px solid @color-border-2;
+      border-right: 1px solid @color-border-table;
     }
     .area-option {
       width: 140px;

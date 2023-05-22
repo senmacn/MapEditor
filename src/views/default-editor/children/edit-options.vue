@@ -115,16 +115,16 @@
           :disabled="!editableRef"
         >
           <svg
-            viewBox="0 0 48 48"
+            viewBox="0 0 20 20"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
             stroke="currentColor"
             class="anticon"
-            stroke-width="4"
+            stroke-width="1"
             stroke-linecap="butt"
             stroke-linejoin="miter"
           >
-            <circle r="23" cx="24" cy="24" />
+            <circle r="6" cx="10" cy="10" />
           </svg>
         </a-button>
       </a-tooltip>
@@ -137,16 +137,16 @@
           :disabled="!editableRef"
         >
           <svg
-            viewBox="0 0 48 48"
+            viewBox="0 0 30 30"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
             stroke="currentColor"
             class="anticon"
-            stroke-width="5"
+            stroke-width="1"
             stroke-linecap="butt"
             stroke-linejoin="miter"
           >
-            <rect width="48" height="48" />
+            <rect x="5" y="6" width="18" height="18" />
           </svg>
         </a-button>
       </a-tooltip>

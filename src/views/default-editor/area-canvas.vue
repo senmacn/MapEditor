@@ -165,11 +165,13 @@ import { message } from 'ant-design-vue';
 
   onCanvasRedoEvent(() => {
     if (controller.isDrawingArea()) {
+      message.info('还原');
       ctxRef.redo();
     }
   });
   onCanvasUndoEvent(() => {
     if (controller.isDrawingArea()) {
+      message.info('撤销');
       ctxRef.undo();
     }
   });
