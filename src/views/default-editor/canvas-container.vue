@@ -103,6 +103,9 @@
   provide('clickPositionRef', clickPositionRef);
   const contextmenuRef = ref();
   function handleClickMenu(e: MouseEvent) {
+    if (controller.isDrawingArea()) {
+      return;
+    }
     e.preventDefault();
     
     clickPositionRef.x = e.x;

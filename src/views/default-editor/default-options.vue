@@ -106,8 +106,10 @@
   function handleExportSaves() {
     modal.confirm({
       title: '确认',
+      type: 'confirm',
       content: '导出当前编辑的数据存档？',
       onOk: () => {
+        openLoadLoading();
         exportFile(
           `map_data_${configRef.getSize.x}x${configRef.getSize.y}.${getFormatDate(
             new Date(),
@@ -116,6 +118,7 @@
           createSaves([configRef.getSize.x, configRef.getSize.y], layersRef.value),
           'json',
         );
+        setTimeout(() => closeLoadLoading(), 300);
       },
     });
   }
@@ -169,7 +172,15 @@
                   const boundRect = area.getBoundRect();
                   exportFile(
                     area.getName() + '.data.bin',
-                    dataToBin(data, boundRect[0], boundRect[1], boundRect[2], boundRect[3]),
+                    dataToBin(
+                      data,
+                      boundRect[0],
+                      boundRect[1],
+                      boundRect[2],
+                      boundRect[3],
+                      configRef.getSize.x,
+                      configRef.getSize.y,
+                    ),
                   );
                 });
               }

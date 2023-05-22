@@ -36,7 +36,7 @@
             </template>
           </a-button>
         </a-tooltip>
-        <a-avatar :size="36" :image-url="defaultAvatar"></a-avatar>
+        <a-avatar :size="36" :src="defaultAvatar"></a-avatar>
       </a-space>
     </div>
   </nav>

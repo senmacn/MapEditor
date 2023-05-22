@@ -70,7 +70,9 @@
       </li>
     </transition-group>
     <a-tooltip title="添加图层">
-      <a-button @click="handleLayerAdd">+</a-button>
+      <a-button @click="handleLayerAdd">
+        <plus-circle-outlined />
+      </a-button>
     </a-tooltip>
   </div>
 </template>
@@ -90,6 +92,7 @@
     DeleteOutlined,
     MenuFoldOutlined,
     MenuUnfoldOutlined,
+    PlusCircleOutlined,
   } from '@ant-design/icons-vue';
 
   const layersRef: Ref<Layer[]> = inject('layers', [] as any);
@@ -174,7 +177,7 @@
 
 <style lang="less">
   .layer-list {
-    border: 1px solid rgba(74, 83, 102, 0.5);
+    border: 1px solid @color-border-table;
     width: 100%;
     > ul {
       min-height: 160px;
@@ -200,11 +203,11 @@
 
   .layer-item {
     list-style: none;
-    border-bottom: 1px solid rgba(74, 83, 102, 0.5);
+    border-bottom: 1px solid @color-border-table;
     &.title {
       display: flex;
       font-weight: bold;
-      background: rgba(74, 83, 102, 0.5);
+      background: @color-border-table;
       text-align: center;
     }
     .layer-content {
@@ -215,7 +218,8 @@
     .layer-name,
     .layer-option {
       height: 24px;
-      border-right: 1px solid rgba(74, 83, 102, 0.5);
+      border-right: 1px solid @color-border-table;
+      border-bottom: 1px solid @color-border-table;
       text-align: center;
       line-height: 24px;
       font-size: 12px;
@@ -231,6 +235,7 @@
         line-height: 24px;
         text-align: center;
         height: 100%;
+        border: 0;
       }
       span {
         font-size: 12px;

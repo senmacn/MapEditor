@@ -8,7 +8,7 @@ export function createLoading(props?: Partial<LoadingProps>, target?: HTMLElemen
   let vm: Nullable<VNode> = null;
   const data = reactive({
     tip: '',
-    loading: false,
+    loading: true,
     ...props,
   });
 
@@ -17,7 +17,6 @@ export function createLoading(props?: Partial<LoadingProps>, target?: HTMLElemen
       return h(Loading, { ...data });
     },
   });
-
   vm = createVNode(LoadingWrap);
 
   if (wait) {
@@ -35,10 +34,7 @@ export function createLoading(props?: Partial<LoadingProps>, target?: HTMLElemen
   }
 
   function open(target: HTMLElement = document.body) {
-    if (!vm || !vm.el) {
-      return;
-    }
-    target.appendChild(vm.el as HTMLElement);
+    render(vm, target);
   }
 
   if (target) {
