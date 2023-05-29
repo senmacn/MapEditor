@@ -152,6 +152,7 @@
                 sitPin.setIcon(formModel.icon);
                 sitPin.setColor(formModel.color);
                 sitPin.setBoundRect([formModel.position.x, formModel.position.y, size, size]);
+                // TODO: 重新渲染
               }
             });
           }

@@ -22,7 +22,7 @@ export default class DrawElement implements DrawElementInterface {
   protected moveable: Moveable | undefined;
   // 实例父级
   protected target: HTMLElement | undefined;
-  private draw = false;
+  protected draw = false;
 
   getUuid() {
     return this.uuid;

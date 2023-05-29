@@ -178,8 +178,8 @@
                       boundRect[1],
                       boundRect[2],
                       boundRect[3],
-                      configRef.getSize.x,
-                      configRef.getSize.y,
+                      Number(configRef.getSize.x),
+                      Number(configRef.getSize.y),
                     ),
                   );
                 });

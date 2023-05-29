@@ -1,6 +1,6 @@
 import { getShortUuid } from '@/utils/uuid';
 import controller from '../common/canvas-state-controller';
-import { nextTick, render } from 'vue';
+import { nextTick } from 'vue';
 import DrawElement from './draw-element';
 
 export enum PinIcon {
@@ -57,6 +57,10 @@ export default class Pin extends DrawElement {
     this.color = color;
   }
   render(target: HTMLElement) {
+    // 重新
+    if (this.draw) {
+
+    }
     this.target = target;
     // 创建挂载的dom元素
     const instance = document.createElement('div');
