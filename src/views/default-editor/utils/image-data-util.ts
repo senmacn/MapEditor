@@ -12,7 +12,7 @@ export function getPositionCount(imageData: ImageData, x, y, width, height): num
   // imageData.data 大小为 height * width * 4，每4个值组成一个点，从左向右从上到下
   for (let yIndex = y; yIndex < y + height; yIndex++) {
     for (let xIndex = x; xIndex < x + width; xIndex++) {
-      if (yIndex >= 0 && xIndex >= 0) {
+      if (yIndex >= 0 && xIndex >= 0 && xIndex < imageData.width && yIndex < imageData.height) {
         const pointStartIndex = xIndex * 4 + yIndex * 4 * imageData.width;
         if (isPointInData(imageData.data, pointStartIndex)) {
           count++;
@@ -253,6 +253,10 @@ export function getClosedCurvePointsData(area: Area) {
           if (isPointInPolygon([xIndex, yIndex], boundPoints)) {
             // 描点
             newImageData.data[pointStartIndex] = 1;
+            // newImageData.data[pointStartIndex] = 255;
+            // newImageData.data[pointStartIndex + 1] = 255;
+            // newImageData.data[pointStartIndex + 2] = 255;
+            // newImageData.data[pointStartIndex + 3] = 255;
           }
         }
       }
