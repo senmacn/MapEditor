@@ -9,6 +9,7 @@ import 'v-contextmenu/dist/themes/dark.css';
 import '@simonwep/pickr/dist/themes/nano.min.css';
 import { setupStore } from './store';
 import 'virtual:svg-icons-register';
+import './utils/extend';
 
 function bootstrap() {
   const app = createApp(App);

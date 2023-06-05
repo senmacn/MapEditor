@@ -90,7 +90,7 @@ export default class DrawElement implements DrawElementInterface {
     }, 5);
   }
   destroy() {
-    this.instance && this.target?.removeChild(this.instance);
     this.moveable?.destroy();
+    this.instance && this.target?.removeChild(this.instance);
   }
 }

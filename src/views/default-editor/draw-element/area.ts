@@ -25,9 +25,6 @@ export default class Area extends DrawElement {
       willReadFrequently: true,
     }) as CanvasRenderingContext2D;
     cacheCtx.putImageData(this.data, 0, 0);
-    cacheCtx.font = '24px serif';
-    cacheCtx.fillStyle = 'red';
-    cacheCtx.fillText(this.name, this.boundRect[2] / 2, this.boundRect[3] / 2);
     const dataUrl = cacheCanvas.toDataURL('image/webp', 0.1);
     this.img = dataUrl;
     return this.img;
@@ -78,6 +75,8 @@ export default class Area extends DrawElement {
     const backgroundImage =
       'background-image: ' + 'url(' + this.getImage() + ');background-size: contain';
     instance.setAttribute('style', top + left + height + width + backgroundImage);
+    const nameElement = document.createTextNode(this.name);
+    instance.appendChild(nameElement);
     // TODO: hover
     // instance.onmouseenter = ;
     // instance.onmouseleave = ;
