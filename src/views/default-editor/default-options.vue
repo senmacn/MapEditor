@@ -18,7 +18,7 @@
       </a-col>
       <a-col :span="6">
         <a-upload
-          @beforeUpload="(file) => handleLoadSaves(file)"
+          :before-upload="(file) => handleLoadSaves(file)"
           accept=".json"
           :showUploadList="false"
         >
