@@ -3,14 +3,12 @@ export default class ExtendedDataView {
   readonly view: DataView;
   private byteLength: number;
   private bitPosition: number;
-  private readPosition: number;
 
   constructor(size) {
     this.buffer = new ArrayBuffer(size);
     this.view = new DataView(this.buffer);
     this.byteLength = 0;
     this.bitPosition = 0;
-    this.readPosition = 0;
   }
 
   addBit(bit) {
@@ -18,7 +16,7 @@ export default class ExtendedDataView {
       if (bit) {
         this.view.setUint8(
           this.byteLength,
-          this.view.getUint8(this.byteLength) | (1 << this.bitPosition),
+          this.view.getUint8(this.byteLength) | (1 << (7 - this.bitPosition)),
         );
       }
       this.bitPosition++;
@@ -39,6 +37,16 @@ export default class ExtendedDataView {
     this.addBit(bits & 1);
   }
 
+  addStr(str: string) {
+    for (var i = 0; i < str.length; i++) {
+      let char = str.charAt(i);
+      if (char !== '1' && char !== '0') {
+        throw new Error('Invalid input String');
+      }
+      this.addBit(Number(char));
+    }
+  }
+
   addByte(byte) {
     if (this.byteLength < this.buffer.byteLength) {
       if (this.bitPosition > 0) {
@@ -53,24 +61,11 @@ export default class ExtendedDataView {
     }
   }
 
-  readTwoBits() {
-    if (this.readPosition >= this.getBitsLength()) {
+  readByte(index) {
+    if (index >= this.byteLength) {
       throw new Error('Reached end!');
     }
-
-    const byte1 = this.view.getUint8(this.readPosition >> 3);
-    const byte2 = this.view.getUint8((this.readPosition + 1) >> 3);
-
-    const bit1 = (byte1 >> (this.readPosition & 7)) & 1;
-    const bit2 = (byte2 >> ((this.readPosition + 1) & 7)) & 1;
-
-    this.readPosition += 2;
-
-    return (bit1 << 1) | bit2;
-  }
-
-  resetPosition() {
-    this.readPosition = 0;
+    return this.view.getUint8(index);
   }
 
   getDataLength() {

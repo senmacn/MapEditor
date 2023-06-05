@@ -46,7 +46,7 @@
                 </a-button>
               </a-tooltip>
               <a-upload
-                @beforeUpload="(file) => handleUploadFile(file, index)"
+                :beforeUpload="(file) => handleUploadFile(file, index)"
                 accept=".png,.jpg"
                 :showUploadList="false"
               >

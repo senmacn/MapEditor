@@ -12,8 +12,6 @@ window.dataToBin = dataToBin;
  * @param imageData 图像数据
  * @param posX 矩形边框最小点x
  * @param posY 矩形边框最小点y
- * @param xWidth 矩形边框宽度
- * @param xHeight 矩形边框高度
  * @param mapSizeX 地图大小
  * @param mapSizeY 地图大小
  * @returns 压缩数据 ArrayBuffer
@@ -22,22 +20,21 @@ export function dataToBin(
   imageData: ImageData,
   posX: number,
   posY: number,
-  xWidth,
-  xHeight,
   mapSizeX: number,
   mapSizeY: number,
+  scale: number,
 ) {
   // 精确到厘米
-  const MAX_WIDTH_CM = upper_pow_two(mapSizeX > mapSizeY ? mapSizeX * 128 : mapSizeY * 128);
-  const buffer = new ArrayBuffer(Math.pow(MAX_WIDTH_CM, 2) / 800);
-  const deltX_CM = (MAX_WIDTH_CM - mapSizeX * 128) / 2 + posX * 128;
-  const deltY_CM = (MAX_WIDTH_CM - mapSizeY * 128) / 2 + posY * 128;
+  const MAX_WIDTH_CM = upper_pow_two(mapSizeX > mapSizeY ? mapSizeX * scale : mapSizeY * scale);
+  const buffer = new ArrayBuffer(1024 * 1024 * 10);
+  const deltX_CM = (MAX_WIDTH_CM - mapSizeX * scale) / 2 + posX * scale;
+  const deltY_CM = (MAX_WIDTH_CM - mapSizeY * scale) / 2 + posY * scale;
   // 开头有32个字节用来标识偏移
   const view = new DataView(buffer);
   const offsets = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
   const size = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
   let max = 0;
-  const needRecord: Recordable<[number, number][]> = {};
+  const needRecord: Recordable<[number, number, number][]> = {};
 
   // 分层计算
   for (let layerIndex = 0; layerIndex <= 15; layerIndex++) {
@@ -47,16 +44,41 @@ export function dataToBin(
     // 该层数据密度
     const grids = 1 << layerIndex;
     // 根据数据密度划分图块
-    const blocks = layerIndex >= 8 ? 8 : grids;
+    let blocks = grids;
+    switch (layerIndex) {
+      case 8:
+        blocks = 1 << 2;
+        break;
+      case 9:
+        blocks = 1 << 3;
+        break;
+      case 10:
+        blocks = 1 << 4;
+        break;
+      case 11:
+        blocks = 1 << 5;
+        break;
+      case 12:
+        blocks = 1 << 6;
+        break;
+      case 13:
+        blocks = 1 << 6;
+        break;
+      default:
+        blocks = grids;
+        break;
+    }
     // 图块尺寸
     const blockSize = grids / blocks;
     // 图块实际大小
     const blockWidth_CM = MAX_WIDTH_CM / blockSize;
-    // 区块不可能占据某一块
-    // 最小128cm
-    if (layerWidth_CM < 128) break;
 
-    let layerDataView = new ExtendedDataView(layerIndex >= 8 ? (grids * grids) / 16 : 5120);
+    // 最小
+    if (layerWidth_CM < scale) break;
+
+    let layerDataView = new ExtendedDataView(
+      layerIndex >= 6 ? (layerIndex >= 8 ? (grids * grids) / 4 : 6144) : 1024,
+    );
     // 用 1byte 的二进制位记录下图块尺寸（先默认等于分层块尺寸）
     layerDataView.addByte(Math.log2(blocks));
     let dataFlag = false;
@@ -65,9 +87,10 @@ export function dataToBin(
     function _computeRepeat(element: number | null) {
       if (element !== null && element === prevData) {
         repeatFlag++;
+        prevData = element;
         return;
       }
-      if (element !== null && repeatFlag == 0) {
+      if (element !== null && repeatFlag === 0) {
         repeatFlag++;
         prevData = element;
         return;
@@ -76,11 +99,12 @@ export function dataToBin(
       if (repeatFlag === 1) {
         layerDataView.addTwoBits(0b11);
         layerDataView.addTwoBits(prevData);
-      } else {
+      }
+      if (repeatFlag > 1) {
         layerDataView.addTwoBits(0b11);
         // 满 127 一个 0b110-0b{7}1111111 不计当前
         const repeatFlagCount = Math.floor((repeatFlag - 1) / 127);
-        for (let i = repeatFlagCount; i > 0; i--) {
+        for (let i = 0; i < repeatFlagCount; i++) {
           layerDataView.addStr('1101111111');
         }
         // 剩余的 不计当前
@@ -90,7 +114,7 @@ export function dataToBin(
         }
         layerDataView.addTwoBits(prevData);
       }
-      if (element != null) {
+      if (element !== null) {
         repeatFlag = 1;
         prevData = element as number;
       } else {
@@ -101,49 +125,58 @@ export function dataToBin(
     for (let _y = 0; _y < blockSize; _y++) {
       for (let _x = 0; _x < blockSize; _x++) {
         // 第0层不需要考虑00
-        if (layerIndex == 0) continue;
+        if (layerIndex === 0) continue;
         let _states = '';
         let _statesNum = { '01': 0, '10': 0, '00': 0 };
         // 遍历图块中的单元格
         for (let indexY = 0; indexY < blocks; indexY++) {
           for (let indexX = 0; indexX < blocks; indexX++) {
             // 判断是否需要记录，不需要就直接跳过了
-            if (layerIndex > 0 && needRecord[layerIndex - 1].length > 0) {
+            if (needRecord[layerIndex - 1].length > 0) {
               let flag = false;
+
               for (let _i = 0; _i < needRecord[layerIndex - 1].length; _i++) {
                 const element = needRecord[layerIndex - 1][_i];
                 if (
-                  element[0] * 2 <= _x * blocks + indexX &&
-                  (element[0] + 1) * 2 > _x * blocks + indexX &&
-                  element[1] * 2 <= _y * blocks + indexY &&
-                  (element[1] + 1) * 2 > _y * blocks + indexY
+                  element[0] <= _x * blockWidth_CM + indexX * layerWidth_CM &&
+                  element[0] + element[2] > _x * blockWidth_CM + indexX * layerWidth_CM &&
+                  element[1] <= _y * blockWidth_CM + indexY * layerWidth_CM &&
+                  element[1] + element[2] > _y * blockWidth_CM + indexY * layerWidth_CM
                 ) {
                   flag = true;
                   break;
                 }
               }
+
               if (!flag) {
-                _states += '10';
-                _statesNum[10]++;
+                _states = _states + '00';
+                _statesNum['00']++;
                 continue;
               }
             }
-            // 加上区域的偏移量和delt [x, y] -> [0, 0]
+            // 加上图块的偏移量和delt [x, y] -> [0, 0]
             const _state = executeBlockState(
               imageData,
               layerWidth_CM,
               indexX * layerWidth_CM - deltX_CM + _x * blockWidth_CM,
               indexY * layerWidth_CM - deltY_CM + _y * blockWidth_CM,
+              scale,
             );
-            if (_state === '00') {
-              // 下一层第几块需要记录
-              needRecord[layerIndex].push([_x * blocks + indexX, _y * blocks + indexY]);
-            }
-            _states += _state;
+            _states = _states + _state;
             _statesNum[_state]++;
+            // 最后一层不记了
+            if (_state === '00' && layerWidth_CM / 2 >= scale) {
+              // 下一层第几块需要记录
+              needRecord[layerIndex].push([
+                _x * blockWidth_CM + indexX * layerWidth_CM,
+                _y * blockWidth_CM + indexY * layerWidth_CM,
+                layerWidth_CM,
+              ]);
+            }
           }
         }
-        // 取余等于0，状态一致
+
+        // 状态一致
         if (_statesNum['00'] === blocks * blocks) {
           dataFlag = true;
           _computeRepeat(0b00);
@@ -153,13 +186,16 @@ export function dataToBin(
         } else if (_statesNum['10'] === blocks * blocks) {
           _computeRepeat(0b10);
         } else {
+          // 状态不一致，先计算之前的重复区块
+          if (repeatFlag > 0 && prevData !== null) {
+            _computeRepeat(null);
+          }
           dataFlag = true;
-          repeatFlag > 0 && _computeRepeat(null);
           layerDataView.addStr(_states);
         }
       }
     }
-    repeatFlag > 0 && _computeRepeat(null);
+    repeatFlag > 0 && prevData !== null && _computeRepeat(null);
     // 没有一个有数据的，跳过
     if (!dataFlag) {
       offsets[layerIndex] = layerIndex > 0 ? offsets[layerIndex - 1] + size[layerIndex - 1] : 0;
@@ -202,18 +238,6 @@ function upper_pow_two(n: number) {
   return n;
 }
 
-function padZero(str, x) {
-  if (typeof str !== 'string') {
-    str = str.toString();
-  }
-
-  while (str.length < x) {
-    str = '0' + str;
-  }
-
-  return str;
-}
-
 function getBits(n: number, p: number) {
   let bits = n.toString(2);
   while (bits.length < p) {
@@ -222,11 +246,11 @@ function getBits(n: number, p: number) {
   return bits;
 }
 
-function executeBlockState(imageData, blockWidth_cm, x_cm, y_cm) {
-  const x = Math.floor(x_cm / 128);
-  const y = Math.floor(y_cm / 128);
+function executeBlockState(imageData, width_cm, x_cm, y_cm, scale) {
+  const x = Math.floor(x_cm / scale);
+  const y = Math.floor(y_cm / scale);
   // 最后一层计算
-  if (blockWidth_cm <= 128) {
+  if (width_cm / 2 < scale) {
     // 防止x y分别不在区域内，但计算值在
     if (x >= 0 && y >= 0 && x < imageData.width && y < imageData.height) {
       const pointStartIndex = x * 4 + y * 4 * imageData.width;
@@ -235,23 +259,22 @@ function executeBlockState(imageData, blockWidth_cm, x_cm, y_cm) {
       } else {
         return '10';
       }
-    } else {
-      return '10';
     }
+    return '10';
   } else {
-    const pointCount = Math.floor(blockWidth_cm / 128);
+    const pointCount = Math.floor(width_cm / scale);
     // 加上区域的偏移量 [x, y] -> [0, 0]
     const count = getPositionCount(imageData, x, y, pointCount, pointCount);
     // 考虑计算偏差
-    if (count >= pointCount * pointCount - 1) {
+    if (count >= pointCount * pointCount - 2) {
       // 有数据 0b01
       return '01';
-    } else if (count === 0) {
+    }
+    if (count < 2) {
       // 没有数据 0b10
       return '10';
-    } else {
-      // 需要下探 0b00
-      return '00';
     }
+    // 需要下探 0b00
+    return '00';
   }
 }

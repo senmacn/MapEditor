@@ -1,10 +1,24 @@
 <template>
   <a-row class="option-group area-options" @click.stop>
-    <a-col class="row-label" :span="4">
-      <span class="group-label">区域： </span>
+    <a-col class="row-label" :span="6">
+      <span class="group-label">区域类型： </span>
     </a-col>
-    <a-col :span="20">
-      <a-input type="text" placeholder="区域标识" v-model:value="areaNameRef"></a-input>
+    <a-col :span="18">
+      <a-input
+        type="text"
+        placeholder="请填写英文字母、数字和下划线"
+        v-model:value="areaNameRef"
+      ></a-input>
+    </a-col>
+    <a-col class="row-label" :span="6">
+      <span class="group-label">区域ID： </span>
+    </a-col>
+    <a-col :span="18">
+      <a-input
+        type="text"
+        placeholder="请填写英文字母、数字和下划线"
+        v-model:value="areaIDRef"
+      ></a-input>
     </a-col>
     <a-col :span="4" :offset="4">
       <a-button
@@ -21,12 +35,20 @@
       </a-button>
     </a-col>
     <a-col :span="4">
-      <a-button :disabled="!controller.isDrawingArea()" @click="handleEndDrawingArea(true)">
+      <a-button
+        class="success-item"
+        :disabled="!controller.isDrawingArea()"
+        @click="handleEndDrawingArea(true)"
+      >
         <template #icon><check-outlined /> </template>完成
       </a-button>
     </a-col>
     <a-col :span="4">
-      <a-button :disabled="!controller.isDrawingArea()" @click="handleEndDrawingArea(false)">
+      <a-button
+        class="default-item"
+        :disabled="!controller.isDrawingArea()"
+        @click="handleEndDrawingArea(false)"
+      >
         <template #icon><close-outlined /> </template>取消
       </a-button>
     </a-col>
@@ -59,9 +81,10 @@
   }>();
 
   const areaNameRef = ref('');
+  const areaIDRef = ref('');
   function handleStartDrawingArea() {
-    if (!areaNameRef.value.length) {
-      message.warning('请填写区域标识！');
+    if (!areaNameRef.value.length || !areaIDRef.value.length) {
+      message.warning('请填写区域类型和ID！');
       return;
     }
     if (!checkFileName(areaNameRef.value)) {
@@ -71,27 +94,27 @@
     controller.startDrawingArea(true);
   }
   function handleEndDrawingArea(complete: boolean) {
-    if (complete && !areaNameRef.value.length) {
-      message.warning('请填写区域标识！');
+    if (!areaNameRef.value.length || !areaIDRef.value.length) {
+      message.warning('请填写区域类型和ID！');
       return;
     }
     if (complete && !checkFileName(areaNameRef.value)) {
-      message.warning('格式错误！区域标识只支持字母、数字和 . _ - 等符号！');
+      message.warning('格式错误！区域标识只支持字母、数字、下划线！');
       return;
     }
     // 编辑、新增逻辑不同
     if (!controller.isEditingArea()) {
-      emit('end-edit-area', areaNameRef.value, complete);
+      emit('end-edit-area', areaNameRef.value + '-' + areaIDRef.value, complete);
     } else {
       complete && emitDeleteAreaEvent();
       setTimeout(() => {
-        emit('end-edit-area', areaNameRef.value, complete);
+        emit('end-edit-area', areaNameRef.value + '-' + areaIDRef.value, complete);
       }, 50);
     }
   }
 
   function handleStartEditArea() {
-    areaNameRef.value = controller.getCurrentArea()?.getName() || '';
+    [areaNameRef.value, areaIDRef.value] = controller.getCurrentArea()?.getName().split('-') || '';
     controller.startDrawingArea(false);
     setTimeout(() => {
       emitEditAreaEvent();

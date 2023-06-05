@@ -24,7 +24,7 @@
   import { Area } from './draw-element';
   import { useEditorConfig } from '@/store/modules/editor-config';
   import debounce from 'lodash-es/debounce';
-import { message } from 'ant-design-vue';
+  import { message } from 'ant-design-vue';
 
   const props = defineProps({
     offset: {

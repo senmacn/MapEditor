@@ -35,7 +35,7 @@
       </a-col>
     </a-row>
     <area-options
-      style="height: 100px"
+      style="height: 140px"
       @end-edit-area="(...props) => emit('end-edit-area', props[0], props[1])"
     />
     <edit-options></edit-options>
@@ -45,6 +45,11 @@
     :visible="changeMapSizeModalVisible"
     @close="changeMapSizeModalVisible = false"
   ></change-map-size-modal>
+  <display-output-modal
+    :visible="displayOutputVisibleRef"
+    @ok="handleConfirmOkExport"
+    @cancel="handleConfirmCancelExport"
+  ></display-output-modal>
 </template>
 
 <script setup lang="ts">
@@ -55,6 +60,7 @@
   import EditOptions from './children/edit-options.vue';
   import EditConfig from './children/edit-config.vue';
   import ChangeMapSizeModal from './children/change-map-size-modal.vue';
+  import DisplayOutputModal from './children/display-output-modal.vue';
   import { Layer } from './common/types';
   import { useLoading } from '@/components/Loading';
   import { exportFile } from '../../utils/file';
@@ -103,6 +109,7 @@
       },
     });
   }
+
   function handleExportSaves() {
     modal.confirm({
       title: '确认',
@@ -146,50 +153,52 @@
     }
   }
 
+  const displayOutputVisibleRef = ref(false);
   const [openLoading, closeLoading] = useLoading({ tip: '计算中！', minTime: 1500 });
   function getPosition() {
     modal.confirm({
       title: '确认',
       content: '下载当前显示图层的坐标数据',
       onOk: () => {
-        const layers = unref(layersRef);
-        new Promise((resolve) => {
-          openLoading();
-          setTimeout(() => {
-            for (let index = layers.length - 1; index >= 0; index--) {
-              const layer = layers[index];
-              if (layer.visible && layer.hot) {
-                layer.areas.forEach((area) => {
-                  const data = getClosedCurvePointsData(area);
-                  // TODO: 测试getClosedCurvePointsData函数 TEST START
-                  // const mask = document.getElementById('mask-canvas') as HTMLCanvasElement;
-                  // mask.style.display = 'block';
-                  // const ctx = mask.getContext('2d', {
-                  //   willReadFrequently: true,
-                  // }) as CanvasRenderingContext2D;
-                  // ctx.putImageData(data, 0, 0);
-                  // TEST END
-                  const boundRect = area.getBoundRect();
-                  exportFile(
-                    area.getName() + '.data.bin',
-                    dataToBin(
-                      data,
-                      boundRect[0],
-                      boundRect[1],
-                      boundRect[2],
-                      boundRect[3],
-                      Number(configRef.getSize.x),
-                      Number(configRef.getSize.y),
-                    ),
-                  );
-                });
-              }
-            }
-            resolve(true);
-          }, 10);
-        }).finally(() => closeLoading());
+        displayOutputVisibleRef.value = true;
       },
     });
+  }
+  function handleConfirmOkExport() {
+    const layers = unref(layersRef);
+    new Promise((resolve) => {
+      openLoading();
+      displayOutputVisibleRef.value = false;
+      setTimeout(() => {
+        for (let index = layers.length - 1; index >= 0; index--) {
+          const layer = layers[index];
+          if (layer.visible && layer.hot) {
+            layer.areas.forEach((area) => {
+              const data = getClosedCurvePointsData(area);
+              const boundRect = area.getBoundRect();
+              exportFile(
+                area.getName() + '.data.bin',
+                dataToBin(
+                  data,
+                  boundRect[0] + Number(configRef.getSize.offsetX),
+                  boundRect[1] + Number(configRef.getSize.offsetY),
+                  Number(configRef.getSize.allX),
+                  Number(configRef.getSize.allY),
+                  Number(configRef.getSize.scale),
+                ),
+              );
+            });
+          }
+        }
+        resolve(true);
+      }, 30);
+    }).finally(() => {
+      closeLoading();
+    });
+  }
+  function handleConfirmCancelExport() {
+    displayOutputVisibleRef.value = false;
+    closeLoading();
   }
 
   const changeMapSizeModalVisible = ref(false);
