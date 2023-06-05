@@ -165,14 +165,14 @@ export function dataToBin(
             _states = _states + _state;
             _statesNum[_state]++;
             // 最后一层不记了
-            if (_state === '00' && layerWidth_CM / 2 >= scale) {
-              // 下一层第几块需要记录
-              needRecord[layerIndex].push([
-                _x * blockWidth_CM + indexX * layerWidth_CM,
-                _y * blockWidth_CM + indexY * layerWidth_CM,
-                layerWidth_CM,
-              ]);
-            }
+            // if (_state === '00' && layerWidth_CM / 2 >= scale) {
+            //   // 下一层第几块需要记录
+            //   needRecord[layerIndex].push([
+            //     _x * blockWidth_CM + indexX * layerWidth_CM,
+            //     _y * blockWidth_CM + indexY * layerWidth_CM,
+            //     layerWidth_CM,
+            //   ]);
+            // }
           }
         }
 

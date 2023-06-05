@@ -4,34 +4,33 @@
     <div class="modal-content">
       <div class="map-size">
         <span>比例尺:</span>
-        <a-input v-model:value="scaleRef" suffix="cm/px">
-          <template #append> px </template></a-input
-        >
+        <a-input v-model:value="scaleRef" suffix="cm/px"></a-input>
       </div>
       <div class="map-size">
         <span>偏移X:</span>
-        <a-input v-model:value="offsetXRef"> <template #append> px </template></a-input>
+        <a-input v-model:value="offsetXRef" suffix="px"> </a-input>
       </div>
       <div class="map-size">
         <span>偏移Y:</span>
-        <a-input v-model:value="offsetYRef"> <template #append> px </template></a-input>
+        <a-input v-model:value="offsetYRef" suffix="px"> </a-input>
       </div>
       <div class="map-size">
         <span>长度:</span>
-        <a-input v-model:value="xRef"> <template #append> px </template></a-input>
+        <a-input v-model:value="xRef" suffix="px"> </a-input>
       </div>
       <div class="map-size">
         <span>宽度:</span>
-        <a-input v-model:value="yRef"> <template #append> px </template></a-input>
+        <a-input v-model:value="yRef" suffix="px"> </a-input>
       </div>
       <div class="map-size">
         <span>全图长度：</span>
-        <a-input v-model:value="allXRef"> <template #append> px </template></a-input>
+        <a-input v-model:value="allXRef" suffix="px"> </a-input>
       </div>
       <div class="map-size">
         <span>全图宽度:</span>
-        <a-input v-model:value="allYRef"> <template #append> px </template></a-input>
+        <a-input v-model:value="allYRef" suffix="px"> </a-input>
       </div>
+      <div class="remind">修改地图尺寸会刷新页面！请提前使用导出功能保存当前数据！</div>
     </div>
   </a-modal>
 </template>
@@ -78,7 +77,7 @@
   function handleChange() {
     modal.confirm({
       title: '确认',
-      content: '修改地图尺寸会导致页面更新！请确认操作！',
+      content: '修改地图尺寸将刷新页面！请提前保存已绘制的数据！',
       onOk: () => {
         configRef.setSize({
           scale: scaleRef.value,
@@ -128,5 +127,9 @@
     .ant-input-wrapper {
       width: 250px;
     }
+  }
+  .remind {
+    text-align: center;
+    color: @warning-color;
   }
 </style>
