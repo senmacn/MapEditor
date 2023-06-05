@@ -63,7 +63,7 @@
       height: 20px;
     }
     .area-index {
-      width: 100px;
+      width: 20px;
     }
     .area-name {
       flex: 1;

@@ -95,6 +95,7 @@
         if (index > -1) {
           const areas = props.layer.areas.splice(index, 1);
           areas[0].destroy();
+          controller.setCurrentArea(null);
         }
       }
     }
@@ -163,7 +164,8 @@
     background-size: contain;
     .moveable {
       position: absolute;
-      font-size: 12px;
+      font-size: 18px;
+      color: red;
       text-align: center;
     }
   }
