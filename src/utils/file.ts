@@ -35,6 +35,6 @@ function getJsonDownloadUri(data: any) {
 }
 
 export function checkFileName(fileName: string) {
-  var reg = /^[a-zA-Z0-9_\.-]{1,16}$/;
+  var reg = /^[a-zA-Z0-9_\.-]{1,40}$/;
   return reg.test(fileName);
 }

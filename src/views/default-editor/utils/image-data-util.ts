@@ -3,7 +3,12 @@ import { getDistance } from './canvas-util';
 
 // 是否是点
 export function isPointInData(data: Uint8ClampedArray, startIndex: number) {
-  return data[startIndex] || data[startIndex + 1] || data[startIndex + 2] || data[startIndex + 3];
+  return (
+    data[startIndex] > 0 ||
+    data[startIndex + 1] > 0 ||
+    data[startIndex + 2] > 0 ||
+    data[startIndex + 3] > 0
+  );
 }
 
 // 获取范围内点的数量
@@ -252,11 +257,11 @@ export function getClosedCurvePointsData(area: Area) {
         } else {
           if (isPointInPolygon([xIndex, yIndex], boundPoints)) {
             // 描点
-            newImageData.data[pointStartIndex] = 1;
-            // newImageData.data[pointStartIndex] = 255;
-            // newImageData.data[pointStartIndex + 1] = 255;
-            // newImageData.data[pointStartIndex + 2] = 255;
-            // newImageData.data[pointStartIndex + 3] = 255;
+            // newImageData.data[pointStartIndex] = 1;
+            newImageData.data[pointStartIndex] = 255;
+            newImageData.data[pointStartIndex + 1] = 0;
+            newImageData.data[pointStartIndex + 2] = 0;
+            newImageData.data[pointStartIndex + 3] = 255;
           }
         }
       }

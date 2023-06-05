@@ -1,9 +1,15 @@
 <template>
-  <div
+  <!-- <div
     id="scroller"
     ref="scrollerRef"
     :class="['scroller', controller.isDrawingArea() ? 'active' : '']"
     @contextmenu="handleClickMenu"
+    @click="handleClick"
+  > -->
+  <div
+    id="scroller"
+    ref="scrollerRef"
+    :class="['scroller', controller.isDrawingArea() ? 'active' : '']"
     @click="handleClick"
   >
     <template v-for="layer in layersRef" :key="layer.uuid">
@@ -51,18 +57,20 @@
   const styleRef = ref('');
   watch([() => controller.isDrawingArea(), () => controller.isDrawingShape()], () => {
     if (controller.isDrawingArea() || controller.isDrawingShape()) {
-      const top =
+      let top =
         y.value - 2000 > 0
           ? y.value + 5000 > configRef.size.y
             ? configRef.size.y - 5000
             : y.value - 2000
           : 0;
-      const left =
+      let left =
         x.value - 2000 > 0
-          ? x.value + 5000 > configRef.size.x
+          ? (x.value + 5000 > configRef.size.x
             ? configRef.size.x - 5000
-            : x.value - 2000
+            : x.value - 2000)
           : 0;
+      top = top < 0 ? 0 : top;
+      left = left < 0 ? 0 : left;
       offsetRef.value.x = left;
       offsetRef.value.y = top;
       styleRef.value = `top: ${top}px; left: ${left}px;`;
@@ -107,7 +115,7 @@
       return;
     }
     e.preventDefault();
-    
+
     clickPositionRef.x = e.x;
     clickPositionRef.y = e.y;
     clickPositionRef.offsetX = e.offsetX;

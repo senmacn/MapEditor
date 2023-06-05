@@ -44,6 +44,10 @@ declare global {
 
   import '@ant-design/icons-vue';
   import 'ant-design-vue/typings/global';
+
+  declare interface ViteEnv {
+    VITE_PORT: number;
+  }
 }
 
 declare module 'vue' {
