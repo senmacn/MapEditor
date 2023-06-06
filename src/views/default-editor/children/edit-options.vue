@@ -14,6 +14,17 @@
         </a-button>
       </a-tooltip>
     </a-col>
+    <a-col :span="3">
+      <a-tooltip title="钢笔">
+        <a-button
+          :class="[controller.getState() === CanvasOption.Pen && 'actived']"
+          @click="() => handleChangeOptionState(CanvasOption.Pen)"
+          :disabled="!editableRef"
+        >
+          <edit-filled />
+        </a-button>
+      </a-tooltip>
+    </a-col>
     <a-col :span="7">
       <a-button-group>
         <a-tooltip title="橡皮">

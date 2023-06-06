@@ -12,6 +12,7 @@ export enum CanvasOption {
   None,
   FollowMouse,
   FollowMouseClear,
+  Pen,
   DrawLine,
   DrawRect,
   DrawCircle,
