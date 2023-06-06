@@ -4,9 +4,6 @@ import { getPositionCount, isPointInData } from './image-data-util';
 const KB = 1024 * 8;
 const BASE_BYTES = 31;
 
-// @ts-ignore
-window.dataToBin = dataToBin;
-
 /**
  * 获取压缩数据（TODO: 传入矩形边框数据用于加速计算）
  * @param imageData 图像数据
