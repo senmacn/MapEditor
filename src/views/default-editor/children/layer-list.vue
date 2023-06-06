@@ -45,19 +45,17 @@
                   </template>
                 </a-button>
               </a-tooltip>
-              <a-upload
-                :beforeUpload="(file) => handleUploadFile(file, index)"
-                accept=".png,.jpg"
-                :showUploadList="false"
-              >
-                <a-tooltip title="上传底图">
-                  <a-button type="text" :class="layer.map ? 'success' : 'none'">
-                    <template #icon>
-                      <file-image-outlined />
-                    </template>
-                  </a-button>
-                </a-tooltip>
-              </a-upload>
+              <a-tooltip title="上传底图">
+                <a-button
+                  type="text"
+                  :class="layer.map ? 'success-color' : 'none'"
+                  @click="handleUploadBackground(index)"
+                >
+                  <template #icon>
+                    <file-image-outlined />
+                  </template>
+                </a-button>
+              </a-tooltip>
               <a-button type="text" @click="() => handleLayerDelete(index)">
                 <template #icon>
                   <delete-outlined />
@@ -74,6 +72,11 @@
         <plus-circle-outlined />
       </a-button>
     </a-tooltip>
+    <upload-background-modal
+      :visible="backgroundModalVisibleRef"
+      @ok="handleUploadBackgroundFile"
+      @cancel="backgroundModalVisibleRef = false"
+    ></upload-background-modal>
   </div>
 </template>
 
@@ -94,6 +97,7 @@
     MenuUnfoldOutlined,
     PlusCircleOutlined,
   } from '@ant-design/icons-vue';
+  import UploadBackgroundModal from './upload-background-modal.vue';
 
   const layersRef: Ref<Layer[]> = inject('layers', [] as any);
 
@@ -137,17 +141,16 @@
     });
   }
 
-  const [openLoading, closeLoading] = useLoading({ tip: '正在上传图片！' });
-  function handleUploadFile(file: File, index: number) {
-    openLoading();
-    var reader = new FileReader(); //调用FileReader
-    reader.readAsDataURL(file); //将文件读取为 DataURL(base64)
-    reader.onload = function (evt) {
-      layersRef.value[index].map = String(evt.target?.result);
-      layersRef.value[index].visible = true;
-      closeLoading();
-    };
-    return Promise.reject() as any;
+  const backgroundModalVisibleRef = ref(false);
+  let updateIndex = 0;
+  function handleUploadBackground(index: number) {
+    updateIndex = index;
+    backgroundModalVisibleRef.value = true;
+  }
+  function handleUploadBackgroundFile(base64: string) {
+    backgroundModalVisibleRef.value = false;
+    layersRef.value[updateIndex].map = base64;
+    layersRef.value[updateIndex].visible = true;
   }
 
   const dragIndexRef = ref(0);
