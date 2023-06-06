@@ -9,7 +9,7 @@
 </template>
 
 <script setup lang="ts">
-  import { onBeforeUnmount, onMounted } from 'vue';
+  import { onBeforeUnmount, onMounted, watch } from 'vue';
   import controller, { CanvasOption } from './common/canvas-state-controller';
   import * as canvasUtil from './utils/canvas-util';
   import * as imageDataUtil from './utils/image-data-util';
@@ -25,6 +25,7 @@
   import { useEditorConfig } from '@/store/modules/editor-config';
   import debounce from 'lodash-es/debounce';
   import { message } from 'ant-design-vue';
+  import Pen from './pen/Pen';
 
   const props = defineProps({
     offset: {
@@ -38,6 +39,21 @@
   const configRef = useEditorConfig();
   let movedPoints: PointA[] = [];
   let beginPoint: PointA = { x: 0, y: 0 };
+
+  watch(
+    () => controller.getState(),
+    (_, old) => {
+      if (controller.getState() === CanvasOption.Pen) {
+        Pen.init();
+        Pen.reset();
+        Pen.active();
+      } else {
+        if (old === CanvasOption.Pen) {
+          Pen.deactive();
+        }
+      }
+    },
+  );
 
   // 鼠标事件根据不同按钮按下后分别处理
   function handleMouseDown(e: MouseEvent) {
@@ -107,6 +123,7 @@
       }
       case CanvasOption.FollowMouseClear: {
         ctxRef.erase(canvasUtil.getPos(e), true);
+        break;
       }
     }
     controller.setActive(false);

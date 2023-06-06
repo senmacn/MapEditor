@@ -18,7 +18,7 @@
   import * as canvasUtil from './utils/canvas-util';
   import { useEditorConfig } from '@/store/modules/editor-config';
 
-  const props = defineProps({
+  defineProps({
     visible: {
       type: Boolean,
       default: false,
