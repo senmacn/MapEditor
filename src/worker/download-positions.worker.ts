@@ -6,6 +6,7 @@ addEventListener(
     const data = event.data;
     // @ts-ignore
     postMessage(dataToBin(...data));
+    this.self.close();
   },
   false,
 );
