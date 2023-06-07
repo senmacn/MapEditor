@@ -23,6 +23,7 @@ export default class DrawElement implements DrawElementInterface {
   // 实例父级
   protected target: HTMLElement | undefined;
   protected draw = false;
+  protected scale = 1;
 
   getUuid() {
     return this.uuid;
@@ -51,7 +52,7 @@ export default class DrawElement implements DrawElementInterface {
   getImage() {}
   select() {}
   cancelSelect() {
-    this.moveable?.setState({ draggable: false });
+    this.moveable?.setState({ draggable: false, resizable: false });
     // 插件修改draggable的时候会显示外框，造成被选中的效果，需要移除
     setTimeout(() => {
       // @ts-ignore
@@ -67,6 +68,8 @@ export default class DrawElement implements DrawElementInterface {
       container: container,
       className: this.uuid,
       draggable: true,
+      resizable: true,
+      keepRatio: true,
       preventDefault: true,
       origin: false,
       throttleDrag: 0,
@@ -74,6 +77,7 @@ export default class DrawElement implements DrawElementInterface {
       throttleScale: 0,
       throttleRotate: 0,
     });
+    const _this = this;
     /* draggable */
     this.moveable
       .on('drag', ({ target, left, top }) => {
@@ -81,8 +85,20 @@ export default class DrawElement implements DrawElementInterface {
         target.style.top = `${top}px`;
       })
       .on('dragEnd', ({ target }) => {
-        this.boundRect[0] = parseInt(target.style.left.replace('px', ''));
-        this.boundRect[1] = parseInt(target.style.top.replace('px', ''));
+        _this.boundRect[0] = parseInt(target.style.left.replace('px', ''));
+        _this.boundRect[1] = parseInt(target.style.top.replace('px', ''));
+      })
+      .on('resize', ({ target, width, height }) => {
+        target.style.width = `${width}px`;
+        target.style.height = `${height}px`;
+      })
+      .on('resizeEnd', ({ target }) => {
+        // 自动对齐整数
+        const newWidth = parseInt(target.style.width.replace('px', ''));
+        const newHeight = parseInt(target.style.height.replace('px', ''));
+        target.style.width = `${newWidth}px`;
+        target.style.height = `${newHeight}px`;
+        _this.scale = newWidth / _this.boundRect[2];
       });
     // 刚渲染完未被点击时不允许拖拽
     setTimeout(() => {
