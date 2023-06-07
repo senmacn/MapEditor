@@ -17,7 +17,7 @@
     </template>
     <area-canvas
       ref="areaCanvasRef"
-      v-show="controller.isDrawingArea()"
+      v-if="controller.isDrawingArea()"
       :style="styleRef"
       :offset="offsetRef"
     />

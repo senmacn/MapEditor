@@ -155,36 +155,25 @@ export function mixinData(imageData: ImageData, points: Point[]) {
  * @param scale 缩放比例
  * @returns 新data
  */
-export function scaleImageData(imageData: ImageData, scale: number) {
-  var scaled = new ImageData(
-    Math.floor(imageData.width * scale),
-    Math.floor(imageData.height * scale),
-  );
-  for (var row = 0; row < imageData.height; row++) {
-    for (var col = 0; col < imageData.width; col++) {
-      var sourcePixel = [
-        imageData.data[(row * imageData.width + col) * 4 + 0],
-        imageData.data[(row * imageData.width + col) * 4 + 1],
-        imageData.data[(row * imageData.width + col) * 4 + 2],
-        imageData.data[(row * imageData.width + col) * 4 + 3],
-      ];
-      // 防止scale小于1时跳过某些值
-      const _scale = scale >= 1 ? 1 : 1;
-      for (var y = 0; y < _scale; y++) {
-        var destRow = Math.floor(row * scale) + y;
-        for (var x = 0; x < _scale; x++) {
-          var destCol = Math.floor(col * scale) + x;
-          for (var i = 0; i < 4; i++) {
-            // 防止放缩的时候，有值的点被后续压进来的无值点覆盖
-            if (!scaled.data[(destRow * scaled.width + destCol) * 4 + i]) {
-              scaled.data[(destRow * scaled.width + destCol) * 4 + i] = sourcePixel[i];
-            }
-          }
-        }
-      }
-    }
-  }
-  return scaled;
+export function scaleImageData(imageData, scale) {
+  const dataW = imageData.width;
+  const dataH = imageData.height;
+  const w = Math.floor(imageData.width * scale);
+  const h = Math.floor(imageData.height * scale);
+
+  const dataCanvas = document.createElement('canvas');
+  const dataContext = dataCanvas.getContext('2d') as CanvasRenderingContext2D;
+  dataCanvas.width = dataW;
+  dataCanvas.height = dataH;
+  dataContext.putImageData(imageData, 0, 0);
+
+  const tempCanvas = document.createElement('canvas');
+  const tempContext = tempCanvas.getContext('2d') as CanvasRenderingContext2D;
+  tempCanvas.width = w;
+  tempCanvas.height = h;
+  tempContext.drawImage(dataCanvas, 0, 0, dataW, dataH, 0, 0, w, h);
+
+  return tempContext.getImageData(0, 0, w, h);
 }
 
 // 获取矩形轮廓
