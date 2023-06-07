@@ -1,7 +1,7 @@
 import { getShortUuid } from '@/utils/uuid';
 import controller from '../common/canvas-state-controller';
 import { nextTick } from 'vue';
-import { getPosition } from '../utils/image-data-util';
+import { getPosition, scaleImageData } from '../utils/image-data-util';
 import DrawElement from './draw-element';
 
 export default class Area extends DrawElement {
@@ -30,9 +30,15 @@ export default class Area extends DrawElement {
     return this.img;
   }
   getData() {
+    // 考虑缩放
+    if (this.scale !== 1) {
+      return scaleImageData(this.data, this.scale);
+    }
     return this.data;
   }
   setData(value: ImageData) {
+    // 重置缩放
+    this.scale = 1;
     this.data = value;
   }
   getCenterPoint(): PointA {
@@ -99,7 +105,7 @@ export default class Area extends DrawElement {
       controller.setCurrentArea(this as unknown as Area);
       // @ts-ignore
       document.getElementsByClassName(this.uuid).item(0).style.visibility = 'visible';
-      this.moveable?.setState({ draggable: true });
+      this.moveable?.setState({ draggable: true, resizable: true });
     });
   }
 }

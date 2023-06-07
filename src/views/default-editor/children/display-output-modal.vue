@@ -2,7 +2,7 @@
   <a-modal
     class="display-output-modal"
     title="导出数据填充确认"
-    :width="800"
+    :width="1100"
     :visible="visible"
     :mask-closable="false"
     :onCancel="handleCancel"
@@ -53,14 +53,14 @@
             if (layer.visible && layer.hot) {
               layer.areas.forEach((area) => {
                 const cacheCanvas = document.createElement('canvas');
-                cacheCanvas.width = 200;
-                cacheCanvas.height = 200;
+                cacheCanvas.width = 300;
+                cacheCanvas.height = 300;
                 const cacheCtx = cacheCanvas.getContext('2d', {
                   willReadFrequently: true,
                 }) as CanvasRenderingContext2D;
                 const data = getClosedCurvePointsData(area);
                 const boundRect = area.getBoundRect();
-                let scale = boundRect[2] > boundRect[3] ? 200 / boundRect[2] : 200 / boundRect[3];
+                let scale = boundRect[2] > boundRect[3] ? 300 / boundRect[2] : 300 / boundRect[3];
                 cacheCtx.putImageData(scaleImageData(data, scale), 1, 1);
                 cacheCtx.font = '12px serif';
                 cacheCtx.fillStyle = 'white';
@@ -93,7 +93,7 @@
       display: flex;
       margin: 15px auto;
       padding: 5px;
-      max-width: 620px;
+      max-width: 1050px;
       max-height: 620px;
       overflow: auto;
     }
