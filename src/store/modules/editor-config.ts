@@ -1,3 +1,4 @@
+import { isNullOrUnDef } from '@/utils/is';
 import { defineStore } from 'pinia';
 
 export interface EditorConfig {
@@ -10,6 +11,7 @@ export interface EditorConfig {
   autoConnect: boolean;
   autoConnectScope: number;
   size: Recordable<number>;
+  mapSize: Recordable<number>;
 }
 
 const editorConfig: EditorConfig = {
@@ -27,7 +29,18 @@ const editorConfig: EditorConfig = {
     offsetX: 0,
     offsetY: 0,
     allX: 2000,
-    allY: 2000
+    allY: 2000,
+  },
+  mapSize: {
+    used: 0,
+    map_ltX: 0,
+    map_ltY: 0,
+    map_rbX: 0,
+    map_rbY: 0,
+    ltX: 0,
+    ltY: 0,
+    rbX: 0,
+    rbY: 0,
   },
 };
 Object.keys(editorConfig).forEach((key) => {
@@ -36,7 +49,9 @@ Object.keys(editorConfig).forEach((key) => {
     if (typeof editorConfig[key] === 'number') {
       editorConfig[key] = Number(JSON.parse(storage));
     } else {
-      editorConfig[key] = JSON.parse(storage);
+      if (!isNullOrUnDef(storage)) {
+        editorConfig[key] = JSON.parse(storage);
+      }
     }
   }
 });
@@ -68,6 +83,9 @@ export const useEditorConfig = defineStore({
     },
     getSize(): Recordable<number> {
       return this.size;
+    },
+    getMapSize(): Recordable<number> {
+      return this.mapSize;
     },
   },
   actions: {
@@ -102,6 +120,10 @@ export const useEditorConfig = defineStore({
     setSize(value: Recordable) {
       localStorage.setItem('editor-config-size', JSON.stringify(value));
       this.size = value;
+    },
+    setMapSize(value: Recordable) {
+      localStorage.setItem('editor-config-mapSize', JSON.stringify(value));
+      this.mapSize = value;
     },
   },
 });

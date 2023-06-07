@@ -74,27 +74,42 @@
   // 标尺相关
   const vRuler = ref();
   const vRulerInstance = useRuler(vRuler, {
-    type: 'horizontal',
-    height: 30,
-    mainLineSize: 25,
-    font: '11px sans-serif',
-    range: [0, configRef.getSize.x],
-  });
-  const hRuler = ref();
-  const hRulerInstance = useRuler(hRuler, {
     type: 'vertical',
     width: 30,
     mainLineSize: 25,
     font: '11px sans-serif',
+    unit: configRef.getMapSize.used ? configRef.getSize.scale : 50,
+    textFormat: (scale) =>
+      Math.round(
+        configRef.getMapSize.used
+          ? configRef.getMapSize.ltX + scale * configRef.getSize.scale
+          : scale,
+      ).toString(),
     range: [0, configRef.getSize.y],
+  });
+
+  const hRuler = ref();
+  const hRulerInstance = useRuler(hRuler, {
+    type: 'horizontal',
+    height: 30,
+    mainLineSize: 25,
+    unit: configRef.getMapSize.used ? configRef.getSize.scale : 50,
+    font: '11px sans-serif',
+    textFormat: (scale) =>
+      Math.round(
+        configRef.getMapSize.used
+          ? configRef.getMapSize.ltX + scale * configRef.getSize.scale
+          : scale,
+      ).toString(),
+    range: [0, configRef.getSize.x],
   });
   // 滚动条滚动时修改标尺offset
   const state = useCanvasState();
   watch(
     () => state.getOffset,
     () => {
-      vRulerInstance.scroll(state.getOffset.x);
-      hRulerInstance.scroll(state.getOffset.y);
+      hRulerInstance.scroll(state.getOffset.x);
+      vRulerInstance.scroll(state.getOffset.y);
     },
   );
   // 工具展示 + 标尺根据宽度调整
@@ -237,13 +252,13 @@
     position: absolute;
   }
   .h-ruler {
-    left: 0px;
-    height: calc(100% - 40px);
-    width: 28px;
-  }
-  .v-ruler {
     top: 0px;
     height: 28px;
     width: calc(100% - 33px);
+  }
+  .v-ruler {
+    left: 0px;
+    height: calc(100% - 40px);
+    width: 28px;
   }
 </style>
