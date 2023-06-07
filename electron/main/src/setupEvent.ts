@@ -67,20 +67,35 @@ export default function setupEvent(mainWindow: BrowserWindow) {
       rmSync(path.join(SAVES_DIR, fileName));
       return;
     } catch (err) {
-      return err as Error;
+      return err as LocalError;
     }
   });
 
-  ipcMain.handle('save-local-file', (_evt, fileName: string, data: string): undefined | Error => {
-    try {
-      writeFileSync(path.join(SAVES_DIR, fileName), data, {
-        encoding: 'utf8',
-      });
-      return;
-    } catch (err) {
-      return err as Error;
-    }
-  });
+  ipcMain.handle(
+    'save-local-file',
+    (
+      _evt,
+      fileName: string,
+      data: string | Buffer,
+      folder: string = SAVES_DIR,
+    ): undefined | Error => {
+      try {
+        if (typeof data === 'string') {
+          writeFileSync(path.join(folder || SAVES_DIR, fileName), data, {
+            encoding: 'utf8',
+          });
+        } else {
+          writeFileSync(path.join(folder || SAVES_DIR, fileName), new Uint8Array(data));
+        }
+
+        return;
+      } catch (err) {
+        (err as LocalError).showMessage =
+          'Error saving local file because of error: ' + (err as LocalError).message;
+        return err as LocalError;
+      }
+    },
+  );
 
   ipcMain.handle('new-window', (_evt, url: string): LocalResult<null> => {
     try {
@@ -109,7 +124,7 @@ export default function setupEvent(mainWindow: BrowserWindow) {
       win.loadURL(url);
       return null;
     } catch (err) {
-      return err as Error;
+      return err as LocalError;
     }
   });
 }

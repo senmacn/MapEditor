@@ -6,7 +6,7 @@ export interface LocalApi {
   getLocalFileContent(fileName: string): Promise<string>;
   deleteLocalFile(fileName: string): Promise<unknown>;
   renameLocalFile(fileName: string, newname: string): Promise<LocalResult<null>>;
-  saveLocalFile(fileName: string, data: string): Promise<unknown>;
+  saveLocalFile(fileName: string, data: string | Buffer, folder?: string): Promise<unknown>;
   newWindow(url: string): Promise<LocalResult<null>>;
 }
 

@@ -74,6 +74,7 @@
   import { useLocalState } from '@/store/modules/local-state';
   import { getLocalApi, isLocal } from '@/utils/env';
   import { message, notification } from 'ant-design-vue';
+  import DownloadWorker from '@/worker/download-positions.worker?worker';
 
   const emit = defineEmits<{
     (e: 'end-edit-area', name: string, complete: boolean): void;
@@ -117,15 +118,26 @@
       content: '导出当前编辑的数据存档？',
       onOk: () => {
         openLoadLoading();
-        exportFile(
-          `map_data_${configRef.getSize.x}x${configRef.getSize.y}.${getFormatDate(
-            new Date(),
-            'MM-dd_hh-mm',
-          )}.json`,
-          createSaves([configRef.getSize.x, configRef.getSize.y], layersRef.value),
-          'json',
-        );
-        setTimeout(() => closeLoadLoading(), 300);
+        const fileName = `map_data_${configRef.getSize.x}x${configRef.getSize.y}.${getFormatDate(
+          new Date(),
+          'MM-dd_hh-mm',
+        )}.json`;
+        const data = createSaves([configRef.getSize.x, configRef.getSize.y], layersRef.value);
+        if (localApi) {
+          localApi
+            .saveLocalFile(fileName, data, localState.getExportLocation)
+            .then((e) => {
+              if (e) {
+                message.error('导出失败！');
+              }
+            })
+            .finally(() => {
+              setTimeout(() => closeLoadLoading(), 100);
+            });
+        } else {
+          exportFile(fileName, data, 'json');
+          setTimeout(() => closeLoadLoading(), 100);
+        }
       },
     });
   }
@@ -174,19 +186,34 @@
             layer.areas.forEach((area) => {
               const data = getClosedCurvePointsData(area);
               const boundRect = area.getBoundRect();
-              const worker = new Worker('src/worker/download-positions.worker.ts', {
-                type: 'module',
-              });
-              worker.onmessage = function (e) {
-                exportFile(area.getName() + '.data.bin', e.data);
+              const worker = new DownloadWorker();
+              worker.onmessage = async function (e) {
+                const fileName = area.getName() + '.data.bin';
+                const data = e.data;
+                if (localApi) {
+                  const e = await localApi.saveLocalFile(
+                    fileName,
+                    data,
+                    localState.getDownloadLocation,
+                  );
+                  if (e) {
+                    message.error(`区域[${area.getName()}]导出失败！`);
+                    console.error(e);
+                    return;
+                  }
+                } else {
+                  exportFile(fileName, data);
+                }
                 notification.success({
                   message: '下载坐标',
                   description: `区域[${area.getName()}]下载完成！`,
                 });
+                worker.terminate();
               };
               worker.onerror = function (event) {
                 console.error(event);
                 message.error('下载失败！');
+                worker.terminate();
               };
               worker.postMessage([
                 data,

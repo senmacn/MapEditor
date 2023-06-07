@@ -63,6 +63,9 @@ export default defineConfig(({ command, mode }: ConfigEnv) => {
         'ant-design-vue/es/locale/en_US',
       ],
     },
+    worker: {
+      format: 'es',
+    },
     plugins: [
       vue(),
       vueJsx(),

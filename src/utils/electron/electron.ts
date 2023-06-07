@@ -13,10 +13,10 @@ class ElectronApi implements LocalApi {
   deleteLocalFile(fileName: string): Promise<unknown> {
     return window['electronAPI'].deleteLocalFile(fileName);
   }
-  saveLocalFile(fileName: string, data: string): Promise<unknown> {
-    return window['electronAPI'].saveLocalFile(fileName, data);
+  saveLocalFile(fileName: string, data: string | Buffer, folder?: string): Promise<LocalResult<null>> {
+    return window['electronAPI'].saveLocalFile(fileName, data, folder);
   }
-  newWindow(url: string) : Promise<LocalResult<null>> {
+  newWindow(url: string): Promise<LocalResult<null>> {
     return window['electronAPI'].newWindow(url);
   }
 }

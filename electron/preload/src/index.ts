@@ -23,8 +23,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
   deleteLocalFile: async (fileName: string) => {
     return await ipcRenderer.invoke('delete-local-file', fileName);
   },
-  saveLocalFile: async (fileName: string, data: string) => {
-    return await ipcRenderer.invoke('save-local-file', fileName, data);
+  saveLocalFile: async (fileName: string, data: string | Blob, folder?: string) => {
+    return await ipcRenderer.invoke('save-local-file', fileName, data, folder);
   },
   newWindow: async (url: string) => {
     return await ipcRenderer.invoke('new-window', url);
