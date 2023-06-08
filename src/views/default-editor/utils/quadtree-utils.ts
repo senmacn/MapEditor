@@ -32,7 +32,6 @@ export function dataToBin(
   const size = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
   let max = 0;
   const needRecord: Recordable<[number, number, number][]> = {};
-
   // 分层计算
   for (let layerIndex = 0; layerIndex <= 15; layerIndex++) {
     // 第几层
@@ -43,23 +42,26 @@ export function dataToBin(
     // 根据数据密度划分图块
     let blocks = grids;
     switch (layerIndex) {
+      case 7:
+        blocks = 1 << 1;
+        break;
       case 8:
         blocks = 1 << 2;
         break;
       case 9:
-        blocks = 1 << 3;
+        blocks = 1 << 2;
         break;
       case 10:
-        blocks = 1 << 4;
+        blocks = 1 << 3;
         break;
       case 11:
-        blocks = 1 << 5;
+        blocks = 1 << 3;
         break;
       case 12:
-        blocks = 1 << 6;
+        blocks = 1 << 4;
         break;
       case 13:
-        blocks = 1 << 6;
+        blocks = 1 << 4;
         break;
       default:
         blocks = grids;
@@ -69,12 +71,10 @@ export function dataToBin(
     const blockSize = grids / blocks;
     // 图块实际大小
     const blockWidth_CM = MAX_WIDTH_CM / blockSize;
-
     // 最小
-    if (layerWidth_CM < scale) break;
-
+    if (layerWidth_CM < 128) break;
     let layerDataView = new ExtendedDataView(
-      layerIndex >= 6 ? (layerIndex >= 8 ? (grids * grids) / 4 : 6144) : 1024,
+      layerIndex >= 6 ? (layerIndex >= 8 ? (grids * grids) / 16 : 4096) : 1024,
     );
     // 用 1byte 的二进制位记录下图块尺寸（先默认等于分层块尺寸）
     layerDataView.addByte(Math.log2(blocks));
@@ -82,12 +82,8 @@ export function dataToBin(
     let prevData: number | null = null;
     let repeatFlag = 0;
     function _computeRepeat(element: number | null) {
-      if (element !== null && element === prevData) {
-        repeatFlag++;
-        prevData = element;
-        return;
-      }
-      if (element !== null && repeatFlag === 0) {
+      // 第一项重复或是后续重复直接++返回
+      if (element !== null && (element === prevData || repeatFlag === 0)) {
         repeatFlag++;
         prevData = element;
         return;
@@ -162,20 +158,19 @@ export function dataToBin(
             _states = _states + _state;
             _statesNum[_state]++;
             // 最后一层不记了
-            // if (_state === '00' && layerWidth_CM / 2 >= scale) {
-            //   // 下一层第几块需要记录
-            //   needRecord[layerIndex].push([
-            //     _x * blockWidth_CM + indexX * layerWidth_CM,
-            //     _y * blockWidth_CM + indexY * layerWidth_CM,
-            //     layerWidth_CM,
-            //   ]);
-            // }
+            if (_state === '00' && layerWidth_CM > 128) {
+              // 下一层第几块需要记录
+              needRecord[layerIndex].push([
+                _x * blockWidth_CM + indexX * layerWidth_CM,
+                _y * blockWidth_CM + indexY * layerWidth_CM,
+                layerWidth_CM,
+              ]);
+            }
           }
         }
 
         // 状态一致
         if (_statesNum['00'] === blocks * blocks) {
-          dataFlag = true;
           _computeRepeat(0b00);
         } else if (_statesNum['01'] === blocks * blocks) {
           dataFlag = true;
@@ -184,9 +179,7 @@ export function dataToBin(
           _computeRepeat(0b10);
         } else {
           // 状态不一致，先计算之前的重复区块
-          if (repeatFlag > 0 && prevData !== null) {
-            _computeRepeat(null);
-          }
+          repeatFlag > 0 && prevData !== null && _computeRepeat(null);
           dataFlag = true;
           layerDataView.addStr(_states);
         }
@@ -215,6 +208,10 @@ export function dataToBin(
     // 字节数
     max = BASE_BYTES + offsets[layerIndex] * 1024 + layerDataView.getDataLength() + 1;
     layerIndex > 1 && delete needRecord[layerIndex - 1];
+
+    layerDataView.freemem();
+    // @ts-ignore
+    layerDataView = null;
   }
   offsets.forEach((offset, index) => {
     view.setUint16(index * 2, offset);
@@ -237,6 +234,7 @@ function upper_pow_two(n: number) {
 
 function getBits(n: number, p: number) {
   let bits = n.toString(2);
+  if (bits.length > p) throw new Error('bits length overflow');
   while (bits.length < p) {
     bits = '0' + bits;
   }
@@ -247,7 +245,7 @@ function executeBlockState(imageData, width_cm, x_cm, y_cm, scale) {
   const x = Math.floor(x_cm / scale);
   const y = Math.floor(y_cm / scale);
   // 最后一层计算
-  if (width_cm / 2 < scale) {
+  if (width_cm / 2 < 128) {
     // 防止x y分别不在区域内，但计算值在
     if (x >= 0 && y >= 0 && x < imageData.width && y < imageData.height) {
       const pointStartIndex = x * 4 + y * 4 * imageData.width;
