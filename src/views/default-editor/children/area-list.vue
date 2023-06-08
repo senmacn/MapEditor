@@ -3,7 +3,7 @@
     <li class="area-item" v-for="(area, index) in visibleList" :key="index">
       <div class="area-index"></div>
       <div class="area-name">
-        <border-outlined v-if="area instanceof Area" />
+        <gateway-outlined v-if="area instanceof Area" />
         <pushpin-outlined v-else></pushpin-outlined>
         {{ area.getName() }}
       </div>
@@ -24,7 +24,7 @@
   import { computed } from 'vue';
   import DrawElement, { Area, Pin } from '../draw-element';
   import { emitFocusAreaEvent } from '../common/event';
-  import { PushpinOutlined, BorderOutlined, AimOutlined } from '@ant-design/icons-vue';
+  import { PushpinOutlined, GatewayOutlined, AimOutlined } from '@ant-design/icons-vue';
 
   const props = defineProps({
     areas: {

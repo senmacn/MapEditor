@@ -1,6 +1,6 @@
 export default class ExtendedDataView {
-  readonly buffer: ArrayBuffer;
-  readonly view: DataView;
+  private buffer: ArrayBuffer;
+  private view: DataView;
   private byteLength: number;
   private bitPosition: number;
 
@@ -40,9 +40,6 @@ export default class ExtendedDataView {
   addStr(str: string) {
     for (var i = 0; i < str.length; i++) {
       let char = str.charAt(i);
-      if (char !== '1' && char !== '0') {
-        throw new Error('Invalid input String');
-      }
       this.addBit(Number(char));
     }
   }
@@ -78,5 +75,12 @@ export default class ExtendedDataView {
 
   getBuffer() {
     return this.buffer.slice(0, this.byteLength);
+  }
+
+  freemem() {
+    // @ts-ignore
+    this.buffer = null;
+    // @ts-ignore
+    this.view = null;
   }
 }

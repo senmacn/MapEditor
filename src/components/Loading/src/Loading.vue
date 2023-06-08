@@ -5,13 +5,14 @@
     :style="[background ? `background-color: ${background}` : '']"
     v-show="loading"
   >
-    <a-spin v-bind="$attrs" :tip="tip" :size="size" :spinning="loading" />
+    <a-spin v-bind="$attrs" :tip="tip" :size="size.toString()" :spinning="loading" />
   </section>
 </template>
 
 <script lang="ts" setup>
   import { PropType } from 'vue';
   import { SizeEnum } from './typing';
+  import ASpin from 'ant-design-vue/es/spin';
 
   defineProps({
     tip: {

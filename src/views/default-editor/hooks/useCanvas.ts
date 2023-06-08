@@ -188,6 +188,7 @@ export class ExtendCanvas implements CanvasExtendImp {
     beginPoint = getIntegerPoint(beginPoint);
     endPoint = getIntegerPoint(endPoint);
     ctx.beginPath();
+    ctx.lineCap = 'round';
     ctx.lineWidth = this.canvasConfig.lineWidth;
     ctx.strokeStyle = this.canvasConfig.color;
     ctx.moveTo(beginPoint.x, beginPoint.y);

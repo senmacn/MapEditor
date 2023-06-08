@@ -7,7 +7,7 @@
       <a-button type="primary" @click="handleChangeMapSize">尺寸设置</a-button>
     </a-col>
     <a-col :span="6">
-      <a-button type="primary" @click="getPosition">下载坐标</a-button>
+      <a-button type="primary" @click="displayOutputVisibleRef = true">下载坐标</a-button>
     </a-col>
     <a-col :span="6" :offset="4">
       <a-button type="primary" :disabled="!isLocal()" @click="handleCreateSaves"> 保存 </a-button>
@@ -29,27 +29,21 @@
     :visible="changeMapSizeModalVisible"
     @close="changeMapSizeModalVisible = false"
   />
-  <display-output-modal
-    :visible="displayOutputVisibleRef"
-    @ok="handleConfirmOkExport"
-    @cancel="handleConfirmCancelExport"
-  />
+  <display-output-modal :visible="displayOutputVisibleRef" @cancel="handleConfirmCancelExport" />
 </template>
 
 <script setup lang="ts">
-  import { Ref, inject, ref, unref } from 'vue';
+  import { Ref, inject, ref } from 'vue';
   import modal from 'ant-design-vue/lib/modal';
   import ChangeMapSizeModal from './change-map-size-modal.vue';
   import DisplayOutputModal from './display-output-modal.vue';
   import { Layer } from '../common/types';
   import { useLoading } from '@/components/Loading';
   import { exportFile } from '@/utils/file';
-  import DownloadWorker from '@/worker/download-positions.worker?worker';
-  import { getClosedCurvePointsData } from '../utils/image-data-util';
   import { createSaves } from '@/utils/persist';
   import { getFormatDate } from '@/utils/date';
   import { getLocalApi, isLocal } from '@/utils/env';
-  import { message, notification } from 'ant-design-vue';
+  import { message } from 'ant-design-vue';
   import { useLocalState } from '@/store/modules/local-state';
   import { useEditorConfig } from '@/store/modules/editor-config';
   import { loadSaves } from '@/utils/persist';
@@ -143,71 +137,6 @@
   }
 
   const displayOutputVisibleRef = ref(false);
-  function getPosition() {
-    modal.confirm({
-      title: '确认',
-      content: '下载当前显示图层的坐标数据',
-      onOk: () => {
-        displayOutputVisibleRef.value = true;
-      },
-    });
-  }
-  function handleConfirmOkExport() {
-    const layers = unref(layersRef);
-    displayOutputVisibleRef.value = false;
-    setTimeout(() => {
-      for (let index = layers.length - 1; index >= 0; index--) {
-        const layer = layers[index];
-        if (layer.visible && layer.hot) {
-          layer.areas.forEach((area) => {
-            const data = getClosedCurvePointsData(area);
-            const boundRect = area.getBoundRect();
-            const worker = new DownloadWorker();
-            worker.onmessage = async function (e) {
-              const fileName = area.getName() + '.data.bin';
-              const data = e.data;
-              if (localApi) {
-                const e = await localApi.saveLocalFile(
-                  fileName,
-                  data,
-                  localState.getDownloadLocation,
-                );
-                if (e) {
-                  message.error(`区域[${area.getName()}]导出失败！`);
-                  console.error(e);
-                  return;
-                }
-              } else {
-                exportFile(fileName, data);
-              }
-              notification.success({
-                message: '下载坐标',
-                description: `区域[${area.getName()}]下载完成！`,
-              });
-              worker.terminate();
-            };
-            worker.onerror = function (event) {
-              console.error(event);
-              message.error('下载失败！');
-              worker.terminate();
-            };
-            worker.postMessage([
-              data,
-              boundRect[0] + Number(configRef.getSize.offsetX),
-              boundRect[1] + Number(configRef.getSize.offsetY),
-              Number(configRef.getSize.allX),
-              Number(configRef.getSize.allY),
-              Number(configRef.getSize.scale),
-            ]);
-            notification.info({
-              message: '下载坐标',
-              description: `区域[${area.getName()}]的下载已在后台进行，请勿关闭浏览器！`,
-            });
-          });
-        }
-      }
-    }, 30);
-  }
   function handleConfirmCancelExport() {
     displayOutputVisibleRef.value = false;
   }
