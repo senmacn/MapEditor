@@ -7,7 +7,7 @@
     @ok="handleChange"
     :closable="false"
   >
-    <div class="modal-title">尺寸设置</div>
+    <div class="modal-title">用户设置</div>
     <div class="modal-content">
       <a-form
         ref="pinFormRef"
