@@ -1,5 +1,6 @@
 <template>
   <a-modal
+    class="change-map-size-modal"
     :width="800"
     :visible="visible"
     @cancel="emit('close')"
@@ -213,30 +214,32 @@
       }
     }
   }
-  .modal-title {
-    padding: 8px;
-    border-bottom: 1px solid @color-modal-border;
-    text-align: center;
-  }
-  .modal-content {
-    display: flex;
-    justify-content: space-around;
-    padding: 32px;
-  }
-  .map-size {
-    display: flex;
-    margin-bottom: 12px;
-    > span:first-child {
-      width: 120px;
+  .change-map-size-modal {
+    .modal-title {
+      padding: 8px;
+      border-bottom: 1px solid @color-modal-border;
       text-align: center;
     }
-    .ant-input,
-    .ant-input-affix-wrapper {
-      width: 160px;
+    .modal-content {
+      display: flex;
+      justify-content: space-around;
+      padding: 32px;
     }
-  }
-  .remind {
-    text-align: center;
-    color: @warning-color;
+    .map-size {
+      display: flex;
+      margin-bottom: 12px;
+      > span:first-child {
+        width: 120px;
+        text-align: center;
+      }
+      .ant-input,
+      .ant-input-affix-wrapper {
+        width: 160px;
+      }
+    }
+    .remind {
+      text-align: center;
+      color: @warning-color;
+    }
   }
 </style>

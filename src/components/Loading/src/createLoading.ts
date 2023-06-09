@@ -28,6 +28,7 @@ export function createLoading(props?: Partial<LoadingProps>, target?: HTMLElemen
   }
 
   function close() {
+    data.loading = false;
     if (vm?.el && vm.el.parentNode) {
       vm.el.parentNode.removeChild(vm.el);
     }
@@ -35,6 +36,7 @@ export function createLoading(props?: Partial<LoadingProps>, target?: HTMLElemen
 
   function open(target: HTMLElement = document.body) {
     render(vm, target);
+    data.loading = true;
   }
 
   if (target) {

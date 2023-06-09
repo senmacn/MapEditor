@@ -49,11 +49,11 @@
         <template #renderItem="{ item, index }">
           <a-list-item class="list-item" action-layout="vertical">
             <template #actions>
-              <span @click="handleOpenProject(item.title)"><folder-open-outlined />打开</span>
-              <span @click="editRef = index"><edit-outlined />重命名</span>
-              <span><download-outlined @click="handleDownloadProject(item.title)" />下载</span>
-              <!-- <span><heart-outlined />置顶</span> -->
-              <span @click="handleDeleteProject(item.title)"><delete-outlined />删除</span>
+              <span class="options" @click="handleOpenProject(item.title)"><folder-open-outlined />打开</span>
+              <span class="options" @click="editRef = index"><edit-outlined />重命名</span>
+              <span class="options"><download-outlined @click="handleDownloadProject(item.title)" />下载</span>
+              <!-- <span class="options"><heart-outlined />置顶</span> -->
+              <span class="options" @click="handleDeleteProject(item.title)"><delete-outlined />删除</span>
             </template>
             <a-list-item-meta :class="[item.top ? 'top' : '']" :description="item.description">
               <template #title>
@@ -220,6 +220,9 @@
     }
     .list-item {
       color: @color-text-2;
+      span.options {
+        cursor: pointer;
+      }
     }
     .top .ant-list-item-meta-title {
       color: red !important;
