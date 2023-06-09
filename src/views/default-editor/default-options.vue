@@ -42,7 +42,7 @@
   const configRef = useEditorConfig();
   const localApi = getLocalApi();
 
-  const [openLoadLoading, closeLoadLoading] = useLoading({ tip: '加载中！', minTime: 2000 });
+  const [openLoading, closeLoading] = useLoading({ minTime: 500 });
 
   const { currentRoute } = useRouter();
   const { query } = unref(currentRoute.value);
@@ -50,8 +50,7 @@
     const { name } = query;
     if (name) {
       localState.setFileName(name as string);
-      openLoadLoading();
-
+      openLoading();
       localApi &&
         localApi
           .getLocalFileContent(name as string)
@@ -67,7 +66,7 @@
             }
           })
           .finally(() => {
-            closeLoadLoading();
+            setTimeout(() => closeLoading(), 100);
           });
     } else {
       localState.setFileName('新建项目');

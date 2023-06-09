@@ -64,11 +64,12 @@
       onOk: () => {
         try {
           const fileName =
-            localState.getFileName ||
-            `map_data_${configRef.getSize.x}x${configRef.getSize.y}.${getFormatDate(
-              new Date(),
-              'MM-dd_hh-mm',
-            )}.json`;
+            localState.getFileName !== '新建项目'
+              ? localState.getFileName
+              : `map_data_${configRef.getSize.x}x${configRef.getSize.y}.${getFormatDate(
+                  new Date(),
+                  'MM-dd_hh-mm',
+                )}.json`;
           localApi &&
             localApi.saveLocalFile(
               fileName,
@@ -88,7 +89,7 @@
       type: 'confirm',
       content: '导出当前编辑的数据存档？',
       onOk: () => {
-        openLoadLoading();
+        openLoading();
         const fileName = `map_data_${configRef.getSize.x}x${configRef.getSize.y}.${getFormatDate(
           new Date(),
           'MM-dd_hh-mm',
@@ -103,24 +104,24 @@
               }
             })
             .finally(() => {
-              setTimeout(() => closeLoadLoading(), 100);
+              setTimeout(() => closeLoading(), 100);
             });
         } else {
           exportFile(fileName, data, 'json');
-          setTimeout(() => closeLoadLoading(), 100);
+          setTimeout(() => closeLoading(), 100);
         }
       },
     });
   }
 
-  const [openLoadLoading, closeLoadLoading] = useLoading({ tip: '加载中！', minTime: 2000 });
+  const [openLoading, closeLoading] = useLoading({ tip: '加载中！', minTime: 1000 });
   function handleLoadSaves(file: File) {
-    openLoadLoading();
+    openLoading();
     var reader = new FileReader(); //调用FileReader
     reader.readAsText(file); //将文件读取为 text
     reader.onload = function (evt) {
       _handleExecutionSave(String(evt.target?.result));
-      closeLoadLoading();
+      closeLoading();
     };
     return Promise.reject() as any;
   }

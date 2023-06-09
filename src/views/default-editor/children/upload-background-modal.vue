@@ -94,7 +94,7 @@
 <script setup lang="ts">
   import { useLoading } from '@/components/Loading';
   import { useEditorConfig } from '@/store/modules/editor-config';
-  import { compressionFile, dataURLToImage, fileToDataURL, canvasToFile } from '@/utils/file/image';
+  import { compressionFile, dataURLToImage, fileToDataURL } from '@/utils/file/image';
   import { InfoCircleOutlined, PlusOutlined, PictureOutlined } from '@ant-design/icons-vue';
   import { message } from 'ant-design-vue';
   import { UploadFile } from 'ant-design-vue/es/upload/interface';
