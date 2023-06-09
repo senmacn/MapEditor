@@ -1,4 +1,5 @@
 import Moveable from 'moveable';
+import { ref } from 'vue';
 
 interface DrawElementInterface {
   select(...args: any): void;
@@ -6,6 +7,8 @@ interface DrawElementInterface {
   render(...args: any): void;
   destroy(...args: any): void;
   getImage(...args: any): any;
+  show(): void;
+  hide(): void;
 }
 
 export default class DrawElement implements DrawElementInterface {
@@ -60,6 +63,16 @@ export default class DrawElement implements DrawElementInterface {
     }, 5);
   }
   render(target: HTMLElement) {}
+  show() {
+    if (this.instance) {
+      this.instance.style.display = 'block';
+    }
+  }
+  hide() {
+    if (this.instance) {
+      this.instance.style.display = 'none';
+    }
+  }
   wrapperMoveable() {
     // 创建moveable
     const container = document.getElementById('scroller') as HTMLElement;

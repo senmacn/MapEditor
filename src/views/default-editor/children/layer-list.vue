@@ -85,7 +85,6 @@
   import AreaList from './area-list.vue';
   import modal from 'ant-design-vue/lib/modal';
   import { getRandomDomId } from '../../../utils/uuid';
-  import { useLoading } from '@/components/Loading';
   import { Layer } from '../common/types';
   import {
     FileImageOutlined,
@@ -252,15 +251,6 @@
         display: inline-block;
         height: 18px;
         width: 18px;
-      }
-      .success {
-        color: rgb(0, 180, 42);
-        &:hover {
-          color: rgb(0, 180, 42);
-        }
-      }
-      .none {
-        color: #ccc;
       }
     }
   }
