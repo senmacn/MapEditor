@@ -33,7 +33,7 @@
       </div>
     </div>
     <div class="history-list home-right">
-      <a-list size="small" :bordered="false" :data="dataSource" :pagination-props="paginationProps">
+      <a-list size="small" :bordered="false" :data-source="dataSource" :pagination-props="paginationProps">
         <template #header>
           <div class="history-title"> - 历史记录 - </div>
           <a-button
@@ -46,10 +46,10 @@
             刷新
           </a-button>
         </template>
-        <template #item="{ item, index }">
+        <template #renderItem="{ item, index }">
           <a-list-item class="list-item" action-layout="vertical">
             <template #actions>
-              <span @click="handleOpenProject(item.title)"><launch-outlined />打开</span>
+              <span @click="handleOpenProject(item.title)"><folder-open-outlined />打开</span>
               <span @click="editRef = index"><edit-outlined />重命名</span>
               <span><download-outlined @click="handleDownloadProject(item.title)" />下载</span>
               <!-- <span><heart-outlined />置顶</span> -->
@@ -89,6 +89,7 @@
     EditOutlined,
     DeleteOutlined,
     SyncOutlined,
+    FolderOpenOutlined
   } from '@ant-design/icons-vue';
 
   const dataSource = ref<LocalMapHistory[]>([]);
@@ -157,74 +158,77 @@
 </script>
 
 <style lang="less">
-    .home-container {
-      display: flex;
-      justify-content: space-around;
-      height: 100vh;
-      width: 80vw;
-      min-width: 600px;
-      margin: 0 auto;
+  .home-container {
+    display: flex;
+    justify-content: space-around;
+    height: 100vh;
+    width: 95vw;
+    min-width: 600px;
+    margin: 0 auto;
+  }
+  .home-left {
+    flex: 1;
+    padding: 20px;
+    height: 480px;
+    border: 1px solid #746c5f;
+  }
+  .home-left,
+  .home-right {
+    margin-top: 10%;
+  }
+  .home-info {
+    font-size: 16px;
+    font-weight: bold;
+    line-height: 20px;
+    color: @color-text-1;
+    text-align: center;
+  }
+  .home-options {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    padding: 20px;
+    .button-wrapper {
+      font-size: 16px;
+      line-height: 28px;
+      text-align: center;
+      margin-top: 35px;
+      button {
+        width: 80%;
+        height: 60px;
+        border-radius: 10px;
+      }
+      .anticon {
+        width: 22px;
+        height: 22px;
+      }
     }
-    .home-left {
-      flex: 1;
-      padding: 20px;
-      height: 480px;
-      border: 1px solid #746c5f;
-    }
-    .home-left,
-    .home-right {
-      margin-top: 10%;
-    }
-    .home-info {
+  }
+  .history-list {
+    flex: 1;
+    height: 480px;
+    border: 1px solid #746c5f;
+    padding: 20px;
+    .history-title {
       font-size: 16px;
       font-weight: bold;
-      line-height: 20px;
-      color: @color-text-1;
-      text-align: center;
     }
-    .home-options {
-      display: flex;
-      flex-direction: column;
-      justify-content: space-around;
-      padding: 20px;
-      .button-wrapper {
-        font-size: 16px;
-        line-height: 28px;
-        text-align: center;
-        margin-top: 35px;
-        button {
-          width: 80%;
-          height: 60px;
-          border-radius: 10px;
-        }
-        .anticon{
-          width: 22px;
-          height: 22px;
-        }
-      }
+    .history-refresh {
+      position: absolute;
+      top: 0;
+      right: 0;
     }
-    .history-list {
-      flex: 1;
-      height: 480px;
-      border: 1px solid #746c5f;
-      padding: 20px;
-      .history-title {
-        font-size: 16px;
-        font-weight: bold;
-      }
-      .history-refresh {
-        position: absolute;
-        top: 0;
-        right: 0;
-      }
-      .list-item {
-        color: @color-text-2;
-      }
-      .top .ant-list-item-meta-title {
-        color: red !important;
-      }
-      .ant-list-item-meta-content {
-        width: 100%;
-      }
+    .list-item {
+      color: @color-text-2;
     }
+    .top .ant-list-item-meta-title {
+      color: red !important;
+    }
+    .ant-list-item-meta-content {
+      width: 100%;
+    }
+    .ant-list-item-action {
+      margin-left: 24px;
+    }
+  }
 </style>

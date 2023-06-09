@@ -4,9 +4,9 @@ import { URL } from 'url';
 import setupEvent from './setupEvent';
 import { setupTitlebar, attachTitlebarToWindow } from 'custom-electron-titlebar/main';
 
-setupTitlebar();
-
 async function createWindow() {
+  setupTitlebar();
+
   const browserWindow = new BrowserWindow({
     fullscreen: false,
     webPreferences: {
