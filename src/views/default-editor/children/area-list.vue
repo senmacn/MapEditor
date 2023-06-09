@@ -60,7 +60,6 @@
     .area-item {
       display: flex;
       text-align: center;
-      height: 20px;
     }
     .area-index {
       width: 20px;

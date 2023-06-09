@@ -105,6 +105,7 @@ export default class Area extends DrawElement {
       controller.setCurrentArea(this as unknown as Area);
       // @ts-ignore
       document.getElementsByClassName(this.uuid).item(0).style.visibility = 'visible';
+      this.instance?.click();
       this.moveable?.setState({ draggable: true, resizable: true });
     });
   }

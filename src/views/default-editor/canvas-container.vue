@@ -89,7 +89,7 @@
       controller.setCurrentArea(null);
       controller.setCurrentPin(null);
       nextTick(() => {
-        ele instanceof Area ? controller.setCurrentArea(ele) : controller.setCurrentPin(ele);
+        ele.select();
       });
     }
   });
