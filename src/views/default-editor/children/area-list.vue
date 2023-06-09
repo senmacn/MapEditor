@@ -8,6 +8,16 @@
         {{ area.getName() }}
       </div>
       <div class="area-option">
+        <a-tooltip title="隐藏区域" v-if="!hideStatesRef[area.getUuid()]">
+          <a-button type="text" class="success-color" @click="() => hideElement(area)">
+            <template #icon><eye-outlined /></template>
+          </a-button>
+        </a-tooltip>
+        <a-tooltip title="显示区域" v-else>
+          <a-button type="text" @click="() => showElement(area)">
+            <template #icon><eye-invisible-outlined /></template>
+          </a-button>
+        </a-tooltip>
         <a-tooltip title="快速定位">
           <a-button type="text" @click="handleGotoArea(area)">
             <template #icon>
@@ -21,10 +31,16 @@
 </template>
 
 <script setup lang="ts">
-  import { computed } from 'vue';
+  import { computed, reactive } from 'vue';
   import DrawElement, { Area, Pin } from '../draw-element';
   import { emitFocusAreaEvent } from '../common/event';
-  import { PushpinOutlined, GatewayOutlined, AimOutlined } from '@ant-design/icons-vue';
+  import {
+    PushpinOutlined,
+    GatewayOutlined,
+    AimOutlined,
+    EyeOutlined,
+    EyeInvisibleOutlined,
+  } from '@ant-design/icons-vue';
 
   const props = defineProps({
     areas: {
@@ -44,6 +60,16 @@
       return [];
     }
   });
+
+  const hideStatesRef = reactive({});
+  function showElement(ele: DrawElement) {
+    ele.show();
+    hideStatesRef[ele.getUuid()] = false;
+  }
+  function hideElement(ele: DrawElement) {
+    ele.hide();
+    hideStatesRef[ele.getUuid()] = true;
+  }
 
   function handleGotoArea(area: DrawElement) {
     emitFocusAreaEvent(area);
@@ -70,10 +96,13 @@
     }
     .area-option {
       width: 140px;
-    }
-    .ant-btn {
-      width: 100%;
-      height: 100%;
+      display: flex;
+      justify-content: space-around;
+      .ant-btn {
+        display: inline-block;
+        height: 16px;
+        width: 32px;
+      }
     }
   }
 </style>
