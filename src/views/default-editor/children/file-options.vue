@@ -65,6 +65,7 @@
       content: '保存当前编辑的数据存档？',
       onOk: () => {
         handleCreateSaves();
+        message.success('保存成功！');
       },
     });
   }
@@ -83,7 +84,6 @@
           createSaves([configRef.getSize.x, configRef.getSize.y], layersRef.value),
         );
         localState.setFileName(fileName);
-        message.success('保存成功！');
       }
     } catch (_err) {
       message.error('保存失败！');

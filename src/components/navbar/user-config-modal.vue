@@ -31,9 +31,9 @@
               :min="0"
               :step="1"
               placeholder="值为0时代表不自动保存"
-            /> 分钟
+            />
+            分钟
           </div>
-
           <a-input v-else disabled placeholder="浏览器环境下此项配置不可用！" />
         </a-form-item>
       </a-form>
@@ -43,8 +43,8 @@
 
 <script setup lang="ts">
   import { useLocalState } from '@/store/modules/local-state';
-  import { getLocalApi, isLocal } from '@/utils/env';
-  import { onMounted, reactive } from 'vue';
+  import { isLocal } from '@/utils/env';
+  import { reactive } from 'vue';
 
   const emit = defineEmits<{
     (e: 'close'): void;
@@ -59,9 +59,9 @@
 
   const localState = useLocalState();
   const formModel = reactive({
-    exportLocation: '',
-    downloadLocation: '',
-    autoSaveTime: 0,
+    exportLocation: localState.getExportLocation,
+    downloadLocation: localState.getDownloadLocation,
+    autoSaveTime: localState.getAutoSaveTime,
   });
 
   function handleChange() {
@@ -72,17 +72,6 @@
     });
     emit('close');
   }
-
-  onMounted(() => {
-    // 本地环境下更新个人配置
-    const localApi = getLocalApi();
-    if (localApi) {
-      localApi.getUserConfig().then((userConfig) => {
-        useLocalState().setUserConfig(Object.assign({}, userConfig));
-        Object.assign(formModel, userConfig);
-      });
-    }
-  });
 </script>
 
 <style lang="less">
