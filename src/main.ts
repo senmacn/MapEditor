@@ -1,7 +1,7 @@
 import { createApp } from 'vue';
 import App from './App.vue';
 import router from './routes';
-import Antd from 'ant-design-vue';
+import Antd, { message } from 'ant-design-vue';
 import 'ant-design-vue/dist/antd.dark.css';
 import './style.less';
 import contextmenu from 'v-contextmenu';
@@ -10,6 +10,10 @@ import '@simonwep/pickr/dist/themes/nano.min.css';
 import { setupStore } from './store';
 import 'virtual:svg-icons-register';
 import './utils/extend';
+
+message.config({
+  top: '25px',
+});
 
 function bootstrap() {
   const app = createApp(App);

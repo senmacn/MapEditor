@@ -9,6 +9,12 @@ window.addEventListener('DOMContentLoaded', () => {
 });
 
 contextBridge.exposeInMainWorld('electronAPI', {
+  getUserConfig: async (): Promise<UserConfig> => {
+    return await ipcRenderer.invoke('get-user-config');
+  },
+  setUserConfig: async (config: UserConfig) => {
+    return await ipcRenderer.invoke('set-user-config', config);
+  },
   getLocalHistoryList: async () => {
     return await ipcRenderer.invoke('get-local-history-list');
   },

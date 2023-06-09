@@ -10,18 +10,30 @@
     <div class="modal-title">用户设置</div>
     <div class="modal-content">
       <a-form
-        ref="pinFormRef"
         :model="formModel"
         :labelCol="{ span: 6 }"
         :wrapperCol="{ span: 18 }"
         labelAlign="right"
       >
-        <a-form-item name="name" label="坐标下载位置">
+        <a-form-item name="exportLocation" label="坐标下载位置">
           <a-input v-if="isLocal()" v-model:value="formModel.exportLocation" />
           <a-input v-else disabled placeholder="浏览器环境下此项配置不可用！" />
         </a-form-item>
-        <a-form-item name="name" label="存档导出位置">
+        <a-form-item name="downloadLocation" label="存档导出位置">
           <a-input v-if="isLocal()" v-model:value="formModel.downloadLocation" />
+          <a-input v-else disabled placeholder="浏览器环境下此项配置不可用！" />
+        </a-form-item>
+        <a-form-item name="autoSaveTime" label="自动保存时间">
+          <div v-if="isLocal()">
+            <a-input-number
+              v-model:value="formModel.autoSaveTime"
+              :max="30"
+              :min="0"
+              :step="1"
+              placeholder="值为0时代表不自动保存"
+            /> 分钟
+          </div>
+
           <a-input v-else disabled placeholder="浏览器环境下此项配置不可用！" />
         </a-form-item>
       </a-form>
@@ -31,8 +43,8 @@
 
 <script setup lang="ts">
   import { useLocalState } from '@/store/modules/local-state';
-  import { isLocal } from '@/utils/env';
-  import { reactive } from 'vue';
+  import { getLocalApi, isLocal } from '@/utils/env';
+  import { onMounted, reactive } from 'vue';
 
   const emit = defineEmits<{
     (e: 'close'): void;
@@ -47,15 +59,30 @@
 
   const localState = useLocalState();
   const formModel = reactive({
-    exportLocation: localState.getExportLocation,
-    downloadLocation: localState.getDownloadLocation,
+    exportLocation: '',
+    downloadLocation: '',
+    autoSaveTime: 0,
   });
 
   function handleChange() {
-    localState.setDownloadLocation(formModel.downloadLocation);
-    localState.setExportLocation(formModel.exportLocation);
+    localState.setUserConfig({
+      exportLocation: formModel.exportLocation,
+      downloadLocation: formModel.downloadLocation,
+      autoSaveTime: formModel.autoSaveTime,
+    });
     emit('close');
   }
+
+  onMounted(() => {
+    // 本地环境下更新个人配置
+    const localApi = getLocalApi();
+    if (localApi) {
+      localApi.getUserConfig().then((userConfig) => {
+        useLocalState().setUserConfig(Object.assign({}, userConfig));
+        Object.assign(formModel, userConfig);
+      });
+    }
+  });
 </script>
 
 <style lang="less">

@@ -1,5 +1,4 @@
 import Moveable from 'moveable';
-import { ref } from 'vue';
 
 interface DrawElementInterface {
   select(...args: any): void;

@@ -1,6 +1,12 @@
 import { LocalApi } from '../env';
 
 class ElectronApi implements LocalApi {
+  getUserConfig(): Promise<UserConfig> {
+    return window['electronAPI'].getUserConfig();
+  }
+  setUserConfig(config: UserConfig): Promise<LocalResult<null>> {
+    return window['electronAPI'].setUserConfig(config);
+  }
   getLocalHistoryList(): Promise<Recordable<any>[]> {
     return window['electronAPI'].getLocalHistoryList();
   }
@@ -13,7 +19,11 @@ class ElectronApi implements LocalApi {
   deleteLocalFile(fileName: string): Promise<unknown> {
     return window['electronAPI'].deleteLocalFile(fileName);
   }
-  saveLocalFile(fileName: string, data: string | Buffer, folder?: string): Promise<LocalResult<null>> {
+  saveLocalFile(
+    fileName: string,
+    data: string | Buffer,
+    folder?: string,
+  ): Promise<LocalResult<null>> {
     return window['electronAPI'].saveLocalFile(fileName, data, folder);
   }
   newWindow(url: string): Promise<LocalResult<null>> {
