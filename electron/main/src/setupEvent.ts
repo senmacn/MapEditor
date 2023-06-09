@@ -17,17 +17,38 @@ import { attachTitlebarToWindow } from 'custom-electron-titlebar/main';
 const DATA_DIR = 'data';
 const SAVES_DIR = 'data/saves';
 
+const userConfig = {
+  exportLocation: '',
+  downloadLocation: '',
+  autoSaveTime: 0,
+} as UserConfig;
+
 export default function setupEvent(mainWindow: BrowserWindow) {
   // 初始化
   try {
+    
     if (!existsSync('data/config.json')) {
       mkdirSync(DATA_DIR);
       mkdirSync(SAVES_DIR);
-      writeFileSync('data/config.json', JSON.stringify({}));
+      writeFileSync('data/config.json', JSON.stringify(userConfig));
+    } else {
+      const config = JSON.parse(readFileSync('data/config.json', 'utf8'));
+      Object.assign(userConfig, config);
     }
   } catch (e) {}
 
   // 设置事件
+  ipcMain.handle('set-user-config', (_evt, config: UserConfig) => {
+    Object.assign(userConfig, config);
+    return writeFileSync(path.join(DATA_DIR, 'config.json'), JSON.stringify(config), {
+      encoding: 'utf8',
+    });
+  });
+
+  ipcMain.handle('get-user-config', (): UserConfig => {
+    return userConfig;
+  });
+
   ipcMain.handle('get-local-history-list', () => {
     return Promise.all(
       readdirSync(SAVES_DIR)

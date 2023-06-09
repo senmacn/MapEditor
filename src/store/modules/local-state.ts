@@ -1,16 +1,19 @@
+import { getLocalApi } from '@/utils/env';
 import { defineStore } from 'pinia';
 
 const userConfig = {
   filename: '',
-  exportLocation: '',
-  downloadLocation: '',
+  userConfig: {
+    exportLocation: '',
+    downloadLocation: '',
+    autoSaveTime: 0,
+  },
 };
-Object.keys(userConfig).forEach((key) => {
-  const storage = localStorage.getItem('user-config-' + key);
-  if (storage) {
-    userConfig[key] = storage;
-  }
-});
+
+const storage = localStorage.getItem('user-config-filename');
+if (storage) {
+  userConfig['user-config-filename'] = storage;
+}
 
 export const useLocalState = defineStore({
   id: 'local-state',
@@ -20,10 +23,13 @@ export const useLocalState = defineStore({
       return this.filename;
     },
     getExportLocation(): string {
-      return this.exportLocation;
+      return this.userConfig.exportLocation;
     },
     getDownloadLocation(): string {
-      return this.downloadLocation;
+      return this.userConfig.downloadLocation;
+    },
+    getAutoSaveTime(): number {
+      return this.userConfig.autoSaveTime;
     },
   },
   actions: {
@@ -31,13 +37,10 @@ export const useLocalState = defineStore({
       document.title = filename;
       this.filename = filename;
     },
-    setExportLocation(location: string) {
-      localStorage.setItem('user-config-exportLocation', location);
-      this.exportLocation = location;
-    },
-    setDownloadLocation(location: string) {
-      localStorage.setItem('user-config-downloadLocation', location);
-      this.downloadLocation = location;
+    setUserConfig(userConfig: UserConfig) {
+      const localApi = getLocalApi();
+      localApi && localApi.setUserConfig(userConfig);
+      this.userConfig = userConfig;
     },
   },
 });

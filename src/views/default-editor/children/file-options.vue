@@ -10,7 +10,9 @@
       <a-button type="primary" @click="displayOutputVisibleRef = true">下载坐标</a-button>
     </a-col>
     <a-col :span="6" :offset="4">
-      <a-button type="primary" :disabled="!isLocal()" @click="handleCreateSaves"> 保存 </a-button>
+      <a-button type="primary" :disabled="!isLocal()" @click="handleConfirmCreateSaves">
+        保存
+      </a-button>
     </a-col>
     <a-col :span="6">
       <a-button type="primary" @click="handleExportSaves"> 导出 </a-button>
@@ -33,7 +35,7 @@
 </template>
 
 <script setup lang="ts">
-  import { Ref, inject, ref } from 'vue';
+  import { Ref, inject, onMounted, onUnmounted, ref } from 'vue';
   import modal from 'ant-design-vue/lib/modal';
   import ChangeMapSizeModal from './change-map-size-modal.vue';
   import DisplayOutputModal from './display-output-modal.vue';
@@ -57,30 +59,37 @@
   const layersRef: Ref<Layer[]> = inject('layers', [] as any);
 
   const localApi = getLocalApi();
-  function handleCreateSaves() {
+  function handleConfirmCreateSaves() {
     modal.confirm({
       title: '确认',
       content: '保存当前编辑的数据存档？',
       onOk: () => {
-        try {
-          const fileName =
-            localState.getFileName !== '新建项目'
-              ? localState.getFileName
-              : `map_data_${configRef.getSize.x}x${configRef.getSize.y}.${getFormatDate(
-                  new Date(),
-                  'MM-dd_hh-mm',
-                )}.json`;
-          localApi &&
-            localApi.saveLocalFile(
-              fileName,
-              createSaves([configRef.getSize.x, configRef.getSize.y], layersRef.value),
-            );
-          localState.setFileName(fileName);
-        } catch (_err) {
-          console.warn(_err);
-        }
+        handleCreateSaves();
       },
     });
+  }
+  function handleCreateSaves() {
+    try {
+      const fileName =
+        localState.getFileName !== '新建项目'
+          ? localState.getFileName
+          : `map_data_${configRef.getSize.x}x${configRef.getSize.y}.${getFormatDate(
+              new Date(),
+              'MM-dd_hh-mm',
+            )}.json`;
+      if (localApi) {
+        localApi.saveLocalFile(
+          fileName,
+          createSaves([configRef.getSize.x, configRef.getSize.y], layersRef.value),
+        );
+        localState.setFileName(fileName);
+        message.success('保存成功！');
+      }
+    } catch (_err) {
+      message.error('保存失败！');
+      console.warn(_err);
+      throw new Error();
+    }
   }
 
   function handleExportSaves() {
@@ -146,6 +155,24 @@
   function handleChangeMapSize() {
     changeMapSizeModalVisible.value = true;
   }
+
+  // 自动保存相关
+  let endAutoSave: any = null;
+  function handleAutoSave() {
+    try {
+      handleCreateSaves();
+      message.success('自动保存成功！');
+    } catch (_) {}
+    endAutoSave = setTimeout(handleAutoSave, localState.getAutoSaveTime * 60 * 1000);
+  }
+  onMounted(() => {
+    if (localState.getAutoSaveTime && isLocal()) {
+      endAutoSave = setTimeout(handleAutoSave, localState.getAutoSaveTime * 60 * 1000);
+    }
+  });
+  onUnmounted(() => {
+    endAutoSave && clearTimeout(endAutoSave);
+  });
 </script>
 
 <style lang="less"></style>

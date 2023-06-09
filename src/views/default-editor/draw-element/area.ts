@@ -3,6 +3,7 @@ import controller from '../common/canvas-state-controller';
 import { nextTick } from 'vue';
 import { getPosition, scaleImageData } from '../utils/image-data-util';
 import DrawElement from './draw-element';
+import { useEditorConfig } from '@/store/modules/editor-config';
 
 export default class Area extends DrawElement {
   private boundRectPoints: Point[] | undefined;
@@ -78,9 +79,10 @@ export default class Area extends DrawElement {
     const top = 'top: ' + this.boundRect[1] + 'px;';
     const width = 'width: ' + this.boundRect[2] + 'px;';
     const height = 'height: ' + this.boundRect[3] + 'px;';
+    const color = 'color: ' + useEditorConfig().color + ';';
     const backgroundImage =
       'background-image: ' + 'url(' + this.getImage() + ');background-size: contain';
-    instance.setAttribute('style', top + left + height + width + backgroundImage);
+    instance.setAttribute('style', top + left + height + width + color + backgroundImage);
     const nameElement = document.createTextNode(this.name);
     instance.appendChild(nameElement);
     // TODO: hover
