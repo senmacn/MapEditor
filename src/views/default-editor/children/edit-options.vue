@@ -96,7 +96,7 @@
       </a-tooltip>
     </a-col>
     <a-col :span="3">
-      <a-tooltip title="还原">
+      <a-tooltip title="重做">
         <a-button @click="emitCanvasRedoEvent" :disabled="!editableRef">
           <redo-outlined />
         </a-button>

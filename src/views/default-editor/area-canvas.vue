@@ -167,13 +167,11 @@
 
   onCanvasRedoEvent(() => {
     if (controller.isDrawingArea()) {
-      message.info('还原');
       ctxRef.redo();
     }
   });
   onCanvasUndoEvent(() => {
     if (controller.isDrawingArea()) {
-      message.info('撤销');
       ctxRef.undo();
     }
   });
@@ -206,7 +204,7 @@
   watch(
     () => controller.getState(),
     (newState, oldState) => {
-      if (oldState === CanvasOption.Pen && newState != CanvasOption.Pen) {
+      if (oldState === CanvasOption.Pen && newState !== CanvasOption.Pen) {
         const paths = Pen.getPath();
         if (paths.length === 0) return;
         let editCanvas: HTMLCanvasElement = document.getElementById(
