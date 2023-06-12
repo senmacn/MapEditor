@@ -55,6 +55,9 @@ class CanvasStateController {
   isDrawingShape() {
     return DrawingShape.includes(this.state.value);
   }
+  isDrawingPen() {
+    return this.state.value === CanvasOption.Pen;
+  }
   getCurrentArea() {
     return this.currentArea.value;
   }

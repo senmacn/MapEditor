@@ -1,7 +1,6 @@
 <template>
   <canvas
     id="mask-canvas"
-    v-show="visible"
     @mousemove="handleMouseMove"
     @mouseup.stop="handleMouseUp"
     @mousedown.stop="handleMouseDown"
@@ -19,10 +18,6 @@
   import { useEditorConfig } from '@/store/modules/editor-config';
 
   defineProps({
-    visible: {
-      type: Boolean,
-      default: false,
-    },
     offset: {
       type: Object as PropType<Offset>,
       default: { x: 0, y: 0 },

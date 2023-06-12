@@ -18,13 +18,16 @@ class Pen {
   currentEndPoint: EndPoint | null = null;
   draggingControlPoint: ControlPoint | null = null;
 
+  // { x, y, createPath }
+  revertStack: Recordable[] = [];
+
   constructor() {
     this.reset();
   }
 
-  init() {
+  init(target: HTMLCanvasElement = document.querySelector('#pen-canvas') as HTMLCanvasElement) {
     if (this.inited) return;
-    this.canvas = document.querySelector('#area-canvas') as HTMLCanvasElement;
+    this.canvas = target;
     this.ctx = this.canvas.getContext('2d') as CanvasRenderingContext2D;
     ControlPoint.ctx = this.ctx;
     EndPoint.ctx = this.ctx;
@@ -40,15 +43,11 @@ class Pen {
     this.isNewEndPoint = false;
     this.currentEndPoint = null;
     this.draggingControlPoint = null;
+
+    this.revertStack = [];
   }
 
   onmousedown(e: MouseEvent) {
-    // ctrl 时，结束绘制
-    if (e.ctrlKey && this.paths[this.paths.length - 1].length >= 2) {
-      this.createPath();
-      this.renderer();
-      return;
-    }
     let loc = this.positionToCanvas(e.clientX, e.clientY);
     let relativeLoc = { x: loc.x, y: loc.y };
     let selectedPath = this.getSelectedPath();
@@ -141,15 +140,35 @@ class Pen {
   }
   onkeydown(e: KeyboardEvent) {
     if (e.altKey) {
+      e.stopPropagation();
       e.preventDefault();
       this.editCpBalance = true;
       return;
     }
-    if (e.key === 'Delete' || e.key === 'Backspace') {
+    if (e.key === 'Delete' || e.key === 'Backspace' || (e.key === 'z' && e.ctrlKey)) {
+      e.stopPropagation();
       e.preventDefault();
-      this.deleteEndPoint();
+      for (let i = 0, l = this.paths.length; i < l; i++) {
+        this.paths[i].deleteSelected();
+        if (this.paths[i].length === 0 && i + 1 !== l) {
+          this.paths.splice(i, 1);
+          l = this.paths.length;
+          i--;
+        }
+      }
       this.renderer();
     }
+    // 重做
+    // if (e.key === 'y' && e.ctrlKey) {
+    //   const point = this.revertStack.pop();
+    //   if (point) {
+    //     if (point.createPath) {
+    //       this.createPath();
+    //     }
+    //     this.onmousedown({ clientX: point.x, clientY: point.y } as MouseEvent);
+    //     this.renderer();
+    //   }
+    // }
   }
   onkeyup(e) {
     switch (e.keyCode) {
@@ -159,17 +178,6 @@ class Pen {
         break;
       default:
         break;
-    }
-  }
-  deleteEndPoint() {
-    let paths = this.paths;
-    for (let i = 0, l = paths.length; i < l; i++) {
-      paths[i].deleteSelected();
-      if (paths[i].length === 0 && i + 1 !== l) {
-        paths.splice(i, 1);
-        l = paths.length;
-        i--;
-      }
     }
   }
   createEndPoint(x: number, y: number) {
@@ -224,30 +232,31 @@ class Pen {
     };
   }
   renderer() {
-    if (!this.ctx || !this.canvas) return;
-    let ep,
-      prev_ep,
-      ctx = this.ctx;
+    if (this.ctx && this.canvas) {
+      this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+      this.renderTo(this.ctx, this.canvas, this.paths);
+    }
+  }
+  renderTo(ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement, paths: Path<EndPoint>[]) {
+    if (!ctx || !canvas) return;
+    let ep, prev_ep;
 
-    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-
-    this.paths.forEach(function (path) {
+    paths.forEach(function (path) {
       for (var i = 0, l = path.length; i < l; i++) {
         ep = path[i];
         ep.printAndControlPoints();
         if (i > 0) {
           prev_ep = path[i - 1];
-          bezierCurveTo(prev_ep, ep, ctx);
+          _bezierCurveTo(prev_ep, ep, ctx);
         }
       }
       if (path.isClose) {
         prev_ep = path[l - 1];
         ep = path[0];
-        bezierCurveTo(prev_ep, ep, ctx);
+        _bezierCurveTo(prev_ep, ep, ctx);
       }
     });
-
-    function bezierCurveTo(prev_ep, ep, ctx: CanvasRenderingContext2D) {
+    function _bezierCurveTo(prev_ep: EndPoint, ep: EndPoint, ctx: CanvasRenderingContext2D) {
       ctx.save();
       ctx.beginPath();
       ctx.lineWidth = useEditorConfig().getLineWidth;
@@ -256,6 +265,9 @@ class Pen {
       ctx.bezierCurveTo(prev_ep.cp1.x, prev_ep.cp1.y, ep.cp0.x, ep.cp0.y, ep.x, ep.y);
       ctx.stroke();
       ctx.restore();
+      // TODO: 暂时不添加渲染后的每一步重做
+      // @ts-ignore
+      // ctx.putSave && ctx.putSave();
     }
   }
   deactive() {
@@ -265,8 +277,8 @@ class Pen {
       this.canvas.removeEventListener('mousedown', listeners.mousedown, false);
       this.canvas.removeEventListener('mousemove', listeners.mousemove, false);
       this.canvas.removeEventListener('mouseup', listeners.mouseup, false);
-      document.removeEventListener('keydown', listeners.keydown, false);
-      document.removeEventListener('keyup', listeners.keyup, false);
+      document.body.removeEventListener('keydown', listeners.keydown, false);
+      document.body.removeEventListener('keyup', listeners.keyup, false);
     }
   }
   active() {
@@ -294,8 +306,12 @@ class Pen {
     this.canvas.addEventListener('mousedown', listeners.mousedown, false);
     this.canvas.addEventListener('mousemove', listeners.mousemove, false);
     this.canvas.addEventListener('mouseup', listeners.mouseup, false);
-    document.addEventListener('keydown', listeners.keydown, false);
-    document.addEventListener('keyup', listeners.keyup, false);
+    document.body.addEventListener('keydown', listeners.keydown, false);
+    document.body.addEventListener('keyup', listeners.keyup, false);
+  }
+
+  getPath() {
+    return this.paths;
   }
 }
 

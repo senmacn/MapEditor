@@ -21,19 +21,20 @@
       :style="styleRef"
       :offset="offsetRef"
     />
-    <mask-canvas :visible="controller.isDrawingShape()" :style="styleRef" :offset="offsetRef" />
+    <pen-canvas v-show="controller.isDrawingPen()" :style="styleRef" :offset="offsetRef" />
+    <mask-canvas v-show="controller.isDrawingShape()" :style="styleRef" :offset="offsetRef" />
   </div>
   <Contextmenu ref="contextmenuRef" @show-pin-modal="handleShowPinModal"></Contextmenu>
   <Pin-modal ref="pinRef"></Pin-modal>
 </template>
 
 <script setup lang="ts">
-  import Area from './draw-element/area';
   import DrawElement from './draw-element';
   import type { Layer } from './common/types';
   import { Ref, inject, nextTick, provide, reactive, ref, watch } from 'vue';
   import MaskCanvas from './mask-canvas.vue';
   import AreaCanvas from './area-canvas.vue';
+  import PenCanvas from './pen-canvas.vue';
   import AreaViewer from './area-viewer.vue';
   import { useEditorConfig } from '@/store/modules/editor-config';
   import { onFocusAreaEvent } from './common/event';

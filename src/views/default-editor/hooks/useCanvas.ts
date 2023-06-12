@@ -62,7 +62,7 @@ export class ExtendCanvas implements CanvasExtendImp {
   setupCanvas(canvasInstance: CanvasRenderingContext2D) {
     this.canvasInstance = canvasInstance;
     if (this.historyState.current < 0) {
-      this.save();
+      this.putSave();
     }
     this.HISTORY_MAX = 10 - Math.floor(this.canvasConfig.size.width / 1000);
     this.HISTORY_MAX = this.HISTORY_MAX < 2 ? 2 : this.HISTORY_MAX;
@@ -77,7 +77,7 @@ export class ExtendCanvas implements CanvasExtendImp {
     if (this.canvasInstance) return this.canvasInstance;
     throw new Error('Canvas Not Found');
   }
-  save() {
+  putSave() {
     const ctx = this.getCanvas();
     const fullData = ctx.getImageData(0, 0, ctx.canvas.width, ctx.canvas.height);
     // const boundRect = imageDataUtil.getImageDataBoundRect(fullData);
