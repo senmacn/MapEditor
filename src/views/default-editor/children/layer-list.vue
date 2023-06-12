@@ -6,7 +6,7 @@
       <div class="layer-option"> 操作 </div>
     </div>
     <transition-group name="list" tag="ul">
-      <li class="layer-item" v-for="(layer, index) in layersRef" :key="layer.uuid">
+      <li class="layer-item" v-for="(layer, index) in canvasState.layers" :key="layer.uuid">
         <div class="layer-content">
           <div
             class="layer-index"
@@ -81,7 +81,7 @@
 </template>
 
 <script setup lang="ts">
-  import { Ref, inject, ref } from 'vue';
+  import { ref } from 'vue';
   import AreaList from './area-list.vue';
   import modal from 'ant-design-vue/lib/modal';
   import { getRandomDomId } from '../../../utils/uuid';
@@ -97,14 +97,15 @@
     PlusCircleOutlined,
   } from '@ant-design/icons-vue';
   import UploadBackgroundModal from './upload-background-modal.vue';
+  import { useCanvasState } from '@/store/modules/canvas-state';
 
-  const layersRef: Ref<Layer[]> = inject('layers', [] as any);
+  const canvasState = useCanvasState();
 
   // 当前聚焦
   const refreshHot = () => {
     let isHot = false;
-    for (let index = layersRef.value.length - 1; index >= 0; index--) {
-      const element = layersRef.value[index];
+    for (let index = canvasState.layers.length - 1; index >= 0; index--) {
+      const element = canvasState.layers[index];
       element.hot = false;
       if (element.visible && !isHot) {
         element.hot = true;
@@ -118,9 +119,9 @@
     refreshHot();
   }
   function handleLayerAdd() {
-    layersRef.value.push({
+    canvasState.layers.push({
       uuid: getRandomDomId(),
-      name: '图层' + (layersRef.value.length + 1),
+      name: '图层' + (canvasState.layers.length + 1),
       hot: true,
       visible: true,
       map: null,
@@ -132,9 +133,9 @@
   function handleLayerDelete(index: number) {
     modal.confirm({
       title: '确认',
-      content: `删除[${layersRef.value[index].name}]的操作不可逆，请仔细确认！`,
+      content: `删除[${canvasState.layers[index].name}]的操作不可逆，请仔细确认！`,
       onOk: () => {
-        layersRef.value.splice(index, 1);
+        canvasState.layers.splice(index, 1);
         refreshHot();
       },
     });
@@ -148,8 +149,8 @@
   }
   function handleUploadBackgroundFile(base64: string) {
     backgroundModalVisibleRef.value = false;
-    layersRef.value[updateIndex].map = base64;
-    layersRef.value[updateIndex].visible = true;
+    canvasState.layers[updateIndex].map = base64;
+    canvasState.layers[updateIndex].visible = true;
   }
 
   const dragIndexRef = ref(0);
@@ -162,9 +163,9 @@
     if (index === 0) return;
     // 避免源对象触发自身的dragenter事件
     if (dragIndexRef.value !== index) {
-      const source = layersRef.value[dragIndexRef.value];
-      layersRef.value.splice(dragIndexRef.value, 1);
-      layersRef.value.splice(index, 0, source);
+      const source = canvasState.layers[dragIndexRef.value];
+      canvasState.layers.splice(dragIndexRef.value, 1);
+      canvasState.layers.splice(index, 0, source);
       // 排序变化后目标对象的索引变成源对象的索引
       dragIndexRef.value = index;
       refreshHot();

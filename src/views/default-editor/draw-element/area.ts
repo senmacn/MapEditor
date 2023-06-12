@@ -99,16 +99,12 @@ export default class Area extends DrawElement {
     this.wrapperMoveable();
   }
   select() {
-    if (controller.getCurrentArea() === this) return;
     // 先重置，否则mask-area的offset会错误
-    controller.setCurrentArea(null);
-    nextTick(() => {
-      // TODO: Pin error
-      controller.setCurrentArea(this as unknown as Area);
-      // @ts-ignore
-      document.getElementsByClassName(this.uuid).item(0).style.visibility = 'visible';
-      this.instance?.click();
-      this.moveable?.setState({ draggable: true, resizable: true });
-    });
+    // TODO: Pin error
+    controller.addCurrentArea(this);
+    // @ts-ignore
+    document.getElementsByClassName(this.uuid).item(0).style.visibility = 'visible';
+    this.instance?.click();
+    this.moveable?.setState({ draggable: true, resizable: true });
   }
 }

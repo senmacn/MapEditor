@@ -49,7 +49,7 @@
       <a-button
         type="text"
         status="danger"
-        :disabled="!controller.getCurrentArea()"
+        :disabled="!controller.isSelectedArea()"
         @click="handleDeleteArea"
       >
         <delete-outlined />
@@ -167,14 +167,12 @@
 </template>
 
 <script setup lang="ts">
-  import { Ref, computed, inject, ref } from 'vue';
+  import { computed, ref } from 'vue';
   import EditConfig from './children/edit-config.vue';
   import { emitEditAreaEvent, emitDeleteAreaEvent } from './common/event';
-  import { isNull } from '@/utils/is';
   import modal from 'ant-design-vue/lib/modal';
   import controller, { CanvasOption } from './common/canvas-state-controller';
   import { emitCanvasUndoEvent, emitCanvasRedoEvent } from './common/event';
-  import { Layer } from './common/types';
   import { checkAreaName } from './common/util';
   import {
     PlusOutlined,
@@ -188,11 +186,12 @@
     EditFilled,
     MinusOutlined,
   } from '@ant-design/icons-vue';
+  import { useCanvasState } from '@/store/modules/canvas-state';
 
-  const layersRef: Ref<Layer[]> = inject('layers', [] as any);
+  const canvasState = useCanvasState();
   const hotLayerRef = computed(() => {
-    for (let index = layersRef.value.length - 1; index >= 0; index--) {
-      const element = layersRef.value[index];
+    for (let index = canvasState.layers.length - 1; index >= 0; index--) {
+      const element = canvasState.layers[index];
       if (element.hot) {
         return element;
       }
@@ -229,7 +228,7 @@
   }
 
   function handleStartEditArea() {
-    areaNameRef.value = controller.getCurrentArea()?.getName() || '';
+    areaNameRef.value = controller.getCurrentAreas()[0]?.getName() || '';
     controller.startDrawingArea(false);
     setTimeout(() => {
       emitEditAreaEvent();
@@ -239,7 +238,7 @@
   function handleDeleteArea() {
     modal.confirm({
       title: '确认',
-      content: '删除当前选中的区域【' + controller.getCurrentArea()?.getName() + '】？',
+      content: '删除当前选中的区域【' + controller.getCurrentAreas()[0]?.getName() + '】？',
       onOk: () => {
         emitDeleteAreaEvent();
       },
@@ -247,7 +246,7 @@
   }
 
   const editBtnDisabled = computed(
-    () => isNull(controller.getCurrentArea()) || controller.isDrawingArea(),
+    () => !controller.getCurrentAreas()[0] || controller.isDrawingArea(),
   );
 
   /**

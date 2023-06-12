@@ -11,7 +11,7 @@
     <a-spin tip="渲染中..." :spinning="spinningRef">
       <div class="area-choose" v-if="isFirst">
         <a-checkbox-group v-model:value="areasRef">
-          <a-row v-for="layer in layersRef">
+          <a-row v-for="layer in canvasState.layers">
             <a-col :span="4" class="title">
               <block-outlined />
               {{ layer.name }}
@@ -55,8 +55,7 @@
 </template>
 
 <script setup lang="ts">
-  import { Ref, inject, ref, unref } from 'vue';
-  import { Layer } from '../common/types';
+  import { ref } from 'vue';
   import { getClosedCurvePointsData, scaleImageData } from '../utils/image-data-util';
   import DownloadWorker from '@/worker/download-positions.worker?worker';
   import { getLocalApi } from '@/utils/env';
@@ -68,6 +67,7 @@
   import { GatewayOutlined, BlockOutlined } from '@ant-design/icons-vue';
   import { Area } from '../draw-element';
   import { max, min } from 'lodash-es';
+  import { useCanvasState } from '@/store/modules/canvas-state';
 
   const emit = defineEmits<{
     (event: 'ok'): void;
@@ -81,7 +81,7 @@
     },
   });
 
-  const layersRef: Ref<Layer[]> = inject('layers', [] as any);
+  const canvasState = useCanvasState();
 
   const areasRef = ref<String[]>([]);
   const mixinRef = ref(false);
@@ -103,7 +103,7 @@
     areaData = [];
     spinningRef.value = true;
     setTimeout(() => {
-      const layers = unref(layersRef);
+      const layers = canvasState.layers;
       // @ts-ignore
       document.getElementById('displayModal').innerHTML = '';
       const areas: Area[] = [];
