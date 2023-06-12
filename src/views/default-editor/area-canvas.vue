@@ -4,7 +4,6 @@
     @mousemove.stop="handleMouseMove"
     @mouseup.stop="handleMouseUp"
     @mousedown.stop="handleMouseDown"
-    @mouseout="handleMouseUp"
   ></canvas>
 </template>
 
@@ -23,9 +22,9 @@
   } from './common/event';
   import { Area } from './draw-element';
   import { useEditorConfig } from '@/store/modules/editor-config';
-  import debounce from 'lodash-es/debounce';
   import { message } from 'ant-design-vue';
   import Pen from './pen/Pen';
+import { useToggle } from '@vueuse/core';
 
   const props = defineProps({
     offset: {
@@ -39,6 +38,7 @@
   const configRef = useEditorConfig();
   let movedPoints: PointA[] = [];
   let beginPoint: PointA = { x: 0, y: 0 };
+  const [activeRef, setActiveRef] = useToggle(false);
 
   // 鼠标事件根据不同按钮按下后分别处理
   function handleMouseDown(e: MouseEvent) {
@@ -72,34 +72,32 @@
         break;
       }
     }
-    controller.setActive(true);
+    setActiveRef(true);
   }
 
-  const handleMouseMove = debounce(
-    function (e: MouseEvent) {
-      if (e.button !== 0 || !controller.getActive()) return;
-      switch (controller.getState()) {
-        case CanvasOption.FollowMouse: {
-          _drawSmoothLine(e);
-          break;
-        }
-        case CanvasOption.FollowMouseClear: {
-          ctxRef.erase(canvasUtil.getPos(e));
-          break;
-        }
+  function handleMouseMove(e: MouseEvent) {
+    if (e.button !== 0 || !activeRef.value) return;
+    const curPoint = canvasUtil.getPos(e);
+    switch (controller.getState()) {
+      case CanvasOption.FollowMouse: {
+        _drawSmoothLine(curPoint);
+        break;
       }
-    },
-    5,
-    { leading: true },
-  );
+      case CanvasOption.FollowMouseClear: {
+        ctxRef.erase(curPoint);
+        break;
+      }
+    }
+  }
+
   function handleMouseUp(e: MouseEvent) {
-    if (e.button !== 0 || !controller.getActive()) return;
+    if (e.button !== 0 || !activeRef.value) return;
     const curPoint = canvasUtil.getPos(e);
     switch (controller.getState()) {
       case CanvasOption.FollowMouse: {
         // 不能画点
         if (!canvasUtil.isPointOverlap(curPoint, beginPoint)) {
-          const endPoint = _drawSmoothLine(e, true);
+          const endPoint = _drawSmoothLine(curPoint, true);
           if (configRef.getAutoConnect && endPoint) {
             _autoConnect(endPoint);
           }
@@ -107,16 +105,16 @@
         break;
       }
       case CanvasOption.FollowMouseClear: {
-        ctxRef.erase(canvasUtil.getPos(e), true);
+        ctxRef.erase(curPoint, true);
         break;
       }
     }
-    controller.setActive(false);
+    setActiveRef(false);
     ctxRef.putSave();
   }
   // 假如可以画线的话，画线
-  function _drawSmoothLine(e: MouseEvent, isLast = false): PointA {
-    movedPoints.push(canvasUtil.getPos(e));
+  function _drawSmoothLine(point: PointA, isLast = false): PointA {
+    movedPoints.push(point);
     if (movedPoints.length > 3) {
       const lastTwoPoints = movedPoints.slice(-2);
       const controlPoint = lastTwoPoints[0];
@@ -259,13 +257,44 @@
       if (e.key === 'y' && !controller.isDrawingPen()) ctxRef.redo();
     }
   }
+  function handleMouseUpOuter(e: MouseEvent) {
+    if (e.button !== 0 || !activeRef.value) return;
+    const canvas = ctxRef.getCanvas().canvas;
+    const canvasRect = canvas.getBoundingClientRect();
+    const x = Math.max(0, Math.min(e.clientX - canvasRect.left, canvas.width));
+    const y = Math.max(0, Math.min(e.clientY - canvasRect.top, canvas.height));
+    handleMouseUp({ button: 0, offsetX: x, offsetY: y } as MouseEvent);
+  }
+
+  function handleMouseMoveOuter(e: MouseEvent) {
+    if (e.button !== 0 || !activeRef.value) return;
+    const canvas = ctxRef.getCanvas().canvas;
+    const canvasRect = canvas.getBoundingClientRect();
+    const x = Math.max(0, Math.min(e.clientX - canvasRect.left, canvas.width));
+    const y = Math.max(0, Math.min(e.clientY - canvasRect.top, canvas.height));
+    handleMouseMove({ button: 0, offsetX: x, offsetY: y } as MouseEvent);
+  }
+  function handleMouseDownOuter(e: MouseEvent) {
+    if (e.button !== 0) return;
+    const canvas = ctxRef.getCanvas().canvas;
+    const canvasRect = canvas.getBoundingClientRect();
+    const x = Math.max(0, Math.min(e.clientX - canvasRect.left, canvas.width));
+    const y = Math.max(0, Math.min(e.clientY - canvasRect.top, canvas.height));
+    handleMouseDown({ button: 0, offsetX: x, offsetY: y } as MouseEvent);
+  }
   // 挂载时初始化
   onMounted(() => {
     setup();
     document.body.addEventListener('keydown', onKeyBoardDown);
+    document.body.addEventListener('mousedown', handleMouseDownOuter);
+    document.body.addEventListener('mousemove', handleMouseMoveOuter);
+    document.body.addEventListener('mouseup', handleMouseUpOuter);
   });
   onBeforeUnmount(() => {
     document.body.removeEventListener('keydown', onKeyBoardDown);
+    document.body.removeEventListener('mousedown', handleMouseDownOuter);
+    document.body.removeEventListener('mousemove', handleMouseMoveOuter);
+    document.body.removeEventListener('mouseup', handleMouseDownOuter);
   });
 
   // 对外暴露

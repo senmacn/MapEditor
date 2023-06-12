@@ -3,12 +3,6 @@ import { CanvasExtendImp, CanvasInstance } from '../common/types';
 import { useEditorConfig } from '@/store/modules/editor-config';
 import { message } from 'ant-design-vue';
 
-interface CanvasHistory {
-  data: ImageData | null;
-  // x1: number; y1: number; width: number; height: number;
-  // rect: Box;
-}
-
 function getIntegerPoint(point: PointA) {
   return {
     x: Math.ceil(point.x),
