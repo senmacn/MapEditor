@@ -6,7 +6,7 @@ export interface CanvasExtendImp {
   setupCanvas: (canvas: CanvasRenderingContext2D) => void;
   setOffset: (offset: Offset) => void;
   getOffset: () => Offset;
-  save: () => void;
+  putSave: () => void;
   redo: () => void;
   undo: () => void;
   clean: (props?: Box) => void;

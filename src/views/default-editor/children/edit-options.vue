@@ -39,7 +39,7 @@
         <a-select
           class="button-select"
           :class="[controller.getState() === CanvasOption.FollowMouseClear && 'actived']"
-          :default-value="config.getEraseSize"
+          :value="config.getEraseSize"
           @change="(val) => config.setEraseSize(Number(val))"
           :disabled="!editableRef"
         >
@@ -107,15 +107,21 @@
     <a-col class="row-label" :span="4">
       <span class="group-label">形状： </span>
     </a-col>
-    <a-col :span="3">
+    <a-col :span="7">
       <a-tooltip title="直线">
-        <a-button
-          :class="[controller.getState() === CanvasOption.DrawLine && 'actived']"
-          @click="() => handleChangeOptionState(CanvasOption.DrawLine)"
-          :disabled="!editableRef"
-        >
-          <minus-outlined />
-        </a-button>
+        <a-button-group>
+          <a-button
+            :class="[controller.getState() === CanvasOption.DrawLine && 'actived']"
+            @click="() => handleChangeOptionState(CanvasOption.DrawLine)"
+            :disabled="!editableRef"
+          >
+            <minus-outlined />
+          </a-button>
+          <a-select class="button-select">
+            <a-select-option :value="0">普通线段</a-select-option>
+            <a-select-option :value="1">连续线段</a-select-option>
+          </a-select>
+        </a-button-group>
       </a-tooltip>
     </a-col>
     <a-col :span="3">
@@ -200,7 +206,6 @@
       font-size: 12px;
       width: 50px;
       height: 32px;
-      padding: 0 4px;
       border-radius: 0 5px 5px 0;
     }
   }

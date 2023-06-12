@@ -40,21 +40,6 @@
   let movedPoints: PointA[] = [];
   let beginPoint: PointA = { x: 0, y: 0 };
 
-  watch(
-    () => controller.getState(),
-    (_, old) => {
-      if (controller.getState() === CanvasOption.Pen) {
-        Pen.init();
-        Pen.reset();
-        Pen.active();
-      } else {
-        if (old === CanvasOption.Pen) {
-          Pen.deactive();
-        }
-      }
-    },
-  );
-
   // 鼠标事件根据不同按钮按下后分别处理
   function handleMouseDown(e: MouseEvent) {
     if (e.button !== 0) return;
@@ -127,7 +112,7 @@
       }
     }
     controller.setActive(false);
-    ctxRef.save();
+    ctxRef.putSave();
   }
   // 假如可以画线的话，画线
   function _drawSmoothLine(e: MouseEvent, isLast = false): PointA {
@@ -197,7 +182,7 @@
       _autoConnect(payload.beginPoint);
       _autoConnect(payload.endPoint);
       ctxRef.drawLine(payload.beginPoint, payload.endPoint);
-      ctxRef.save();
+      ctxRef.putSave();
     }
   });
   onPersistShapeEvent((_, payload) => {
@@ -214,9 +199,24 @@
           break;
         }
       }
-      ctxRef.save();
+      ctxRef.putSave();
     }
   });
+
+  watch(
+    () => controller.getState(),
+    (newState, oldState) => {
+      if (oldState === CanvasOption.Pen && newState != CanvasOption.Pen) {
+        const paths = Pen.getPath();
+        if (paths.length === 0) return;
+        let editCanvas: HTMLCanvasElement = document.getElementById(
+          'area-canvas',
+        ) as HTMLCanvasElement;
+        Pen.renderTo(ctxRef, editCanvas, paths);
+        ctxRef.putSave();
+      }
+    },
+  );
 
   // zoom配置修改时，修改canvas大小
   // watch(
@@ -251,19 +251,23 @@
     setUpState = true;
   }
   function onKeyBoardDown(e: KeyboardEvent) {
+    if (e.key === 'Escape') {
+      controller.setState(CanvasOption.None);
+    }
     if (e.ctrlKey) {
       e.stopPropagation();
-      if (e.key === 'z') ctxRef.undo();
-      if (e.key === 'y') ctxRef.redo();
+      e.preventDefault();
+      if (e.key === 'z' && !controller.isDrawingPen()) ctxRef.undo();
+      if (e.key === 'y' && !controller.isDrawingPen()) ctxRef.redo();
     }
   }
   // 挂载时初始化
   onMounted(() => {
     setup();
-    window.addEventListener('keydown', onKeyBoardDown);
+    document.body.addEventListener('keydown', onKeyBoardDown);
   });
   onBeforeUnmount(() => {
-    window.removeEventListener('keydown', onKeyBoardDown);
+    document.body.removeEventListener('keydown', onKeyBoardDown);
   });
 
   // 对外暴露

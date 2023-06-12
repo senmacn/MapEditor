@@ -19,13 +19,7 @@ export default class Path<T extends EndPoint> extends Array<T> {
     });
   }
   deleteSelected() {
-    for (var i = 0, l = this.length; i < l; i++) {
-      if (this[i].selected) {
-        this.splice(i, 1);
-        l = this.length;
-        i--;
-      }
-    }
+    this.splice(this.length - 1, 1);
   }
   addEndPoint(oed, ed) {
     for (var i = 0, l = this.length; i < l; i++) {
