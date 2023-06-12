@@ -4,6 +4,7 @@ export type CanvasInstance = CanvasExtendImp & CanvasRenderingContext2D;
 
 export interface CanvasExtendImp {
   reset(): void;
+  getCanvas(): CanvasRenderingContext2D;
   setupCanvas: (canvas: CanvasRenderingContext2D) => void;
   setOffset: (offset: Offset) => void;
   getOffset: () => Offset;

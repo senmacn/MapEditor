@@ -4,7 +4,7 @@
     @mousemove="handleMouseMove"
     @mouseup.stop="handleMouseUp"
     @mousedown.stop="handleMouseDown"
-    @mouseout="handleMouseOut"
+    @mouseout="handleMouseMove"
   ></canvas>
 </template>
 
@@ -12,10 +12,11 @@
   import useCanvas from './hooks/useCanvas';
   import controller, { CanvasOption } from './common/canvas-state-controller';
   import { getPos } from './utils/canvas-util';
-  import { onMounted } from 'vue';
+  import { onBeforeUnmount, onMounted } from 'vue';
   import { emitPersistLineEvent, emitPersistShapeEvent, onDeleteAreaEvent } from './common/event';
   import * as canvasUtil from './utils/canvas-util';
   import { useEditorConfig } from '@/store/modules/editor-config';
+  import { useToggle } from '@vueuse/core';
 
   defineProps({
     offset: {
@@ -30,6 +31,7 @@
   let beginPoint: PointA = { x: 0, y: 0 };
   let endPoint: PointA = { x: 0, y: 0 };
   let prevPoint: PointA = { x: 0, y: 0 };
+  const [activeRef, setActiveRef] = useToggle(false);
 
   // 鼠标事件根据不同按钮按下后分别处理
   function handleMouseDown(e: MouseEvent) {
@@ -41,13 +43,13 @@
         const point = getPos(e);
         beginPoint = point;
         prevPoint = beginPoint;
-        controller.setActive(true);
+        setActiveRef(true);
         break;
       }
     }
   }
   const handleMouseMove = function (e: MouseEvent) {
-    if (e.button !== 0 || !controller.getActive()) return;
+    if (e.button !== 0 || !activeRef.value) return;
     endPoint = getPos(e);
     // 清除
     const radius = Math.sqrt(
@@ -79,7 +81,7 @@
   };
 
   function handleMouseUp(e: MouseEvent) {
-    if (!controller.getActive()) return;
+    if (!activeRef.value) return;
     endPoint = getPos(e);
     switch (controller.getState()) {
       case CanvasOption.DrawLine: {
@@ -109,13 +111,7 @@
       2 * radius + 100,
       2 * radius + 100,
     ]);
-    controller.setActive(false);
-  }
-  function handleMouseOut(e) {
-    // 鼠标划出视为在划出点放开鼠标
-    // ctxRef.clean();
-    handleMouseUp(e);
-    // controller.setActive(false);
+    setActiveRef(false);
   }
 
   onDeleteAreaEvent(() => {
@@ -123,7 +119,7 @@
   });
 
   // 挂载时初始化
-  onMounted(() => {
+  function setup() {
     let maskCanvas: HTMLCanvasElement | null = document.querySelector('#mask-canvas');
     if (maskCanvas == null) return;
     const flag = configRef.size.x > 5000 || configRef.size.y > 5000;
@@ -133,6 +129,34 @@
       willReadFrequently: true,
     }) as CanvasRenderingContext2D;
     ctxRef.setupCanvas(ctx);
+  }
+
+  function handleMouseUpOuter(e: MouseEvent) {
+    if (e.button !== 0 || !activeRef.value) return;
+    const canvas = ctxRef.getCanvas().canvas;
+    const canvasRect = canvas.getBoundingClientRect();
+    const x = e.clientX - canvasRect.left;
+    const y = e.clientY - canvasRect.top;
+    handleMouseUp({ button: 0, offsetX: x, offsetY: y } as MouseEvent);
+  }
+
+  function handleMouseMoveOuter(e: MouseEvent) {
+    if (e.button !== 0 || !activeRef.value) return;
+    const canvas = ctxRef.getCanvas().canvas;
+    const canvasRect = canvas.getBoundingClientRect();
+    const x = e.clientX - canvasRect.left;
+    const y = e.clientY - canvasRect.top;
+    handleMouseMove({ button: 0, offsetX: x, offsetY: y } as MouseEvent);
+  }
+  // 挂载时初始化
+  onMounted(() => {
+    setup();
+    document.body.addEventListener('mouseup', handleMouseUpOuter);
+    document.body.addEventListener('mousemove', handleMouseMoveOuter);
+  });
+  onBeforeUnmount(() => {
+    document.body.removeEventListener('mouseup', handleMouseUpOuter);
+    document.body.removeEventListener('mousemove', handleMouseMoveOuter);
   });
 
   // zoom配置修改时，修改canvas大小

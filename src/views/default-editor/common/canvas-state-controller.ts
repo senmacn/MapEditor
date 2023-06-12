@@ -29,7 +29,6 @@ function setCursor(cursor: string) {
 class CanvasStateController {
   private areaState = ref(CanvasAreaOption.AreaCheck);
   private state = ref(CanvasOption.None);
-  private active = false;
   private currentArea = ref<Area | null>(null);
   private currentPin = ref<Recordable | null>(null);
   constructor() {}
@@ -45,12 +44,6 @@ class CanvasStateController {
       setCursor('default');
     }
     this.state.value = option;
-  }
-  getActive() {
-    return this.active;
-  }
-  setActive(active: boolean) {
-    this.active = active;
   }
   isDrawingShape() {
     return DrawingShape.includes(this.state.value);
