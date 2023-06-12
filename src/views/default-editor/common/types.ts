@@ -3,6 +3,7 @@ import { Area, Pin } from '../draw-element';
 export type CanvasInstance = CanvasExtendImp & CanvasRenderingContext2D;
 
 export interface CanvasExtendImp {
+  reset(): void;
   setupCanvas: (canvas: CanvasRenderingContext2D) => void;
   setOffset: (offset: Offset) => void;
   getOffset: () => Offset;

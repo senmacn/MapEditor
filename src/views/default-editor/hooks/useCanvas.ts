@@ -1,6 +1,7 @@
 import { isFunction } from 'lodash-es';
 import { CanvasExtendImp, CanvasInstance } from '../common/types';
 import { useEditorConfig } from '@/store/modules/editor-config';
+import { message } from 'ant-design-vue';
 
 interface CanvasHistory {
   data: ImageData | null;
@@ -44,6 +45,8 @@ export default function useCanvas(): CanvasInstance {
   }) as CanvasInstance;
 }
 
+const HISTORY_MAX = 10;
+
 export class ExtendCanvas implements CanvasExtendImp {
   private canvasInstance: CanvasRenderingContext2D | null = null;
   private canvasConfig = useEditorConfig();
@@ -51,21 +54,22 @@ export class ExtendCanvas implements CanvasExtendImp {
   private offset: Offset = { x: 0, y: 0 };
   // 橡皮擦用
   private lastPoint: PointA | null = null;
-  // canvas 存储历史用于保存、撤销、还原操作
-  private canvasHistory: CanvasHistory[] = [{ data: null }];
-  private historyState = {
-    current: 0,
-    max: 0,
-  };
-  private HISTORY_MAX = 10;
+  // canvas 存储历史用于保存、撤销、重做操作
+  // 当前数据
+  private currentData: ImageData | null = null;
+  // 撤销堆栈
+  private revertStack: ImageData[] = [];
+  // 重做堆栈
+  private redoStack: ImageData[] = [];
   constructor() {}
   setupCanvas(canvasInstance: CanvasRenderingContext2D) {
     this.canvasInstance = canvasInstance;
-    if (this.historyState.current < 0) {
-      this.putSave();
-    }
-    this.HISTORY_MAX = 10 - Math.floor(this.canvasConfig.size.width / 1000);
-    this.HISTORY_MAX = this.HISTORY_MAX < 2 ? 2 : this.HISTORY_MAX;
+    this.putSave();
+  }
+  reset() {
+    this.currentData = null;
+    this.revertStack = [];
+    this.redoStack = [];
   }
   getOffset() {
     return this.offset;
@@ -77,43 +81,44 @@ export class ExtendCanvas implements CanvasExtendImp {
     if (this.canvasInstance) return this.canvasInstance;
     throw new Error('Canvas Not Found');
   }
-  putSave() {
-    const ctx = this.getCanvas();
-    const fullData = ctx.getImageData(0, 0, ctx.canvas.width, ctx.canvas.height);
+  putSave(data?: ImageData) {
+    // TODO: 可以节省空间，但每一步可能会卡顿
     // const boundRect = imageDataUtil.getImageDataBoundRect(fullData);
     // const data = ctx.getImageData(...boundRect);
-    if (this.historyState.max === this.HISTORY_MAX) {
-      this.canvasHistory.shift();
-      this.historyState.max = this.historyState.current;
-    } else {
-      this.canvasHistory.splice(++this.historyState.current);
-      this.historyState.max = this.historyState.current;
+    if (!this.currentData) {
+      this.currentData = data || this.getImageData();
+      return;
     }
-    this.canvasHistory.push({
-      data: fullData,
-      // rect: boundRect,
-    });
+    let imageData = this.currentData;
+    this.currentData = data || this.getImageData();
+
+    if (this.revertStack.length < HISTORY_MAX) {
+      this.revertStack.push(imageData);
+    } else {
+      this.revertStack = this.revertStack.slice(1, 10);
+      this.revertStack.push(imageData);
+    }
+    if (!data && this.redoStack.length) {
+      this.redoStack = [];
+    }
   }
   redo() {
     const ctx = this.getCanvas();
-    if (this.historyState.current < this.historyState.max) {
-      const data = this.canvasHistory[++this.historyState.current];
-      if (!data) return;
-      this.clean();
-      if (data.data) {
-        ctx.putImageData(data.data, 0, 0);
-      }
+    if (this.redoStack.length > 0 && this.currentData) {
+      const data = this.redoStack.pop() as ImageData;
+      ctx.putImageData(data, 0, 0);
+      this.putSave(data);
+      message.info('重做');
     }
   }
   undo() {
     const ctx = this.getCanvas();
-    if (this.historyState.current > 0) {
-      const data = this.canvasHistory[--this.historyState.current];
-      if (!data) return;
-      this.clean();
-      if (data.data) {
-        ctx.putImageData(data.data, 0, 0);
-      }
+    if (this.revertStack.length > 0 && this.currentData) {
+      const data = this.revertStack.pop() as ImageData;
+      ctx.putImageData(data, 0, 0);
+      this.redoStack.push(this.currentData);
+      this.currentData = data;
+      message.info('撤销');
     }
   }
   // 清空

@@ -1,7 +1,7 @@
 import { onUnmounted } from 'vue';
 import { EventBusListener, useEventBus } from '@vueuse/core';
 
-// 还原事件
+// 重做事件
 const canvasRedoEvent = Symbol('redo');
 const redoBus = useEventBus<Symbol>(canvasRedoEvent);
 const onCanvasRedoEvent = (listener: EventBusListener) => {
