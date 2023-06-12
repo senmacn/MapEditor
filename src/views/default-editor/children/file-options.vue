@@ -35,11 +35,10 @@
 </template>
 
 <script setup lang="ts">
-  import { Ref, inject, onMounted, onUnmounted, ref } from 'vue';
+  import { onMounted, onUnmounted, ref } from 'vue';
   import modal from 'ant-design-vue/lib/modal';
   import ChangeMapSizeModal from './change-map-size-modal.vue';
   import DisplayOutputModal from './display-output-modal.vue';
-  import { Layer } from '../common/types';
   import { useLoading } from '@/components/Loading';
   import { exportFile } from '@/utils/file';
   import { createSaves } from '@/utils/persist';
@@ -49,6 +48,7 @@
   import { useLocalState } from '@/store/modules/local-state';
   import { useEditorConfig } from '@/store/modules/editor-config';
   import { loadSaves } from '@/utils/persist';
+  import { useCanvasState } from '@/store/modules/canvas-state';
 
   const emit = defineEmits<{
     (e: 'load-saves', layers: any): void;
@@ -56,7 +56,7 @@
 
   const localState = useLocalState();
   const configRef = useEditorConfig();
-  const layersRef: Ref<Layer[]> = inject('layers', [] as any);
+  const canvasState = useCanvasState();
 
   const localApi = getLocalApi();
   function handleConfirmCreateSaves() {
@@ -81,7 +81,7 @@
       if (localApi) {
         localApi.saveLocalFile(
           fileName,
-          createSaves([configRef.getSize.x, configRef.getSize.y], layersRef.value),
+          createSaves([configRef.getSize.x, configRef.getSize.y], canvasState.layers),
         );
         localState.setFileName(fileName);
       }
@@ -103,7 +103,7 @@
           new Date(),
           'MM-dd_hh-mm',
         )}.json`;
-        const data = createSaves([configRef.getSize.x, configRef.getSize.y], layersRef.value);
+        const data = createSaves([configRef.getSize.x, configRef.getSize.y], canvasState.layers);
         if (localApi) {
           localApi
             .saveLocalFile(fileName, data, localState.getExportLocation)

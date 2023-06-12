@@ -16,7 +16,7 @@
 
   const statusRef = computed(() => {
     return controller.isDrawingArea()
-      ? '区域编辑<' + (controller.getCurrentArea()?.getName() || 'newArea') + '>'
+      ? '区域编辑<' + (controller.getCurrentAreas()[0]?.getName() || 'newArea') + '>'
       : '区域查看';
   });
 

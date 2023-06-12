@@ -36,7 +36,7 @@
 </template>
 
 <script setup lang="ts">
-  import { Ref, onBeforeUnmount, onMounted, provide, ref, watch } from 'vue';
+  import { Ref, onBeforeUnmount, onMounted, ref, watch } from 'vue';
   import StatusBar from './children/status-bar.vue';
   import CanvasContainer from './canvas-container.vue';
   import DefaultOptions from './default-options.vue';
@@ -69,7 +69,8 @@
       pins: [],
     },
   ]) as Ref<Layer[]>;
-  provide('layers', layersRef);
+  const canvasState = useCanvasState();
+  canvasState.setLayers(layersRef.value)
 
   // 标尺相关
   const vRuler = ref();
@@ -104,12 +105,11 @@
     range: [0, configRef.getSize.x],
   });
   // 滚动条滚动时修改标尺offset
-  const state = useCanvasState();
   watch(
-    () => state.getOffset,
+    () => canvasState.getOffset,
     () => {
-      hRulerInstance.scroll(state.getOffset.x);
-      vRulerInstance.scroll(state.getOffset.y);
+      hRulerInstance.scroll(canvasState.getOffset.x);
+      vRulerInstance.scroll(canvasState.getOffset.y);
     },
   );
   // 工具展示 + 标尺根据宽度调整

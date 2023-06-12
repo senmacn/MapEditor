@@ -53,7 +53,7 @@
       </a-button>
     </a-col>
     <a-col :span="4">
-      <a-button status="danger" @click="handleDeleteArea" :disabled="!controller.getCurrentArea()">
+      <a-button status="danger" @click="handleDeleteArea" :disabled="!controller.isSelectedArea()">
         <template #icon><delete-outlined /> </template>删除
       </a-button>
     </a-col>
@@ -66,7 +66,6 @@
   import controller from '../common/canvas-state-controller';
   import { emitEditAreaEvent, emitDeleteAreaEvent } from '../common/event';
   import { checkFileName } from '@/utils/file';
-  import { isNull } from '@/utils/is';
   import modal from 'ant-design-vue/lib/modal';
   import {
     PlusOutlined,
@@ -114,7 +113,7 @@
   }
 
   function handleStartEditArea() {
-    [areaNameRef.value, areaIDRef.value] = controller.getCurrentArea()?.getName().split('-') || '';
+    [areaNameRef.value, areaIDRef.value] = controller.getCurrentAreas()[0]?.getName().split('-') || '';
     controller.startDrawingArea(false);
     setTimeout(() => {
       emitEditAreaEvent();
@@ -124,7 +123,7 @@
   function handleDeleteArea() {
     modal.confirm({
       title: '确认',
-      content: '删除当前选中的区域【' + controller.getCurrentArea()?.getName() + '】？',
+      content: '删除当前选中的区域【' + controller.getCurrentAreas()[0]?.getName() + '】？',
       onOk: () => {
         emitDeleteAreaEvent();
       },
@@ -132,7 +131,7 @@
   }
 
   const editBtnDisabled = computed(
-    () => isNull(controller.getCurrentArea()) || controller.isDrawingArea(),
+    () => !controller.getCurrentAreas()[0] || controller.isDrawingArea(),
   );
 </script>
 

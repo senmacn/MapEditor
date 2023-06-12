@@ -12,7 +12,7 @@
     :class="['scroller', controller.isDrawingArea() ? 'active' : '']"
     @click="handleClick"
   >
-    <template v-for="layer in layersRef" :key="layer.uuid">
+    <template v-for="layer in state.layers" :key="layer.uuid">
       <area-viewer :layer="layer" v-show="layer.visible" />
     </template>
     <area-canvas
@@ -30,8 +30,7 @@
 
 <script setup lang="ts">
   import DrawElement from './draw-element';
-  import type { Layer } from './common/types';
-  import { Ref, inject, nextTick, provide, reactive, ref, watch } from 'vue';
+  import { nextTick, provide, reactive, ref, watch } from 'vue';
   import MaskCanvas from './mask-canvas.vue';
   import AreaCanvas from './area-canvas.vue';
   import PenCanvas from './pen-canvas.vue';
@@ -44,11 +43,10 @@
   import Contextmenu from './children/contextmenu.vue';
   import PinModal from './children/pin-modal.vue';
 
-  const layersRef: Ref<Layer[]> = inject('layers', [] as any);
+  const state = useCanvasState();
   const configRef = useEditorConfig();
 
   // 滚动偏移
-  const state = useCanvasState();
   const scrollerRef = ref<HTMLElement>();
   const { x, y } = useScroll(scrollerRef, { throttle: 50 });
   const offsetRef = ref<Offset>({ x: 0, y: 0 });
@@ -66,9 +64,9 @@
           : 0;
       let left =
         x.value - 2000 > 0
-          ? (x.value + 5000 > configRef.size.x
+          ? x.value + 5000 > configRef.size.x
             ? configRef.size.x - 5000
-            : x.value - 2000)
+            : x.value - 2000
           : 0;
       top = top < 0 ? 0 : top;
       left = left < 0 ? 0 : left;
@@ -87,7 +85,7 @@
       let top = boundRect[1] - scroller.clientHeight / 2 + boundRect[3] / 2;
       top = top > 0 ? Math.floor(top) : 0;
       scroller.scroll({ left, top });
-      controller.setCurrentArea(null);
+      controller.setCurrentAreas([]);
       controller.setCurrentPin(null);
       nextTick(() => {
         ele.select();

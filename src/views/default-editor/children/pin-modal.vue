@@ -102,8 +102,8 @@
   import { useColorPicker } from '@/hooks/useColorPicker';
   import { isNull } from '@/utils/is';
   import cloneDeep from 'lodash-es/cloneDeep';
-  import { Layer } from '../common/types';
   import { Pin, PinIcon } from '../draw-element';
+  import { useCanvasState } from '@/store/modules/canvas-state';
 
   const clickPositionRef = inject<Recordable>('clickPositionRef', { offsetX: 0, offsetY: 0 });
   const initFormModel = {
@@ -120,7 +120,7 @@
   const visibleRef = ref(false);
   let isCreate = false;
   let uuid = '';
-  const layersRef: Ref<Layer[]> = inject('layers', [] as any);
+  const canvasState = useCanvasState();
   const pinFormRef = ref();
   function handleOk() {
     pinFormRef.value.validate().then(() => {
@@ -129,8 +129,8 @@
         x: clickPositionRef.offsetX - size / 2,
         y: clickPositionRef.offsetY - size / 2,
       };
-      for (let index = layersRef.value.length - 1; index >= 0; index--) {
-        const element = layersRef.value[index];
+      for (let index = canvasState.layers.length - 1; index >= 0; index--) {
+        const element = canvasState.layers[index];
         if (element.hot) {
           if (isCreate) {
             const pin = new Pin(

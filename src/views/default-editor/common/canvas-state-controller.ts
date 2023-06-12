@@ -29,7 +29,7 @@ function setCursor(cursor: string) {
 class CanvasStateController {
   private areaState = ref(CanvasAreaOption.AreaCheck);
   private state = ref(CanvasOption.None);
-  private currentArea = ref<Area | null>(null);
+  private currentAreas = ref<Area[]>([]);
   private currentPin = ref<Recordable | null>(null);
   constructor() {}
   getState() {
@@ -51,11 +51,25 @@ class CanvasStateController {
   isDrawingPen() {
     return this.state.value === CanvasOption.Pen;
   }
-  getCurrentArea() {
-    return this.currentArea.value;
+  isSelectedArea() {
+    return this.currentAreas.value.length;
   }
-  setCurrentArea(area: Area | null) {
-    this.currentArea.value = area;
+  getCurrentAreas() {
+    return this.currentAreas.value;
+  }
+  setCurrentAreas(areas: Area[]) {
+    this.currentAreas.value = areas;
+  }
+  addCurrentArea(area: Area) {
+    const areas = this.currentAreas.value;
+    const index = areas.findIndex((_area) => _area.isSame(area));
+    if (index >= 0) return;
+    areas.push(area);
+  }
+  removeCurrentArea(area: Area) {
+    const areas = this.currentAreas.value;
+    const index = areas.findIndex((_area) => _area.isSame(area));
+    this.currentAreas.value = areas.splice(index, 1);
   }
   startDrawingArea(isAdd: boolean) {
     this.areaState.value = isAdd ? CanvasAreaOption.AreaAdd : CanvasAreaOption.AreaEdit;

@@ -151,8 +151,8 @@ import { useToggle } from '@vueuse/core';
   }
   // 监听广播
   onEditAreaEvent(function () {
-    const currentArea = controller.getCurrentArea();
-    if (currentArea !== null) {
+    const currentArea = controller.getCurrentAreas()[0];
+    if (currentArea) {
       currentArea.cancelSelect();
       const data = currentArea.getData();
       ctxRef.putImageData(
