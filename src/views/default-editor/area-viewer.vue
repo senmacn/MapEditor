@@ -10,7 +10,7 @@
 </template>
 
 <script setup lang="ts">
-  import { ref, watch } from 'vue';
+  import { onBeforeUnmount, onMounted, ref, watch } from 'vue';
   import { Layer } from './common/types';
   import { useEditorConfig } from '@/store/modules/editor-config';
   import controller from './common/canvas-state-controller';
@@ -18,6 +18,8 @@
   import { Area, Pin } from './draw-element';
   import { isString } from '@/utils/is';
   import useSelecto from './utils/useSelecto';
+  import { message } from 'ant-design-vue';
+  import { copyImageData } from './utils/image-data-util';
 
   const props = defineProps({
     layer: {
@@ -165,6 +167,41 @@
   //     }
   //   },
   // );
+
+  let copyAreas: Area[] = [];
+  function handleCopyPasteArea(e: KeyboardEvent) {
+    if (e.ctrlKey && e.isTrusted) {
+      if (e.key === 'c') {
+        copyAreas = controller.getCurrentAreas().slice() as Area[];
+        message.info('复制成功！');
+      }
+      if (e.key === 'v') {
+        if (copyAreas.length) {
+          copyAreas.forEach((area) => {
+            // 偏移防止重叠
+            const newBoundRect = Object.assign({}, area.getBoundRect()) as Box;
+            newBoundRect[0] = newBoundRect[0] + Math.floor(newBoundRect[2] / 10);
+            newBoundRect[1] = newBoundRect[1] + Math.floor(newBoundRect[3] / 10);
+            const newArea = new Area(
+              area.getName() + '_拷贝',
+              copyImageData(area.getData()),
+              newBoundRect,
+            );
+            props.layer?.areas.push(newArea);
+            render(newArea);
+          });
+          message.info('粘贴成功！');
+        }
+      }
+    }
+  }
+  // 挂载时初始化
+  onMounted(() => {
+    document.body.addEventListener('keydown', handleCopyPasteArea);
+  });
+  onBeforeUnmount(() => {
+    document.body.removeEventListener('keydown', handleCopyPasteArea);
+  });
 </script>
 
 <style lang="less">
