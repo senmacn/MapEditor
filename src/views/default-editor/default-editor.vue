@@ -70,7 +70,7 @@
     },
   ]) as Ref<Layer[]>;
   const canvasState = useCanvasState();
-  canvasState.setLayers(layersRef.value)
+  canvasState.setLayers(layersRef.value);
 
   // 标尺相关
   const vRuler = ref();
@@ -176,6 +176,7 @@
       });
     });
     layersRef.value = layers;
+    canvasState.setLayers(layersRef.value);
   }
 
   function F5Check(e: KeyboardEvent) {
