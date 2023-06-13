@@ -60,6 +60,11 @@ const onCheckAllChange = (e: any) => {
         checkedLayerList: e.target.checked ? state.plainOptions.map((item: any) => {
             return item.value
         }) : [],
+        checkedAreaList: e.target.checked ? state.plainOptions.map((item: any) => {
+            return item.areas.map((area: any) => {
+                return area.value
+            })
+        }): [],
         indeterminate: false,
     });
 };
