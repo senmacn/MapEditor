@@ -15,7 +15,7 @@
       </a-button>
     </a-col>
     <a-col :span="6">
-      <a-button type="primary" @click="handleExportSaves"> 导出 </a-button>
+      <a-button type="primary" @click="handleOpenExportModal"> 导出 </a-button>
     </a-col>
     <a-col :span="6">
       <a-upload
@@ -32,6 +32,7 @@
     @close="changeMapSizeModalVisible = false"
   />
   <display-output-modal :visible="displayOutputVisibleRef" @cancel="handleConfirmCancelExport" />
+  <export-modal :visible="exportModalRef" :layers="canvasState.layers" @emit-close-export="handleCloseExport" @emit-format-exp-data="handleFormatExpData" />
 </template>
 
 <script setup lang="ts">
@@ -39,6 +40,7 @@
   import modal from 'ant-design-vue/lib/modal';
   import ChangeMapSizeModal from './change-map-size-modal.vue';
   import DisplayOutputModal from './display-output-modal.vue';
+  import ExportModal from './export-modal.vue';
   import { useLoading } from '@/components/Loading';
   import { exportFile } from '@/utils/file';
   import { createSaves } from '@/utils/persist';
@@ -49,6 +51,7 @@
   import { useEditorConfig } from '@/store/modules/editor-config';
   import { loadSaves } from '@/utils/persist';
   import { useCanvasState } from '@/store/modules/canvas-state';
+  import { Layer } from '@/views/default-editor/common/types';
 
   const emit = defineEmits<{
     (e: 'load-saves', layers: any): void;
@@ -92,7 +95,10 @@
     }
   }
 
-  function handleExportSaves() {
+  const exportModalRef = ref(false);
+  function handleExportSaves(expLayer) {
+    console.log('canvasState.layers', canvasState.layers)
+    console.log('expLayer', expLayer)
     modal.confirm({
       title: '确认',
       type: 'confirm',
@@ -103,7 +109,7 @@
           new Date(),
           'MM-dd_hh-mm',
         )}.json`;
-        const data = createSaves([configRef.getSize.x, configRef.getSize.y], canvasState.layers);
+        const data = createSaves([configRef.getSize.x, configRef.getSize.y], expLayer);
         if (localApi) {
           localApi
             .saveLocalFile(fileName, data, localState.getExportLocation)
@@ -122,7 +128,28 @@
       },
     });
   }
-
+  function handleOpenExportModal() {
+    exportModalRef.value = true;
+  }
+  function handleCloseExport() {
+    exportModalRef.value = false;
+  }
+  function handleFormatExpData(data: any) {
+    const { layers, areas } = data
+    const expLayerAreaData: any = []
+    for(let i = 0; i < layers.length; i+= 1) {
+      expLayerAreaData.push({
+        ...canvasState.layers.slice(layers[i], layers[i] + 1)[0], 
+        areas: []
+      })
+    }
+    for(let i = 0; i < areas.length; i+= 1) {
+      for(let j = 0; j < areas[i].length; j+= 1) {
+        expLayerAreaData[i].areas.push(canvasState.layers[i].areas[areas[i][j]])
+      }
+    }
+    handleExportSaves(expLayerAreaData)
+  }
   const [openLoading, closeLoading] = useLoading({ tip: '加载中！', minTime: 1000 });
   function handleLoadSaves(file: File) {
     openLoading();
