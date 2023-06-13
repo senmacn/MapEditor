@@ -18,8 +18,21 @@
           <info-circle-outlined class="warning-color" />
           <span class="tip"> 默认开启可优化编辑器速度，底图模糊时可关闭此选项并重新上传！ </span>
         </a-space>
+        <a-space>
+          图层透明
+          <a-input-number 
+            v-model:value="transparencyRef"
+            :max="1" 
+            :min="0" 
+            :step="0.1" 
+            size="small" 
+            mode="button" 
+            class="trans-input"
+          />
+          <info-circle-outlined class="warning-color" />
+          <span class="tip"> 默认为不透明，数值越低透明度越大 </span>
+        </a-space>
       </a-space>
-
       <transition name="fade" mode="out-in">
         <div v-if="stepRef === Step.START">
           <a-divider plain>上传类型</a-divider>
@@ -107,7 +120,7 @@
   }
 
   const emit = defineEmits<{
-    (event: 'ok', base64: string): void;
+    (event: 'ok', base64: string, trans: number): void;
     (event: 'cancel'): void;
   }>();
 
@@ -120,6 +133,7 @@
 
   const configRef = useEditorConfig();
   const compressRef = ref(true);
+  const transparencyRef = ref(1);
   const fileStringRef = ref('');
   const [openLoading, closeLoading] = useLoading({ minTime: 150 });
 
@@ -185,7 +199,7 @@
   }
 
   function handleOk() {
-    emit('ok', fileStringRef.value);
+    emit('ok', fileStringRef.value, transparencyRef.value);
   }
 
   function handleCancel() {
@@ -202,6 +216,9 @@
     .tip {
       font-size: 10px;
       color: @color-text-4;
+    }
+    .trans-input {
+      width: 70px;
     }
     .full-upload {
       .ant-upload-picture-card-wrapper {

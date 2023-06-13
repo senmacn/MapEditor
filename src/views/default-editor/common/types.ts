@@ -29,4 +29,5 @@ export interface Layer {
   hot: boolean;
   areas: Area[];
   pins: Pin[];
+  transparency?: number;
 }

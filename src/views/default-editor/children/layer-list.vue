@@ -127,6 +127,7 @@
       map: null,
       areas: [],
       pins: [],
+      transparency: 1,
     });
     refreshHot();
   }
@@ -147,9 +148,10 @@
     updateIndex = index;
     backgroundModalVisibleRef.value = true;
   }
-  function handleUploadBackgroundFile(base64: string) {
+  function handleUploadBackgroundFile(base64: string, trans: number) {
     backgroundModalVisibleRef.value = false;
     canvasState.layers[updateIndex].map = base64;
+    canvasState.layers[updateIndex].transparency = trans;
     canvasState.layers[updateIndex].visible = true;
   }
 
