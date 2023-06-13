@@ -1,6 +1,5 @@
 import { getShortUuid } from '@/utils/uuid';
 import controller from '../common/canvas-state-controller';
-import { nextTick } from 'vue';
 import { getPosition, scaleImageData } from '../utils/image-data-util';
 import DrawElement from './draw-element';
 import { useEditorConfig } from '@/store/modules/editor-config';
