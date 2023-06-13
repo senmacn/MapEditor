@@ -24,7 +24,7 @@
   import { useEditorConfig } from '@/store/modules/editor-config';
   import { message } from 'ant-design-vue';
   import Pen from './pen/Pen';
-import { useToggle } from '@vueuse/core';
+  import { useToggle } from '@vueuse/core';
 
   const props = defineProps({
     offset: {
