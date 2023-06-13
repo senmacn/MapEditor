@@ -175,6 +175,8 @@ watch(
     .layer-opts {
         width: 100%;
         margin-top: 10px;
+        max-height: 500px;
+        overflow-y: auto;
     }
 
     .layer-area-opts {
