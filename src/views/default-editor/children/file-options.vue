@@ -51,7 +51,6 @@
   import { useEditorConfig } from '@/store/modules/editor-config';
   import { loadSaves } from '@/utils/persist';
   import { useCanvasState } from '@/store/modules/canvas-state';
-  import { Layer } from '@/views/default-editor/common/types';
 
   const emit = defineEmits<{
     (e: 'load-saves', layers: any): void;
@@ -97,8 +96,6 @@
 
   const exportModalRef = ref(false);
   function handleExportSaves(expLayer) {
-    console.log('canvasState.layers', canvasState.layers)
-    console.log('expLayer', expLayer)
     modal.confirm({
       title: '确认',
       type: 'confirm',
