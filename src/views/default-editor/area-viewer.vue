@@ -41,7 +41,8 @@
             if (props.layer) props.layer.map = map;
           }, 50);
         } else {
-          layer.style.setProperty('background-image', 'url(' + props.layer?.map + ')');
+          layer.style.setProperty('background-image', `url(${props.layer?.map})`);
+          layer.style.setProperty('opacity', `${props.layer?.transparency}`);
         }
       }
     },
