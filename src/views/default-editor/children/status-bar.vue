@@ -1,7 +1,8 @@
 <template>
   <div class="status-bar">
     <div class="wrapper">
-      <div class="status-col"> 状态: {{ statusRef }}</div>
+      <div class="status-col"> 地图大小 [{{ mapSize }}] </div>
+      <div> 状态 [{{ statusRef }}] </div>
       <div> <drag-outlined /> {{ pos }} </div>
     </div>
   </div>
@@ -13,6 +14,9 @@
   import { useMouse } from '@vueuse/core';
   import { useCanvasState } from '@/store/modules/canvas-state';
   import { DragOutlined } from '@ant-design/icons-vue';
+  import { useEditorConfig } from '@/store/modules/editor-config';
+
+  const configRef = useEditorConfig();
 
   const statusRef = computed(() => {
     return controller.isDrawingArea()
@@ -20,13 +24,28 @@
       : '区域查看';
   });
 
+  const computedPos = computed(() => {
+    return (value) =>
+      Math.floor(
+        configRef.getMapSize.used
+          ? configRef.getMapSize.ltX + value * configRef.getSize.scale
+          : value,
+      );
+  });
+
   const state = useCanvasState();
   const mouseRef = useMouse();
   const pos = computed(() => {
     let pureX = Number(mouseRef.x.value) + state.getOffset.x - 23;
     let pureY = Number(mouseRef.y.value) + state.getOffset.y - 76;
-    if (pureX < 0 || pureY < 0) return 'x: 0   y: 0';
-    return `x: ${pureX}   y: ${pureY}`;
+    if (pureX < 0 || pureY < 0) return `x: ${computedPos.value(0)}   y: ${computedPos.value(0)}`;
+    return `x: ${computedPos.value(pureX)}   y: ${computedPos.value(pureY)}`;
+  });
+
+  const mapSize = computed(() => {
+    const x = configRef.getMapSize.rbX - configRef.getMapSize.ltX;
+    const y = configRef.getMapSize.rbY - configRef.getMapSize.ltY;
+    return `${x} X ${y}`;
   });
 </script>
 
