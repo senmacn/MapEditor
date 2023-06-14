@@ -33,6 +33,7 @@
         </a-menu>
       </template>
     </a-dropdown>
+    <edit-options></edit-options>
     <a-dropdown @click.prevent :trigger="['click']" overlayClassName="navbar-menu-wrapper">
       <div class="nav-item"> 设置 </div>
       <template #overlay>
@@ -71,6 +72,7 @@
   import ColorImageModal from './children/color-image-modal.vue';
   import ExportModal from './children/export-modal.vue';
   import { ref } from 'vue';
+  import EditOptions from './children/edit-options.vue';
 
   const localApi = getLocalApi();
   const configRef = useEditorConfig();
@@ -180,6 +182,9 @@
     user-select: none;
     &:hover {
       background-color: @color-border-3;
+    }
+    &[disabled='true'] {
+      color: @color-text-3;
     }
   }
   .navbar-menu-wrapper {

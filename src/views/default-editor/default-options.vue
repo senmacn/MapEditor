@@ -12,7 +12,6 @@
       style="height: 140px"
       @end-edit-area="(...props) => emit('end-edit-area', props[0], props[1])"
     />
-    <edit-options></edit-options>
     <edit-config></edit-config>
   </div>
 </template>
@@ -21,7 +20,6 @@
   import { onMounted, unref } from 'vue';
   import LayerList from './children/layer-list.vue';
   import AreaOptions from './children/area-options.vue';
-  import EditOptions from './children/edit-options.vue';
   import EditConfig from './children/edit-config.vue';
   import { useEditorConfig } from '@/store/modules/editor-config';
   import { loadSaves } from '@/utils/persist';

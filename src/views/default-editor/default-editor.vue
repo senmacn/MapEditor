@@ -3,26 +3,19 @@
     class="map-editor"
     :style="{ height: isLocal() ? 'calc(100vh - 100px)' : 'calc(100vh - 70px)' }"
   >
-    <div :class="hideOptionRef ? 'content-box full-screen' : 'content-box'">
+    <a-drawer
+      class="option-box"
+      placement="right"
+      :visible="drawerVisibleRef"
+      :mask="false"
+      @close="drawerVisibleRef = false"
+    >
+      <default-options @load-saves="handleLoadSaves" @end-edit-area="handleEndEditArea" />
+    </a-drawer>
+    <div class="content-box">
       <div ref="hRuler" class="ruler h-ruler"></div>
       <div ref="vRuler" class="ruler v-ruler"></div>
       <canvas-container ref="areaCanvasRef" />
-    </div>
-    <div :class="hideOptionRef ? 'option-box hide' : 'option-box'">
-      <right-circle-outlined
-        class="option-control option-control-right"
-        size="28"
-        v-if="!hideOptionRef"
-        @click="handleChangeHideState(true)"
-      />
-      <left-circle-outlined
-        class="option-control option-control-left"
-        size="28"
-        v-else
-        @click="handleChangeHideState(false)"
-      />
-      <default-options @load-saves="handleLoadSaves" @end-edit-area="handleEndEditArea" />
-      <thin-options v-if="hideOptionRef" @end-edit-area="handleEndEditArea" />
     </div>
     <status-bar></status-bar>
   </div>
@@ -37,18 +30,15 @@
   import StatusBar from './children/status-bar.vue';
   import CanvasContainer from './canvas-container.vue';
   import DefaultOptions from './default-options.vue';
-  import ThinOptions from './thin-options.vue';
   import ConfirmBoundModal from './children/confirm-bound-modal.vue';
   import { getRandomDomId } from '../../utils/uuid';
   import controller from './common/canvas-state-controller';
-  import { useToggle } from '@vueuse/core';
   import { Layer } from './common/types';
   import { Area } from './draw-element';
   import useRuler from '@/hooks/useRuler';
   import { useCanvasState } from '@/store/modules/canvas-state';
   import { useEditorConfig } from '@/store/modules/editor-config';
   import { isLocal } from '@/utils/env';
-  import { LeftCircleOutlined, RightCircleOutlined } from '@ant-design/icons-vue';
 
   const configRef = useEditorConfig();
 
@@ -66,6 +56,8 @@
   ]) as Ref<Layer[]>;
   const canvasState = useCanvasState();
   canvasState.setLayers(layersRef.value);
+
+  const drawerVisibleRef = ref(true);
 
   // 标尺相关
   const vRuler = ref();
@@ -107,16 +99,6 @@
       vRulerInstance.scroll(canvasState.getOffset.y);
     },
   );
-  // 工具展示 + 标尺根据宽度调整
-  const [hideOptionRef, changeHideState] = useToggle(false);
-  function handleChangeHideState(value: boolean) {
-    changeHideState(value);
-    // 延迟一下更新标尺
-    setTimeout(() => {
-      vRulerInstance.resize();
-      hRulerInstance.resize();
-    }, 210);
-  }
 
   // 区域编辑
   const areaCanvasRef = ref<Recordable>();
@@ -182,24 +164,34 @@
     position: relative;
     flex: 1;
     border-radius: 3px;
-    margin-right: 10px;
     padding-left: 30px;
     padding-top: 30px;
     background-color: rgb(51, 51, 51);
     transition: width 0.2s ease;
-    &.full-screen {
-      max-width: calc(100% - 60px);
-    }
+    max-width: 100%;
   }
   .option-box {
     position: relative;
-    width: 405px;
-    height: 100%;
-    margin-bottom: 5px;
-    padding: 10px;
+    width: 405px !important;
+    max-height: 85%;
+    margin-right: 35px;
+    margin-top: 100px;
+    margin-bottom: 20px;
     border-radius: 3px;
-    background-color: rgb(51, 51, 51);
     transition: width 0.2s ease;
+    .ant-drawer-content {
+      border-radius: 10px;
+      background-color: rgb(47, 54, 67);
+    }
+    .ant-drawer-header {
+      display: none;
+    }
+    .ant-drawer-body {
+      padding: 10px;
+      &::-webkit-scrollbar {
+        width: 0;
+      }
+    }
     &.hide {
       width: 0;
       position: absolute;
