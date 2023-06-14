@@ -9,6 +9,9 @@
     <a-col :span="6">
       <a-button type="primary" @click="displayOutputVisibleRef = true">下载坐标</a-button>
     </a-col>
+    <a-col :span="6">
+      <a-button type="primary" @click="colorImageVisibleRef = true">色值处理</a-button>
+    </a-col>
     <a-col :span="6" :offset="4">
       <a-button type="primary" :disabled="!isLocal()" @click="handleConfirmCreateSaves">
         保存
@@ -32,6 +35,7 @@
     @close="changeMapSizeModalVisible = false"
   />
   <display-output-modal :visible="displayOutputVisibleRef" @cancel="handleConfirmCancelExport" />
+  <color-image-modal :visible="colorImageVisibleRef" @cancel="handleColorImageExport" />
 </template>
 
 <script setup lang="ts">
@@ -39,6 +43,7 @@
   import modal from 'ant-design-vue/lib/modal';
   import ChangeMapSizeModal from './change-map-size-modal.vue';
   import DisplayOutputModal from './display-output-modal.vue';
+  import ColorImageModal from './color-image-modal.vue';
   import { useLoading } from '@/components/Loading';
   import { exportFile } from '@/utils/file';
   import { createSaves } from '@/utils/persist';
@@ -149,6 +154,11 @@
   const displayOutputVisibleRef = ref(false);
   function handleConfirmCancelExport() {
     displayOutputVisibleRef.value = false;
+  }
+
+  const colorImageVisibleRef = ref(false);
+  function handleColorImageExport() {
+    colorImageVisibleRef.value = false;
   }
 
   const changeMapSizeModalVisible = ref(false);

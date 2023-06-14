@@ -107,7 +107,7 @@
     <a-col class="row-label" :span="4">
       <span class="group-label">形状： </span>
     </a-col>
-    <a-col :span="7">
+    <a-col :span="3">
       <a-tooltip title="直线">
         <a-button-group>
           <a-button
@@ -117,10 +117,6 @@
           >
             <minus-outlined />
           </a-button>
-          <a-select class="button-select">
-            <a-select-option :value="0">普通线段</a-select-option>
-            <a-select-option :value="1">连续线段</a-select-option>
-          </a-select>
         </a-button-group>
       </a-tooltip>
     </a-col>

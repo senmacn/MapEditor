@@ -173,8 +173,10 @@
   function handleCopyPasteArea(e: KeyboardEvent) {
     if (e.ctrlKey && e.isTrusted) {
       if (e.key === 'c') {
-        copyAreas = controller.getCurrentAreas().slice() as Area[];
-        message.info('复制成功！');
+        if (controller.getCurrentAreas().length > 0) {
+          copyAreas = controller.getCurrentAreas().slice() as Area[];
+          message.info('复制成功！');
+        }
       }
       if (e.key === 'v') {
         if (copyAreas.length) {
@@ -217,6 +219,7 @@
       font-size: 18px;
       color: red;
       text-align: center;
+      user-select: none;
     }
   }
   .moveable-control-box {
