@@ -175,6 +175,7 @@
         area.destroy();
       });
     });
+    controller.setCurrentAreas([]);
     layersRef.value = layers;
     canvasState.setLayers(layersRef.value);
   }
