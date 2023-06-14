@@ -141,8 +141,12 @@
       })
     }
     for(let i = 0; i < areas.length; i+= 1) {
+      if(!areas[i].length) {
+        continue
+      }
       for(let j = 0; j < areas[i].length; j+= 1) {
-        expLayerAreaData[i].areas.push(canvasState.layers[i].areas[areas[i][j]])
+        expLayerAreaData[i] ? expLayerAreaData[i].areas.push(canvasState.layers[i].areas[areas[i][j]])
+        : expLayerAreaData[i-1].areas.push(canvasState.layers[i].areas[areas[i][j]])
       }
     }
     handleExportSaves(expLayerAreaData)
