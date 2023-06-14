@@ -6,7 +6,11 @@
       <div class="layer-option"> 操作 </div>
     </div>
     <transition-group name="list" tag="ul">
-      <li class="layer-item" v-for="(layer, index) in canvasState.layers" :key="layer.uuid">
+      <li
+        class="layer-item"
+        v-for="(layer, index) in (canvasState.layers as Layer[])"
+        :key="layer.uuid"
+      >
         <div class="layer-content">
           <div
             class="layer-index"
@@ -37,14 +41,6 @@
                   <template #icon><eye-invisible-outlined /></template>
                 </a-button>
               </a-tooltip>
-              <a-tooltip title="显示区域">
-                <a-button type="text" @click="() => handleChangeAreaVisible(layer.uuid)">
-                  <template #icon>
-                    <menu-fold-outlined v-if="!hiddenAreaMapRef[layer.uuid]" />
-                    <menu-unfold-outlined v-else />
-                  </template>
-                </a-button>
-              </a-tooltip>
               <a-tooltip title="上传底图">
                 <a-button
                   type="text"
@@ -64,7 +60,7 @@
             </a-space>
           </div>
         </div>
-        <area-list v-if="!hiddenAreaMapRef[layer.uuid]" :areas="layer.areas" :pins="layer.pins" />
+        <area-list :areas="layer.areas" :pins="layer.pins" />
       </li>
     </transition-group>
     <a-tooltip title="添加图层">
@@ -92,8 +88,6 @@
     EyeOutlined,
     EyeInvisibleOutlined,
     DeleteOutlined,
-    MenuFoldOutlined,
-    MenuUnfoldOutlined,
     PlusCircleOutlined,
   } from '@ant-design/icons-vue';
   import UploadBackgroundModal from './upload-background-modal.vue';
@@ -110,7 +104,6 @@
       if (element.visible && !isHot) {
         element.hot = true;
         isHot = true;
-        hiddenAreaMapRef.value[element.uuid] = false;
       }
     }
   };
@@ -172,11 +165,6 @@
       dragIndexRef.value = index;
       refreshHot();
     }
-  }
-
-  const hiddenAreaMapRef = ref<Recordable<boolean>>({});
-  function handleChangeAreaVisible(uuid: string) {
-    hiddenAreaMapRef.value[uuid] = !hiddenAreaMapRef.value[uuid];
   }
 </script>
 

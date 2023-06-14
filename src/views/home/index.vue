@@ -33,7 +33,12 @@
       </div>
     </div>
     <div class="history-list home-right">
-      <a-list size="small" :bordered="false" :data-source="dataSource" :pagination-props="paginationProps">
+      <a-list
+        size="small"
+        :bordered="false"
+        :data-source="dataSource"
+        :pagination-props="paginationProps"
+      >
         <template #header>
           <div class="history-title"> - 历史记录 - </div>
           <a-button
@@ -42,18 +47,26 @@
             :disable="!isLocal()"
             @click="refreshHistory"
           >
-            <sync-outlined></sync-outlined>
+            <sync-outlined> </sync-outlined>
             刷新
           </a-button>
         </template>
         <template #renderItem="{ item, index }">
           <a-list-item class="list-item" action-layout="vertical">
             <template #actions>
-              <span class="options" @click="handleOpenProject(item.title)"><folder-open-outlined />打开</span>
-              <span class="options" @click="editRef = index"><edit-outlined />重命名</span>
-              <span class="options"><download-outlined @click="handleDownloadProject(item.title)" />下载</span>
-              <!-- <span class="options"><heart-outlined />置顶</span> -->
-              <span class="options" @click="handleDeleteProject(item.title)"><delete-outlined />删除</span>
+              <span class="options" @click="handleOpenProject(item.title)">
+                <folder-open-outlined />打开
+              </span>
+              <span class="options" @click="editRef = index"> <edit-outlined />重命名</span>
+              <span class="options">
+                <download-outlined @click="handleDownloadProject(item.title)" />下载</span
+              >
+              <!-- <span class="options">
+                <heart-outlined />置顶</span> -->
+              <span class="options" @click="handleDeleteProject(item.title)">
+                <delete-outlined />
+                删除
+              </span>
             </template>
             <a-list-item-meta :class="[item.top ? 'top' : '']" :description="item.description">
               <template #title>
@@ -89,7 +102,7 @@
     EditOutlined,
     DeleteOutlined,
     SyncOutlined,
-    FolderOpenOutlined
+    FolderOpenOutlined,
   } from '@ant-design/icons-vue';
 
   const dataSource = ref<LocalMapHistory[]>([]);
