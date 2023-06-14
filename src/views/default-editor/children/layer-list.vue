@@ -6,7 +6,11 @@
       <div class="layer-option"> 操作 </div>
     </div>
     <transition-group name="list" tag="ul">
-      <li class="layer-item" v-for="(layer, index) in canvasState.layers" :key="layer.uuid">
+      <li
+        class="layer-item"
+        v-for="(layer, index) in (canvasState.layers as Layer[])"
+        :key="layer.uuid"
+      >
         <div class="layer-content">
           <div
             class="layer-index"

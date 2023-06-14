@@ -5,6 +5,8 @@ export function exportFile(filename: string, data: any, type?: string) {
     case 'json':
       uri = getJsonDownloadUri(data);
       break;
+    case 'base64':
+      uri = data;
     default:
       uri = getDownloadUri(data);
   }
