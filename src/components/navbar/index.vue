@@ -55,10 +55,20 @@
   import UserConfigModal from './user-config-modal.vue';
   import { ref } from 'vue';
 
-  const href = 'https://docs.oa.wanmei.net/weboffice/l/cgpQRPmL23TQ?timestamp=1686709433575';
+  const href = 'https://docs.oa.wanmei.net/kdocs/l/cgpQRPmL23TQ';
 
   function handleGotoQuestion() {
-    getLocalApi()?.newWindow(href, true);
+    if (isLocal()) {
+      getLocalApi()?.newWindow(href, true);
+    } else {
+      // TODO: 解决419报错
+      const element = document.createElement('a');
+      element.href = href;
+      const a = document.body.appendChild(element);
+      a.setAttribute('target', '_blank');
+      a.click();
+      document.body.removeChild(element);
+    }
   }
 
   const userConfigModalVisibleRef = ref();
