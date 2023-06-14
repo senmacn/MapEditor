@@ -1,7 +1,7 @@
 <template>
   <div class="layer-list">
     <div class="layer-item title">
-      <div class="layer-index">序号</div>
+      <div class="layer-index">显示</div>
       <div class="layer-name"> 名称 </div>
       <div class="layer-option"> 操作 </div>
     </div>
@@ -19,28 +19,26 @@
             @dragover.prevent
             @dragstart="dragstart(index)"
           >
-            <fire-outlined v-if="layer.hot" />
-            {{ index + 1 }}
+            <a-tooltip title="隐藏图层" v-if="layer.visible">
+              <a-button
+                type="text"
+                class="success-color"
+                @click="() => changeLayerVisible(layer, false)"
+              >
+                <template #icon><eye-outlined /></template>
+              </a-button>
+            </a-tooltip>
+            <a-tooltip title="显示图层" v-else>
+              <a-button type="text" @click="() => changeLayerVisible(layer, true)">
+                <template #icon><eye-invisible-outlined /></template>
+              </a-button>
+            </a-tooltip>
           </div>
           <div class="layer-name">
             <a-input type="text" v-model:value="layer.name" />
           </div>
           <div class="layer-option">
             <a-space>
-              <a-tooltip title="隐藏图层" v-if="layer.visible">
-                <a-button
-                  type="text"
-                  class="success-color"
-                  @click="() => changeLayerVisible(layer, false)"
-                >
-                  <template #icon><eye-outlined /></template>
-                </a-button>
-              </a-tooltip>
-              <a-tooltip title="显示图层" v-else>
-                <a-button type="text" @click="() => changeLayerVisible(layer, true)">
-                  <template #icon><eye-invisible-outlined /></template>
-                </a-button>
-              </a-tooltip>
               <a-tooltip title="上传底图">
                 <a-button
                   type="text"
@@ -121,6 +119,7 @@
       areas: [],
       pins: [],
       transparency: 1,
+      type: [],
     });
     refreshHot();
   }
@@ -216,6 +215,11 @@
       text-align: center;
       line-height: 24px;
       font-size: 12px;
+      .ant-btn {
+        display: inline-block;
+        height: 18px;
+        width: 18px;
+      }
     }
     .layer-index {
       cursor: grab;
@@ -238,11 +242,6 @@
     .layer-option {
       width: 140px;
       border-right: 0;
-      .ant-btn {
-        display: inline-block;
-        height: 18px;
-        width: 18px;
-      }
     }
   }
 </style>

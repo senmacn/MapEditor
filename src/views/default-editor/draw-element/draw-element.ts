@@ -19,6 +19,7 @@ export default class DrawElement implements DrawElementInterface {
 
   // 渲染的图片
   protected img;
+  protected type: string = '';
   // 渲染的实例
   protected instance: HTMLElement | undefined;
   protected moveable: Moveable | undefined;

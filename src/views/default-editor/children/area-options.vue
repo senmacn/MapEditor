@@ -113,7 +113,8 @@
   }
 
   function handleStartEditArea() {
-    [areaNameRef.value, areaIDRef.value] = controller.getCurrentAreas()[0]?.getName().split('-') || '';
+    [areaNameRef.value, areaIDRef.value] =
+      controller.getCurrentAreas()[0]?.getName().split('-') || '';
     controller.startDrawingArea(false);
     setTimeout(() => {
       emitEditAreaEvent();
