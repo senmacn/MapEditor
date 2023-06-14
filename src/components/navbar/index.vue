@@ -1,6 +1,7 @@
 <template>
   <nav class="ant-nav" :style="{ top: isLocal() ? '30px' : 0 }">
     <div class="ant-nav-left">
+      <img class="ant-nav-logo" src="../../assets/icons/map.svg" />
       <slot></slot>
     </div>
     <div class="ant-nav-right">
