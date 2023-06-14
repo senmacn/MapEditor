@@ -173,8 +173,8 @@
     border: 1px solid @color-border-table;
     width: 100%;
     > ul {
-      min-height: 160px;
-      max-height: 160px;
+      min-height: 280px;
+      max-height: 280px;
       padding: 0;
       margin: 0;
       overflow-y: auto;

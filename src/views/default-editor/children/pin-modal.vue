@@ -98,7 +98,7 @@
 </template>
 
 <script setup lang="ts">
-  import { Ref, inject, reactive, ref, watch } from 'vue';
+  import { inject, reactive, ref, watch } from 'vue';
   import { useColorPicker } from '@/hooks/useColorPicker';
   import { isNull } from '@/utils/is';
   import cloneDeep from 'lodash-es/cloneDeep';

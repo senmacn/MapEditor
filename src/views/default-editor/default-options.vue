@@ -1,7 +1,6 @@
 <template>
   <div class="default-option">
-    <file-options @load-saves="(...props) => emit('load-saves', props[0])" />
-    <a-row class="option-group" style="height: 250px">
+    <a-row class="option-group" style="height: 380px">
       <a-col class="row-label" :span="4">
         <span class="group-label">图层： </span>
       </a-col>
@@ -21,7 +20,6 @@
 <script setup lang="ts">
   import { onMounted, unref } from 'vue';
   import LayerList from './children/layer-list.vue';
-  import FileOptions from './children/file-options.vue';
   import AreaOptions from './children/area-options.vue';
   import EditOptions from './children/edit-options.vue';
   import EditConfig from './children/edit-config.vue';
