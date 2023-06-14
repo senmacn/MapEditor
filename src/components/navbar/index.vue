@@ -23,23 +23,22 @@
       </a-dropdown> -->
     </div>
     <div class="ant-nav-right">
+      <a-tooltip
+        title="
+            全屏
+          "
+      >
+        <a-button class="nav-btn" shape="round" @click="handleGotoQuestion">
+          <template #icon>
+            <QuestionCircleOutlined />
+          </template>
+        </a-button>
+      </a-tooltip>
       <a-space size="large">
         <a-tooltip>
           <a-button class="nav-btn" shape="round" @click="handleOpenConfig">
             <template #icon>
               <setting-outlined></setting-outlined>
-            </template>
-          </a-button>
-        </a-tooltip>
-        <a-tooltip
-          title="
-            全屏
-          "
-        >
-          <a-button class="nav-btn" shape="round" @click="toggleFullScreen">
-            <template #icon>
-              <fullscreen-exit-outlined v-if="isFullscreen" />
-              <fullscreen-outlined v-else />
             </template>
           </a-button>
         </a-tooltip>
@@ -54,18 +53,17 @@
 </template>
 
 <script setup lang="ts">
-  import { useFullscreen } from '@vueuse/core';
   import defaultAvatar from '@/assets/images/defaultAvatar.png';
-  import { isLocal } from '@/utils/env';
-  import {
-    FullscreenOutlined,
-    FullscreenExitOutlined,
-    SettingOutlined,
-  } from '@ant-design/icons-vue';
+  import { isLocal, getLocalApi } from '@/utils/env';
+  import { SettingOutlined, QuestionCircleOutlined } from '@ant-design/icons-vue';
   import UserConfigModal from './user-config-modal.vue';
   import { ref } from 'vue';
 
-  const { isFullscreen, toggle: toggleFullScreen } = useFullscreen();
+  const href = 'https://docs.oa.wanmei.net/weboffice/l/cgpQRPmL23TQ?timestamp=1686709433575';
+
+  function handleGotoQuestion() {
+    getLocalApi()?.newWindow(href, true)
+  }
 
   const userConfigModalVisibleRef = ref();
   function handleOpenConfig() {
