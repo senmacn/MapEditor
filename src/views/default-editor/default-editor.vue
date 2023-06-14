@@ -170,11 +170,6 @@
   }
 
   function handleLoadSaves(layers) {
-    layersRef.value.forEach((layer) => {
-      layer.areas.forEach((area) => {
-        area.destroy();
-      });
-    });
     controller.setCurrentAreas([]);
     layersRef.value = layers;
     canvasState.setLayers(layersRef.value);

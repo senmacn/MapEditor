@@ -36,7 +36,12 @@
   />
   <display-output-modal :visible="displayOutputVisibleRef" @cancel="handleConfirmCancelExport" />
   <color-image-modal :visible="colorImageVisibleRef" @cancel="handleColorImageExport" />
-  <export-modal :visible="exportModalRef" :layers="canvasState.layers" @emit-close-export="handleCloseExport" @emit-format-exp-data="handleFormatExpData" />
+  <export-modal
+    :visible="exportModalRef"
+    :layers="canvasState.layers"
+    @emit-close-export="handleCloseExport"
+    @emit-format-exp-data="handleFormatExpData"
+  />
 </template>
 
 <script setup lang="ts">
@@ -88,7 +93,7 @@
       if (localApi) {
         localApi.saveLocalFile(
           fileName,
-          createSaves([configRef.getSize.x, configRef.getSize.y], canvasState.layers),
+          createSaves([configRef.getSize.x, configRef.getSize.y], canvasState.getLayers),
         );
         localState.setFileName(fileName);
       }
@@ -137,24 +142,25 @@
     exportModalRef.value = false;
   }
   function handleFormatExpData(data: any) {
-    const { layers, areas } = data
-    const expLayerAreaData: any = []
-    for(let i = 0; i < layers.length; i+= 1) {
+    const { layers, areas } = data;
+    const expLayerAreaData: any = [];
+    for (let i = 0; i < layers.length; i += 1) {
       expLayerAreaData.push({
-        ...canvasState.layers.slice(layers[i], layers[i] + 1)[0], 
-        areas: []
-      })
+        ...canvasState.layers.slice(layers[i], layers[i] + 1)[0],
+        areas: [],
+      });
     }
-    for(let i = 0; i < areas.length; i+= 1) {
-      if(!areas[i].length) {
-        continue
+    for (let i = 0; i < areas.length; i += 1) {
+      if (!areas[i].length) {
+        continue;
       }
-      for(let j = 0; j < areas[i].length; j+= 1) {
-        expLayerAreaData[i] ? expLayerAreaData[i].areas.push(canvasState.layers[i].areas[areas[i][j]])
-        : expLayerAreaData[i-1].areas.push(canvasState.layers[i].areas[areas[i][j]])
+      for (let j = 0; j < areas[i].length; j += 1) {
+        expLayerAreaData[i]
+          ? expLayerAreaData[i].areas.push(canvasState.layers[i].areas[areas[i][j]])
+          : expLayerAreaData[i - 1].areas.push(canvasState.layers[i].areas[areas[i][j]]);
       }
     }
-    handleExportSaves(expLayerAreaData)
+    handleExportSaves(expLayerAreaData);
   }
   const [openLoading, closeLoading] = useLoading({ tip: '加载中！', minTime: 1000 });
   function handleLoadSaves(file: File) {
@@ -170,6 +176,19 @@
   function _handleExecutionSave(data) {
     try {
       const result = loadSaves(data, [configRef.getSize.x, configRef.getSize.y]);
+      const initLayers = canvasState.getLayers.slice();
+      // 混入
+      result.layers.forEach((layer) => {
+        let flag = false;
+        initLayers.forEach((initLayer) => {
+          if (initLayer.name === layer.name) {
+            initLayer.areas = initLayer.areas.concat(layer.areas);
+          }
+        });
+        if (!flag) {
+          initLayers.push(layer);
+        }
+      });
       emit('load-saves', result?.layers);
     } catch (e: any) {
       message.warning({
