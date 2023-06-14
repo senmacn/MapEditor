@@ -1,9 +1,17 @@
 import { Layer } from '@/views/default-editor/common/types';
 import { defineStore } from 'pinia';
 
+interface CanvasState {
+  layers: Layer[];
+  offset: {
+    x: number;
+    y: number;
+  };
+}
+
 export const useCanvasState = defineStore({
   id: 'canvas-state',
-  state: () => ({
+  state: (): CanvasState => ({
     layers: [] as Layer[],
     offset: {
       x: 0,

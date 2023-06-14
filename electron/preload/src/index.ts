@@ -30,7 +30,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   saveLocalFile: async (fileName: string, data: string | Blob, folder?: string) => {
     return await ipcRenderer.invoke('save-local-file', fileName, data, folder);
   },
-  newWindow: async (url: string) => {
-    return await ipcRenderer.invoke('new-window', url);
+  newWindow: async (url: string, browser?: boolean ) => {
+    return await ipcRenderer.invoke('new-window', url, browser);
   },
 });

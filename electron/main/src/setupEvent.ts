@@ -1,5 +1,5 @@
 import { BrowserWindow, app } from 'electron';
-import { ipcMain } from 'electron';
+import { ipcMain, shell } from 'electron';
 import {
   existsSync,
   mkdirSync,
@@ -118,8 +118,12 @@ export default function setupEvent(mainWindow: BrowserWindow) {
     },
   );
 
-  ipcMain.handle('new-window', (_evt, url: string): LocalResult<null> => {
+  ipcMain.handle('new-window', (_evt, url: string, browser: boolean): LocalResult<null> => {
     try {
+      if (browser) {
+        shell.openExternal(url);
+        return null;
+      }
       const win = new BrowserWindow({
         frame: true,
         width: 1600,

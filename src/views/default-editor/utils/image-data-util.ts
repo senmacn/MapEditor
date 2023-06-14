@@ -228,7 +228,7 @@ export function getPosition(imageData: ImageData) {
  * @param area 封闭区域
  * @returns 包含内部点的imagedata
  */
-export function getClosedCurvePointsData(area: Area) {
+export function getClosedCurvePointsData(area: Area, colors = [255, 0, 0, 255]) {
   const rect = area.getBoundRect();
   const imageData = area.getData();
   const newImageData = new ImageData(rect[2], rect[3]);
@@ -238,8 +238,10 @@ export function getClosedCurvePointsData(area: Area) {
       const pointStartIndex = xIndex * 4 + yIndex * 4 * imageData.width;
       // 是点的话直接加入（加上偏移量）
       if (boundPoints.some((point) => point[0] === xIndex && point[1] === yIndex)) {
-        newImageData.data[pointStartIndex] = 1;
-        newImageData.data[pointStartIndex + 3] = 1;
+        newImageData.data[pointStartIndex] = colors[0];
+        newImageData.data[pointStartIndex + 1] = colors[1];
+        newImageData.data[pointStartIndex + 2] = colors[2];
+        newImageData.data[pointStartIndex + 3] = colors[3];
       } else {
         // 跳过边界上的
         if (xIndex === 0 || xIndex === rect[2] - 1 || yIndex === 0 || yIndex === rect[3] - 1) {
@@ -248,10 +250,10 @@ export function getClosedCurvePointsData(area: Area) {
           if (isPointInPolygon([xIndex, yIndex], boundPoints)) {
             // 描点
             // newImageData.data[pointStartIndex] = 1;
-            newImageData.data[pointStartIndex] = 255;
-            newImageData.data[pointStartIndex + 1] = 0;
-            newImageData.data[pointStartIndex + 2] = 0;
-            newImageData.data[pointStartIndex + 3] = 255;
+            newImageData.data[pointStartIndex] = colors[0];
+            newImageData.data[pointStartIndex + 1] = colors[1];
+            newImageData.data[pointStartIndex + 2] = colors[2];
+            newImageData.data[pointStartIndex + 3] = colors[3];
           }
         }
       }

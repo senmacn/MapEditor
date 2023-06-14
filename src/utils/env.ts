@@ -9,7 +9,7 @@ export interface LocalApi {
   deleteLocalFile(fileName: string): Promise<unknown>;
   renameLocalFile(fileName: string, newname: string): Promise<LocalResult<null>>;
   saveLocalFile(fileName: string, data: string | Buffer, folder?: string): Promise<unknown>;
-  newWindow(url: string): Promise<LocalResult<null>>;
+  newWindow(url: string, browser?: boolean): Promise<LocalResult<null>>;
 }
 
 const localApiExists = !isNullOrUnDef(window['electronAPI']);
