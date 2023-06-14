@@ -23,18 +23,14 @@
       </a-dropdown> -->
     </div>
     <div class="ant-nav-right">
-      <a-tooltip
-        title="
-            全屏
-          "
-      >
-        <a-button class="nav-btn" shape="round" @click="handleGotoQuestion">
-          <template #icon>
-            <QuestionCircleOutlined />
-          </template>
-        </a-button>
-      </a-tooltip>
       <a-space size="large">
+        <a-tooltip title="说明文档">
+          <a-button class="nav-btn" shape="round" @click="handleGotoQuestion">
+            <template #icon>
+              <QuestionCircleOutlined />
+            </template>
+          </a-button>
+        </a-tooltip>
         <a-tooltip>
           <a-button class="nav-btn" shape="round" @click="handleOpenConfig">
             <template #icon>
@@ -62,7 +58,7 @@
   const href = 'https://docs.oa.wanmei.net/weboffice/l/cgpQRPmL23TQ?timestamp=1686709433575';
 
   function handleGotoQuestion() {
-    getLocalApi()?.newWindow(href, true)
+    getLocalApi()?.newWindow(href, true);
   }
 
   const userConfigModalVisibleRef = ref();
