@@ -1,33 +1,30 @@
 <template>
-  <div class="ant-vue-body">
-    <navbar></navbar>
-    <div
-      class="map-editor"
-      :style="{ height: isLocal() ? 'calc(100vh - 100px)' : 'calc(100vh - 70px)' }"
-    >
-      <div :class="hideOptionRef ? 'content-box full-screen' : 'content-box'">
-        <div ref="hRuler" class="ruler h-ruler"></div>
-        <div ref="vRuler" class="ruler v-ruler"></div>
-        <canvas-container ref="areaCanvasRef" />
-      </div>
-      <div :class="hideOptionRef ? 'option-box hide' : 'option-box'">
-        <right-circle-outlined
-          class="option-control option-control-right"
-          size="28"
-          v-if="!hideOptionRef"
-          @click="handleChangeHideState(true)"
-        />
-        <left-circle-outlined
-          class="option-control option-control-left"
-          size="28"
-          v-else
-          @click="handleChangeHideState(false)"
-        />
-        <default-options @load-saves="handleLoadSaves" @end-edit-area="handleEndEditArea" />
-        <thin-options v-if="hideOptionRef" @end-edit-area="handleEndEditArea" />
-      </div>
-      <status-bar></status-bar>
+  <div
+    class="map-editor"
+    :style="{ height: isLocal() ? 'calc(100vh - 100px)' : 'calc(100vh - 70px)' }"
+  >
+    <div :class="hideOptionRef ? 'content-box full-screen' : 'content-box'">
+      <div ref="hRuler" class="ruler h-ruler"></div>
+      <div ref="vRuler" class="ruler v-ruler"></div>
+      <canvas-container ref="areaCanvasRef" />
     </div>
+    <div :class="hideOptionRef ? 'option-box hide' : 'option-box'">
+      <right-circle-outlined
+        class="option-control option-control-right"
+        size="28"
+        v-if="!hideOptionRef"
+        @click="handleChangeHideState(true)"
+      />
+      <left-circle-outlined
+        class="option-control option-control-left"
+        size="28"
+        v-else
+        @click="handleChangeHideState(false)"
+      />
+      <default-options @load-saves="handleLoadSaves" @end-edit-area="handleEndEditArea" />
+      <thin-options v-if="hideOptionRef" @end-edit-area="handleEndEditArea" />
+    </div>
+    <status-bar></status-bar>
   </div>
   <confirm-bound-modal
     ref="confirmBoundModelRef"
@@ -36,7 +33,7 @@
 </template>
 
 <script setup lang="ts">
-  import { Ref, onBeforeUnmount, onMounted, ref, watch } from 'vue';
+  import { Ref, ref, watch } from 'vue';
   import StatusBar from './children/status-bar.vue';
   import CanvasContainer from './canvas-container.vue';
   import DefaultOptions from './default-options.vue';
@@ -50,9 +47,7 @@
   import useRuler from '@/hooks/useRuler';
   import { useCanvasState } from '@/store/modules/canvas-state';
   import { useEditorConfig } from '@/store/modules/editor-config';
-  import Navbar from '@/components/navbar/index.vue';
   import { isLocal } from '@/utils/env';
-  import modal from 'ant-design-vue/lib/modal';
   import { LeftCircleOutlined, RightCircleOutlined } from '@ant-design/icons-vue';
 
   const configRef = useEditorConfig();
@@ -174,26 +169,6 @@
     layersRef.value = layers;
     canvasState.setLayers(layersRef.value);
   }
-
-  function F5Check(e: KeyboardEvent) {
-    if (e.key === 'F5') {
-      e.preventDefault();
-      modal.confirm({
-        title: '确认',
-        content: '刷新页面可能会导致数据丢失，请确认您已保存数据！',
-        onOk: () => {
-          location.reload();
-        },
-      });
-    }
-  }
-  // 挂载时初始化
-  onMounted(() => {
-    window.addEventListener('keydown', F5Check);
-  });
-  onBeforeUnmount(() => {
-    window.removeEventListener('keydown', F5Check);
-  });
 </script>
 
 <style lang="less">
