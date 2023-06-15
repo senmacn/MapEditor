@@ -1,13 +1,7 @@
 <template>
   <ul class="layer-areas">
     <li class="area-item" v-for="(area, index) in visibleList" :key="index">
-      <div class="area-index"></div>
-      <div class="area-name">
-        <gateway-outlined v-if="area instanceof Area" />
-        <pushpin-outlined v-else></pushpin-outlined>
-        {{ area.getName() }}
-      </div>
-      <div class="area-option">
+      <div class="area-index">
         <a-tooltip title="隐藏区域" v-if="!hideStatesRef[area.getUuid()]">
           <a-button type="text" class="success-color" @click="() => hideElement(area)">
             <template #icon><eye-outlined /></template>
@@ -18,6 +12,13 @@
             <template #icon><eye-invisible-outlined /></template>
           </a-button>
         </a-tooltip>
+      </div>
+      <div class="area-name">
+        <gateway-outlined v-if="area instanceof Area" />
+        <pushpin-outlined v-else></pushpin-outlined>
+        {{ area.getName() }}
+      </div>
+      <div class="area-option">
         <a-tooltip title="快速定位">
           <a-button type="text" @click="handleGotoArea(area)">
             <template #icon>
@@ -55,7 +56,7 @@
 
   const visibleList = computed(() => {
     if (props.areas.length + props.pins.length > 0) {
-      return [...props.areas, ...props.pins];
+      return [...props.areas, ...props.pins].filter(ele => ele.visible);
     } else {
       return [];
     }
@@ -88,7 +89,8 @@
       text-align: center;
     }
     .area-index {
-      width: 20px;
+      width: 60px;
+      text-align: center;
     }
     .area-name {
       flex: 1;
@@ -98,11 +100,11 @@
       width: 140px;
       display: flex;
       justify-content: space-around;
-      .ant-btn {
+    }
+    .ant-btn {
         display: inline-block;
         height: 16px;
         width: 32px;
       }
-    }
   }
 </style>

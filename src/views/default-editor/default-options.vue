@@ -1,6 +1,6 @@
 <template>
   <div v-if="!drawerVisibleRef" class="open-drawer" @click="drawerVisibleRef = true">
-    <appstore-two-tone twoToneColor="green" />
+    <img src="@/assets/images/map-open.png" />
   </div>
   <a-drawer
     class="option-drawer"
@@ -14,16 +14,32 @@
       <right-outlined />
     </div>
     <div class="default-option">
-      <a-row class="option-group" style="height: 380px">
+      <a-row class="option-group">
         <a-col class="row-label" :span="4">
-          <span class="group-label">图层： </span>
+          <span class="group-label">搜索 </span>
+        </a-col>
+        <a-col :span="24">
+          <a-input-group compact>
+            <a-select v-model:value="searchTypeRef" style="width: 30%">
+              <a-select-option :value="0">区域名称</a-select-option>
+              <a-select-option :value="1">区域类型</a-select-option>
+            </a-select>
+            <a-input-search
+              v-model:value="searchValueRef"
+              style="width: 70%"
+              @search="handleSearch"
+            />
+          </a-input-group>
+        </a-col>
+        <a-col class="row-label" :span="4">
+          <span class="group-label">图层</span>
         </a-col>
         <a-col :span="24">
           <layer-list></layer-list>
         </a-col>
       </a-row>
       <area-options
-        @end-edit-area="(...props) => emit('end-edit-area', props[0], props[1])"
+        @end-edit-area="(...props) => emit('end-edit-area', props[0], props[1], props[2])"
       />
     </div>
   </a-drawer>
@@ -40,10 +56,11 @@
   import { message } from 'ant-design-vue';
   import { useLoading } from '@/components/Loading';
   import { getLocalApi } from '@/utils/env';
-  import { RightOutlined, AppstoreTwoTone } from '@ant-design/icons-vue';
+  import { RightOutlined } from '@ant-design/icons-vue';
+  import { useCanvasState } from '@/store/modules/canvas-state';
 
   const emit = defineEmits<{
-    (e: 'end-edit-area', name: string, complete: boolean): void;
+    (e: 'end-edit-area', name: string, type: string[], complete: boolean): void;
     (e: 'load-saves', layers: any): void;
   }>();
 
@@ -83,6 +100,23 @@
       localState.setFileName('新建项目');
     }
   });
+
+  const canvasState = useCanvasState();
+  const searchTypeRef = ref(0);
+  const searchValueRef = ref('');
+  function handleSearch() {
+    const layers = canvasState.getLayers;
+
+    for (const layer of layers) {
+      for (const area of layer.areas) {
+        if (searchTypeRef.value) {
+          area.visible = area.type[0].includes(searchValueRef.value);
+        } else {
+          area.visible = area.getName().includes(searchValueRef.value);
+        }
+      }
+    }
+  }
 </script>
 
 <style lang="less">
@@ -92,12 +126,16 @@
     max-height: 85%;
     margin: 100px 35px 20px 0;
     border-radius: 3px;
+
     transition: width 0.2s ease;
     .ant-drawer-content {
       overflow: visible;
       border-radius: 10px;
       background-color: rgb(51, 51, 51);
       border: 1px solid rgb(81, 81, 81);
+    }
+    .ant-select-arrow {
+      top: 45%;
     }
     .ant-drawer-header {
       display: none;
@@ -195,18 +233,13 @@
     position: fixed;
     top: 120px;
     right: 80px;
-    height: 60px;
-    width: 60px;
-    border: 1px solid rgb(81, 81, 81);
-    border-radius: 100px;
-    background-color: rgb(51, 51, 51);
     z-index: 999;
     text-align: center;
     line-height: 80px;
     cursor: pointer;
-    .anticon {
-      font-size: 40px;
-      color: @color-text-1;
+    img {
+      height: 70px;
+      width: 70px;
     }
   }
 </style>

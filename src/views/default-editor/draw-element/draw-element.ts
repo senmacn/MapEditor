@@ -14,12 +14,9 @@ export default class DrawElement implements DrawElementInterface {
   protected uuid;
   protected name;
   protected description;
-
   protected boundRect: Box = [0, 0, 0, 0];
-
   // 渲染的图片
   protected img;
-  public type: string[] = [''];
   // 渲染的实例
   protected instance: HTMLElement | undefined;
   protected moveable: Moveable | undefined;
@@ -27,6 +24,8 @@ export default class DrawElement implements DrawElementInterface {
   protected target: HTMLElement | undefined;
   protected draw = false;
   protected scale = 1;
+  public type: string[] = [''];
+  public visible = true;
 
   getUuid() {
     return this.uuid;

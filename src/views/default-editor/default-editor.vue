@@ -95,7 +95,7 @@
   const areaCanvasRef = ref<Recordable>();
   const awaitConfirmBound = ref();
   const confirmBoundModelRef = ref();
-  async function handleEndEditArea(name: string, complete: boolean) {
+  async function handleEndEditArea(name: string, type: string[], complete: boolean) {
     if (complete && areaCanvasRef.value) {
       const area: Area = areaCanvasRef.value.getCreatedArea();
       if (!area) return;
@@ -123,6 +123,7 @@
         const element = layersRef.value[index];
         if (element.hot) {
           area.setName(name);
+          area.type = type;
           element.areas.push(area);
         }
       }
