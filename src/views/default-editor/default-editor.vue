@@ -3,15 +3,8 @@
     class="map-editor"
     :style="{ height: isLocal() ? 'calc(100vh - 100px)' : 'calc(100vh - 70px)' }"
   >
-    <a-drawer
-      class="option-box"
-      placement="right"
-      :visible="drawerVisibleRef"
-      :mask="false"
-      @close="drawerVisibleRef = false"
-    >
-      <default-options @load-saves="handleLoadSaves" @end-edit-area="handleEndEditArea" />
-    </a-drawer>
+    <default-options @load-saves="handleLoadSaves" @end-edit-area="handleEndEditArea" />
+
     <div class="content-box">
       <div ref="hRuler" class="ruler h-ruler"></div>
       <div ref="vRuler" class="ruler v-ruler"></div>
@@ -56,8 +49,6 @@
   ]) as Ref<Layer[]>;
   const canvasState = useCanvasState();
   canvasState.setLayers(layersRef.value);
-
-  const drawerVisibleRef = ref(true);
 
   // 标尺相关
   const vRuler = ref();
@@ -169,47 +160,6 @@
     background-color: rgb(51, 51, 51);
     transition: width 0.2s ease;
     max-width: 100%;
-  }
-  .option-box {
-    position: relative;
-    width: 405px !important;
-    max-height: 85%;
-    margin-right: 35px;
-    margin-top: 100px;
-    margin-bottom: 20px;
-    border-radius: 3px;
-    transition: width 0.2s ease;
-    .ant-drawer-content {
-      border-radius: 10px;
-      background-color: rgb(47, 54, 67);
-    }
-    .ant-drawer-header {
-      display: none;
-    }
-    .ant-drawer-body {
-      padding: 10px;
-      &::-webkit-scrollbar {
-        width: 0;
-      }
-    }
-    &.hide {
-      width: 0;
-      position: absolute;
-      right: -100px;
-    }
-    .option-control {
-      position: absolute;
-      top: 40%;
-      background-color: transparent;
-      cursor: pointer;
-      font-size: 20px;
-    }
-    .option-control-right {
-      right: 400px;
-    }
-    .option-control-left {
-      right: 150px;
-    }
   }
 
   .ruler {

@@ -38,8 +38,11 @@
       <div class="nav-item"> 设置 </div>
       <template #overlay>
         <a-menu>
-          <a-menu-item key="1">
+          <a-menu-item key="0">
             <div class="inner-content" @click="handleChangeMapSize">尺寸设置</div>
+          </a-menu-item>
+          <a-menu-item key="1">
+            <div class="inner-content" @click="handleShowEditConfig">编辑设置</div>
           </a-menu-item>
         </a-menu>
       </template>
@@ -57,6 +60,10 @@
     @emit-close-export="handleCloseExport"
     @emit-format-exp-data="handleFormatExpData"
   />
+  <edit-config-modal
+    :visible="editConfigModalVisible"
+    @close="editConfigModalVisible = false"
+  ></edit-config-modal>
 </template>
 
 <script setup lang="ts">
@@ -71,6 +78,7 @@
   import DisplayOutputModal from './children/display-output-modal.vue';
   import ColorImageModal from './children/color-image-modal.vue';
   import ExportModal from './children/export-modal.vue';
+  import EditConfigModal from './children/edit-config-modal.vue';
   import { ref } from 'vue';
   import EditOptions from './children/edit-options.vue';
 
@@ -167,6 +175,12 @@
   const changeMapSizeModalVisible = ref(false);
   function handleChangeMapSize() {
     changeMapSizeModalVisible.value = true;
+  }
+
+  // 编辑设置
+  const editConfigModalVisible = ref(false);
+  function handleShowEditConfig() {
+    editConfigModalVisible.value = true;
   }
 </script>
 

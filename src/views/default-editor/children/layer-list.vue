@@ -7,7 +7,7 @@
     </div>
     <transition-group name="list" tag="ul">
       <li
-        class="layer-item"
+        :class="['layer-item', layer.hot ? 'active' : 'inactive']"
         v-for="(layer, index) in (canvasState.layers as Layer[])"
         :key="layer.uuid"
       >
@@ -82,7 +82,6 @@
   import { Layer } from '../common/types';
   import {
     FileImageOutlined,
-    FireOutlined,
     EyeOutlined,
     EyeInvisibleOutlined,
     DeleteOutlined,
@@ -119,7 +118,6 @@
       areas: [],
       pins: [],
       transparency: 1,
-      type: [],
     });
     refreshHot();
   }
@@ -196,6 +194,9 @@
   .layer-item {
     list-style: none;
     border-bottom: 1px solid @color-border-table;
+    &.active {
+      background: rgb(64, 64, 64);
+    }
     &.title {
       display: flex;
       font-weight: bold;
