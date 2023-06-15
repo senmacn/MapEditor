@@ -1,4 +1,4 @@
-import { app, BrowserWindow } from 'electron';
+import { app, BrowserWindow, shell } from 'electron';
 import { join } from 'path';
 import { URL } from 'url';
 import setupEvent from './setupEvent';
@@ -56,7 +56,7 @@ async function createWindow() {
   const pageUrl =
     import.meta.env.DEV && import.meta.env.VITE_DEV_SERVER_URL !== undefined
       ? import.meta.env.VITE_DEV_SERVER_URL
-      : new URL('../../dist/index.html', 'file://' + __dirname).toString();
+      : 'http://10.7.1.194:7789/';
 
   await browserWindow.loadURL(pageUrl);
 

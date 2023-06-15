@@ -95,15 +95,15 @@
 
   onDeleteAreaEvent(() => {
     if (props.layer && props.layer.hot) {
-      const area = controller.getCurrentAreas()[0];
-      if (area) {
+      for (const area of controller.getCurrentAreas()) {
         const index = props.layer.areas.findIndex((value) => value.isSame(area));
         if (index > -1) {
           const areas = props.layer.areas.splice(index, 1);
           areas[0].destroy();
-          controller.setCurrentAreas([]);
+          
         }
       }
+      controller.setCurrentAreas([]);
     }
   });
 

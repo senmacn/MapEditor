@@ -70,7 +70,7 @@
     position: absolute;
     top: 0;
     left: 0;
-    z-index: 999;
+    z-index: 100;
     /* border: 1px dotted black; */
   }
 </style>

@@ -1,5 +1,4 @@
 import { ref } from 'vue';
-import cursor from '@/assets/ico/cursor.ico';
 import { Area } from '../draw-element';
 
 export enum CanvasAreaOption {
@@ -22,8 +21,7 @@ const DrawingShape = [CanvasOption.DrawCircle, CanvasOption.DrawLine, CanvasOpti
 
 function setCursor(cursor: string) {
   // 替换成用class实现
-  const scrollElement = document.getElementsByClassName('scroller')[0] as HTMLElement;
-  scrollElement.style.cursor = cursor;
+  document.body.style.cursor = cursor;
 }
 
 class CanvasStateController {
@@ -37,7 +35,7 @@ class CanvasStateController {
   }
   setState(option: CanvasOption) {
     if (option === CanvasOption.FollowMouse) {
-      setCursor(`url(${cursor}, pointer`);
+      setCursor('url("src/assets/cursor/pencil.svg"), pointer');
     } else if (DrawingShape.includes(option)) {
       setCursor('crosshair');
     } else {
