@@ -89,7 +89,7 @@
   } from '@ant-design/icons-vue';
 
   const emit = defineEmits<{
-    (e: 'end-edit-area', name: string, complete: boolean): void;
+    (e: 'end-edit-area', name: string, type: string[], complete: boolean): void;
   }>();
 
   const areaNameRef = ref('');
@@ -120,11 +120,16 @@
     }
     // 编辑、新增逻辑不同
     if (!controller.isEditingArea()) {
-      emit('end-edit-area', areaNameRef.value + '-' + areaIDRef.value, complete);
+      emit('end-edit-area', areaNameRef.value + '-' + areaIDRef.value, areaTypeRef.value, complete);
     } else {
       complete && emitDeleteAreaEvent();
       setTimeout(() => {
-        emit('end-edit-area', areaNameRef.value + '-' + areaIDRef.value, complete);
+        emit(
+          'end-edit-area',
+          areaNameRef.value + '-' + areaIDRef.value,
+          areaTypeRef.value,
+          complete,
+        );
       }, 50);
     }
   }
