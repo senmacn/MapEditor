@@ -1,8 +1,9 @@
 <template>
-  <div class="ant-vue-body">
+  <div :class="['ant-vue-body', isLocal() ? 'is-local' : '']">
     <navbar>
       <navbar-options></navbar-options>
     </navbar>
+    <edit-options></edit-options>
     <default-editor></default-editor>
   </div>
 </template>
@@ -13,6 +14,8 @@
   import DefaultEditor from './default-editor.vue';
   import modal from 'ant-design-vue/lib/modal';
   import { onBeforeUnmount, onMounted } from 'vue';
+  import EditOptions from './children/edit-options.vue';
+  import { isLocal } from '@/utils/env';
 
   function F5Check(e: KeyboardEvent) {
     if (e.key === 'F5') {

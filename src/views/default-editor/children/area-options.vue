@@ -76,7 +76,7 @@
 <script setup lang="ts">
   import { computed, ref } from 'vue';
   import { message } from 'ant-design-vue';
-  import controller from '../common/canvas-state-controller';
+  import controller, { CanvasOption } from '../common/canvas-state-controller';
   import { emitEditAreaEvent, emitDeleteAreaEvent } from '../common/event';
   import { checkFileName } from '@/utils/file';
   import modal from 'ant-design-vue/lib/modal';
@@ -119,19 +119,27 @@
       return;
     }
     // 编辑、新增逻辑不同
-    if (!controller.isEditingArea()) {
-      emit('end-edit-area', areaNameRef.value + '-' + areaIDRef.value, areaTypeRef.value, complete);
-    } else {
-      complete && emitDeleteAreaEvent();
-      setTimeout(() => {
+    controller.setState(CanvasOption.None);
+    setTimeout(() => {
+      if (!controller.isEditingArea()) {
         emit(
           'end-edit-area',
           areaNameRef.value + '-' + areaIDRef.value,
           areaTypeRef.value,
           complete,
         );
-      }, 50);
-    }
+      } else {
+        complete && emitDeleteAreaEvent();
+        setTimeout(() => {
+          emit(
+            'end-edit-area',
+            areaNameRef.value + '-' + areaIDRef.value,
+            areaTypeRef.value,
+            complete,
+          );
+        }, 50);
+      }
+    }, 100);
   }
 
   function handleStartEditArea() {
@@ -147,7 +155,7 @@
   function handleDeleteArea() {
     modal.confirm({
       title: '确认',
-      content: '删除当前选中的区域【' + controller.getCurrentAreas()[0]?.getName() + '】？',
+      content: '删除当前选中的区域？',
       onOk: () => {
         emitDeleteAreaEvent();
       },

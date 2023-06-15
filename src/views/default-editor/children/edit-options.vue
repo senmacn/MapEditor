@@ -1,82 +1,179 @@
 <template>
-  <a-dropdown
-    @click.prevent
-    :trigger="['click']"
-    overlayClassName="navbar-menu-wrapper"
-    :disabled="!editableRef"
+  <div
+    :class="['edit-options', editShowRef ? 'long' : 'small']"
+    @mouseleave="handleHiddenEditOptions"
   >
-    <div class="nav-item"> 编辑 </div>
-    <template #overlay>
-      <a-menu>
-        <a-menu-item key="0">
-          <div
-            class="inner-content"
-            @click="() => handleChangeOptionState(CanvasOption.FollowMouse)"
+    <template v-if="editShowRef">
+      <a-tooltip title="画笔">
+        <a-button
+          :class="[controller.getState() === CanvasOption.FollowMouse && 'actived']"
+          @click="() => handleChangeOptionState(CanvasOption.FollowMouse)"
+        >
+          <edit-filled />
+        </a-button>
+      </a-tooltip>
+      <a-tooltip title="钢笔">
+        <a-button
+          :class="[controller.getState() === CanvasOption.Pen && 'actived']"
+          @click="() => handleChangeOptionState(CanvasOption.Pen)"
+        >
+          <edit-filled />
+        </a-button>
+      </a-tooltip>
+      <a-tooltip title="橡皮">
+        <a-input-group compact>
+          <a-button
+            :class="[controller.getState() === CanvasOption.FollowMouseClear && 'actived']"
+            @click="() => handleChangeOptionState(CanvasOption.FollowMouseClear)"
           >
-            铅笔
-          </div>
-        </a-menu-item>
-        <a-menu-item key="1">
-          <div class="inner-content" @click="() => handleChangeOptionState(CanvasOption.Pen)">
-            钢笔
-          </div>
-        </a-menu-item>
-        <a-sub-menu key="2" title="橡皮">
-          <a-menu-item key="2-0">
-            <div class="inner-content" @click="() => handleUseEraser(6)"> 小 </div>
-          </a-menu-item>
-          <a-menu-item key="2-1">
-            <div class="inner-content" @click="() => handleUseEraser(12)"> 中 </div>
-          </a-menu-item>
-          <a-menu-item key="2-2">
-            <div class="inner-content" @click="() => handleUseEraser(18)"> 大 </div>
-          </a-menu-item>
-        </a-sub-menu>
-
-        <a-divider></a-divider>
-
-        <a-menu-item key="3">
-          <div class="inner-content" @click="() => handleChangeOptionState(CanvasOption.DrawLine)">
-            直线
-          </div>
-        </a-menu-item>
-        <a-menu-item key="4">
-          <div
-            class="inner-content"
-            @click="() => handleChangeOptionState(CanvasOption.DrawCircle)"
+            <highlight-outlined />
+          </a-button>
+          <a-select
+            class="button-select"
+            :class="[controller.getState() === CanvasOption.FollowMouseClear && 'actived']"
+            :value="config.getEraseSize"
+            @change="
+              (val) => {
+                handleChangeOptionState(CanvasOption.FollowMouseClear);
+                config.setEraseSize(Number(val));
+              }
+            "
           >
-            圆
-          </div>
-        </a-menu-item>
-        <a-menu-item key="5">
-          <div class="inner-content" @click="() => handleChangeOptionState(CanvasOption.DrawRect)">
-            矩形
-          </div>
-        </a-menu-item>
-
-        <a-divider></a-divider>
-
-        <a-menu-item key="6">
-          <div class="inner-content" @click="emitCanvasUndoEvent"> 撤销 (Ctrl+Z) </div>
-        </a-menu-item>
-        <a-menu-item key="7">
-          <div class="inner-content" @click="emitCanvasRedoEvent"> 重做 (Ctrl+Y) </div>
-        </a-menu-item>
-        <a-menu-item key="0">
-          <div class="inner-content" @click="() => handleChangeOptionState(CanvasOption.None)">
-            取消 (Esc)
-          </div>
-        </a-menu-item>
-      </a-menu>
+            <a-select-option :value="5">
+              <svg
+                viewBox="0 0 48 48"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                stroke="currentColor"
+                class="anticon"
+                stroke-width="4"
+                stroke-linecap="butt"
+                stroke-linejoin="miter"
+              >
+                <circle r="12" cx="24" cy="24" />
+              </svg>
+            </a-select-option>
+            <a-select-option :value="10">
+              <svg
+                viewBox="0 0 48 48"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                stroke="currentColor"
+                class="anticon"
+                stroke-width="4"
+                stroke-linecap="butt"
+                stroke-linejoin="miter"
+              >
+                <circle r="20" cx="24" cy="24" />
+              </svg>
+            </a-select-option>
+            <a-select-option :value="15">
+              <svg
+                viewBox="0 0 60 60"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                stroke="currentColor"
+                class="anticon"
+                stroke-width="4"
+                stroke-linecap="butt"
+                stroke-linejoin="miter"
+              >
+                <circle r="28" cx="30" cy="30" />
+              </svg>
+            </a-select-option>
+          </a-select>
+        </a-input-group>
+      </a-tooltip>
     </template>
-  </a-dropdown>
+
+    <a-tooltip title="固定工具">
+      <a-button
+        type="primary"
+        shape="circle"
+        :disabled="!editableRef"
+        @click="stableRef = !stableRef"
+        @mouseenter="handleShowEditOptions"
+      >
+        <template #icon><tool-outlined /></template>
+      </a-button>
+    </a-tooltip>
+
+    <template v-if="editShowRef">
+      <a-tooltip title="直线">
+        <a-button-group>
+          <a-button
+            :class="[controller.getState() === CanvasOption.DrawLine && 'actived']"
+            @click="() => handleChangeOptionState(CanvasOption.DrawLine)"
+          >
+            <minus-outlined />
+          </a-button>
+        </a-button-group>
+      </a-tooltip>
+      <a-tooltip title="圆">
+        <a-button
+          :class="[controller.getState() === CanvasOption.DrawCircle && 'actived']"
+          @click="() => handleChangeOptionState(CanvasOption.DrawCircle)"
+        >
+          <svg
+            viewBox="0 0 20 20"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            stroke="currentColor"
+            class="anticon"
+            stroke-width="1"
+            stroke-linecap="butt"
+            stroke-linejoin="miter"
+          >
+            <circle r="6" cx="10" cy="10" />
+          </svg>
+        </a-button>
+      </a-tooltip>
+      <a-tooltip title="矩形">
+        <a-button
+          :class="[controller.getState() === CanvasOption.DrawRect && 'actived']"
+          @click="() => handleChangeOptionState(CanvasOption.DrawRect)"
+        >
+          <svg
+            viewBox="0 0 30 30"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            stroke="currentColor"
+            class="anticon"
+            stroke-width="1"
+            stroke-linecap="butt"
+            stroke-linejoin="miter"
+          >
+            <rect x="5" y="6" width="18" height="18" />
+          </svg>
+        </a-button>
+      </a-tooltip>
+      <a-tooltip title="撤销 (Ctrl+Z)">
+        <a-button @click="emitCanvasUndoEvent">
+          <undo-outlined />
+        </a-button>
+      </a-tooltip>
+      <a-tooltip title="重做 (Ctrl+Y))">
+        <a-button @click="emitCanvasRedoEvent">
+          <redo-outlined />
+        </a-button>
+      </a-tooltip>
+    </template>
+  </div>
 </template>
 
 <script setup lang="ts">
   import { useEditorConfig } from '@/store/modules/editor-config';
   import controller, { CanvasOption } from '../common/canvas-state-controller';
   import { emitCanvasUndoEvent, emitCanvasRedoEvent } from '../common/event';
-  import { computed } from 'vue';
+  import { computed, ref } from 'vue';
+  import {
+    EditFilled,
+    HighlightOutlined,
+    RedoOutlined,
+    UndoOutlined,
+    MinusOutlined,
+    ToolOutlined,
+  } from '@ant-design/icons-vue';
 
   function handleChangeOptionState(state: CanvasOption) {
     controller.setState(state);
@@ -84,12 +181,73 @@
 
   const config = useEditorConfig();
 
-  const editableRef = computed(() => controller.isDrawingArea());
-
-  function handleUseEraser(size: number) {
-    config.setEraseSize(size);
-    controller.setState(CanvasOption.FollowMouseClear);
+  const editableRef = computed(() => {
+    if (controller.isDrawingArea()) {
+      return true;
+    } else {
+      editShowRef.value = false;
+      stableRef.value = false;
+      return false;
+    }
+  });
+  const editShowRef = ref(false);
+  const stableRef = ref(false);
+  let hideEditOptions: any = null;
+  function handleShowEditOptions() {
+    if (editableRef.value) {
+      clearTimeout(hideEditOptions);
+      editShowRef.value = true;
+    }
+  }
+  function handleHiddenEditOptions() {
+    if (!stableRef.value) {
+      hideEditOptions = setTimeout(() => {
+        editShowRef.value = false;
+      }, 300);
+    }
   }
 </script>
 
-<style lang="less"></style>
+<style lang="less">
+  .is-local {
+    .edit-options {
+      top: 114px;
+    }
+  }
+  .edit-options {
+    display: flex;
+    justify-content: space-around;
+    position: fixed;
+    top: 84px;
+    left: 600px;
+    width: 420px;
+    padding: 5px;
+    z-index: 101;
+    background-color: transparent;
+    transition: all 0.3s ease;
+    overflow: hidden;
+
+    &.small {
+      width: 80px;
+      left: 760px;
+    }
+    button.ant-btn {
+      font-size: 12px;
+      width: 32px;
+      height: 32px;
+      padding: 0 4px;
+    }
+    .ant-input-group {
+      width: auto;
+    }
+    .ant-btn-group .button-select {
+      font-size: 12px;
+      width: 50px;
+      height: 32px;
+      border-radius: 0 5px 5px 0;
+    }
+    .ant-btn-circle {
+      border-radius: 50%;
+    }
+  }
+</style>
