@@ -23,13 +23,13 @@
         </a-menu-item>
         <a-sub-menu key="2" title="橡皮">
           <a-menu-item key="2-0">
-            <div class="inner-content" @click="() => config.setEraseSize(5)"> 小 </div>
+            <div class="inner-content" @click="() => handleUseEraser(6)"> 小 </div>
           </a-menu-item>
           <a-menu-item key="2-1">
-            <div class="inner-content" @click="() => config.setEraseSize(10)"> 中 </div>
+            <div class="inner-content" @click="() => handleUseEraser(12)"> 中 </div>
           </a-menu-item>
           <a-menu-item key="2-2">
-            <div class="inner-content" @click="() => config.setEraseSize(15)"> 大 </div>
+            <div class="inner-content" @click="() => handleUseEraser(18)"> 大 </div>
           </a-menu-item>
         </a-sub-menu>
 
@@ -63,10 +63,7 @@
           <div class="inner-content" @click="emitCanvasRedoEvent"> 重做 (Ctrl+Y) </div>
         </a-menu-item>
         <a-menu-item key="0">
-          <div
-            class="inner-content"
-            @click="() => handleChangeOptionState(CanvasOption.None)"
-          >
+          <div class="inner-content" @click="() => handleChangeOptionState(CanvasOption.None)">
             取消 (Esc)
           </div>
         </a-menu-item>
@@ -88,8 +85,11 @@
   const config = useEditorConfig();
 
   const editableRef = computed(() => controller.isDrawingArea());
+
+  function handleUseEraser(size: number) {
+    config.setEraseSize(size);
+    controller.setState(CanvasOption.FollowMouseClear);
+  }
 </script>
 
-<style lang="less">
-
-</style>
+<style lang="less"></style>

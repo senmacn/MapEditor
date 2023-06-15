@@ -1,26 +1,38 @@
 <template>
-  <div class="default-option">
-    <a-row class="option-group" style="height: 380px">
-      <a-col class="row-label" :span="4">
-        <span class="group-label">图层： </span>
-      </a-col>
-      <a-col :span="24">
-        <layer-list></layer-list>
-      </a-col>
-    </a-row>
-    <area-options
-      style="height: 140px"
-      @end-edit-area="(...props) => emit('end-edit-area', props[0], props[1])"
-    />
-    <edit-config></edit-config>
+  <div v-if="!drawerVisibleRef" class="open-drawer" @click="drawerVisibleRef = true">
+    <appstore-two-tone twoToneColor="green" />
   </div>
+  <a-drawer
+    class="option-drawer"
+    placement="right"
+    :width="400"
+    :visible="drawerVisibleRef"
+    :mask="false"
+    @close="drawerVisibleRef = false"
+  >
+    <div v-if="drawerVisibleRef" class="close-drawer" @click="drawerVisibleRef = false">
+      <right-outlined />
+    </div>
+    <div class="default-option">
+      <a-row class="option-group" style="height: 380px">
+        <a-col class="row-label" :span="4">
+          <span class="group-label">图层： </span>
+        </a-col>
+        <a-col :span="24">
+          <layer-list></layer-list>
+        </a-col>
+      </a-row>
+      <area-options
+        @end-edit-area="(...props) => emit('end-edit-area', props[0], props[1])"
+      />
+    </div>
+  </a-drawer>
 </template>
 
 <script setup lang="ts">
-  import { onMounted, unref } from 'vue';
+  import { onMounted, ref, unref } from 'vue';
   import LayerList from './children/layer-list.vue';
   import AreaOptions from './children/area-options.vue';
-  import EditConfig from './children/edit-config.vue';
   import { useEditorConfig } from '@/store/modules/editor-config';
   import { loadSaves } from '@/utils/persist';
   import { useRouter } from 'vue-router';
@@ -28,6 +40,7 @@
   import { message } from 'ant-design-vue';
   import { useLoading } from '@/components/Loading';
   import { getLocalApi } from '@/utils/env';
+  import { RightOutlined, AppstoreTwoTone } from '@ant-design/icons-vue';
 
   const emit = defineEmits<{
     (e: 'end-edit-area', name: string, complete: boolean): void;
@@ -37,6 +50,8 @@
   const localState = useLocalState();
   const configRef = useEditorConfig();
   const localApi = getLocalApi();
+
+  const drawerVisibleRef = ref(true);
 
   const [openLoading, closeLoading] = useLoading({ minTime: 500 });
 
@@ -71,7 +86,41 @@
 </script>
 
 <style lang="less">
+  .option-drawer {
+    position: fixed;
+    width: 400px;
+    max-height: 85%;
+    margin: 100px 35px 20px 0;
+    border-radius: 3px;
+    transition: width 0.2s ease;
+    .ant-drawer-content {
+      overflow: visible;
+      border-radius: 10px;
+      background-color: rgb(51, 51, 51);
+      border: 1px solid rgb(81, 81, 81);
+    }
+    .ant-drawer-header {
+      display: none;
+    }
+    .ant-drawer-body {
+      padding: 10px;
+      &::-webkit-scrollbar {
+        width: 0;
+      }
+    }
+    .ant-drawer-content-wrapper {
+      transform: translateX(150%) !important;
+      overflow: hidden;
+    }
+    &.ant-drawer-open {
+      .ant-drawer-content-wrapper {
+        overflow: visible;
+        transform: translateX(0) !important;
+      }
+    }
+  }
   .default-option {
+    overflow: hidden;
     color: #d4d4d4;
     .ant-upload-wrapper {
       width: auto;
@@ -124,8 +173,40 @@
       border-color: @color-fill-3;
     }
   }
-  .result {
-    margin-top: 400px;
-    margin-left: 200px;
+  .close-drawer {
+    position: absolute;
+    top: 5px;
+    left: -48px;
+    height: 40px;
+    width: 50px;
+    border-radius: 5px;
+    line-height: 45px;
+    border: 1px solid rgb(81, 81, 81);
+    border-right: 0;
+    background-color: rgb(51, 51, 51);
+    z-index: 999;
+    cursor: pointer;
+    .anticon {
+      font-size: 24px;
+      color: @color-text-1;
+    }
+  }
+  .open-drawer {
+    position: fixed;
+    top: 120px;
+    right: 80px;
+    height: 60px;
+    width: 60px;
+    border: 1px solid rgb(81, 81, 81);
+    border-radius: 100px;
+    background-color: rgb(51, 51, 51);
+    z-index: 999;
+    text-align: center;
+    line-height: 80px;
+    cursor: pointer;
+    .anticon {
+      font-size: 40px;
+      color: @color-text-1;
+    }
   }
 </style>

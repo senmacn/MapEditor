@@ -1,7 +1,7 @@
 <template>
   <a-row class="option-group area-options" @click.stop>
     <a-col class="row-label" :span="6">
-      <span class="group-label">区域类型： </span>
+      <span class="group-label">区域名称 </span>
     </a-col>
     <a-col :span="18">
       <a-input
@@ -11,7 +11,7 @@
       ></a-input>
     </a-col>
     <a-col class="row-label" :span="6">
-      <span class="group-label">区域ID： </span>
+      <span class="group-label">区域 ID </span>
     </a-col>
     <a-col :span="18">
       <a-input
@@ -20,7 +20,20 @@
         v-model:value="areaIDRef"
       ></a-input>
     </a-col>
-    <a-col :span="4" :offset="4">
+    <a-col class="row-label" :span="6">
+      <span class="group-label">区域类型 </span>
+    </a-col>
+    <a-col :span="18">
+      <a-select
+        :value="areaTypeRef"
+        mode="tags"
+        style="width: 100%"
+        placeholder="选择一个已有类型或创建一个新类型"
+        :options="[]"
+        @change="(val) => handleTypeChange(val)"
+      ></a-select>
+    </a-col>
+    <a-col :span="4" :offset="2">
       <a-button
         type="primary"
         :disabled="controller.isDrawingArea()"
@@ -81,6 +94,10 @@
 
   const areaNameRef = ref('');
   const areaIDRef = ref('');
+  const areaTypeRef = ref<string[]>([]);
+  function handleTypeChange(val) {
+    areaTypeRef.value = val.slice(-1);
+  }
   function handleStartDrawingArea() {
     if (!areaNameRef.value.length || !areaIDRef.value.length) {
       message.warning('请填写区域类型和ID！');
@@ -113,8 +130,9 @@
   }
 
   function handleStartEditArea() {
-    [areaNameRef.value, areaIDRef.value] =
-      controller.getCurrentAreas()[0]?.getName().split('-') || '';
+    const area = controller.getCurrentAreas()[0];
+    [areaNameRef.value, areaIDRef.value] = area?.getName().split('-') || '';
+    areaTypeRef.value = area.type;
     controller.startDrawingArea(false);
     setTimeout(() => {
       emitEditAreaEvent();
@@ -140,9 +158,9 @@
   .area-options {
     button.ant-btn {
       font-size: 12px;
-      width: 50px;
+      width: 52px;
       height: 32px;
-      padding: 0 4px;
+      padding: 0 2px;
     }
     .ant-btn > .anticon + span {
       margin-left: 0;
