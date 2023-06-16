@@ -167,7 +167,7 @@
     visibleRef.value = false;
   }
 
-  const pickrInstance = useColorPicker('#pickr-instance');
+  const pickrInstance = useColorPicker('.pin-modal #pickr-instance');
   watch(
     () => visibleRef.value,
     () => {

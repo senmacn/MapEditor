@@ -61,7 +61,7 @@
 </template>
 
 <script setup lang="ts">
-  import { onMounted, watch } from 'vue';
+  import { watch } from 'vue';
   import { useEditorConfig } from '@/store/modules/editor-config';
   import { useColorPicker } from '@/hooks/useColorPicker';
   // import ControlledSlider, { useControllerSlider } from '@/components/controlled-slider';
@@ -86,7 +86,7 @@
   // });
 
   let inited = false;
-  const pickrInstance = useColorPicker('#pickr-instance');
+  const pickrInstance = useColorPicker('.change-map-size-modal #pickr-instance');
   watch(
     () => props.visible,
     () => {

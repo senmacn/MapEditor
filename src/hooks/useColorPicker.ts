@@ -1,14 +1,16 @@
+import { useEditorConfig } from '@/store/modules/editor-config';
 import { isNullOrUnDef } from '@/utils/is';
 import Pickr from '@simonwep/pickr';
 import { ref } from 'vue';
 
 export function useColorPicker(el: string) {
   const pickrRef = ref();
+  const configRef = useEditorConfig();
   const init = () => {
     pickrRef.value = Pickr.create({
       el: el,
       theme: 'nano',
-      default: 'red',
+      default: configRef.getColor || 'red',
       swatches: [
         'rgba(244, 67, 54, 1)',
         'rgba(0, 0, 0, 1)',
@@ -51,14 +53,15 @@ export function useColorPicker(el: string) {
     pickrRef.value
       .getColor()
       .toRGBA()
-      .map((num: number, index: number) =>
-        index === 3 ? Number((num * 255).toFixed(0)) : Number(num.toFixed(0)),
-      );
+      .map((num: number) => Number(num.toFixed(0)));
   const hasInit = () => !isNullOrUnDef(pickrRef.value);
+  const setColor = (color: string) => pickrRef.value.setColor(color);
+
   return {
     init,
     on,
     getColor,
     hasInit,
+    setColor,
   };
 }

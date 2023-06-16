@@ -86,6 +86,12 @@
       </a-tooltip>
     </template>
 
+    <a-tooltip title="线条颜色">
+      <div v-show="editableRef" class="pickr-wrapper">
+        <div id="pickr-instance"></div>
+      </div>
+    </a-tooltip>
+
     <a-tooltip title="固定工具">
       <a-button
         type="primary"
@@ -165,7 +171,7 @@
   import { useEditorConfig } from '@/store/modules/editor-config';
   import controller, { CanvasOption } from '../common/canvas-state-controller';
   import { emitCanvasUndoEvent, emitCanvasRedoEvent } from '../common/event';
-  import { computed, ref } from 'vue';
+  import { computed, onMounted, ref } from 'vue';
   import {
     EditFilled,
     HighlightOutlined,
@@ -174,6 +180,7 @@
     MinusOutlined,
     ToolOutlined,
   } from '@ant-design/icons-vue';
+  import { useColorPicker } from '@/hooks/useColorPicker';
 
   function handleChangeOptionState(state: CanvasOption) {
     controller.setState(state);
@@ -203,9 +210,18 @@
     if (!stableRef.value) {
       hideEditOptions = setTimeout(() => {
         editShowRef.value = false;
-      }, 300);
+      }, 200);
     }
   }
+
+  const configRef = useEditorConfig();
+  const pickrInstance = useColorPicker('.edit-options #pickr-instance');
+  onMounted(() => {
+    pickrInstance.init();
+    pickrInstance.on('save', (color) => {
+      configRef.setColor(color.toRGBA().toString());
+    });
+  });
 </script>
 
 <style lang="less">
@@ -230,6 +246,12 @@
     &.small {
       width: 80px;
       left: 760px;
+      .pickr-wrapper {
+        visibility: hidden;
+      }
+    }
+    .pickr-wrapper {
+      transition: all 0s ease !important;
     }
     button.ant-btn {
       font-size: 12px;
