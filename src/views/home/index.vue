@@ -52,7 +52,7 @@
           </a-button>
         </template>
         <template #renderItem="{ item, index }">
-          <a-list-item class="list-item" action-layout="vertical">
+          <a-list-item class="list-item" item-layout="vertical">
             <template #actions>
               <span class="options" @click="handleOpenProject(item.title)">
                 <folder-open-outlined />打开
@@ -126,7 +126,7 @@
   function handleOpenProject(project: string) {
     // location.href = '/#/map-editor?name=' + project;
     const url = location.href.slice().replace(/\#\/.+/, '#/map-editor?name=' + project);
-    isLocal() ? localApi?.newWindow(url) : window.open(url);
+    location.replace(url);
   }
   function handleUploadProject() {}
   const editRef = ref(-1);
@@ -233,10 +233,15 @@
       right: 0;
     }
     .list-item {
+      flex-direction: column;
+      align-items: start;
       color: @color-text-2;
       span.options {
         cursor: pointer;
       }
+    }
+    .ant-list-item-meta-title {
+      font-size: 14px;
     }
     .top .ant-list-item-meta-title {
       color: red !important;
@@ -245,7 +250,7 @@
       width: 100%;
     }
     .ant-list-item-action {
-      margin-left: 24px;
+      margin-left: 150px;
     }
   }
 </style>

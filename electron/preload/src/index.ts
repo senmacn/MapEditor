@@ -1,10 +1,11 @@
 import { contextBridge, ipcRenderer } from 'electron';
-import { Titlebar } from 'custom-electron-titlebar';
+import { Titlebar, TitlebarColor } from 'custom-electron-titlebar';
 
 window.addEventListener('DOMContentLoaded', () => {
   new Titlebar({
     // @ts-ignore
     titleHorizontalAlignment: 'left',
+    backgroundColor: TitlebarColor.fromHex('#343437')
   });
 });
 
