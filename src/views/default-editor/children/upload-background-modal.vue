@@ -84,6 +84,13 @@
     <div class="button-group">
       <a-button
         type="primary"
+        v-if="stepRef === Step.START"
+        @click="handleOk"
+      >
+        透明度修改
+      </a-button>
+      <a-button
+        type="primary"
         v-if="stepRef === Step.Full"
         @click="handleOk"
         :disabled="!fileStringRef"
@@ -196,10 +203,12 @@
     }
     fileStringRef.value = canvas.toDataURL('image/jpeg', compressRef.value ? 1 : 0.2);
     handleOk();
+    sliceFileList.value = [];
   }
 
   function handleOk() {
     emit('ok', fileStringRef.value, transparencyRef.value);
+    fileStringRef.value = '';
   }
 
   function handleCancel() {
@@ -260,7 +269,7 @@
       height: 50px;
       margin: 0 auto;
       .ant-btn {
-        width: 70px;
+        width: 100px;
         height: 35px;
         font-size: 12px;
       }

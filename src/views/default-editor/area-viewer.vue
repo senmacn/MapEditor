@@ -32,9 +32,9 @@
 
   // 背景图片
   watch(
-    () => props.layer?.map,
+    [() => props.layer?.map, () => props.layer?.transparency],
     () => {
-      if (props.layer) {
+      if (props.layer && props.layer?.map) {
         const layer = document.getElementById(props.layer?.uuid);
         if (!layer) {
           const map = props.layer.map;
@@ -100,7 +100,6 @@
         if (index > -1) {
           const areas = props.layer.areas.splice(index, 1);
           areas[0].destroy();
-          
         }
       }
       controller.setCurrentAreas([]);
