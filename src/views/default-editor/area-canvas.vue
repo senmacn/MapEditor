@@ -291,15 +291,15 @@
   // 挂载时初始化
   onMounted(() => {
     setup();
+    document.body.addEventListener('keydown', onKeyBoardDown);
     const fullDrawer = document.getElementsByClassName('map-editor')[0];
-    fullDrawer.addEventListener('keydown', onKeyBoardDown);
     fullDrawer.addEventListener('mousedown', handleMouseDownOuter);
     fullDrawer.addEventListener('mousemove', handleMouseMoveOuter);
     fullDrawer.addEventListener('mouseup', handleMouseUpOuter);
   });
   onBeforeUnmount(() => {
+    document.body.removeEventListener('keydown', onKeyBoardDown);
     const fullDrawer = document.getElementsByClassName('map-editor')[0];
-    fullDrawer.removeEventListener('keydown', onKeyBoardDown);
     fullDrawer.removeEventListener('mousedown', handleMouseDownOuter);
     fullDrawer.removeEventListener('mousemove', handleMouseMoveOuter);
     fullDrawer.removeEventListener('mouseup', handleMouseDownOuter);
