@@ -14,9 +14,12 @@
         </a-tooltip>
       </div>
       <div class="area-name">
-        <gateway-outlined v-if="area instanceof Area" />
-        <pushpin-outlined v-else></pushpin-outlined>
-        {{ area.getName() }}
+        <a-tooltip :title="'类型-' + area.type">
+          <gateway-outlined v-if="area instanceof Area" />
+          <pushpin-outlined v-else></pushpin-outlined>
+
+          {{ area.getName() }}
+        </a-tooltip>
       </div>
       <div class="area-option">
         <a-tooltip title="快速定位">
@@ -56,7 +59,7 @@
 
   const visibleList = computed(() => {
     if (props.areas.length + props.pins.length > 0) {
-      return [...props.areas, ...props.pins].filter(ele => ele.visible);
+      return [...props.areas, ...props.pins].filter((ele) => ele.visible);
     } else {
       return [];
     }
@@ -102,9 +105,9 @@
       justify-content: space-around;
     }
     .ant-btn {
-        display: inline-block;
-        height: 16px;
-        width: 32px;
-      }
+      display: inline-block;
+      height: 16px;
+      width: 32px;
+    }
   }
 </style>

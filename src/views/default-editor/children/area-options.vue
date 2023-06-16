@@ -29,7 +29,7 @@
         mode="tags"
         style="width: 100%"
         placeholder="选择一个已有类型或创建一个新类型"
-        :options="[]"
+        :options="areaTypeOptionsRef"
         @change="(val) => handleTypeChange(val)"
       ></a-select>
     </a-col>
@@ -87,14 +87,28 @@
     CloseOutlined,
     DeleteOutlined,
   } from '@ant-design/icons-vue';
+  import { useCanvasState } from '@/store/modules/canvas-state';
 
   const emit = defineEmits<{
     (e: 'end-edit-area', name: string, type: string[], complete: boolean): void;
   }>();
 
+  const canvasState = useCanvasState();
+
   const areaNameRef = ref('');
   const areaIDRef = ref('');
   const areaTypeRef = ref<string[]>([]);
+  const areaTypeOptionsRef = computed(() => {
+    const options: Recordable[] = [];
+    canvasState.getLayers.forEach((layer) => {
+      layer.areas.forEach((area) => {
+        if (area.type && !options.includes(area.type)) {
+          options.push(area.type);
+        }
+      });
+    });
+    return options.map((val) => ({ value: val }));
+  });
   function handleTypeChange(val) {
     areaTypeRef.value = val.slice(-1);
   }

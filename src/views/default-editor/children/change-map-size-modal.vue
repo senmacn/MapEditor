@@ -14,11 +14,11 @@
         <div class="map-size">
           <a-tooltip title="单张图片对应的地块大小 xxx / 1024 (cm/px)得到的数值">
             <span>
-              比例尺:
+              坐标/每1024px:
               <info-circle-outlined class="warning-color" />
             </span>
           </a-tooltip>
-          <a-input v-model:value="scaleRef" suffix="cm/px"></a-input>
+          <a-input v-model:value="mapConfig.fullScale" suffix="cm/1024px"></a-input>
         </div>
         <div class="map-size">
           <span>地图左上角X坐标:</span>
@@ -145,6 +145,7 @@
   );
 
   const mapConfig = ref({
+    fullScale: 0,
     used: 0,
     map_ltX: 0,
     map_ltY: 0,
@@ -157,7 +158,8 @@
   });
   function handleAutoTransform() {
     const scale = scaleRef.value;
-    const { map_ltX, map_ltY, map_rbX, map_rbY, ltX, ltY, rbX, rbY } = mapConfig.value;
+    const { fullScale, map_ltX, map_ltY, map_rbX, map_rbY, ltX, ltY, rbX, rbY } = mapConfig.value;
+    scaleRef.value = fullScale / 1024;
     offsetXRef.value = (ltX - map_ltX) / scale;
     offsetYRef.value = (ltY - map_ltY) / scale;
     xRef.value = (rbX - ltX) / scale;
@@ -183,6 +185,7 @@
           allY: Number(allYRef.value),
         });
         configRef.setMapSize({
+          fullScale: Number(mapConfig.value.fullScale),
           used: Number(mapConfig.value.used),
           map_ltX: Number(mapConfig.value.map_ltX),
           map_ltY: Number(mapConfig.value.map_ltY),
