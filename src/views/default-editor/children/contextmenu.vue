@@ -14,19 +14,20 @@
       修改地图钉
     </v-contextmenu-item>
     <v-contextmenu-item @click="handleDeletePin">
-      <edit-outlined />
+      <delete-outlined />
       删除地图钉
     </v-contextmenu-item>
-    <v-contextmenu-divider />
-    <v-contextmenu-item> </v-contextmenu-item>
-    <v-contextmenu-item> </v-contextmenu-item>
   </v-contextmenu>
 </template>
 
 <script setup lang="ts">
   import { inject, ref } from 'vue';
-  import { LinkOutlined, PushpinOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons-vue';
-
+  import {
+    LinkOutlined,
+    PushpinOutlined,
+    EditOutlined,
+    DeleteOutlined,
+  } from '@ant-design/icons-vue';
 
   const emit = defineEmits<{
     (e: 'show-pin-modal', create: boolean): void;
@@ -51,9 +52,7 @@
     contextmenu.value.hide();
   }
 
-  function handleDeletePin() {
-
-  }
+  function handleDeletePin() {}
 
   defineExpose({
     show: handleShowContextMenu,
