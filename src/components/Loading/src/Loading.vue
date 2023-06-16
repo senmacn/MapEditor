@@ -42,7 +42,7 @@
     position: fixed;
     top: 0;
     left: 0;
-    z-index: 200;
+    z-index: 2000;
     display: flex;
     width: 100%;
     height: 100%;
@@ -54,7 +54,7 @@
       position: absolute;
       top: 0;
       left: 0;
-      z-index: 300;
+      z-index: 2000;
     }
   }
 </style>
