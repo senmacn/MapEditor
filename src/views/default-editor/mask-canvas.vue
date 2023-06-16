@@ -151,12 +151,14 @@
   // 挂载时初始化
   onMounted(() => {
     setup();
-    document.body.addEventListener('mouseup', handleMouseUpOuter);
-    document.body.addEventListener('mousemove', handleMouseMoveOuter);
+    const fullDrawer = document.getElementsByClassName('map-editor')[0];
+    fullDrawer.addEventListener('mouseup', handleMouseUpOuter);
+    fullDrawer.addEventListener('mousemove', handleMouseMoveOuter);
   });
   onBeforeUnmount(() => {
-    document.body.removeEventListener('mouseup', handleMouseUpOuter);
-    document.body.removeEventListener('mousemove', handleMouseMoveOuter);
+    const fullDrawer = document.getElementsByClassName('map-editor')[0];
+    fullDrawer.removeEventListener('mouseup', handleMouseUpOuter);
+    fullDrawer.removeEventListener('mousemove', handleMouseMoveOuter);
   });
 
   // zoom配置修改时，修改canvas大小
