@@ -14,7 +14,7 @@
   import { Layer } from './common/types';
   import { useEditorConfig } from '@/store/modules/editor-config';
   import controller from './common/canvas-state-controller';
-  import { onDeleteAreaEvent } from './common/event';
+  import { onDeleteAreaEvent, onEditAreaEvent } from './common/event';
   import { Area, Pin } from './draw-element';
   import { isString } from '@/utils/is';
   import useSelecto from './utils/useSelecto';
@@ -141,18 +141,13 @@
     }
   }
 
-  watch(
-    () => controller.isEditingArea(),
-    () => {
-      let defaultCanvas = document.getElementById(props.layer?.uuid || '') as HTMLElement;
-      if (defaultCanvas == null) return;
-      if (controller.isEditingArea()) {
-        defaultCanvas.style.visibility = 'hidden';
-      } else {
-        defaultCanvas.style.visibility = 'visible';
-      }
-    },
-  );
+  onEditAreaEvent(function () {
+    const currentArea = controller.getCurrentAreas()[0];
+    if (currentArea) {
+      currentArea.cancelSelect();
+      currentArea.hide();
+    }
+  });
 
   // zoom配置修改时，修改大小
   // watch(

@@ -251,10 +251,16 @@
       controller.setState(CanvasOption.None);
     }
     if (e.ctrlKey) {
-      e.stopPropagation();
-      e.preventDefault();
-      if (e.key === 'z' && !controller.isDrawingPen()) ctxRef.undo();
-      if (e.key === 'y' && !controller.isDrawingPen()) ctxRef.redo();
+      if (e.key === 'z' && !controller.isDrawingPen()) {
+        e.stopPropagation();
+        e.preventDefault();
+        ctxRef.undo();
+      }
+      if (e.key === 'y' && !controller.isDrawingPen()) {
+        e.stopPropagation();
+        e.preventDefault();
+        ctxRef.redo();
+      }
     }
   }
   function handleMouseUpOuter(e: MouseEvent) {

@@ -35,7 +35,7 @@ class CanvasStateController {
   }
   setState(option: CanvasOption) {
     if (option === CanvasOption.FollowMouse) {
-      setCursor('url("src/assets/cursor/pencil.svg"), pointer');
+      setCursor('url("src/assets/cursor/pencil1.svg"), pointer');
     } else if (DrawingShape.includes(option)) {
       setCursor('crosshair');
     } else {
