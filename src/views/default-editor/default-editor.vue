@@ -11,10 +11,6 @@
     </div>
     <status-bar></status-bar>
   </div>
-  <confirm-bound-modal
-    ref="confirmBoundModelRef"
-    @confirm-end="handleConfirmBound"
-  ></confirm-bound-modal>
 </template>
 
 <script setup lang="ts">
@@ -22,7 +18,6 @@
   import StatusBar from './children/status-bar.vue';
   import CanvasContainer from './canvas-container.vue';
   import DefaultOptions from './default-options.vue';
-  import ConfirmBoundModal from './children/confirm-bound-modal.vue';
   import { getRandomDomId } from '../../utils/uuid';
   import controller from './common/canvas-state-controller';
   import { Layer } from './common/types';
@@ -92,32 +87,10 @@
 
   // 区域编辑
   const areaCanvasRef = ref<Recordable>();
-  const awaitConfirmBound = ref();
-  const confirmBoundModelRef = ref();
   async function handleEndEditArea(name: string, type: string[], complete: boolean) {
     if (complete && areaCanvasRef.value) {
       const area: Area = areaCanvasRef.value.getCreatedArea();
       if (!area) return;
-      // 确定是否可能需要封边
-      const boundRect = area.getBoundRect();
-      if (
-        boundRect[0] === 0 ||
-        boundRect[1] === 0 ||
-        boundRect[0] + boundRect[2] >= Number(configRef.getSize.x) ||
-        boundRect[1] + boundRect[3] >= Number(configRef.getSize.y)
-      ) {
-        const confirm = new Promise((resolve) => {
-          awaitConfirmBound.value = resolve;
-          confirmBoundModelRef.value?.setUpConfirmArea({
-            data: area.getData(),
-            boundRect: boundRect,
-          });
-        });
-        const confirmData = (await confirm) as ImageData;
-        if (!confirmData) return;
-        area.setData(confirmData);
-      }
-
       for (let index = canvasState.getLayers.length - 1; index >= 0; index--) {
         const element = canvasState.getLayers[index];
         if (element.hot) {
@@ -130,13 +103,6 @@
       controller.getCurrentAreas()[0]?.show();
     }
     controller.endDrawingArea();
-  }
-  function handleConfirmBound(data: ImageData, cancel: boolean) {
-    if (cancel) {
-      awaitConfirmBound.value && awaitConfirmBound.value(null);
-    } else {
-      awaitConfirmBound.value && awaitConfirmBound.value(data);
-    }
   }
 </script>
 

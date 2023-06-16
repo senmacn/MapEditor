@@ -1,15 +1,9 @@
 <template>
-  <!-- <div
-    id="scroller"
-    ref="scrollerRef"
-    :class="['scroller', controller.isDrawingArea() ? 'active' : '']"
-    @contextmenu="handleClickMenu"
-    @click="handleClick"
-  > -->
   <div
     id="scroller"
     ref="scrollerRef"
     :class="['scroller', controller.isDrawingArea() ? 'active' : '']"
+    @contextmenu="handleClickMenu"
     @click="handleClick"
   >
     <template v-for="layer in state.layers" :key="layer.uuid">

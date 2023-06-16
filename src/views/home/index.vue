@@ -37,7 +37,7 @@
         size="small"
         :bordered="false"
         :data-source="dataSource"
-        :pagination-props="paginationProps"
+        :pagination="paginationProps"
       >
         <template #header>
           <div class="history-title"> - 历史记录 - </div>
@@ -107,7 +107,7 @@
 
   const dataSource = ref<LocalMapHistory[]>([]);
   const paginationProps = reactive({
-    defaultPageSize: 5,
+    pageSize: 4,
     total: dataSource.value.length,
   });
 
@@ -117,6 +117,7 @@
       localApi.getLocalHistoryList().then((data: LocalMapHistory[]) => {
         if (isArray(data)) {
           dataSource.value = data;
+          paginationProps.total = data.length;
         }
       });
   }
