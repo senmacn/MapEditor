@@ -1,6 +1,5 @@
-import { app, BrowserWindow, shell } from 'electron';
+import { app, BrowserWindow } from 'electron';
 import { join } from 'path';
-import { URL } from 'url';
 import setupEvent from './setupEvent';
 import { setupTitlebar, attachTitlebarToWindow } from 'custom-electron-titlebar/main';
 
