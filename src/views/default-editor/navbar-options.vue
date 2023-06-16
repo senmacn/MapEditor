@@ -136,11 +136,12 @@
         ]);
         const initLayers = canvasState.getLayers.slice();
         // 混入
-        result.layers.forEach((layer) => {
+        result.layers.forEach((layer) => {``
           let flag = false;
           initLayers.forEach((initLayer) => {
             if (initLayer.name === layer.name) {
               initLayer.areas = initLayer.areas.concat(layer.areas);
+              flag = true;
             }
           });
           if (!flag) {

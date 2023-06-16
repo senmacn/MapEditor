@@ -1,7 +1,7 @@
 <template>
   <a-modal
     class="display-output-modal"
-    title="导出数据填充确认"
+    title="坐标下载"
     :width="1000"
     :visible="visible"
     :mask-closable="false"
@@ -10,7 +10,7 @@
   >
     <a-spin tip="渲染中..." :spinning="spinningRef">
       <div class="area-choose" v-if="isFirst">
-        <a-checkbox-group v-model:value="areasRef">
+        <a-checkbox-group v-model:value="areasRef">+
           <a-row v-for="layer in canvasState.layers">
             <a-col :span="4" class="title">
               <block-outlined />

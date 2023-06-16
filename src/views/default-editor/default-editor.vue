@@ -3,7 +3,7 @@
     class="map-editor"
     :style="{ height: isLocal() ? 'calc(100vh - 100px)' : 'calc(100vh - 70px)' }"
   >
-    <default-options @load-saves="handleLoadSaves" @end-edit-area="handleEndEditArea" />
+    <default-options @end-edit-area="handleEndEditArea" />
     <div class="content-box">
       <div ref="hRuler" class="ruler h-ruler"></div>
       <div ref="vRuler" class="ruler v-ruler"></div>
@@ -118,14 +118,16 @@
         area.setData(confirmData);
       }
 
-      for (let index = layersRef.value.length - 1; index >= 0; index--) {
-        const element = layersRef.value[index];
+      for (let index = canvasState.getLayers.length - 1; index >= 0; index--) {
+        const element = canvasState.getLayers[index];
         if (element.hot) {
           area.setName(name);
           area.type = type;
           element.areas.push(area);
         }
       }
+    } else {
+      controller.getCurrentAreas()[0].show();
     }
     controller.endDrawingArea();
   }
@@ -135,12 +137,6 @@
     } else {
       awaitConfirmBound.value && awaitConfirmBound.value(data);
     }
-  }
-
-  function handleLoadSaves(layers) {
-    controller.setCurrentAreas([]);
-    layersRef.value = layers;
-    canvasState.setLayers(layersRef.value);
   }
 </script>
 

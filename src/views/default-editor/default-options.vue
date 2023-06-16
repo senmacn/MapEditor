@@ -61,7 +61,6 @@
 
   const emit = defineEmits<{
     (e: 'end-edit-area', name: string, type: string[], complete: boolean): void;
-    (e: 'load-saves', layers: any): void;
   }>();
 
   const localState = useLocalState();
@@ -85,7 +84,7 @@
           .then((data) => {
             try {
               const result = loadSaves(data, [configRef.getSize.x, configRef.getSize.y]);
-              emit('load-saves', result?.layers);
+              canvasState.setLayers(result?.layers);
             } catch (e: any) {
               message.warning({
                 content: e.message,
