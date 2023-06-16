@@ -127,7 +127,7 @@
         }
       }
     } else {
-      controller.getCurrentAreas()[0].show();
+      controller.getCurrentAreas()[0]?.show();
     }
     controller.endDrawingArea();
   }

@@ -140,6 +140,6 @@
     overflow: auto;
   }
   .scroller.active {
-    border: 3px solid #c9cdd4;
+    border: 1px solid black;
   }
 </style>
