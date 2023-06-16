@@ -20,7 +20,7 @@ const SAVES_DIR = 'data/saves';
 const userConfig = {
   exportLocation: '',
   downloadLocation: '',
-  autoSaveTime: 0,
+  autoSaveTime: 5,
 } as UserConfig;
 
 export default function setupEvent(mainWindow: BrowserWindow) {

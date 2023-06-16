@@ -15,12 +15,12 @@
         :wrapperCol="{ span: 18 }"
         labelAlign="right"
       >
-        <a-form-item name="exportLocation" label="坐标下载位置">
-          <a-input v-if="isLocal()" v-model:value="formModel.exportLocation" />
+        <a-form-item name="downloadLocation" label="坐标下载位置">
+          <a-input v-if="isLocal()" v-model:value="formModel.downloadLocation" />
           <a-input v-else disabled placeholder="浏览器环境下此项配置不可用！" />
         </a-form-item>
-        <a-form-item name="downloadLocation" label="存档导出位置">
-          <a-input v-if="isLocal()" v-model:value="formModel.downloadLocation" />
+        <a-form-item name="exportLocation" label="存档导出位置">
+          <a-input v-if="isLocal()" v-model:value="formModel.exportLocation" />
           <a-input v-else disabled placeholder="浏览器环境下此项配置不可用！" />
         </a-form-item>
         <a-form-item name="autoSaveTime" label="自动保存时间">
