@@ -9,7 +9,7 @@
           </a-menu-item>
           <a-divider></a-divider>
           <a-menu-item key="1" v-if="isLocal()">
-            <div class="inner-content" @click="handleCreateSaves">保存文件</div>
+            <div class="inner-content" @click="handleOpenCreateModal">保存文件</div>
           </a-menu-item>
           <a-menu-item key="2">
             <div class="inner-content" @click="handleOpenExportModal">导出文件</div>
@@ -25,7 +25,7 @@
           </a-menu-item>
           <a-divider></a-divider>
           <a-menu-item key="4">
-            <div class="inner-content" @click="displayOutputVisibleRef = true">坐标下载</div>
+            <div class="inner-content" @click="handleOpenDownloadModal">坐标下载</div>
           </a-menu-item>
           <a-menu-item key="5">
             <div class="inner-content" @click="colorImageVisibleRef = true">色值图下载</div>
@@ -79,10 +79,12 @@
   import ExportModal from './children/export-modal.vue';
   import EditConfigModal from './children/edit-config-modal.vue';
   import { ref } from 'vue';
+  import { useLocalState } from '@/store/modules/local-state';
 
   const localApi = getLocalApi();
   const configRef = useEditorConfig();
   const canvasState = useCanvasState();
+  const localState = useLocalState();
 
   function handleOpenProject() {
     const url = location.href.slice().replace(/\#\/.+/, '#/map-editor?name=');
@@ -91,10 +93,21 @@
 
   // 保存文件
   const [handleCreateSaves, handleExportSaves] = useSaves();
+  function handleOpenCreateModal() {
+    if (!localState.getExportLocation) {
+      message.warning('请设置存档导出位置！');
+      return;
+    }
+    handleCreateSaves({});
+  }
 
   // 导出文件
   const exportModalRef = ref(false);
   function handleOpenExportModal() {
+    if (!localState.getExportLocation) {
+      message.warning('请设置存档导出位置！');
+      return;
+    }
     exportModalRef.value = true;
   }
   function handleCloseExport() {
@@ -136,7 +149,8 @@
         ]);
         const initLayers = canvasState.getLayers.slice();
         // 混入
-        result.layers.forEach((layer) => {``
+        result.layers.forEach((layer) => {
+          ``;
           let flag = false;
           initLayers.forEach((initLayer) => {
             if (initLayer.name === layer.name) {
@@ -163,6 +177,13 @@
   const displayOutputVisibleRef = ref(false);
   function handleConfirmCancelExport() {
     displayOutputVisibleRef.value = false;
+  }
+  function handleOpenDownloadModal() {
+    if (!localState.getDownloadLocation) {
+      message.warning('请设置坐标下载位置！');
+      return;
+    }
+    displayOutputVisibleRef.value = true;
   }
 
   const colorImageVisibleRef = ref(false);

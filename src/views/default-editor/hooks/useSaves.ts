@@ -82,7 +82,9 @@ export default function useSaves() {
       handleCreateSaves();
       message.success('自动保存成功！');
     } catch (_) {}
-    endAutoSave = setTimeout(handleAutoSave, localState.getAutoSaveTime * 60 * 1000);
+    if (localState.getAutoSaveTime) {
+      endAutoSave = setTimeout(handleAutoSave, localState.getAutoSaveTime * 60 * 1000);
+    }
   }
   onMounted(() => {
     if (localState.getAutoSaveTime && isLocal()) {

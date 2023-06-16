@@ -6,7 +6,7 @@ const userConfig = {
   userConfig: {
     exportLocation: '',
     downloadLocation: '',
-    autoSaveTime: 0,
+    autoSaveTime: 5,
   },
 };
 
