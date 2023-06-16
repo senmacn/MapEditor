@@ -130,13 +130,14 @@
       controller.setCurrentPin(null);
     } else {
       const id = target.id;
-      Array.from(document.getElementsByClassName('moveable-control-box')).forEach(
-        (item: HTMLElement) => {
-          if (!item.className.includes(id)) {
-            item.style.visibility = 'hidden';
-          }
-        },
-      );
+      // 点击到非选中区域
+      const areas = controller.getCurrentAreas();
+      if (areas.length && !areas.some((area) => area.getUuid() === id)) {
+        controller.getCurrentAreas().forEach((area) => area.cancelSelect());
+        controller.getCurrentPin()?.cancelSelect();
+        controller.setCurrentAreas([]);
+        controller.setCurrentPin(null);
+      }
     }
   }
 
@@ -186,6 +187,8 @@
             );
             props.layer?.areas.push(newArea);
             render(newArea);
+            // 清空选中
+            controller.setCurrentAreas([]);
           });
           message.info('粘贴成功！');
         }
