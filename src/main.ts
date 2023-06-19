@@ -12,6 +12,7 @@ import 'virtual:svg-icons-register';
 import './utils/extend';
 import { getLocalApi } from './utils/env';
 import { useLocalState } from './store/modules/local-state';
+import loadingSaves from './loadingSaves';
 
 message.config({
   top: '25px',
@@ -31,6 +32,9 @@ async function bootstrap() {
     const userConfig = await localApi.getUserConfig();
     useLocalState().setUserConfig(Object.assign({}, userConfig));
   }
+
+  // 加载存档
+  await loadingSaves();
 
   app.mount('#app');
 }
