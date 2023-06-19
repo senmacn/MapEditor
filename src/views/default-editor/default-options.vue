@@ -122,15 +122,14 @@
   .option-drawer {
     position: fixed;
     width: 400px;
-    max-height: 85%;
-    margin: 100px 35px 20px 0;
+    max-height: 75%;
+    margin: 130px 35px 20px 0;
     border-radius: 3px;
-
     transition: width 0.2s ease;
     .ant-drawer-content {
       overflow: visible;
       border-radius: 10px;
-      background-color: rgb(51, 51, 51);
+      background-color: rgb(47, 47, 47);
       border: 1px solid rgb(81, 81, 81);
     }
     .ant-select-arrow {
@@ -146,13 +145,13 @@
       }
     }
     .ant-drawer-content-wrapper {
-      transform: translateX(150%) !important;
+      transform: translate(150%, -100%) !important;
       overflow: hidden;
     }
     &.ant-drawer-open {
       .ant-drawer-content-wrapper {
         overflow: visible;
-        transform: translateX(0) !important;
+        transform: translate(0, 0) !important;
       }
     }
   }
@@ -220,7 +219,7 @@
     line-height: 45px;
     border: 1px solid rgb(81, 81, 81);
     border-right: 0;
-    background-color: rgb(51, 51, 51);
+    background-color: rgb(47, 47, 47);
     z-index: 999;
     cursor: pointer;
     .anticon {

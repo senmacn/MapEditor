@@ -87,7 +87,7 @@
           <a-input v-model:value="yRef" suffix="px"> </a-input>
         </div>
         <div class="map-size">
-          <span>全图长度：</span>
+          <span>全图长度:</span>
           <a-input v-model:value="allXRef" suffix="px"> </a-input>
         </div>
         <div class="map-size">

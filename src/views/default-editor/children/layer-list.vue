@@ -7,17 +7,17 @@
     </div>
     <transition-group name="list" tag="ul">
       <li
-        :class="['layer-item', layer.hot ? 'active' : 'inactive']"
+        class="layer-item"
         v-for="(layer, index) in (canvasState.layers as Layer[])"
         :key="layer.uuid"
       >
         <div class="layer-content">
           <div
             class="layer-index"
-            draggable
-            @dragenter="dragenter($event, index)"
-            @dragover.prevent
-            @dragstart="dragstart(index)"
+            :draggable="true"
+            @dragenter.stop="dragenter($event, index)"
+            @dragstart.stop="dragstart($event, index)"
+            @dragend.prevent="dragend()"
           >
             <a-tooltip title="隐藏图层" v-if="layer.visible">
               <a-button
@@ -89,24 +89,13 @@
   } from '@ant-design/icons-vue';
   import UploadBackgroundModal from './upload-background-modal.vue';
   import { useCanvasState } from '@/store/modules/canvas-state';
+  import { useLoading } from '@/components/Loading';
+  import { message } from 'ant-design-vue';
 
   const canvasState = useCanvasState();
 
-  // 当前聚焦
-  const refreshHot = () => {
-    let isHot = false;
-    for (let index = canvasState.layers.length - 1; index >= 0; index--) {
-      const element = canvasState.layers[index];
-      element.hot = false;
-      if (element.visible && !isHot) {
-        element.hot = true;
-        isHot = true;
-      }
-    }
-  };
   function changeLayerVisible(layer: Layer, visible: boolean) {
     layer.visible = visible;
-    refreshHot();
   }
   function handleLayerAdd() {
     canvasState.layers.push({
@@ -119,7 +108,6 @@
       pins: [],
       transparency: 1,
     });
-    refreshHot();
   }
   function handleLayerDelete(index: number) {
     modal.confirm({
@@ -127,7 +115,6 @@
       content: `删除[${canvasState.layers[index].name}]的操作不可逆，请仔细确认！`,
       onOk: () => {
         canvasState.layers.splice(index, 1);
-        refreshHot();
       },
     });
   }
@@ -147,14 +134,13 @@
     canvasState.layers[updateIndex].visible = true;
   }
 
-  const dragIndexRef = ref(0);
-  function dragstart(index: number) {
+  const dragIndexRef = ref(-1);
+  function dragstart(_, index: number) {
+    console.log('dragstart', index);
     dragIndexRef.value = index;
   }
-  function dragenter(e: MouseEvent, index: number) {
-    e.preventDefault();
-    // 禁止修改背景图层
-    if (index === 0) return;
+  function dragenter(_, index: number) {
+    console.log(dragIndexRef.value, index);
     // 避免源对象触发自身的dragenter事件
     if (dragIndexRef.value !== index) {
       const source = canvasState.layers[dragIndexRef.value];
@@ -162,8 +148,15 @@
       canvasState.layers.splice(index, 0, source);
       // 排序变化后目标对象的索引变成源对象的索引
       dragIndexRef.value = index;
-      refreshHot();
     }
+  }
+  const [openLoading, closeLoading] = useLoading({ tip: '移动中', minTime: 1000 });
+  function dragend() {
+    openLoading();
+    setTimeout(() => {
+      message.success('移动完成！');
+      closeLoading();
+    }, 1000);
   }
 </script>
 
@@ -204,6 +197,9 @@
       font-weight: bold;
       background: @color-border-table;
       text-align: center;
+      .layer-index {
+        border-left: 0;
+      }
     }
     .layer-content {
       display: flex;
@@ -225,8 +221,9 @@
       }
     }
     .layer-index {
-      cursor: grab;
       width: 60px;
+      border-left: 3px double rgb(100, 100, 100);
+      cursor: grab;
     }
     .layer-name {
       flex: 1;

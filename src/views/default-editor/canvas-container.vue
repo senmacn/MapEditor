@@ -130,10 +130,10 @@
     position: relative;
     height: calc(100% - 10px);
     width: calc(100% - 10px);
-    border: 3px solid #5a5a5a;
+    border: 2px solid #5a5a5a;
     overflow: auto;
   }
   .scroller.active {
-    border: 1px solid black;
+    border: 2px solid black;
   }
 </style>

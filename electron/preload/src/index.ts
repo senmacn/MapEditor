@@ -5,7 +5,7 @@ window.addEventListener('DOMContentLoaded', () => {
   new Titlebar({
     // @ts-ignore
     titleHorizontalAlignment: 'left',
-    backgroundColor: TitlebarColor.fromHex('#343437')
+    backgroundColor: TitlebarColor.fromHex('#222225')
   });
 });
 

@@ -119,7 +119,7 @@
     border-radius: 3px;
     padding-left: 30px;
     padding-top: 30px;
-    background-color: rgb(51, 51, 51);
+    background-color: rgb(43, 43, 43);
     transition: width 0.2s ease;
     max-width: 100%;
   }
