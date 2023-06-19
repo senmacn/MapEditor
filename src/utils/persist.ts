@@ -1,12 +1,14 @@
+import { useEditorConfig, EditorConfig } from '@/store/modules/editor-config';
 import { Layer } from '@/views/default-editor/common/types';
 import { Area } from '@/views/default-editor/draw-element';
 
 interface Saves {
-  size: [number, number];
+  editorConfig: EditorConfig;
   layers: Layer[];
 }
 
-export function createSaves(size: [number, number], layers: Layer[]) {
+export function createSaves(layers: Layer[]) {
+  const editorConfig = useEditorConfig();
   const partLayers: Partial<Layer>[] = [];
   layers.forEach((layer) => {
     const partLay: Partial<Layer> = {};
@@ -24,25 +26,30 @@ export function createSaves(size: [number, number], layers: Layer[]) {
     partLayers.push(partLay);
   });
   const data = JSON.stringify({
-    size,
+    editorConfig: editorConfig.$state,
     layers: partLayers,
   });
   partLayers.splice(0, partLayers.length - 1);
   return data;
 }
 
-export function loadSaves(str: string, curSize: [number, number]) {
+export function loadSaves(str: string, useConfig: boolean, curSize: [number, number]) {
   const pureObj = JSON.parse(str) as Saves;
   if (
-    Number(curSize[0]) !== Number(pureObj.size[0]) ||
-    Number(curSize[1]) !== Number(pureObj.size[1])
+    pureObj.editorConfig &&
+    (Number(curSize[0]) !== Number(pureObj.editorConfig.size.x) ||
+      Number(curSize[1]) !== Number(pureObj.editorConfig.size.y))
   ) {
     throw new Error(
-      `该存档尺寸为${pureObj.size[0]}px x ${pureObj.size[1]}px！请确认当前地图尺寸设置是否正确！`,
+      `该存档尺寸为${pureObj.editorConfig.size.x}px x ${pureObj.editorConfig.size.y}px！请确认当前地图尺寸设置是否正确！`,
     );
   }
+  // 设置存档属性，兼容旧数据
+  if (useConfig && pureObj.editorConfig) {
+    useEditorConfig().setAll(pureObj.editorConfig);
+  }
   const saves: Saves = {
-    size: [...pureObj.size],
+    editorConfig: pureObj.editorConfig,
     layers: [],
   };
   if (pureObj.layers.length > 0) {

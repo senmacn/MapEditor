@@ -1,3 +1,4 @@
+import { isLocal } from '@/utils/env';
 import { isNullOrUnDef } from '@/utils/is';
 import { defineStore } from 'pinia';
 
@@ -24,12 +25,12 @@ const editorConfig: EditorConfig = {
   autoConnectScope: 24,
   size: {
     scale: 100,
-    x: 2000,
-    y: 2000,
+    x: 2048,
+    y: 2048,
     offsetX: 0,
     offsetY: 0,
-    allX: 2000,
-    allY: 2000,
+    allX: 2048,
+    allY: 2048,
   },
   mapSize: {
     used: 0,
@@ -43,18 +44,21 @@ const editorConfig: EditorConfig = {
     rbY: 0,
   },
 };
-Object.keys(editorConfig).forEach((key) => {
-  const storage = localStorage.getItem('editor-config-' + key);
-  if (storage) {
-    if (typeof editorConfig[key] === 'number') {
-      editorConfig[key] = Number(JSON.parse(storage));
-    } else {
-      if (!isNullOrUnDef(storage)) {
-        editorConfig[key] = JSON.parse(storage);
+// 非本地端使用localstorage
+if (!isLocal()) {
+  Object.keys(editorConfig).forEach((key) => {
+    const storage = localStorage.getItem('editor-config-' + key);
+    if (storage) {
+      if (typeof editorConfig[key] === 'number') {
+        editorConfig[key] = Number(JSON.parse(storage));
+      } else {
+        if (!isNullOrUnDef(storage)) {
+          editorConfig[key] = JSON.parse(storage);
+        }
       }
     }
-  }
-});
+  });
+}
 
 export const useEditorConfig = defineStore({
   id: 'editor-config',
@@ -89,6 +93,17 @@ export const useEditorConfig = defineStore({
     },
   },
   actions: {
+    setAll(_editorConfig: EditorConfig) {
+      this.style = _editorConfig.style;
+      this.zoom = _editorConfig.zoom;
+      this.color = _editorConfig.color;
+      this.lineWidth = _editorConfig.lineWidth;
+      this.eraseSize = _editorConfig.eraseSize;
+      this.autoConnect = _editorConfig.autoConnect;
+      this.autoConnectScope = _editorConfig.autoConnectScope;
+      this.size = _editorConfig.size;
+      this.mapSize = _editorConfig.mapSize;
+    },
     setStyle(value: Recordable<string>) {
       localStorage.setItem('editor-config-style', JSON.stringify(value));
       this.style = value;

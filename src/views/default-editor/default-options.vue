@@ -46,16 +46,9 @@
 </template>
 
 <script setup lang="ts">
-  import { onMounted, ref, unref } from 'vue';
+  import { ref } from 'vue';
   import LayerList from './children/layer-list.vue';
   import AreaOptions from './children/area-options.vue';
-  import { useEditorConfig } from '@/store/modules/editor-config';
-  import { loadSaves } from '@/utils/persist';
-  import { useRouter } from 'vue-router';
-  import { useLocalState } from '@/store/modules/local-state';
-  import { message } from 'ant-design-vue';
-  import { useLoading } from '@/components/Loading';
-  import { getLocalApi } from '@/utils/env';
   import { RightOutlined } from '@ant-design/icons-vue';
   import { useCanvasState } from '@/store/modules/canvas-state';
 
@@ -63,42 +56,7 @@
     (e: 'end-edit-area', name: string, type: string[], complete: boolean): void;
   }>();
 
-  const localState = useLocalState();
-  const configRef = useEditorConfig();
-  const localApi = getLocalApi();
-
   const drawerVisibleRef = ref(true);
-
-  const [openLoading, closeLoading] = useLoading({ minTime: 500 });
-
-  const { currentRoute } = useRouter();
-  const { query } = unref(currentRoute.value);
-  onMounted(() => {
-    const { name } = query;
-    if (name) {
-      localState.setFileName(name as string);
-      openLoading();
-      localApi &&
-        localApi
-          .getLocalFileContent(name as string)
-          .then((data) => {
-            try {
-              const result = loadSaves(data, [configRef.getSize.x, configRef.getSize.y]);
-              canvasState.setLayers(result?.layers);
-            } catch (e: any) {
-              message.warning({
-                content: e.message,
-                duration: 60000,
-              });
-            }
-          })
-          .finally(() => {
-            setTimeout(() => closeLoading(), 100);
-          });
-    } else {
-      localState.setFileName('新建项目');
-    }
-  });
 
   const canvasState = useCanvasState();
   const searchTypeRef = ref(0);

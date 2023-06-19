@@ -14,13 +14,12 @@
 </template>
 
 <script setup lang="ts">
-  import { Ref, ref, watch } from 'vue';
+  import { ref, watch } from 'vue';
   import StatusBar from './children/status-bar.vue';
   import CanvasContainer from './canvas-container.vue';
   import DefaultOptions from './default-options.vue';
   import { getRandomDomId } from '../../utils/uuid';
   import controller from './common/canvas-state-controller';
-  import { Layer } from './common/types';
   import { Area } from './draw-element';
   import useRuler from '@/hooks/useRuler';
   import { useCanvasState } from '@/store/modules/canvas-state';
@@ -30,19 +29,20 @@
   const configRef = useEditorConfig();
 
   // 图层数据
-  const layersRef = ref<Layer[]>([
-    {
-      uuid: getRandomDomId(),
-      name: '默认图层',
-      hot: true,
-      visible: true,
-      map: null,
-      areas: [],
-      pins: [],
-    },
-  ]) as Ref<Layer[]>;
   const canvasState = useCanvasState();
-  canvasState.setLayers(layersRef.value);
+  if (!canvasState.getLayers) {
+    canvasState.setLayers([
+      {
+        uuid: getRandomDomId(),
+        name: '默认图层',
+        hot: true,
+        visible: true,
+        map: null,
+        areas: [],
+        pins: [],
+      },
+    ]);
+  }
 
   // 标尺相关
   const vRuler = ref();

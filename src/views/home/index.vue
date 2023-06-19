@@ -127,6 +127,10 @@
     // location.href = '/#/map-editor?name=' + project;
     const url = location.href.slice().replace(/\#\/.+/, '#/map-editor?name=' + project);
     location.replace(url);
+    // 刷新加载存档
+    setTimeout(() => {
+      location.reload();
+    });
   }
   function handleUploadProject() {}
   const editRef = ref(-1);

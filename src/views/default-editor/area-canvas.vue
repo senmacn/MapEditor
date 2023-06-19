@@ -35,7 +35,7 @@
 
   // canvas相关
   const ctxRef = useCanvas();
-  const configRef = useEditorConfig();
+  const configRef = useEditorConfig();  
   let movedPoints: PointA[] = [];
   let beginPoint: PointA = { x: 0, y: 0 };
   const [activeRef, setActiveRef] = useToggle(false);

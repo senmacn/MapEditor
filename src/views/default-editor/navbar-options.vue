@@ -49,6 +49,7 @@
   </a-space>
   <change-map-size-modal
     :visible="changeMapSizeModalVisible"
+    @change-size="handleMapSizeChanged"
     @close="changeMapSizeModalVisible = false"
   />
   <display-output-modal :visible="displayOutputVisibleRef" @cancel="handleConfirmCancelExport" />
@@ -92,20 +93,20 @@
   }
 
   // 保存文件
-  const [handleCreateSaves, handleExportSaves] = useSaves();
+  const [handleConfirmCreateSaves, handleCreateSaves, handleExportSaves] = useSaves();
   function handleOpenCreateModal() {
     if (isLocal() && !localState.getExportLocation) {
-      message.warning('请设置存档导出位置！');
+      message.warning('请设置存档位置！');
       return;
     }
-    handleCreateSaves({});
+    handleConfirmCreateSaves({});
   }
 
   // 导出文件
   const exportModalRef = ref(false);
   function handleOpenExportModal() {
     if (isLocal() && !localState.getExportLocation) {
-      message.warning('请设置存档导出位置！');
+      message.warning('请设置存档位置！');
       return;
     }
     exportModalRef.value = true;
@@ -143,14 +144,13 @@
     reader.readAsText(file); //将文件读取为 text
     reader.onload = function (evt) {
       try {
-        const result = loadSaves(String(evt.target?.result), [
+        const result = loadSaves(String(evt.target?.result), false, [
           configRef.getSize.x,
           configRef.getSize.y,
         ]);
         const initLayers = canvasState.getLayers.slice();
         // 混入
         result.layers.forEach((layer) => {
-          ``;
           let flag = false;
           initLayers.forEach((initLayer) => {
             if (initLayer.name === layer.name) {
@@ -199,6 +199,15 @@
   const changeMapSizeModalVisible = ref(false);
   function handleChangeMapSize() {
     changeMapSizeModalVisible.value = true;
+  }
+  function handleMapSizeChanged() {
+    // 先保存存档，主要是为了保存尺寸设置
+    const name = handleCreateSaves();
+    const url = location.href.slice().replace(/\#\/.+/, '#/map-editor?name=' + name);
+    location.replace(url);
+    setTimeout(() => {
+      location.reload();
+    });
   }
 
   // 编辑设置

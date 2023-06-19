@@ -115,6 +115,7 @@
   import { message } from 'ant-design-vue';
 
   const emit = defineEmits<{
+    (e: 'change-size'): void;
     (e: 'close'): void;
   }>();
 
@@ -167,7 +168,8 @@
   function handleAutoTransform() {
     for (const key of Object.keys(mapConfig.value)) {
       const element = mapConfig.value[key];
-      if (!isNumber(element)) {
+      if (!String(element).length) {
+        console.log(key, element, typeof element)
         message.warning('转换前请确保填写所有地图坐标参数！');
         return;
       }
@@ -196,7 +198,7 @@
       allY: Number(allYRef.value),
     };
     for (const key of Object.keys(sizeObj)) {
-      const element = sizeObj[key];
+      const element = Number(sizeObj[key]);
       if (!isNumber(element)) {
         message.warning('编辑器数据参数未填写完成！');
         return;
@@ -204,7 +206,7 @@
     }
     modal.confirm({
       title: '确认',
-      content: '修改地图尺寸将刷新页面！请提前保存已绘制的数据！',
+      content: '修改地图尺寸将刷新页面！数据将被自动保存！',
       onOk: () => {
         configRef.setSize(sizeObj);
 
@@ -222,7 +224,7 @@
             rbY: Number(mapConfig.value.rbY),
           });
         }
-        location.reload();
+        emit('change-size');
       },
     });
   }

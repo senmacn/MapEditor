@@ -35,12 +35,10 @@ export default function useSaves() {
               'MM-dd_hh-mm',
             )}.json`;
       if (localApi) {
-        localApi.saveLocalFile(
-          fileName,
-          createSaves([configRef.getSize.x, configRef.getSize.y], canvasState.getLayers),
-        );
+        localApi.saveLocalFile(fileName, createSaves(canvasState.getLayers));
         localState.setFileName(fileName);
       }
+      return fileName;
     } catch (_err) {
       message.error('保存失败！');
       console.warn(_err);
@@ -58,7 +56,7 @@ export default function useSaves() {
           new Date(),
           'MM-dd_hh-mm',
         )}.json`;
-        const data = createSaves([configRef.getSize.x, configRef.getSize.y], expLayer);
+        const data = createSaves(expLayer);
         if (localApi) {
           localApi
             .saveLocalFile(fileName, data, localState.getExportLocation)
@@ -95,5 +93,5 @@ export default function useSaves() {
     endAutoSave && clearTimeout(endAutoSave);
   });
 
-  return [handleConfirmCreateSaves, handleExportSaves];
+  return [handleConfirmCreateSaves, handleCreateSaves, handleExportSaves];
 }
