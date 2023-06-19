@@ -169,7 +169,6 @@
     for (const key of Object.keys(mapConfig.value)) {
       const element = mapConfig.value[key];
       if (!String(element).length) {
-        console.log(key, element, typeof element)
         message.warning('转换前请确保填写所有地图坐标参数！');
         return;
       }

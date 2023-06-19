@@ -119,14 +119,15 @@
     const target = e.target as HTMLElement;
     // 区分点击空白处和区域(排除svg点击干扰)
     if (isString(target.className) && target.className.includes('layer-instance')) {
-      // 关闭显示
-      Array.from(document.getElementsByClassName('moveable-control-box')).forEach(
-        (item: HTMLElement) => (item.style.visibility = 'hidden'),
-      );
-      controller.getCurrentAreas()[0]?.cancelSelect();
+      if (controller.getCurrentAreas().length) {
+        controller.getCurrentAreas().forEach((area) => {
+          area.cancelSelect();
+        });
+        controller.setCurrentAreas([]);
+      }
+
       controller.getCurrentPin()?.cancelSelect();
       // 这里只处理点击区域外的逻辑
-      controller.setCurrentAreas([]);
       controller.setCurrentPin(null);
     } else {
       const id = target.id;
