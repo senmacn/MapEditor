@@ -36,9 +36,6 @@ export default function useSelecto(target: Ref<HTMLElement> | HTMLElement = docu
     const moveable = new Moveable(document.getElementById('scroller') as HTMLElement, {
       draggable: true,
     })
-      .on('clickGroup', (e) => {
-        selecto.clickTarget(e.inputEvent, e.inputTarget);
-      })
       // 单个框选拖动
       .on('drag', (e) => {
         e.target.style.left = `${e.left}px`;
@@ -52,7 +49,9 @@ export default function useSelecto(target: Ref<HTMLElement> | HTMLElement = docu
           const boundRect = area.getBoundRect();
           boundRect[0] = Number(e.target.style.left.replace('px', ''));
           boundRect[1] = Number(e.target.style.top.replace('px', ''));
-          area.moveable?.updateRect();
+          setTimeout(() => {
+              area.moveable?.updateRect();
+          }, 50);
         }
       })
       // 多个框选拖动
@@ -71,7 +70,9 @@ export default function useSelecto(target: Ref<HTMLElement> | HTMLElement = docu
             const boundRect = area.getBoundRect();
             boundRect[0] = Number(ev.target.style.left.replace('px', ''));
             boundRect[1] = Number(ev.target.style.top.replace('px', ''));
-            area.moveable?.updateRect();
+            setTimeout(() => {
+              area.moveable?.updateRect();
+            }, 50);
           }
         });
       });

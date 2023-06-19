@@ -1,4 +1,4 @@
-import { ref } from 'vue';
+import { Ref, ref } from 'vue';
 import { Area } from '../draw-element';
 
 export enum CanvasAreaOption {
@@ -28,7 +28,7 @@ function setCursor(cursor: string) {
 class CanvasStateController {
   private areaState = ref(CanvasAreaOption.AreaCheck);
   private state = ref(CanvasOption.None);
-  private currentAreas = ref<Area[]>([]);
+  private currentAreas: Ref<Area[]> = ref([]);
   private currentPin = ref<Recordable | null>(null);
   constructor() {}
   getState() {
