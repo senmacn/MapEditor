@@ -6,6 +6,7 @@
     @contextmenu="handleClickMenu"
     @click="handleClick"
   >
+    <area-bottom-viewer class="bottom-layer"></area-bottom-viewer>
     <template v-for="layer in state.layers" :key="layer.uuid">
       <area-viewer :layer="layer" v-show="layer.visible" />
     </template>
@@ -29,6 +30,7 @@
   import AreaCanvas from './area-canvas.vue';
   import PenCanvas from './pen-canvas.vue';
   import AreaViewer from './area-viewer.vue';
+  import AreaBottomViewer from './area-bottom-viewer.vue';
   import { useEditorConfig } from '@/store/modules/editor-config';
   import { onFocusAreaEvent } from './common/event';
   import controller from './common/canvas-state-controller';
@@ -36,12 +38,14 @@
   import { useCanvasState } from '@/store/modules/canvas-state';
   import Contextmenu from './children/contextmenu.vue';
   import PinModal from './children/pin-modal.vue';
+import useSelecto from './utils/useSelecto';
 
   const state = useCanvasState();
   const configRef = useEditorConfig();
 
   // 滚动偏移
-  const scrollerRef = ref<HTMLElement>();
+  const scrollerRef = ref();
+  useSelecto(scrollerRef);
   const { x, y } = useScroll(scrollerRef, { throttle: 50 });
   const offsetRef = ref<Offset>({ x: 0, y: 0 });
   watch([() => x.value, () => y.value], () => {
@@ -126,6 +130,10 @@
 </script>
 
 <style lang="less">
+  .bottom-layer {
+    width: 100%;
+    height: 100%;
+  }
   .scroller {
     position: relative;
     height: calc(100% - 10px);

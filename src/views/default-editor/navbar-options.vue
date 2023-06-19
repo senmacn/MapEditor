@@ -155,6 +155,8 @@
           initLayers.forEach((initLayer) => {
             if (initLayer.name === layer.name) {
               initLayer.areas = initLayer.areas.concat(layer.areas);
+              initLayer.hot = layer.hot;
+              initLayer.visible = layer.visible;
               if (layer.map) {
                 initLayer.map = layer.map;
                 initLayer.transparency = layer.transparency;

@@ -4,8 +4,6 @@
     class="layer-instance"
     ref="areaViewer"
     :style="style"
-    @mousedown="handleClickOutAreaBefore"
-    @mouseup="handleClickOutArea"
   ></div>
 </template>
 
@@ -16,8 +14,6 @@
   import controller from './common/canvas-state-controller';
   import { onDeleteAreaEvent, onEditAreaEvent } from './common/event';
   import { Area, Pin } from './draw-element';
-  import { isString } from '@/utils/is';
-  import useSelecto from './utils/useSelecto';
   import { message } from 'ant-design-vue';
   import { copyImageData } from './utils/image-data-util';
 
@@ -53,7 +49,6 @@
 
   // 添加区域时渲染
   const areaViewer = ref();
-  useSelecto(areaViewer);
   function render(target: Area | Pin) {
     if (areaViewer.value) {
       target.render(areaViewer.value);
@@ -105,42 +100,6 @@
       controller.setCurrentAreas([]);
     }
   });
-
-  const mouseDown = [0, 0];
-  function handleClickOutAreaBefore(e: MouseEvent) {
-    if (!e.isTrusted) return;
-    mouseDown[0] = e.x;
-    mouseDown[1] = e.y;
-  }
-  function handleClickOutArea(e: MouseEvent) {
-    if (!e.isTrusted) return;
-    // 区分点击/拖拽
-    if (Math.abs(mouseDown[0] - e.x) + Math.abs(mouseDown[1] - e.y) > 5) return;
-    const target = e.target as HTMLElement;
-    // 区分点击空白处和区域(排除svg点击干扰)
-    if (isString(target.className) && target.className.includes('layer-instance')) {
-      if (controller.getCurrentAreas().length) {
-        controller.getCurrentAreas().forEach((area) => {
-          area.cancelSelect();
-        });
-        controller.setCurrentAreas([]);
-      }
-
-      controller.getCurrentPin()?.cancelSelect();
-      // 这里只处理点击区域外的逻辑
-      controller.setCurrentPin(null);
-    } else {
-      const id = target.id;
-      // 点击到非选中区域
-      const areas = controller.getCurrentAreas();
-      if (areas.length && !areas.some((area) => area.getUuid() === id)) {
-        controller.getCurrentAreas().forEach((area) => area.cancelSelect());
-        controller.getCurrentPin()?.cancelSelect();
-        controller.setCurrentAreas([]);
-        controller.setCurrentPin(null);
-      }
-    }
-  }
 
   onEditAreaEvent(function () {
     const currentArea = controller.getCurrentAreas()[0];
@@ -212,12 +171,17 @@
     left: 0;
     background-repeat: no-repeat;
     background-size: contain;
+    pointer-events: none;
     .moveable {
       position: absolute;
       font-size: 18px;
       color: red;
       text-align: center;
       user-select: none;
+      pointer-events: auto;
+    }
+    .selecto-selection {
+      pointer-events: auto;
     }
   }
   .moveable-control-box {
