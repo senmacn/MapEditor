@@ -94,7 +94,7 @@
   // 保存文件
   const [handleCreateSaves, handleExportSaves] = useSaves();
   function handleOpenCreateModal() {
-    if (!localState.getExportLocation) {
+    if (isLocal() && !localState.getExportLocation) {
       message.warning('请设置存档导出位置！');
       return;
     }
@@ -104,7 +104,7 @@
   // 导出文件
   const exportModalRef = ref(false);
   function handleOpenExportModal() {
-    if (!localState.getExportLocation) {
+    if (isLocal() && !localState.getExportLocation) {
       message.warning('请设置存档导出位置！');
       return;
     }
@@ -155,6 +155,10 @@
           initLayers.forEach((initLayer) => {
             if (initLayer.name === layer.name) {
               initLayer.areas = initLayer.areas.concat(layer.areas);
+              if (layer.map) {
+                initLayer.map = layer.map;
+                initLayer.transparency = layer.transparency;
+              }
               flag = true;
             }
           });

@@ -96,7 +96,13 @@
         </div>
       </div>
     </div>
-    <div class="remind">修改地图尺寸会刷新页面！请提前使用导出功能保存当前数据！</div>
+    <div class="remind"
+      >可选择直接填写右侧编辑器数据参数，或通过填写地图坐标参数手动转换为编辑器参数</div
+    >
+    <div class="remind"
+      ><span class="error-color">修改地图尺寸会刷新页面！</span
+      >请提前使用导出功能保存当前数据！</div
+    >
   </a-modal>
 </template>
 
@@ -105,6 +111,8 @@
   import modal from 'ant-design-vue/lib/modal';
   import { useEditorConfig } from '@/store/modules/editor-config';
   import { InfoCircleOutlined, SwapRightOutlined } from '@ant-design/icons-vue';
+  import { isNumber } from '@/utils/is';
+  import { message } from 'ant-design-vue';
 
   const emit = defineEmits<{
     (e: 'close'): void;
@@ -157,9 +165,16 @@
     rbY: 0,
   });
   function handleAutoTransform() {
-    const scale = scaleRef.value;
+    for (const key of Object.keys(mapConfig.value)) {
+      const element = mapConfig.value[key];
+      if (!isNumber(element)) {
+        message.warning('转换前请确保填写所有地图坐标参数！');
+        return;
+      }
+    }
     const { fullScale, map_ltX, map_ltY, map_rbX, map_rbY, ltX, ltY, rbX, rbY } = mapConfig.value;
     scaleRef.value = fullScale / 1024;
+    const scale = scaleRef.value;
     offsetXRef.value = (ltX - map_ltX) / scale;
     offsetYRef.value = (ltY - map_ltY) / scale;
     xRef.value = (rbX - ltX) / scale;
@@ -171,31 +186,42 @@
   }
 
   function handleChange() {
+    const sizeObj = {
+      scale: Number(scaleRef.value),
+      offsetX: Number(offsetXRef.value),
+      offsetY: Number(offsetYRef.value),
+      x: Number(xRef.value),
+      y: Number(yRef.value),
+      allX: Number(allXRef.value),
+      allY: Number(allYRef.value),
+    };
+    for (const key of Object.keys(sizeObj)) {
+      const element = sizeObj[key];
+      if (!isNumber(element)) {
+        message.warning('编辑器数据参数未填写完成！');
+        return;
+      }
+    }
     modal.confirm({
       title: '确认',
       content: '修改地图尺寸将刷新页面！请提前保存已绘制的数据！',
       onOk: () => {
-        configRef.setSize({
-          scale: Number(scaleRef.value),
-          offsetX: Number(offsetXRef.value),
-          offsetY: Number(offsetYRef.value),
-          x: Number(xRef.value),
-          y: Number(yRef.value),
-          allX: Number(allXRef.value),
-          allY: Number(allYRef.value),
-        });
-        configRef.setMapSize({
-          fullScale: Number(mapConfig.value.fullScale),
-          used: Number(mapConfig.value.used),
-          map_ltX: Number(mapConfig.value.map_ltX),
-          map_ltY: Number(mapConfig.value.map_ltY),
-          map_rbX: Number(mapConfig.value.map_rbX),
-          map_rbY: Number(mapConfig.value.map_rbY),
-          ltX: Number(mapConfig.value.ltX),
-          ltY: Number(mapConfig.value.ltY),
-          rbX: Number(mapConfig.value.rbX),
-          rbY: Number(mapConfig.value.rbY),
-        });
+        configRef.setSize(sizeObj);
+
+        if (mapConfig.value.used) {
+          configRef.setMapSize({
+            fullScale: Number(mapConfig.value.fullScale),
+            used: Number(mapConfig.value.used),
+            map_ltX: Number(mapConfig.value.map_ltX),
+            map_ltY: Number(mapConfig.value.map_ltY),
+            map_rbX: Number(mapConfig.value.map_rbX),
+            map_rbY: Number(mapConfig.value.map_rbY),
+            ltX: Number(mapConfig.value.ltX),
+            ltY: Number(mapConfig.value.ltY),
+            rbX: Number(mapConfig.value.rbX),
+            rbY: Number(mapConfig.value.rbY),
+          });
+        }
         location.reload();
       },
     });
