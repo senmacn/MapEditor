@@ -8,7 +8,7 @@
   >
     <div class="modal-content">
       <a-row class="option-group" style="height: 200px">
-        <a-col class="row-label" :span="4">设置：</a-col>
+        <a-col class="row-label" :span="4">设置</a-col>
         <a-col :span="8">
           <div class="auto-connect">
             <span>自动连接: </span>
@@ -20,7 +20,7 @@
         </a-col>
         <a-col :span="10">
           <div>
-            <span>连接范围：</span>
+            <span>连接范围</span>
             <a-input-number
               :disabled="!configRef.getAutoConnect"
               :max="60"
@@ -32,11 +32,11 @@
           </div>
         </a-col>
         <a-col class="pickr-wrapper" :span="8" :offset="4">
-          <span>线条颜色： </span>
+          <span>线条颜色 </span>
           <span id="pickr-instance"> </span>
         </a-col>
         <a-col :span="12">
-          <span>线条宽度： </span>
+          <span>线条宽度 </span>
           <a-input-number
             mode="button"
             :max="10"

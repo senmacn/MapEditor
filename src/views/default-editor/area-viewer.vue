@@ -94,7 +94,7 @@
   );
 
   onDeleteAreaEvent(() => {
-    if (props.layer && props.layer.hot) {
+    if (props.layer) {
       for (const area of controller.getCurrentAreas()) {
         const index = props.layer.areas.findIndex((value) => value.isSame(area));
         if (index > -1) {

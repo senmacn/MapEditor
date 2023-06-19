@@ -94,6 +94,7 @@
 
     <a-tooltip title="固定工具">
       <a-button
+        class="middle-btn"
         type="primary"
         shape="circle"
         :disabled="!editableRef"
@@ -240,20 +241,20 @@
     padding: 5px;
     z-index: 101;
     background-color: transparent;
-    transition: all 0.3s ease;
+    transition: all 0.2s ease;
     overflow: hidden;
 
     &.small {
-      width: 80px;
-      left: 760px;
+      width: 100px;
+      left: 720px;
       .pickr-wrapper {
         visibility: hidden;
       }
     }
-    .pickr-wrapper {
-      transition: all 0s ease !important;
+    .pcr-button {
+      transition-duration: 0s !important;
     }
-    button.ant-btn {
+    .ant-btn {
       font-size: 12px;
       width: 32px;
       height: 32px;
@@ -270,6 +271,10 @@
     }
     .ant-btn-circle {
       border-radius: 50%;
+    }
+    .middle-btn {
+      width: 40px;
+      height: 40px;
     }
   }
 </style>

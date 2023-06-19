@@ -26,7 +26,6 @@ const userConfig = {
 export default function setupEvent(mainWindow: BrowserWindow) {
   // 初始化
   try {
-    
     if (!existsSync('data/config.json')) {
       mkdirSync(DATA_DIR);
       mkdirSync(SAVES_DIR);
@@ -50,20 +49,21 @@ export default function setupEvent(mainWindow: BrowserWindow) {
   });
 
   ipcMain.handle('get-local-history-list', () => {
-    return Promise.all(
-      readdirSync(SAVES_DIR)
-        .filter((fileName) => fileName.endsWith('.json'))
-        .map((fileName) => {
-          const filePath = path.join(SAVES_DIR, fileName);
-          return new Promise((resolve) => {
-            const info = statSync(filePath);
-            resolve({
-              title: fileName,
-              description: info.ctime.toLocaleDateString(),
-            });
-          });
-        }),
-    );
+    return readdirSync(SAVES_DIR)
+      .filter((fileName) => fileName.endsWith('.json'))
+      .map((fileName) => {
+        const filePath = path.join(SAVES_DIR, fileName);
+        const stat = statSync(filePath);
+        // @ts-ignore
+        stat.fileName = fileName;
+        return stat;
+      })
+      .sort((a, b) => (a.mtime < b.mtime ? 1 : -1))
+      .map((data) => ({
+        // @ts-ignore
+        title: data.fileName,
+        description: data.mtime.toLocaleDateString(),
+      }));
   });
 
   ipcMain.handle('get-local-file-content', (_evt, fileName: string) => {
