@@ -7,7 +7,7 @@
     </div>
     <transition-group name="list" tag="ul">
       <li
-        class="layer-item"
+        :class="['layer-item', layer.hot ? 'active' : 'inactive']"
         v-for="(layer, index) in (canvasState.layers as Layer[])"
         :key="layer.uuid"
       >
@@ -93,9 +93,22 @@
   import { message } from 'ant-design-vue';
 
   const canvasState = useCanvasState();
+  // 当前聚焦
+  const refreshHot = () => {
+    let isHot = false;
+    for (let index = canvasState.layers.length - 1; index >= 0; index--) {
+      const element = canvasState.layers[index];
+      element.hot = false;
+      if (element.visible && !isHot) {
+        element.hot = true;
+        isHot = true;
+      }
+    }
+  };
 
   function changeLayerVisible(layer: Layer, visible: boolean) {
     layer.visible = visible;
+    refreshHot();
   }
   function handleLayerAdd() {
     canvasState.layers.push({
@@ -108,6 +121,7 @@
       pins: [],
       transparency: 1,
     });
+    refreshHot();
   }
   function handleLayerDelete(index: number) {
     modal.confirm({
@@ -136,11 +150,9 @@
 
   const dragIndexRef = ref(-1);
   function dragstart(_, index: number) {
-    console.log('dragstart', index);
     dragIndexRef.value = index;
   }
   function dragenter(_, index: number) {
-    console.log(dragIndexRef.value, index);
     // 避免源对象触发自身的dragenter事件
     if (dragIndexRef.value !== index) {
       const source = canvasState.layers[dragIndexRef.value];
@@ -148,6 +160,7 @@
       canvasState.layers.splice(index, 0, source);
       // 排序变化后目标对象的索引变成源对象的索引
       dragIndexRef.value = index;
+      refreshHot();
     }
   }
   const [openLoading, closeLoading] = useLoading({ tip: '移动中', minTime: 1000 });

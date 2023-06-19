@@ -30,7 +30,7 @@
 
   // 图层数据
   const canvasState = useCanvasState();
-  if (!canvasState.getLayers) {
+  if (!canvasState.getLayers.length) {
     canvasState.setLayers([
       {
         uuid: getRandomDomId(),
