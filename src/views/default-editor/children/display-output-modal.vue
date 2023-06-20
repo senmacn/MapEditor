@@ -10,7 +10,7 @@
   >
     <a-spin tip="渲染中..." :spinning="spinningRef">
       <div class="area-choose" v-if="isFirst">
-        <a-checkbox-group v-model:value="areasRef">+
+        <a-checkbox-group v-model:value="areasRef">
           <a-row v-for="layer in canvasState.layers">
             <a-col :span="4" class="title">
               <block-outlined />

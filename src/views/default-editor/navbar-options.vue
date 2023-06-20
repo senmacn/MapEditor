@@ -185,7 +185,7 @@
     displayOutputVisibleRef.value = false;
   }
   function handleOpenDownloadModal() {
-    if (!localState.getDownloadLocation) {
+    if (isLocal() && !localState.getDownloadLocation) {
       message.warning('请设置坐标下载位置！');
       return;
     }

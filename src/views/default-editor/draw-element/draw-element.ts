@@ -23,7 +23,7 @@ export default class DrawElement implements DrawElementInterface {
   // 实例父级
   protected target: HTMLElement | undefined;
   protected draw = false;
-  protected scale = 1;
+  public scale = 1;
   public type: string[] = [''];
   public visible = true;
 

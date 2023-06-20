@@ -76,6 +76,9 @@
                 const newBoundRect = Object.assign({}, area.getBoundRect()) as Box;
                 newBoundRect[0] = newBoundRect[0] + Math.floor(newBoundRect[2] / 10);
                 newBoundRect[1] = newBoundRect[1] + Math.floor(newBoundRect[3] / 10);
+                // 考虑偏移
+                newBoundRect[2] = Math.floor(newBoundRect[2] * area.scale);
+                newBoundRect[3] = Math.floor(newBoundRect[3] * area.scale);
                 const newArea = new Area(
                   area.getName() + '_拷贝',
                   copyImageData(area.getData()),
@@ -86,6 +89,7 @@
             }
           });
           // 清空选中
+          controller.getCurrentAreas().forEach((area) => area.cancelSelect());
           controller.setCurrentAreas([]);
           message.info('粘贴成功！');
         }
