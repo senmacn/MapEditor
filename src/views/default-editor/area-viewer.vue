@@ -9,6 +9,7 @@
   import controller from './common/canvas-state-controller';
   import { onDeleteAreaEvent, onEditAreaEvent } from './common/event';
   import { Area, Pin } from './draw-element';
+  import { useCanvasState } from '@/store/modules/canvas-state';
 
   const props = defineProps({
     layer: {
@@ -81,6 +82,7 @@
     { deep: true, immediate: true },
   );
 
+  const canvasState = useCanvasState();
   onDeleteAreaEvent(() => {
     if (props.layer) {
       for (const index in controller.getCurrentAreas()) {
@@ -90,6 +92,7 @@
           const areas = props.layer.areas.splice(posIndex, 1);
           areas[0].destroy();
           controller.getCurrentAreas().splice(Number(index), 1);
+          canvasState.getAreaMap.delete(areas[0].getUuid());
         }
       }
     }
