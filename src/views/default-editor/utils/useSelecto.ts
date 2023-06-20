@@ -36,6 +36,9 @@ export default function useSelecto(target: Ref<HTMLElement> | HTMLElement = docu
     const moveable = new Moveable(document.getElementById('scroller') as HTMLElement, {
       draggable: true,
     })
+      .on('clickGroup', (e) => {
+        selecto.clickTarget(e.inputEvent, e.inputTarget);
+      })
       // 单个框选拖动
       .on('drag', (e) => {
         e.target.style.left = `${e.left}px`;
@@ -104,7 +107,7 @@ export default function useSelecto(target: Ref<HTMLElement> | HTMLElement = docu
               continue;
             }
             if (removeIds.includes(area.getUuid())) {
-              area.cancelSelect();
+              controller.removeCurrentArea(area);
             }
           }
         }
@@ -117,6 +120,16 @@ export default function useSelecto(target: Ref<HTMLElement> | HTMLElement = docu
           setTimeout(() => {
             moveable.dragStart(e.inputEvent);
           });
+        }
+
+        // 清理moveable-control-box
+        // TODO:多选框选时会创建多余的box无法自动清理 
+        const boxes = document.getElementsByClassName('moveable-control-box');
+        for (let index = 0; index < boxes.length; index++) {
+          const element = boxes[index];
+          if (element.children.length === 0) {
+            element.parentNode?.removeChild(element);
+          }
         }
       });
   });

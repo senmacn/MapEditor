@@ -98,6 +98,7 @@ export default class Area extends DrawElement {
     this.wrapperMoveable();
   }
   select() {
+    this.moveable?.updateRect();
     // 先重置，否则mask-area的offset会错误
     // TODO: Pin error
     controller.addCurrentArea(this);
