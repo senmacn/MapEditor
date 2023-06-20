@@ -77,14 +77,15 @@
                 newBoundRect[0] = newBoundRect[0] + Math.floor(newBoundRect[2] / 10);
                 newBoundRect[1] = newBoundRect[1] + Math.floor(newBoundRect[3] / 10);
                 // 考虑偏移
-                newBoundRect[2] = Math.floor(newBoundRect[2] * area.scale);
-                newBoundRect[3] = Math.floor(newBoundRect[3] * area.scale);
+                newBoundRect[2] = newBoundRect[2] * area.scale;
+                newBoundRect[3] = newBoundRect[3] * area.scale;
                 const newArea = new Area(
                   area.getName() + '_拷贝',
                   copyImageData(area.getData()),
                   newBoundRect,
                 );
                 layer.areas.splice(Number(index) + 1, 0, newArea);
+                state.getAreaMap.set(newArea.getUuid(), newArea);
               }
             }
           });
@@ -93,6 +94,9 @@
           controller.setCurrentAreas([]);
           message.info('粘贴成功！');
         }
+      }
+      if (e.key === 'z' && !controller.isDrawingPen()) {
+        controller.revertAction(state);
       }
     }
   }
