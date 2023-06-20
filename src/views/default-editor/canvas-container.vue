@@ -7,7 +7,7 @@
     @click="handleClick"
   >
     <area-bottom-viewer class="bottom-layer"></area-bottom-viewer>
-    <template v-for="layer in state.layers" :key="layer.uuid">
+    <template v-for="layer in state.getLayers" :key="layer.uuid">
       <area-viewer :layer="layer" v-show="layer.visible" />
     </template>
     <area-canvas

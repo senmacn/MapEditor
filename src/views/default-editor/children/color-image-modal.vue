@@ -122,7 +122,7 @@
             (255 / totalAreasRef.value) * areasColorValueRef.value[area.getUuid()],
           );
           const data = getClosedCurvePointsData(area, [color, 0, 0, 255]);
-          fullCtx.putImageData(data, area.getBoundRect()[0], area.getBoundRect()[1]);
+          fullCtx.putImageData(data, area.getActualBoundRect()[0], area.getActualBoundRect()[1]);
         }
         // 分块导出准备
         const blocks = Math.sqrt(exportRef.value);

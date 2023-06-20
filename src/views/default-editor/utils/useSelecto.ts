@@ -2,11 +2,14 @@ import { Ref, onMounted, unref } from 'vue';
 import Selecto from 'selecto';
 import { useCanvasState } from '@/store/modules/canvas-state';
 import Moveable from 'moveable';
-import controller from '../common/canvas-state-controller';
+import controller, { AreaActionType } from '../common/canvas-state-controller';
+
+function getNumberFromCss(css: string) {
+  return Number(css.replace('px', ''));
+}
 
 export default function useSelecto(target: Ref<HTMLElement> | HTMLElement = document.body) {
   const canvasState = useCanvasState();
-
   onMounted(() => {
     const selecto = new Selecto({
       // The container to add a selection element
@@ -32,12 +35,20 @@ export default function useSelecto(target: Ref<HTMLElement> | HTMLElement = docu
     });
 
     let targets: any[] = [];
+    // 历史记录
+    const history = new Map<string, [number, number]>();
     // 框选后统一可拖动
     const moveable = new Moveable(document.getElementById('scroller') as HTMLElement, {
       draggable: true,
     })
       .on('clickGroup', (e) => {
         selecto.clickTarget(e.inputEvent, e.inputTarget);
+      })
+      .on('dragStart', (e) => {
+        history.set(e.target.id, [
+          getNumberFromCss(e.target.style.left),
+          getNumberFromCss(e.target.style.top),
+        ]);
       })
       // 单个框选拖动
       .on('drag', (e) => {
@@ -50,12 +61,28 @@ export default function useSelecto(target: Ref<HTMLElement> | HTMLElement = docu
         // 拖拽时只修改了dom，需要更新Area信息
         if (area) {
           const boundRect = area.getBoundRect();
-          boundRect[0] = Number(e.target.style.left.replace('px', ''));
-          boundRect[1] = Number(e.target.style.top.replace('px', ''));
+          boundRect[0] = getNumberFromCss(e.target.style.left);
+          boundRect[1] = getNumberFromCss(e.target.style.top);
           setTimeout(() => {
             area.moveable?.updateRect();
           }, 50);
         }
+        // 记录历史
+        controller.pushAction({
+          key: new Date().getTime().toString(),
+          uuid: e.target.id,
+          type: AreaActionType.MOVE,
+          state: history.get(e.target.id) as [number, number],
+        });
+        history.clear();
+      })
+      .on('dragGroupStart', (e) => {
+        e.events.forEach((ev) => {
+          history.set(ev.target.id, [
+            getNumberFromCss(ev.target.style.left),
+            getNumberFromCss(ev.target.style.top),
+          ]);
+        });
       })
       // 多个框选拖动
       .on('dragGroup', (e) => {
@@ -65,11 +92,12 @@ export default function useSelecto(target: Ref<HTMLElement> | HTMLElement = docu
         });
       })
       .on('dragGroupEnd', (e) => {
-        // 拖拽时只修改了dom，需要更新Area信息
+        const key = new Date().getTime().toString();
         e.events.forEach((ev) => {
           const uuid = ev.target.id;
           const area = canvasState.getAreaMap.get(uuid);
           if (area) {
+            // 拖拽时只修改了dom，需要更新Area信息
             const boundRect = area.getBoundRect();
             boundRect[0] = Number(ev.target.style.left.replace('px', ''));
             boundRect[1] = Number(ev.target.style.top.replace('px', ''));
@@ -77,7 +105,15 @@ export default function useSelecto(target: Ref<HTMLElement> | HTMLElement = docu
               area.moveable?.updateRect();
             }, 50);
           }
+          // 记录历史
+          controller.pushAction({
+            key: key,
+            uuid: uuid,
+            type: AreaActionType.MOVE,
+            state: history.get(uuid) as [number, number],
+          });
         });
+        history.clear();
       });
 
     selecto
@@ -123,7 +159,7 @@ export default function useSelecto(target: Ref<HTMLElement> | HTMLElement = docu
         }
 
         // 清理moveable-control-box
-        // TODO:多选框选时会创建多余的box无法自动清理 
+        // TODO:多选框选时会创建多余的box无法自动清理
         const boxes = document.getElementsByClassName('moveable-control-box');
         for (let index = 0; index < boxes.length; index++) {
           const element = boxes[index];

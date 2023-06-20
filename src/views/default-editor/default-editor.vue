@@ -91,12 +91,14 @@
     if (complete && areaCanvasRef.value) {
       const area: Area = areaCanvasRef.value.getCreatedArea();
       if (!area) return;
-      for (let index = canvasState.getLayers.length - 1; index >= 0; index--) {
-        const element = canvasState.getLayers[index];
+      for (let index = canvasState.layers.length - 1; index >= 0; index--) {
+        const element = canvasState.layers[index];
         if (element.hot) {
           area.setName(name);
           area.type = type;
+          // @ts-ignore
           element.areas.push(area);
+          canvasState.getAreaMap.set(area.getUuid(), area);
         }
       }
     } else {

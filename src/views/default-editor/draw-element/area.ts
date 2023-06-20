@@ -29,12 +29,25 @@ export default class Area extends DrawElement {
     this.img = dataUrl;
     return this.img;
   }
+  // 使用数据时考虑
   getData() {
     // 考虑缩放
     if (this.scale !== 1) {
       return scaleImageData(this.data, this.scale);
     }
     return this.data;
+  }
+  // 使用数据时考虑
+  getActualBoundRect() {
+    if (this.scale !== 1) {
+      // 考虑缩放
+      const boundRect = this.boundRect.slice();
+      boundRect[2] = this.boundRect[2] * this.scale;
+      boundRect[3] = this.boundRect[3] * this.scale;
+      return boundRect;
+    } else {
+      return this.boundRect;
+    }
   }
   setData(value: ImageData) {
     // 重置缩放
@@ -92,10 +105,17 @@ export default class Area extends DrawElement {
 
     instance.ondblclick = this.select.bind(this);
     instance.oncontextmenu = this.select.bind(this);
-    target.appendChild(instance);
-    this.instance = instance;
-
-    this.wrapperMoveable();
+    if (this.draw) {
+      target.removeChild(this.instance as HTMLElement);
+      target.appendChild(instance);
+      this.instance = instance;
+      // @ts-ignore
+      this.moveable.target = this.instance;
+    } else {
+      target.appendChild(instance);
+      this.instance = instance;
+      this.wrapperMoveable();
+    }
   }
   select() {
     this.moveable?.updateRect();
