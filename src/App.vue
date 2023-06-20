@@ -12,6 +12,5 @@
 
 <style lang="less">
   .ant-vue-site {
-    background-color: #252526;
   }
 </style>

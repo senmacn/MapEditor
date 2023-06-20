@@ -38,12 +38,12 @@
   import { useCanvasState } from '@/store/modules/canvas-state';
   import Contextmenu from './children/contextmenu.vue';
   import PinModal from './children/pin-modal.vue';
-import useSelecto from './utils/useSelecto';
+  import useSelecto from './utils/useSelecto';
 
   const state = useCanvasState();
   const configRef = useEditorConfig();
 
-  // 滚动偏移
+  // 滚动偏移，以及框选
   const scrollerRef = ref();
   useSelecto(scrollerRef);
   const { x, y } = useScroll(scrollerRef, { throttle: 50 });

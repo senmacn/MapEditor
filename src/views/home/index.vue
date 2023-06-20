@@ -13,22 +13,16 @@
           <div>新建项目</div>
         </div>
         <div class="button-wrapper">
-          <a-button type="primary" disabled @click="handleUploadProject">
-            <import-outlined />
-          </a-button>
+          <a-upload
+            :before-upload="(file) => handleLoadSaves(file)"
+            accept=".json"
+            :showUploadList="false"
+          >
+            <a-button type="primary">
+              <import-outlined />
+            </a-button>
+          </a-upload>
           <div>从文件打开项目</div>
-        </div>
-        <div class="button-wrapper" v-if="!isLocal()">
-          <a-button type="primary" @click="handleUploadProject">
-            <download-outlined />
-          </a-button>
-          <div>获取桌面版</div>
-        </div>
-        <div class="button-wrapper" v-else>
-          <a-button type="primary" disabled @click="handleUploadProject">
-            <cloud-outlined />
-          </a-button>
-          <div>检查更新</div>
         </div>
       </div>
     </div>
@@ -97,13 +91,16 @@
   import {
     PlusOutlined,
     ImportOutlined,
-    CloudOutlined,
     DownloadOutlined,
     EditOutlined,
     DeleteOutlined,
     SyncOutlined,
     FolderOpenOutlined,
   } from '@ant-design/icons-vue';
+  import { useLoading } from '@/components/Loading';
+  import { loadSaves } from '@/utils/persist';
+  import { useEditorConfig } from '@/store/modules/editor-config';
+  import { useCanvasState } from '@/store/modules/canvas-state';
 
   const dataSource = ref<LocalMapHistory[]>([]);
   const paginationProps = reactive({
@@ -132,7 +129,35 @@
       location.reload();
     });
   }
-  function handleUploadProject() {}
+
+  const [openLoading, closeLoading] = useLoading({ tip: '加载中！', minTime: 1000 });
+  const configRef = useEditorConfig();
+  const canvasState = useCanvasState();
+  function handleLoadSaves(file: File) {
+    openLoading();
+    var reader = new FileReader(); //调用FileReader
+    reader.readAsText(file); //将文件读取为 text
+    reader.onload = function (evt) {
+      try {
+        const result = loadSaves(String(evt.target?.result), true, [
+          configRef.getSize.x,
+          configRef.getSize.y,
+        ]);
+        canvasState.setLayers(result.layers);
+
+        const url = location.href.slice().replace(/\#\/.+/, '#/map-editor?name=' + file.name);
+        location.replace(url);
+      } catch (e: any) {
+        message.warning({
+          content: e.message,
+          duration: 60000,
+        });
+      }
+      closeLoading();
+    };
+    return Promise.reject() as any;
+  }
+
   const editRef = ref(-1);
   function handleEditProjectName(filename: string, newname: string) {
     if (filename === newname) {
@@ -220,6 +245,9 @@
         width: 22px;
         height: 22px;
       }
+    }
+    .ant-upload.ant-upload-select {
+      width: 100%;
     }
   }
   .history-list {

@@ -1,21 +1,14 @@
 <template>
-  <div
-    :id="layer?.uuid"
-    class="layer-instance"
-    ref="areaViewer"
-    :style="style"
-  ></div>
+  <div :id="layer?.uuid" class="layer-instance" ref="areaViewer" :style="style"></div>
 </template>
 
 <script setup lang="ts">
-  import { onBeforeUnmount, onMounted, ref, watch } from 'vue';
+  import { ref, watch } from 'vue';
   import { Layer } from './common/types';
   import { useEditorConfig } from '@/store/modules/editor-config';
   import controller from './common/canvas-state-controller';
   import { onDeleteAreaEvent, onEditAreaEvent } from './common/event';
   import { Area, Pin } from './draw-element';
-  import { message } from 'ant-design-vue';
-  import { copyImageData } from './utils/image-data-util';
 
   const props = defineProps({
     layer: {
@@ -90,14 +83,15 @@
 
   onDeleteAreaEvent(() => {
     if (props.layer) {
-      for (const area of controller.getCurrentAreas()) {
-        const index = props.layer.areas.findIndex((value) => value.isSame(area));
-        if (index > -1) {
-          const areas = props.layer.areas.splice(index, 1);
+      for (const index in controller.getCurrentAreas()) {
+        const area = controller.getCurrentAreas()[index];
+        const posIndex = props.layer.areas.findIndex((value) => value.isSame(area));
+        if (posIndex > -1) {
+          const areas = props.layer.areas.splice(posIndex, 1);
           areas[0].destroy();
+          controller.getCurrentAreas().splice(Number(index), 1);
         }
       }
-      controller.setCurrentAreas([]);
     }
   });
 
@@ -123,45 +117,6 @@
   //     }
   //   },
   // );
-
-  let copyAreas: Area[] = [];
-  function handleCopyPasteArea(e: KeyboardEvent) {
-    if (e.ctrlKey && e.isTrusted) {
-      if (e.key === 'c') {
-        if (controller.getCurrentAreas().length > 0) {
-          copyAreas = controller.getCurrentAreas().slice() as Area[];
-          message.info('复制成功！');
-        }
-      }
-      if (e.key === 'v') {
-        if (copyAreas.length) {
-          copyAreas.forEach((area) => {
-            // 偏移防止重叠
-            const newBoundRect = Object.assign({}, area.getBoundRect()) as Box;
-            newBoundRect[0] = newBoundRect[0] + Math.floor(newBoundRect[2] / 10);
-            newBoundRect[1] = newBoundRect[1] + Math.floor(newBoundRect[3] / 10);
-            const newArea = new Area(
-              area.getName() + '_拷贝',
-              copyImageData(area.getData()),
-              newBoundRect,
-            );
-            props.layer?.areas.push(newArea);
-            render(newArea);
-            // 清空选中
-            controller.setCurrentAreas([]);
-          });
-          message.info('粘贴成功！');
-        }
-      }
-    }
-  }
-  // 挂载时初始化
-  onMounted(() => {
-    document.body.addEventListener('keydown', handleCopyPasteArea);
-  });
-  onBeforeUnmount(() => {
-    document.body.removeEventListener('keydown', handleCopyPasteArea);
-  });
 </script>
 
 <style lang="less">
