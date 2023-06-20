@@ -50,7 +50,7 @@ export default function useSelecto(target: Ref<HTMLElement> | HTMLElement = docu
           boundRect[0] = Number(e.target.style.left.replace('px', ''));
           boundRect[1] = Number(e.target.style.top.replace('px', ''));
           setTimeout(() => {
-              area.moveable?.updateRect();
+            area.moveable?.updateRect();
           }, 50);
         }
       })
