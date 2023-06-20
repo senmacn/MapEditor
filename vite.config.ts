@@ -1,10 +1,11 @@
-import { ConfigEnv, defineConfig, loadEnv } from 'vite';
+import { ConfigEnv, defineConfig, loadEnv, splitVendorChunkPlugin } from 'vite';
 import vue from '@vitejs/plugin-vue';
 import vueJsx from '@vitejs/plugin-vue-jsx';
 import { renderer } from 'unplugin-auto-expose';
 import path from 'path';
 import { createSvgIconsPlugin } from 'vite-plugin-svg-icons';
 import { wrapperEnv } from './build/util';
+import commpressPlugin from 'vite-plugin-compression';
 
 export default defineConfig(({ command, mode }: ConfigEnv) => {
   const root = process.cwd();
@@ -37,11 +38,13 @@ export default defineConfig(({ command, mode }: ConfigEnv) => {
       },
     },
     build: {
-      target: 'chrome87',
+      target: 'modules',
       outDir: 'dist',
       emptyOutDir: true,
       assetsDir: '.',
-      sourcemap: true,
+      sourcemap: false,
+      cssCodeSplit: true,
+      minify: 'esbuild',
       lib: {
         entry: 'src/main.ts',
         formats: ['es'],
@@ -49,7 +52,21 @@ export default defineConfig(({ command, mode }: ConfigEnv) => {
       rollupOptions: {
         input: path.join(root, 'index.html'),
         output: {
-          entryFileNames: '[name].js',
+          entryFileNames: '[name]-[hash].js',
+          chunkFileNames: '[name]-[hash].js',
+          assetFileNames: '[name]-[hash][extname]',
+          manualChunks(id) {
+            if (id.includes('node_modules')) {
+              return 'vendor';
+            }
+          },
+        },
+      },
+      terserOptions: {
+        compress: {
+          //生产环境时移除console
+          drop_console: true,
+          drop_debugger: true,
         },
       },
       chunkSizeWarningLimit: 2000,
@@ -78,6 +95,8 @@ export default defineConfig(({ command, mode }: ConfigEnv) => {
         inject: 'body-last',
         customDomId: '__svg__icons__dom__',
       }),
+      splitVendorChunkPlugin(),
+      commpressPlugin(),
     ],
   };
 });

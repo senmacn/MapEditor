@@ -168,13 +168,18 @@
   function handleAutoTransform() {
     for (const key of Object.keys(mapConfig.value)) {
       const element = mapConfig.value[key];
-      if (!String(element).length) {
-        message.warning('转换前请确保填写所有地图坐标参数！');
+      if (!String(element).length && key !== 'fullScale') {
+        message.warning('转换前请确保填写所有地图/图片XY坐标参数！');
         return;
       }
     }
     const { fullScale, map_ltX, map_ltY, map_rbX, map_rbY, ltX, ltY, rbX, rbY } = mapConfig.value;
-    scaleRef.value = fullScale / 1024;
+    if (fullScale) {
+      scaleRef.value = fullScale / 1024;
+    } else if (!scaleRef.value) {
+      message.warning('请至少填写比例尺/每1024px坐标之中其中一个！');
+      return;
+    }
     const scale = scaleRef.value;
     offsetXRef.value = (ltX - map_ltX) / scale;
     offsetYRef.value = (ltY - map_ltY) / scale;
@@ -209,7 +214,8 @@
       onOk: () => {
         configRef.setSize(sizeObj);
 
-        if (mapConfig.value.used) {
+        if (mapConfig.value.used || Object.keys(mapConfig.value).some((val) => !!val)) {
+          mapConfig.value.used = 1;
           configRef.setMapSize({
             fullScale: Number(mapConfig.value.fullScale),
             used: Number(mapConfig.value.used),
