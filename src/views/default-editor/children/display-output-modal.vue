@@ -103,12 +103,11 @@
     areaData = [];
     spinningRef.value = true;
     setTimeout(() => {
-      const layers = canvasState.layers;
       // @ts-ignore
       document.getElementById('displayModal').innerHTML = '';
       const areas: Area[] = [];
-      for (let index = layers.length - 1; index >= 0; index--) {
-        const layer = layers[index];
+      for (let index = canvasState.getLayers.length - 1; index >= 0; index--) {
+        const layer = canvasState.getLayers[index];
         layer.areas.forEach((area) => {
           if (areasRef.value.includes(area.getUuid())) {
             areas.push(area);
@@ -123,16 +122,16 @@
         const endsX: number[] = [];
         const endsY: number[] = [];
         for (const area of areas) {
-          const x = area.getBoundRect()[0];
-          const y = area.getBoundRect()[1];
-          const width = area.getBoundRect()[2];
-          const height = area.getBoundRect()[3];
+          const x = area.getActualBoundRect()[0];
+          const y = area.getActualBoundRect()[1];
+          const width = area.getActualBoundRect()[2];
+          const height = area.getActualBoundRect()[3];
           startsX.push(x);
           startsY.push(y);
           endsX.push(x + width);
           endsY.push(y + height);
           toMixinData.push({
-            boundRect: area.getBoundRect(),
+            boundRect: area.getActualBoundRect(),
             data: getClosedCurvePointsData(area),
           });
         }
@@ -186,7 +185,7 @@
             willReadFrequently: true,
           }) as CanvasRenderingContext2D;
           const data = getClosedCurvePointsData(area);
-          const boundRect = area.getBoundRect();
+          const boundRect = area.getActualBoundRect();
           let scale = boundRect[2] > boundRect[3] ? 300 / boundRect[2] : 300 / boundRect[3];
           cacheCtx.putImageData(scaleImageData(data, scale), 1, 1);
           cacheCtx.font = '12px serif';
@@ -195,7 +194,7 @@
           document.getElementById('displayModal')?.appendChild(cacheCanvas);
           areaData.push({
             name: area.getName(),
-            boundRect: area.getBoundRect(),
+            boundRect: area.getActualBoundRect(),
             data: data,
           });
         }

@@ -229,7 +229,7 @@ export function getPosition(imageData: ImageData) {
  * @returns 包含内部点的imagedata
  */
 export function getClosedCurvePointsData(area: Area, colors = [255, 0, 0, 255]) {
-  const rect = area.getBoundRect();
+  const rect = area.getActualBoundRect();
   const imageData = area.getData();
   const newImageData = new ImageData(rect[2], rect[3]);
   const boundPoints = getPosition(imageData);

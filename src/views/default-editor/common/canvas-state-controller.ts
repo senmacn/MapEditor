@@ -1,5 +1,8 @@
 import { Ref, ref } from 'vue';
 import { Area } from '../draw-element';
+import { message } from 'ant-design-vue';
+import { useCanvasState } from '@/store/modules/canvas-state';
+import { isArray } from '@/utils/is';
 
 export enum CanvasAreaOption {
   AreaCheck,
@@ -17,6 +20,18 @@ export enum CanvasOption {
   DrawCircle,
 }
 
+export enum AreaActionType {
+  MOVE,
+  SCALE,
+}
+
+interface AreaAction {
+  key: string;
+  uuid: string;
+  type: AreaActionType;
+  state: [number, number] | number;
+}
+
 const DrawingShape = [CanvasOption.DrawCircle, CanvasOption.DrawLine, CanvasOption.DrawRect];
 
 function setCursor(cursor: string) {
@@ -30,6 +45,7 @@ class CanvasStateController {
   private state = ref(CanvasOption.None);
   private currentAreas: Ref<Area[]> = ref([]);
   private currentPin = ref<Recordable | null>(null);
+  private actions: AreaAction[] = [];
   constructor() {}
   getState() {
     return this.state.value;
@@ -95,6 +111,42 @@ class CanvasStateController {
   }
   setCurrentPin(pin: Recordable | null) {
     this.currentPin.value = pin;
+  }
+  pushAction(action: AreaAction) {
+    this.actions.push(action);
+  }
+  revertAction(canvasState: any) {
+    if (this.actions.length > 0) {
+      const toRevertAction: AreaAction[] = [];
+      const action = this.actions.pop() as AreaAction;
+      toRevertAction.push(action);
+      // 查看是否有同key同时处理的action
+      while (this.actions.length > 0 && this.actions[this.actions.length - 1].key === action.key) {
+        const _action = this.actions.pop() as AreaAction;
+        toRevertAction.push(_action);
+      }
+      // 开始处理
+      for (let index = 0; index < toRevertAction.length; index++) {
+        const action = toRevertAction[index];
+        const area = canvasState.getAreaMap.get(action.uuid);
+        if (!area) continue;
+        if (action.type === AreaActionType.MOVE) {
+          if (isArray(action.state)) {
+            const boundRect = area.getBoundRect();
+            boundRect[0] = action.state[0];
+            boundRect[1] = action.state[1];
+            area.setBoundRect(boundRect);
+            area.render(area.target as HTMLElement);
+          }
+        } else {
+          if (!isArray(action.state)) {
+            area.scale = action.state;
+            area.render(area.target as HTMLElement);
+          }
+        }
+      }
+      message.info('还原区域');
+    }
   }
 }
 

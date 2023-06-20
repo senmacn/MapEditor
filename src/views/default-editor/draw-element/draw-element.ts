@@ -1,4 +1,5 @@
 import Moveable from 'moveable';
+import controller, { AreaActionType } from '../common/canvas-state-controller';
 
 interface DrawElementInterface {
   select(...args: any): void;
@@ -21,7 +22,7 @@ export default class DrawElement implements DrawElementInterface {
   protected instance: HTMLElement | undefined;
   public moveable: Moveable | undefined;
   // 实例父级
-  protected target: HTMLElement | undefined;
+  public target: HTMLElement | undefined;
   protected draw = false;
   public scale = 1;
   public type: string[] = [''];
@@ -90,8 +91,12 @@ export default class DrawElement implements DrawElementInterface {
       throttleRotate: 0,
     });
     const _this = this;
+    let dragState: number[] = [];
     /* draggable */
     this.moveable
+      .on('dragStart', (e) => {
+        dragState = [_this.boundRect[0], _this.boundRect[1]];
+      })
       .on('drag', ({ target, left, top }) => {
         target.style.left = `${left}px`;
         target.style.top = `${top}px`;
@@ -99,12 +104,25 @@ export default class DrawElement implements DrawElementInterface {
       .on('dragEnd', ({ target }) => {
         _this.boundRect[0] = parseInt(target.style.left.replace('px', ''));
         _this.boundRect[1] = parseInt(target.style.top.replace('px', ''));
+        // 记录历史
+        controller.pushAction({
+          key: new Date().getTime().toString(),
+          uuid: _this.uuid,
+          type: AreaActionType.MOVE,
+          state: dragState.slice() as [number, number],
+        });
       })
       .on('resize', ({ target, width, height }) => {
         target.style.width = `${width}px`;
         target.style.height = `${height}px`;
       })
       .on('resizeEnd', ({ target }) => {
+        controller.pushAction({
+          key: new Date().getTime().toString(),
+          uuid: _this.uuid,
+          type: AreaActionType.SCALE,
+          state: _this.scale,
+        });
         // 自动对齐整数
         const newWidth = parseInt(target.style.width.replace('px', ''));
         const newHeight = parseInt(target.style.height.replace('px', ''));

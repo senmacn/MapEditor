@@ -14,7 +14,7 @@ interface CanvasState {
 export const useCanvasState = defineStore({
   id: 'canvas-state',
   state: (): CanvasState => ({
-    layers: [] as Layer[],
+    layers: [],
     areaMap: new Map(),
     offset: {
       x: 0,
@@ -41,6 +41,7 @@ export const useCanvasState = defineStore({
       const map = new Map();
       layers.forEach((layer) => layer.areas.forEach((area) => map.set(area.getUuid(), area)));
       this.areaMap = map;
+      // @ts-ignore TODO: execute
       this.layers = layers;
     },
   },
