@@ -95,10 +95,6 @@
   // 保存文件
   const [handleConfirmCreateSaves, handleCreateSaves, handleExportSaves] = useSaves();
   function handleOpenCreateModal() {
-    if (isLocal() && !localState.getExportLocation) {
-      message.warning('请设置存档位置！');
-      return;
-    }
     handleConfirmCreateSaves({});
   }
 

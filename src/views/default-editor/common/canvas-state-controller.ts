@@ -1,8 +1,8 @@
 import { Ref, ref } from 'vue';
 import { Area } from '../draw-element';
 import { message } from 'ant-design-vue';
-import { useCanvasState } from '@/store/modules/canvas-state';
 import { isArray } from '@/utils/is';
+import PencilSvg from '@/assets/cursor/pencil.svg';
 
 export enum CanvasAreaOption {
   AreaCheck,
@@ -52,7 +52,7 @@ class CanvasStateController {
   }
   setState(option: CanvasOption) {
     if (option === CanvasOption.FollowMouse) {
-      setCursor('url("src/assets/cursor/pencil.svg"), pointer');
+      setCursor(`url(${PencilSvg}), pointer`);
     } else if (DrawingShape.includes(option)) {
       setCursor('crosshair');
     } else {
