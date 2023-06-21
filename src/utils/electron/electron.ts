@@ -1,5 +1,3 @@
-import { LocalApi } from '../env';
-
 class ElectronApi implements LocalApi {
   getUserConfig(): Promise<UserConfig> {
     return window['electronAPI'].getUserConfig();
@@ -28,6 +26,9 @@ class ElectronApi implements LocalApi {
   }
   newWindow(url: string, browser = false): Promise<LocalResult<null>> {
     return window['electronAPI'].newWindow(url, browser);
+  }
+  maximizeWindow() {
+    return window['electronAPI'].maximizeWindow();
   }
 }
 

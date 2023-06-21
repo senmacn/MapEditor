@@ -152,4 +152,8 @@ export default function setupEvent(mainWindow: BrowserWindow) {
       return err as LocalError;
     }
   });
+
+  ipcMain.handle('maximize-window', () => {
+    mainWindow.maximize();
+  })
 }

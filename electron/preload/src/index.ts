@@ -5,11 +5,11 @@ window.addEventListener('DOMContentLoaded', () => {
   new Titlebar({
     // @ts-ignore
     titleHorizontalAlignment: 'left',
-    backgroundColor: TitlebarColor.fromHex('#222225')
+    backgroundColor: TitlebarColor.fromHex('#222225'),
   });
 });
 
-contextBridge.exposeInMainWorld('electronAPI', {
+const electronApi: LocalApi = {
   getUserConfig: async (): Promise<UserConfig> => {
     return await ipcRenderer.invoke('get-user-config');
   },
@@ -28,10 +28,15 @@ contextBridge.exposeInMainWorld('electronAPI', {
   deleteLocalFile: async (fileName: string) => {
     return await ipcRenderer.invoke('delete-local-file', fileName);
   },
-  saveLocalFile: async (fileName: string, data: string | Blob, folder?: string) => {
+  saveLocalFile: async (fileName: string, data: string | Buffer, folder?: string) => {
     return await ipcRenderer.invoke('save-local-file', fileName, data, folder);
   },
-  newWindow: async (url: string, browser?: boolean ) => {
+  newWindow: async (url: string, browser?: boolean) => {
     return await ipcRenderer.invoke('new-window', url, browser);
   },
-});
+  maximizeWindow: () => {
+    ipcRenderer.invoke('maximize-window');
+  },
+};
+
+contextBridge.exposeInMainWorld('electronAPI', electronApi);
