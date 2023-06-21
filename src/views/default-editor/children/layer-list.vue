@@ -14,7 +14,7 @@
         <div class="layer-content">
           <div
             class="layer-index"
-            :draggable="true"
+            :draggable="!layer.lock"
             @dragenter.stop="dragenter($event, index)"
             @dragstart.stop="dragstart($event, index)"
             @dragend.prevent="dragend()"
@@ -39,10 +39,29 @@
           </div>
           <div class="layer-option">
             <a-space>
+              <a-tooltip title="关闭锁" v-if="layer.lock">
+                <a-button
+                  type="text"
+                  class="warning-color"
+                  @click="() => changeLayerLock(layer, false)"
+                >
+                  <template #icon><lock-outlined /></template>
+                </a-button>
+              </a-tooltip>
+              <a-tooltip title="开启锁" v-else>
+                <a-button
+                  type="text"
+                  class="success-color"
+                  @click="() => changeLayerLock(layer, true)"
+                >
+                  <template #icon><unlock-outlined /></template>
+                </a-button>
+              </a-tooltip>
               <a-tooltip title="上传底图">
                 <a-button
                   type="text"
                   :class="layer.map ? 'success-color' : 'none'"
+                  :disabled="layer.lock"
                   @click="handleUploadBackground(index)"
                 >
                   <template #icon>
@@ -50,7 +69,7 @@
                   </template>
                 </a-button>
               </a-tooltip>
-              <a-button type="text" @click="() => handleLayerDelete(index)">
+              <a-button :disabled="layer.lock" type="text" @click="() => handleLayerDelete(index)">
                 <template #icon>
                   <delete-outlined />
                 </template>
@@ -81,11 +100,13 @@
   import { getRandomDomId } from '../../../utils/uuid';
   import { Layer } from '../common/types';
   import {
-    FileImageOutlined,
     EyeOutlined,
     EyeInvisibleOutlined,
     DeleteOutlined,
     PlusCircleOutlined,
+    FileImageOutlined,
+    LockOutlined,
+    UnlockOutlined,
   } from '@ant-design/icons-vue';
   import UploadBackgroundModal from './upload-background-modal.vue';
   import { useCanvasState } from '@/store/modules/canvas-state';
@@ -110,10 +131,29 @@
     layer.visible = visible;
     refreshHot();
   }
+
+  function changeLayerLock(layer: Layer, lock: boolean) {
+    layer.lock = lock;
+    if (lock) {
+      layer.areas.forEach((area) => {
+        if (area.instance) {
+          area.instance.className = 'lock-moveable';
+        }
+      });
+    } else {
+      layer.areas.forEach((area) => {
+        if (area.instance) {
+          area.instance.className = 'moveable';
+        }
+      });
+    }
+  }
+
   function handleLayerAdd() {
     canvasState.layers.push({
       uuid: getRandomDomId(),
       name: '图层' + (canvasState.layers.length + 1),
+      lock: false,
       hot: true,
       visible: true,
       map: null,
@@ -154,6 +194,10 @@
   }
   function dragenter(_, index: number) {
     // 避免源对象触发自身的dragenter事件
+    if (canvasState.layers[index].lock) {
+      dragIndexRef.value = -1;
+      return;
+    }
     if (dragIndexRef.value !== index) {
       const source = canvasState.layers[dragIndexRef.value];
       canvasState.layers.splice(dragIndexRef.value, 1);
@@ -165,6 +209,9 @@
   }
   const [openLoading, closeLoading] = useLoading({ tip: '移动中', minTime: 1000 });
   function dragend() {
+    if (dragIndexRef.value < 0) {
+      return;
+    }
     openLoading();
     setTimeout(() => {
       message.success('移动完成！');
@@ -231,6 +278,9 @@
         display: inline-block;
         height: 18px;
         width: 18px;
+      }
+      .ant-btn:hover {
+        color: rgb(90, 90, 90);
       }
     }
     .layer-index {

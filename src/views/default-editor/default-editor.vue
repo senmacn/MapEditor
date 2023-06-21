@@ -36,6 +36,7 @@
         uuid: getRandomDomId(),
         name: '默认图层',
         hot: true,
+        lock: false,
         visible: true,
         map: null,
         areas: [],

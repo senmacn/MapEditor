@@ -44,7 +44,7 @@ export default defineConfig(({ command, mode }: ConfigEnv) => {
       assetsDir: '.',
       sourcemap: false,
       cssCodeSplit: true,
-      minify: 'esbuild',
+      minify: 'terser',
       lib: {
         entry: 'src/main.ts',
         formats: ['es'],
