@@ -90,7 +90,7 @@
   import { useCanvasState } from '@/store/modules/canvas-state';
 
   const emit = defineEmits<{
-    (e: 'end-edit-area', name: string, type: string[], complete: boolean): void;
+    (e: 'end-edit-area', name: string, type: string, complete: boolean): void;
   }>();
 
   const canvasState = useCanvasState();
@@ -99,7 +99,7 @@
   const areaIDRef = ref('');
   const areaTypeRef = ref<string[]>([]);
   const areaTypeOptionsRef = computed(() => {
-    const options: Recordable[] = [];
+    const options: string[] = [];
     canvasState.getLayers.forEach((layer) => {
       layer.areas.forEach((area) => {
         if (area.type && !options.includes(area.type)) {
@@ -139,7 +139,7 @@
         emit(
           'end-edit-area',
           areaNameRef.value + '-' + areaIDRef.value,
-          areaTypeRef.value,
+          areaTypeRef.value[0],
           complete,
         );
       } else {
@@ -148,7 +148,7 @@
           emit(
             'end-edit-area',
             areaNameRef.value + '-' + areaIDRef.value,
-            areaTypeRef.value,
+            areaTypeRef.value[0],
             complete,
           );
         }, 50);

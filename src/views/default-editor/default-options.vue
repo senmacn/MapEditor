@@ -53,7 +53,7 @@
   import { useCanvasState } from '@/store/modules/canvas-state';
 
   const emit = defineEmits<{
-    (e: 'end-edit-area', name: string, type: string[], complete: boolean): void;
+    (e: 'end-edit-area', name: string, type: string, complete: boolean): void;
   }>();
 
   const drawerVisibleRef = ref(true);

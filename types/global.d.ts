@@ -31,6 +31,8 @@ declare global {
     [key: string]: T;
   };
 
+  declare type IntervalHandle = ReturnType<typeof setInterval>;
+
   declare type LocalError = {
     showMessage?: string;
   } & Error;

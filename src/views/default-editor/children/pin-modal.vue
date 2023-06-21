@@ -25,17 +25,17 @@
         >
           <a-input size="small" v-model:value="formModel.name" />
         </a-form-item>
-        <a-form-item name="description" label="描述">
-          <a-textarea
-            size="small"
-            v-model:value="formModel.description"
-            auto-size
-            show-word-limit
-            :max-length="100"
-          />
+        <a-form-item name="author" label="作者">
+          <a-input size="small" v-model:value="formModel.author" />
         </a-form-item>
-        <a-form-item name="level" label="等级">
-          <a-rate size="small" v-model:value="formModel.level" allow-half />
+        <a-form-item name="type" label="类型">
+          <a-input size="small" v-model:value="formModel.type" />
+        </a-form-item>
+        <a-form-item name="state" label="状态">
+          <a-input size="small" v-model:value="formModel.state" />
+        </a-form-item>
+        <a-form-item name="jira" label="JIRA">
+          <a-input size="small" v-model:value="formModel.jira" />
         </a-form-item>
         <a-form-item name="icon" label="图标">
           <a-radio-group
@@ -82,8 +82,13 @@
             <a-radio-button value="80">80</a-radio-button>
           </a-radio-group>
         </a-form-item>
-        <a-form-item name="color" label="颜色">
-          <span id="pickr-instance"> </span>
+        <a-form-item name="description" label="描述">
+          <a-textarea
+            size="small"
+            v-model:value="formModel.description"
+            show-word-limit
+            :max-length="100"
+          />
         </a-form-item>
         <a-form-item name="position" label="坐标">
           <span>{{ clickPositionRef?.offsetX }}, {{ clickPositionRef?.offsetY }}</span>
@@ -98,8 +103,7 @@
 </template>
 
 <script setup lang="ts">
-  import { inject, reactive, ref, watch } from 'vue';
-  import { useColorPicker } from '@/hooks/useColorPicker';
+  import { inject, reactive, ref } from 'vue';
   import { isNull } from '@/utils/is';
   import cloneDeep from 'lodash-es/cloneDeep';
   import { Pin, PinIcon } from '../draw-element';
@@ -108,11 +112,13 @@
   const clickPositionRef = inject<Recordable>('clickPositionRef', { offsetX: 0, offsetY: 0 });
   const initFormModel = {
     name: '',
+    author: '',
     description: '',
-    color: 'red',
+    type: '',
+    state: '',
+    jira: '',
     icon: PinIcon.star,
     size: '60',
-    level: 2.5,
     position: { x: 0, y: 0 },
   };
   const formModel = reactive(cloneDeep(initFormModel));
@@ -135,22 +141,27 @@
           if (isCreate) {
             const pin = new Pin(
               formModel.name,
+              formModel.author,
               formModel.description,
-              formModel.level,
-              formModel.color,
+              formModel.type,
+              formModel.state,
+              formModel.jira,
               formModel.position,
               size,
               formModel.icon,
             );
+            // @ts-ignore
             element.pins.push(pin);
           } else {
             element.pins.forEach((sitPin) => {
               if (sitPin.getUuid() === uuid) {
                 sitPin.setName(formModel.name);
+                sitPin.setAuthor(formModel.author);
                 sitPin.setDescription(formModel.description);
-                sitPin.setLevel(formModel.level);
+                sitPin.setType(formModel.type);
+                sitPin.setState(formModel.state);
                 sitPin.setIcon(formModel.icon);
-                sitPin.setColor(formModel.color);
+                sitPin.setJira(formModel.jira);
                 sitPin.setBoundRect([formModel.position.x, formModel.position.y, size, size]);
                 // TODO: 重新渲染
               }
@@ -166,21 +177,6 @@
   function handleCancel() {
     visibleRef.value = false;
   }
-
-  const pickrInstance = useColorPicker('.pin-modal #pickr-instance');
-  watch(
-    () => visibleRef.value,
-    () => {
-      if (visibleRef.value && !pickrInstance.hasInit()) {
-        setTimeout(() => {
-          pickrInstance.init();
-          pickrInstance.on('save', (color) => {
-            formModel.color = color.toRGBA().toString();
-          });
-        }, 10);
-      }
-    },
-  );
 
   function setPin(pin: Pin) {
     if (isNull(pin)) {

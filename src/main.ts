@@ -13,6 +13,7 @@ import './utils/extend';
 import { getLocalApi } from './utils/env';
 import { useLocalState } from './store/modules/local-state';
 import loadingSaves from './loadingSaves';
+import setCustomDirectives from './directives';
 
 message.config({
   top: '25px',
@@ -20,6 +21,8 @@ message.config({
 
 async function bootstrap() {
   const app = createApp(App);
+
+  setCustomDirectives(app);
 
   setupStore(app);
   app.use(router);

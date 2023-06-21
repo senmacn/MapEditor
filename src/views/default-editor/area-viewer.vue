@@ -48,7 +48,10 @@
       target.render(areaViewer.value);
       target.drawAreaComplete();
     } else {
-      setTimeout(() => render(target), 50);
+      setTimeout(() => {
+        render(target);
+        target.drawAreaComplete();
+      }, 50);
     }
   }
   watch(
