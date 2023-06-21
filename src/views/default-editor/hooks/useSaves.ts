@@ -48,9 +48,11 @@ export default function useSaves() {
 
   function handleExportSaves(expLayer) {
     Modal.confirm({
-      title: '确认',
+      title: '提醒',
       type: 'confirm',
       content: '导出当前编辑的数据存档？',
+      okText: '确定',
+      cancelText: '取消',
       onOk: () => {
         const fileName = `map_data_${configRef.getSize.x}x${configRef.getSize.y}.${getFormatDate(
           new Date(),

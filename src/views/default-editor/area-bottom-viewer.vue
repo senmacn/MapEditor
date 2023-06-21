@@ -84,6 +84,7 @@
                   copyImageData(area.getData()),
                   newBoundRect,
                 );
+                newArea.layer = layer;
                 layer.areas.splice(Number(index) + 1, 0, newArea);
                 state.getAreaMap.set(newArea.getUuid(), newArea);
               }

@@ -135,8 +135,8 @@
         x: clickPositionRef.offsetX - size / 2,
         y: clickPositionRef.offsetY - size / 2,
       };
-      for (let index = canvasState.layers.length - 1; index >= 0; index--) {
-        const element = canvasState.layers[index];
+      for (let index = canvasState.getLayers.length - 1; index >= 0; index--) {
+        const element = canvasState.getLayers[index];
         if (element.hot) {
           if (isCreate) {
             const pin = new Pin(
@@ -150,6 +150,7 @@
               size,
               formModel.icon,
             );
+            pin.layer = element;
             // @ts-ignore
             element.pins.push(pin);
           } else {

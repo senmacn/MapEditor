@@ -75,6 +75,7 @@ export function loadSaves(str: string, useConfig: boolean, curSize: [number, num
                 area['boundRect'][3],
               );
               const newArea = new Area(area['name'], newData, area['boundRect']);
+              newArea.layer = newLayer;
               newLayer[key].push(newArea);
             }
           }
