@@ -21,8 +21,10 @@
     if (e.key === 'F5') {
       e.preventDefault();
       modal.confirm({
-        title: '确认',
+        title: '提醒',
         content: '刷新页面可能会导致数据丢失，请确认您已保存数据！',
+        okText: '确定',
+        cancelText: '取消',
         onOk: () => {
           location.reload();
         },

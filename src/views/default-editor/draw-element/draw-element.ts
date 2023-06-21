@@ -1,5 +1,6 @@
 import Moveable from 'moveable';
 import controller, { AreaActionType } from '../common/canvas-state-controller';
+import { Layer } from '../common/types';
 
 export interface DrawElementInterface {
   select(...args: any): void;
@@ -15,6 +16,7 @@ export default class DrawElement implements DrawElementInterface {
   protected uuid;
   protected name;
   protected description;
+  public layer: Layer | undefined;
   protected boundRect: Box = [0, 0, 0, 0];
   // 渲染的图片
   protected img;
@@ -138,7 +140,7 @@ export default class DrawElement implements DrawElementInterface {
     }, 5);
   }
   destroy() {
-    this.moveable?.destroy();
     this.instance && this.target?.removeChild(this.instance);
+    this.moveable?.destroy();
   }
 }

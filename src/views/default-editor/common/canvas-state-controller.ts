@@ -1,5 +1,5 @@
 import { Ref, ref } from 'vue';
-import { Area } from '../draw-element';
+import { Area, Pin } from '../draw-element';
 import { message } from 'ant-design-vue';
 import { isArray } from '@/utils/is';
 import PencilSvg from '@/assets/cursor/pencil.svg';
@@ -44,7 +44,7 @@ class CanvasStateController {
   private areaState = ref(CanvasAreaOption.AreaCheck);
   private state = ref(CanvasOption.None);
   private currentAreas: Ref<Area[]> = ref([]);
-  private currentPin = ref<Recordable | null>(null);
+  private currentPin: Ref<Pin | null> = ref(null);
   private actions: AreaAction[] = [];
   constructor() {}
   getState() {
@@ -109,7 +109,7 @@ class CanvasStateController {
   getCurrentPin() {
     return this.currentPin.value;
   }
-  setCurrentPin(pin: Recordable | null) {
+  setCurrentPin(pin: Pin | null) {
     this.currentPin.value = pin;
   }
   pushAction(action: AreaAction) {

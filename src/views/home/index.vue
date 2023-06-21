@@ -179,8 +179,10 @@
   }
   function handleDownloadProject(filename: string) {
     modal.confirm({
-      title: '确认',
+      title: '提醒',
       content: `下载${filename}?`,
+      okText: '确定',
+      cancelText: '取消',
       onOk: () => {
         localApi &&
           localApi.getLocalFileContent(filename as string).then((data) => {
@@ -191,8 +193,10 @@
   }
   function handleDeleteProject(filename: string) {
     modal.confirm({
-      title: '确认',
+      title: '提醒',
       content: `删除数据存档${filename}?`,
+      okText: '确定',
+      cancelText: '取消',
       onOk: () => {
         localApi && localApi.deleteLocalFile(filename);
         refreshHistory();

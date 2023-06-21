@@ -159,7 +159,7 @@
   function handleStartEditArea() {
     const area = controller.getCurrentAreas()[0];
     [areaNameRef.value, areaIDRef.value] = area?.getName().split('-') || '';
-    areaTypeRef.value = area.type;
+    areaTypeRef.value = [area.type];
     controller.startDrawingArea(false);
     setTimeout(() => {
       emitEditAreaEvent();
@@ -168,8 +168,10 @@
 
   function handleDeleteArea() {
     modal.confirm({
-      title: '确认',
+      title: '提醒',
       content: '删除当前选中的区域？',
+      okText: '确定',
+      cancelText: '取消',
       onOk: () => {
         emitDeleteAreaEvent();
       },

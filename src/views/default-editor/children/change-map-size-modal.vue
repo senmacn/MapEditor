@@ -209,8 +209,10 @@
       }
     }
     modal.confirm({
-      title: '确认',
+      title: '提醒',
       content: '修改地图尺寸将刷新页面！数据将被自动保存！',
+      okText: '确定',
+      cancelText: '取消',
       onOk: () => {
         configRef.setSize(sizeObj);
 

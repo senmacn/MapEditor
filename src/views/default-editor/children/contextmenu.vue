@@ -31,6 +31,7 @@
 
   const emit = defineEmits<{
     (e: 'show-pin-modal', create: boolean): void;
+    (e: 'delete-pin'): void;
   }>();
 
   const clickPositionRef = inject<PointA>('clickPositionRef');
@@ -52,7 +53,9 @@
     contextmenu.value.hide();
   }
 
-  function handleDeletePin() {}
+  function handleDeletePin() {
+    emit('delete-pin');
+  }
 
   defineExpose({
     show: handleShowContextMenu,
