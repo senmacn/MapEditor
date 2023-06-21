@@ -140,6 +140,7 @@ export default function setupEvent(mainWindow: BrowserWindow) {
       });
       attachTitlebarToWindow(win);
       win.on('ready-to-show', () => {
+        win.maximize();
         win?.show();
         if (import.meta.env.DEV) {
           win?.webContents.openDevTools();

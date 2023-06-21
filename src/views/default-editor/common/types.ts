@@ -24,6 +24,7 @@ export interface CanvasExtendImp {
 export interface Layer {
   uuid: string;
   name: string;
+  lock: boolean;
   visible: boolean;
   map: string | ArrayBuffer | null;
   hot: boolean;

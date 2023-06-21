@@ -133,10 +133,16 @@
     .moveable {
       position: absolute;
       font-size: 18px;
-      color: red;
       text-align: center;
       user-select: none;
       pointer-events: auto;
+    }
+    .lock-moveable {
+      position: absolute;
+      font-size: 18px;
+      text-align: center;
+      user-select: none;
+      pointer-events: none;
     }
     .selecto-selection {
       pointer-events: auto;
