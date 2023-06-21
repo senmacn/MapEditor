@@ -1,7 +1,7 @@
 import Moveable from 'moveable';
 import controller, { AreaActionType } from '../common/canvas-state-controller';
 
-interface DrawElementInterface {
+export interface DrawElementInterface {
   select(...args: any): void;
   cancelSelect(...args: any): void;
   render(...args: any): void;
@@ -25,7 +25,7 @@ export default class DrawElement implements DrawElementInterface {
   public target: HTMLElement | undefined;
   protected draw = false;
   public scale = 1;
-  public type: string[] = [''];
+  public type: string = '';
   public visible = true;
 
   getUuid() {
@@ -55,12 +55,14 @@ export default class DrawElement implements DrawElementInterface {
   getImage() {}
   select() {}
   cancelSelect() {
-    this.moveable?.setState({ draggable: false, resizable: false });
-    // 插件修改draggable的时候会显示外框，造成被选中的效果，需要移除
-    setTimeout(() => {
-      // @ts-ignore
-      document.getElementsByClassName(this.uuid).item(0).style.visibility = 'hidden';
-    }, 5);
+    if (this.moveable?.draggable) {
+      this.moveable?.setState({ draggable: false, resizable: false });
+      // 插件修改draggable的时候会显示外框，造成被选中的效果，需要移除
+      setTimeout(() => {
+        // @ts-ignore
+        document.getElementsByClassName(this.uuid).item(0).style.visibility = 'hidden';
+      }, 5);
+    }
   }
   render(target: HTMLElement) {}
   show() {

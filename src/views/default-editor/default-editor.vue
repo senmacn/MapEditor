@@ -88,7 +88,7 @@
 
   // 区域编辑
   const areaCanvasRef = ref<Recordable>();
-  async function handleEndEditArea(name: string, type: string[], complete: boolean) {
+  async function handleEndEditArea(name: string, type: string, complete: boolean) {
     if (complete && areaCanvasRef.value) {
       const area: Area = areaCanvasRef.value.getCreatedArea();
       if (!area) return;

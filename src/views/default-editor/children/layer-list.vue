@@ -138,6 +138,7 @@
       layer.areas.forEach((area) => {
         if (area.instance) {
           area.instance.className = 'lock-moveable';
+          area.cancelSelect();
         }
       });
     } else {

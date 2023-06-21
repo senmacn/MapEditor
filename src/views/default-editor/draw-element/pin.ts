@@ -16,17 +16,21 @@ export enum PinIcon {
 }
 
 export default class Pin extends DrawElement {
-  private level: number;
+  private author: string;
 
-  private color: string;
+  private state: string;
+
+  private jira: string;
 
   private icon: PinIcon;
 
   constructor(
     name: string,
+    author: string,
     description: string,
-    level: number,
-    color: string,
+    type: string,
+    state: string,
+    jira: string,
     position: PointA,
     size: number,
     icon: PinIcon,
@@ -34,32 +38,39 @@ export default class Pin extends DrawElement {
     super();
     this.uuid = getShortUuid();
     this.name = name;
+    this.author = author;
     this.description = description;
-    this.level = level;
+    this.type = type;
+    this.state = state;
     this.icon = icon;
-    this.color = color;
+    this.jira = jira;
     this.boundRect = [position.x, position.y, size, size];
   }
 
   setName(name): void {
     this.name = name;
   }
+  setAuthor(author: string): void {
+    this.author = author;
+  }
   setDescription(description: string): void {
     this.description = description;
   }
-  setLevel(level: number): void {
-    this.level = level;
+  setType(type: string): void {
+    this.type = type;
+  }
+  setState(state: string): void {
+    this.state = state;
   }
   setIcon(icon: PinIcon): void {
     this.icon = icon;
   }
-  setColor(color: string): void {
-    this.color = color;
+  setJira(jira: string): void {
+    this.jira = jira;
   }
   render(target: HTMLElement) {
     // 重新
     if (this.draw) {
-
     }
     this.target = target;
     // 创建挂载的dom元素
@@ -68,9 +79,7 @@ export default class Pin extends DrawElement {
     instance.setAttribute('class', 'moveable');
     const left = 'left: ' + this.boundRect[0] + 'px;';
     const top = 'top: ' + this.boundRect[1] + 'px;';
-    const width = 'width: ' + this.boundRect[2] + 'px;';
-    const height = 'height: ' + this.boundRect[3] + 'px;';
-    instance.setAttribute('style', top + left + height + width);
+    instance.setAttribute('style', top + left);
     const imgElement = document.createElement('img');
     imgElement.setAttribute('src', 'src/assets/images/' + this.icon + '.png');
     imgElement.setAttribute('width', this.boundRect[2] + 'px');
@@ -92,6 +101,7 @@ export default class Pin extends DrawElement {
   }
   select() {
     if (controller.getCurrentPin() === this) return;
+    this.moveable?.updateRect();
     nextTick(() => {
       controller.setCurrentPin(this as unknown as Pin);
       this.moveable?.setState({ draggable: true });
