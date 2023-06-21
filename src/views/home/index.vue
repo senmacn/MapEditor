@@ -127,6 +127,7 @@
     // 刷新加载存档
     setTimeout(() => {
       location.reload();
+      localApi && localApi.maximizeWindow();
     });
   }
 

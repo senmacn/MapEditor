@@ -93,5 +93,5 @@ export default function useSaves() {
     endAutoSave && clearTimeout(endAutoSave);
   });
 
-  return [handleConfirmCreateSaves, handleCreateSaves, handleExportSaves];
+  return { handleConfirmCreateSaves, handleCreateSaves, handleExportSaves };
 }

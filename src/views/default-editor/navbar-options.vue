@@ -93,9 +93,9 @@
   }
 
   // 保存文件
-  const [handleConfirmCreateSaves, handleCreateSaves, handleExportSaves] = useSaves();
+  const { handleConfirmCreateSaves, handleCreateSaves, handleExportSaves } = useSaves();
   function handleOpenCreateModal() {
-    handleConfirmCreateSaves({});
+    handleConfirmCreateSaves();
   }
 
   // 导出文件
