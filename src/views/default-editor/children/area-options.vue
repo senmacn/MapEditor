@@ -79,7 +79,7 @@
   import controller, { CanvasOption } from '../common/canvas-state-controller';
   import { emitEditAreaEvent, emitDeleteAreaEvent } from '../common/event';
   import { checkFileName } from '@/utils/file';
-  import modal from 'ant-design-vue/lib/modal';
+  import Modal from 'ant-design-vue/lib/modal';
   import {
     PlusOutlined,
     EditOutlined,
@@ -167,7 +167,7 @@
   }
 
   function handleDeleteArea() {
-    modal.confirm({
+    Modal.confirm({
       title: '提醒',
       content: '删除当前选中的区域？',
       okText: '确定',

@@ -23,7 +23,7 @@
       </div>
       <div class="area-option">
         <a-tooltip title="快速定位">
-          <a-button type="text" @click="handleGotoArea(area)">
+          <a-button type="text" @click="handleGotoArea(area)" :disabled="lock">
             <template #icon>
               <aim-outlined />
             </template>
@@ -55,6 +55,10 @@
       type: Array as PropType<Pin[]>,
       default: () => [],
     },
+    lock: {
+      type: Boolean,
+      default: false,
+    }
   });
 
   const visibleList = computed(() => {

@@ -9,7 +9,7 @@
     :footer="null"
   >
     <div class="pin-wrapper">
-      <div class="title">配置</div>
+      <div class="title">地图钉配置</div>
       <a-form
         ref="pinFormRef"
         :model="formModel"
@@ -97,7 +97,8 @@
     </div>
     <div class="button-group">
       <a-button type="primary" @click="handleOk">确定</a-button>
-      <a-button @click="handleCancel">取消</a-button>
+      <a-button type="primary" @click="" disabled>分享</a-button>
+      <a-button @click="handleCancel">关闭</a-button>
     </div>
   </a-modal>
 </template>

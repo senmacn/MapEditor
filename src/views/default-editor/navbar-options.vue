@@ -30,6 +30,10 @@
           <a-menu-item key="5">
             <div class="inner-content" @click="colorImageVisibleRef = true">色值图下载</div>
           </a-menu-item>
+          <a-divider></a-divider>
+          <a-menu-item key="6">
+            <div class="inner-content" @click="handleCloseProject">关闭项目</div>
+          </a-menu-item>
         </a-menu>
       </template>
     </a-dropdown>
@@ -72,7 +76,7 @@
   import { useEditorConfig } from '@/store/modules/editor-config';
   import { getLocalApi, isLocal } from '@/utils/env';
   import { loadSaves } from '@/utils/persist';
-  import { message } from 'ant-design-vue';
+  import { Modal, message } from 'ant-design-vue';
   import useSaves from './hooks/useSaves';
   import ChangeMapSizeModal from './children/change-map-size-modal.vue';
   import DisplayOutputModal from './children/display-output-modal.vue';
@@ -191,6 +195,18 @@
   const colorImageVisibleRef = ref(false);
   function handleColorImageExport() {
     colorImageVisibleRef.value = false;
+  }
+
+  function handleCloseProject() {
+    Modal.confirm({
+      title: '提醒',
+      content: '即将关闭项目并返回首页，请确认数据已保存！',
+      okText: '确定',
+      cancelText: '取消',
+      onOk: () => {
+        location.replace(location.href.slice().replace(/\#\/.+/, '#/'));
+      },
+    });
   }
 
   // 尺寸设置

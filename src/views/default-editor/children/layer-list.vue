@@ -35,7 +35,7 @@
             </a-tooltip>
           </div>
           <div class="layer-name">
-            <a-input type="text" v-model:value="layer.name" />
+            <a-input type="text" v-model:value="layer.name" :disabled="layer.lock" />
           </div>
           <div class="layer-option">
             <a-space>
@@ -69,7 +69,12 @@
                   </template>
                 </a-button>
               </a-tooltip>
-              <a-button :disabled="layer.lock" type="text" @click="() => handleLayerDelete(index)">
+              <a-button
+                :disabled="layer.lock"
+                class="warning-color"
+                type="text"
+                @click="() => handleLayerDelete(index)"
+              >
                 <template #icon>
                   <delete-outlined />
                 </template>
@@ -77,7 +82,7 @@
             </a-space>
           </div>
         </div>
-        <area-list :areas="layer.areas" :pins="layer.pins" />
+        <area-list :areas="layer.areas" :pins="layer.pins" :lock="layer.lock" />
       </li>
     </transition-group>
     <a-tooltip title="添加图层">

@@ -1,8 +1,17 @@
 <template>
   <v-contextmenu ref="contextmenu">
-    <v-contextmenu-item>
+    <!-- <v-contextmenu-item>
       <link-outlined />
       跳转到[UE]
+    </v-contextmenu-item> -->
+    <!-- <v-contextmenu-divider /> -->
+    <v-contextmenu-item @click="handleEditArea">
+      <edit-outlined />
+      修改区域
+    </v-contextmenu-item>
+    <v-contextmenu-item @click="handleDeleteArea">
+      <delete-outlined />
+      删除区域
     </v-contextmenu-item>
     <v-contextmenu-divider />
     <v-contextmenu-item @click="handleInsertPin">
@@ -28,14 +37,27 @@
     EditOutlined,
     DeleteOutlined,
   } from '@ant-design/icons-vue';
+  import { emitDeleteAreaEvent } from '../common/event';
+  import { Modal } from 'ant-design-vue';
 
   const emit = defineEmits<{
     (e: 'show-pin-modal', create: boolean): void;
     (e: 'delete-pin'): void;
   }>();
 
-  const clickPositionRef = inject<PointA>('clickPositionRef');
+  function handleDeleteArea() {
+    Modal.confirm({
+      title: '提醒',
+      content: '删除当前选中的区域？',
+      okText: '确定',
+      cancelText: '取消',
+      onOk: () => {
+        emitDeleteAreaEvent();
+      },
+    });
+  }
 
+  const clickPositionRef = inject<PointA>('clickPositionRef');
   function handleInsertPin() {
     emit('show-pin-modal', true);
   }
