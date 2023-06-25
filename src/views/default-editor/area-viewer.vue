@@ -60,8 +60,8 @@
       if (props.layer && props.layer.areas && props.layer.areas.length > 0) {
         for (let index = 0; index < props.layer.areas.length; index++) {
           const area = props.layer.areas[index];
-          // 绘制
-          if (!area.getDrawAreaComplete()) {
+          // 绘制更新
+          if (!area.getDrawAreaComplete() || area.getDrawAreaUpdate()) {
             render(area);
           }
         }
@@ -75,7 +75,7 @@
       if (props.layer && props.layer.pins && props.layer.pins.length > 0) {
         for (let index = 0; index < props.layer.pins.length; index++) {
           const pin = props.layer.pins[index];
-          // 绘制
+          // 绘制更新
           if (!pin.getDrawAreaComplete() || pin.getDrawAreaUpdate()) {
             render(pin);
           }

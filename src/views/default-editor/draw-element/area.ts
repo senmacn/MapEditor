@@ -83,7 +83,6 @@ export default class Area extends DrawElement {
     );
   }
   render(target: HTMLElement) {
-    this.target = target;
     // 创建挂载的dom元素
     const instance = document.createElement('div');
     instance.setAttribute('id', this.uuid);
@@ -107,18 +106,21 @@ export default class Area extends DrawElement {
     instance.ondblclick = this.select.bind(this);
     instance.oncontextmenu = this.select.bind(this);
     if (this.draw === 'update') {
-      target.removeChild(this.instance as HTMLElement);
+      // 防止切换时target变了
+      this.target?.removeChild(this.instance as HTMLElement);
+      this.target = target;
       target.appendChild(instance);
       this.instance = instance;
       // @ts-ignore
       this.moveable.target = this.instance;
     } else if (this.draw === 'none') {
+      this.target = target;
       target.appendChild(instance);
       this.instance = instance;
       this.wrapperMoveable();
     }
 
-    useTooltip({ target: instance, props: { title: this.name } });
+    // useTooltip({ target: instance, props: { title: this.name } });
   }
   select() {
     this.moveable?.updateRect();

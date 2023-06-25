@@ -82,7 +82,12 @@
             </a-space>
           </div>
         </div>
-        <area-list :areas="layer.areas" :pins="layer.pins" :lock="layer.lock" />
+        <area-list
+          v-if="layer.visible"
+          :areas="layer.areas"
+          :pins="layer.pins"
+          :lock="layer.lock"
+        />
       </li>
     </transition-group>
     <a-tooltip title="添加图层">

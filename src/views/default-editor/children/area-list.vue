@@ -17,11 +17,17 @@
         <a-tooltip :title="'类型-' + area.type">
           <gateway-outlined v-if="area instanceof Area" />
           <pushpin-outlined v-else></pushpin-outlined>
-
           {{ area.getName() }}
         </a-tooltip>
       </div>
       <div class="area-option">
+        <a-tooltip title="切换图层">
+          <a-button type="text" @click="handleChangeLayer(area)" :disabled="lock">
+            <template #icon>
+              <swap-outlined />
+            </template>
+          </a-button>
+        </a-tooltip>
         <a-tooltip title="快速定位">
           <a-button type="text" @click="handleGotoArea(area)" :disabled="lock">
             <template #icon>
@@ -32,19 +38,26 @@
       </div>
     </li>
   </ul>
+  <change-layer-modal
+    :visible="changeLayerVisibleRef"
+    :element="changeLayerElementRef"
+    @close="changeLayerVisibleRef = false"
+  ></change-layer-modal>
 </template>
 
 <script setup lang="ts">
-  import { computed, reactive } from 'vue';
+  import { Ref, computed, reactive, ref } from 'vue';
   import DrawElement, { Area, Pin } from '../draw-element';
   import { emitFocusAreaEvent } from '../common/event';
   import {
     PushpinOutlined,
     GatewayOutlined,
+    SwapOutlined,
     AimOutlined,
     EyeOutlined,
     EyeInvisibleOutlined,
   } from '@ant-design/icons-vue';
+  import ChangeLayerModal from './change-layer-modal.vue';
 
   const props = defineProps({
     areas: {
@@ -58,7 +71,7 @@
     lock: {
       type: Boolean,
       default: false,
-    }
+    },
   });
 
   const visibleList = computed(() => {
@@ -77,6 +90,13 @@
   function hideElement(ele: DrawElement) {
     ele.hide();
     hideStatesRef[ele.getUuid()] = true;
+  }
+
+  const changeLayerVisibleRef = ref(false);
+  const changeLayerElementRef: Ref<DrawElement | undefined> = ref();
+  function handleChangeLayer(area: DrawElement) {
+    changeLayerVisibleRef.value = true;
+    changeLayerElementRef.value = area;
   }
 
   function handleGotoArea(area: DrawElement) {
@@ -106,7 +126,7 @@
     .area-option {
       width: 140px;
       display: flex;
-      justify-content: space-around;
+      justify-content: center;
     }
     .ant-btn {
       display: inline-block;

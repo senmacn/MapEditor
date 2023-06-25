@@ -283,13 +283,5 @@
     .tip {
       text-align: center;
     }
-    .confirm-button-group {
-      display: flex;
-      justify-content: space-around;
-      align-items: center;
-      width: 50%;
-      height: 80px;
-      margin: 0 auto;
-    }
   }
 </style>
