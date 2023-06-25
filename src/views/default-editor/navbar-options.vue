@@ -60,7 +60,7 @@
   <color-image-modal :visible="colorImageVisibleRef" @cancel="handleColorImageExport" />
   <export-modal
     :visible="exportModalRef"
-    :layers="canvasState.layers"
+    :layers="canvasState.getLayers"
     @emit-close-export="handleCloseExport"
     @emit-format-exp-data="handleFormatExpData"
   />
@@ -115,12 +115,13 @@
     exportModalRef.value = false;
   }
   function handleFormatExpData(data: any) {
-    const { layers, areas } = data;
+    const { layers, areas, pins } = data;
     const expLayerAreaData: any = [];
     for (let i = 0; i < layers.length; i += 1) {
       expLayerAreaData.push({
         ...canvasState.layers.slice(layers[i], layers[i] + 1)[0],
         areas: [],
+        pins: [],
       });
     }
     for (let i = 0; i < areas.length; i += 1) {
@@ -131,6 +132,16 @@
         expLayerAreaData[i]
           ? expLayerAreaData[i].areas.push(canvasState.layers[i].areas[areas[i][j]])
           : expLayerAreaData[i - 1].areas.push(canvasState.layers[i].areas[areas[i][j]]);
+      }
+    }
+    for (let i = 0; i < areas.length; i += 1) {
+      if (!areas[i].length) {
+        continue;
+      }
+      for (let j = 0; j < pins[i].length; j += 1) {
+        expLayerAreaData[i]
+          ? expLayerAreaData[i].pins.push(canvasState.layers[i].pins[pins[i][j]])
+          : expLayerAreaData[i - 1].pins.push(canvasState.layers[i].pins[pins[i][j]]);
       }
     }
     handleExportSaves(expLayerAreaData);
@@ -155,6 +166,7 @@
           initLayers.forEach((initLayer) => {
             if (initLayer.name === layer.name) {
               initLayer.areas = initLayer.areas.concat(layer.areas);
+              initLayer.pins = initLayer.pins.concat(layer.pins);
               initLayer.hot = layer.hot;
               initLayer.visible = layer.visible;
               if (layer.map) {

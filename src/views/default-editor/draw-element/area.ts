@@ -3,6 +3,7 @@ import controller from '../common/canvas-state-controller';
 import { getPosition, scaleImageData } from '../utils/image-data-util';
 import DrawElement from './draw-element';
 import { useEditorConfig } from '@/store/modules/editor-config';
+import { useTooltip } from '@/components/Tooltip/useTooltip';
 
 export default class Area extends DrawElement {
   private boundRectPoints: Point[] | undefined;
@@ -105,17 +106,19 @@ export default class Area extends DrawElement {
 
     instance.ondblclick = this.select.bind(this);
     instance.oncontextmenu = this.select.bind(this);
-    if (this.draw) {
+    if (this.draw === 'update') {
       target.removeChild(this.instance as HTMLElement);
       target.appendChild(instance);
       this.instance = instance;
       // @ts-ignore
       this.moveable.target = this.instance;
-    } else {
+    } else if (this.draw === 'none') {
       target.appendChild(instance);
       this.instance = instance;
       this.wrapperMoveable();
     }
+
+    useTooltip({ target: instance, props: { title: this.name } });
   }
   select() {
     this.moveable?.updateRect();

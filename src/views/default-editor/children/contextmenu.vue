@@ -5,10 +5,10 @@
       跳转到[UE]
     </v-contextmenu-item> -->
     <!-- <v-contextmenu-divider /> -->
-    <v-contextmenu-item @click="handleEditArea">
+    <!-- <v-contextmenu-item @click="handleEditArea">
       <edit-outlined />
       修改区域
-    </v-contextmenu-item>
+    </v-contextmenu-item> -->
     <v-contextmenu-item @click="handleDeleteArea">
       <delete-outlined />
       删除区域

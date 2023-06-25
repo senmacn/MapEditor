@@ -2,6 +2,7 @@ import { getShortUuid } from '@/utils/uuid';
 import controller from '../common/canvas-state-controller';
 import { nextTick } from 'vue';
 import DrawElement from './draw-element';
+import { useTooltip } from '@/components/Tooltip/useTooltip';
 
 export enum PinIcon {
   star = 'star',
@@ -69,9 +70,6 @@ export default class Pin extends DrawElement {
     this.jira = jira;
   }
   render(target: HTMLElement) {
-    // 重新
-    if (this.draw) {
-    }
     this.target = target;
     // 创建挂载的dom元素
     const instance = document.createElement('div');
@@ -94,10 +92,20 @@ export default class Pin extends DrawElement {
 
     instance.ondblclick = this.select.bind(this);
     instance.oncontextmenu = this.select.bind(this);
-    target.appendChild(instance);
-    this.instance = instance;
 
-    this.wrapperMoveable();
+    if (this.draw === 'update') {
+      target.removeChild(this.instance as HTMLElement);
+      target.appendChild(instance);
+      this.instance = instance;
+      // @ts-ignore
+      this.moveable.target = this.instance;
+    } else if (this.draw === 'none') {
+      target.appendChild(instance);
+      this.instance = instance;
+      this.wrapperMoveable();
+    }
+
+    useTooltip({ target: instance, props: { title: this.name } });
   }
   select() {
     if (controller.getCurrentPin() === this) return;

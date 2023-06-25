@@ -1,215 +1,281 @@
 <template>
-    <a-modal class="export-modal" :width="600" :visible="visibleRef" :closable="false" :onCancel="handleCancel"
-        title="请选择导出图层" :footer="null">
-        <div class="layer-group">
-            <a-checkbox v-model:checked="state.checkAll" :indeterminate="state.indeterminate" @change="onCheckAllChange">
-                全部
+  <a-modal
+    class="export-modal"
+    :width="600"
+    :visible="visibleRef"
+    :closable="false"
+    :onCancel="handleCancel"
+    title="请选择导出图层"
+    :footer="null"
+  >
+    <div class="layer-group">
+      <a-checkbox
+        v-model:checked="state.checkAll"
+        :indeterminate="state.indeterminate"
+        @change="onCheckAllChange"
+      >
+        全部
+      </a-checkbox>
+      <a-checkbox-group v-model:value="state.checkedLayerList" class="layer-opts">
+        <a-row>
+          <a-col :span="24" v-for="(item, idx) in state.plainOptions" :key="idx">
+            <a-checkbox :value="item.value" @change="handleChangeLayer(idx, item.value)">
+              {{ item.label }}
             </a-checkbox>
-            <a-checkbox-group v-model:value="state.checkedLayerList" class="layer-opts">
-                <a-row>
-                    <a-col :span="24" v-for="(item, idx) in state.plainOptions" :key="idx">
-                        <a-checkbox :value="item.value" @change="handleChangeLayer(idx, item.value)">{{ item.label
-                        }}</a-checkbox>
-                        <a-checkbox-group v-model:value="state.checkedAreaList[idx]" class="layer-area-opts">
-                            <a-row>
-                                <a-col :span="4" v-for="(area, adx) in item.areas" :key="adx">
-                                    <a-checkbox :value="area.value" @change="handleChangeArea(idx)">
-                                        <span class="area-opt-label">{{ area.label }}</span>
-                                    </a-checkbox>
-                                </a-col>
-                            </a-row>
-                        </a-checkbox-group>
-                    </a-col>
-                </a-row>
+            <a-checkbox-group v-model:value="state.checkedAreaList[idx]" class="layer-area-opts">
+              <a-row>
+                <a-col :span="6" v-for="(area, adx) in item.areas" :key="adx">
+                  <a-checkbox :value="area.value" @change="handleChangeArea(idx)">
+                    <gateway-outlined />
+                    <span class="area-opt-label">{{ area.label }}</span>
+                  </a-checkbox>
+                </a-col>
+              </a-row>
             </a-checkbox-group>
-        </div>
-        <div class="button-group">
-            <a-space>
-                <a-button size="small" @click="handleCancel">取消</a-button>
-                <a-button type="primary" @click="handleOk">确定</a-button>
-            </a-space>
-        </div>
-    </a-modal>
+            <a-checkbox-group v-model:value="state.checkedPinList[idx]" class="layer-area-opts">
+              <a-row>
+                <a-col :span="6" v-for="(pin, adx) in item.pins" :key="adx">
+                  <a-checkbox :value="pin.value" @change="handleChangeArea(idx)">
+                    <pushpin-outlined />
+                    <span class="area-opt-label">{{ pin.label }}</span>
+                  </a-checkbox>
+                </a-col>
+              </a-row>
+            </a-checkbox-group>
+          </a-col>
+        </a-row>
+      </a-checkbox-group>
+    </div>
+    <div class="button-group">
+      <a-space>
+        <a-button size="small" @click="handleCancel">取消</a-button>
+        <a-button type="primary" @click="handleOk">确定</a-button>
+      </a-space>
+    </div>
+  </a-modal>
 </template>
-  
+
 <script setup lang="ts">
-import { ref, reactive, watch, nextTick } from 'vue';
-const props = defineProps({
+  import { ref, reactive, watch, nextTick } from 'vue';
+  import { PushpinOutlined, GatewayOutlined } from '@ant-design/icons-vue';
+  import { Layer } from '../common/types';
+  import { Area, Pin } from '../draw-element';
+
+  const props = defineProps({
     visible: {
-        type: Boolean,
-        default: false,
+      type: Boolean,
+      default: false,
     },
     layers: {
-        type: Array,
-        default: []
-    }
-})
-const emits = defineEmits(['emitCloseExport', 'emitFormatExpData'])
+      type: Array as PropType<Layer[]>,
+      default: [],
+    },
+  });
+  const emits = defineEmits(['emitCloseExport', 'emitFormatExpData']);
 
-const visibleRef = ref(false);
-const state: any = reactive({
+  const visibleRef = ref(false);
+  const state: any = reactive({
     indeterminate: false,
     checkAll: true,
     checkedLayerList: [],
     checkedAreaList: [],
-    plainOptions: []
-});
+    checkedPinList: [],
+    plainOptions: [],
+  });
 
-const onCheckAllChange = (e: any) => {
+  const onCheckAllChange = (e) => {
     Object.assign(state, {
-        checkedLayerList: e.target.checked ? state.plainOptions.map((item: any) => {
-            return item.value
-        }) : [],
-        checkedAreaList: e.target.checked ? state.plainOptions.map((item: any) => {
-            return item.areas.map((area: any) => {
-                return area.value
-            })
-        }): [],
-        indeterminate: false,
+      checkedLayerList: e.target.checked
+        ? state.plainOptions.map((item) => {
+            return item.value;
+          })
+        : [],
+      checkedAreaList: e.target.checked
+        ? state.plainOptions.map((item) => {
+            return item.areas.map((area) => {
+              return area.value;
+            });
+          })
+        : [],
+      checkedPinList: e.target.checked
+        ? state.plainOptions.map((item) => {
+            return item.pins.map((pin) => {
+              return pin.value;
+            });
+          })
+        : [],
+      indeterminate: false,
     });
-};
-function handleCancel() {
+  };
+  function handleCancel() {
     visibleRef.value = false;
     state.checkAll = true;
     emits('emitCloseExport');
-}
-function handleOk() {
+  }
+  function handleOk() {
     const layerOrders = state.plainOptions.map((item: any) => {
-        return item.value
-    })
+      return item.value;
+    });
     const areaOrders = state.plainOptions.map((item: any) => {
-        return item.areas.map((area: any) => {
-            return area.value
-        })
-    })
+      return item.areas.map((area: any) => {
+        return area.value;
+      });
+    });
+    const pinOrders = state.plainOptions.map((item: any) => {
+      return item.pins.map((pin: any) => {
+        return pin.value;
+      });
+    });
     const resultLayersIdx: Array<number> = [];
     for (let i = 0; i < layerOrders.length; i++) {
-        const index = state.checkedLayerList.indexOf(layerOrders[i])
-        if (index > -1) {
-            resultLayersIdx.push(i)
-        }
+      const index = state.checkedLayerList.indexOf(layerOrders[i]);
+      if (index > -1) {
+        resultLayersIdx.push(i);
+      }
     }
-    const resultAreasIdx: any = [];
+    const resultAreasIdx: number[][] = [];
     for (let i = 0; i < areaOrders.length; i++) {
-        resultAreasIdx.push([])
-        for (let j = 0; j < areaOrders[i].length; j++) {
-            const index = state.checkedAreaList[i].indexOf(areaOrders[i][j])
-            if (index > -1) {
-                resultAreasIdx[i].push(j)
-            }
+      resultAreasIdx.push([]);
+      for (let j = 0; j < areaOrders[i].length; j++) {
+        const index = state.checkedAreaList[i].indexOf(areaOrders[i][j]);
+        if (index > -1) {
+          resultAreasIdx[i].push(j);
         }
+      }
+    }
+    const resultPinsIdx: number[][] = [];
+    for (let i = 0; i < pinOrders.length; i++) {
+      resultPinsIdx.push([]);
+      for (let j = 0; j < pinOrders[i].length; j++) {
+        const index = state.checkedPinList[i].indexOf(pinOrders[i][j]);
+        if (index > -1) {
+          resultPinsIdx[i].push(j);
+        }
+      }
     }
     emits('emitFormatExpData', {
-        layers: resultLayersIdx,
-        areas: resultAreasIdx
-    })
-    handleCancel()
-}
+      layers: resultLayersIdx,
+      areas: resultAreasIdx,
+      pins: resultPinsIdx,
+    });
+    handleCancel();
+  }
 
-function handleChangeArea(idx: number) {
+  function handleChangeArea(idx: number) {
     nextTick(() => {
-        const length = state.checkedAreaList[idx].length
-        const layerValue = state.plainOptions[idx].value
-        if (length && state.checkedLayerList.indexOf(layerValue) < 0) {
-            state.checkedLayerList = [...state.checkedLayerList, layerValue]
-        }
-    })
-}
-function handleChangeLayer(idx: number, value: string) {
+      const length = state.checkedAreaList[idx].length;
+      const layerValue = state.plainOptions[idx].value;
+      if (length && state.checkedLayerList.indexOf(layerValue) < 0) {
+        state.checkedLayerList = [...state.checkedLayerList, layerValue];
+      }
+    });
+  }
+  function handleChangeLayer(idx: number, value: string) {
     nextTick(() => {
-        const index = state.checkedLayerList.indexOf(value);
-        if (index < 0) {
-            state.checkedAreaList[idx] = []
-        } else {
-            state.checkedAreaList[idx] = state.plainOptions[idx].areas.map((area: any) => {
-                return area.value
-            })
-        }
-    })
-
-}
-watch(
+      const index = state.checkedLayerList.indexOf(value);
+      if (index < 0) {
+        state.checkedAreaList[idx] = [];
+        state.checkedPinList[idx] = [];
+      } else {
+        state.checkedAreaList[idx] = state.plainOptions[idx].areas.map((area) => {
+          return area.value;
+        });
+        state.checkedPinList[idx] = state.plainOptions[idx].pins.map((pin) => {
+          return pin.value;
+        });
+      }
+    });
+  }
+  watch(
     () => state.checkedLayerList,
-    val => {
-        state.indeterminate = !!val.length && val.length < state.plainOptions.length;
-        state.checkAll = val.length === state.plainOptions.length;
+    (val) => {
+      state.indeterminate = !!val.length && val.length < state.plainOptions.length;
+      state.checkAll = val.length === state.plainOptions.length;
     },
-);
-watch(
+  );
+  watch(
     () => props.visible,
     (newVal) => {
-        visibleRef.value = newVal;
-        state.plainOptions = props.layers.map((item: any) => {
+      visibleRef.value = newVal;
+      state.plainOptions = props.layers.map((item) => {
+        return {
+          label: item.name,
+          value: item.uuid,
+          areas: item.areas.map((area: Area) => {
             return {
-                label: item.name,
-                value: item.uuid,
-                areas: item.areas.map((area: any) => {
-                    return {
-                        label: area.name,
-                        value: area.uuid,
-                    }
-                })
-            }
-        })
-        state.checkedLayerList = props.layers.map((item: any) => {
-            return item.uuid
-        })
-        state.checkedAreaList = props.layers.map((item: any) => {
-            return item.areas.map((area: any) => {
-                return area.uuid
-            })
-        })
+              label: area.getName(),
+              value: area.getUuid(),
+            };
+          }),
+          pins: item.pins.map((pin: Pin) => {
+            return {
+              label: pin.getName(),
+              value: pin.getUuid(),
+            };
+          }),
+        };
+      });
+      state.checkedLayerList = props.layers.map((item) => {
+        return item.uuid;
+      });
+      state.checkedAreaList = props.layers.map((item) => {
+        return item.areas.map((area) => {
+          return area.getUuid();
+        });
+      });
+      state.checkedPinList = props.layers.map((item) => {
+        return item.pins.map((pin) => {
+          return pin.getUuid();
+        });
+      });
     },
-    { immediate: true }
-);
-
-
+    { immediate: true },
+  );
 </script>
-  
+
 <style lang="less">
-.layer-group {
+  .layer-group {
     width: 100%;
     box-sizing: border-box;
     padding: 16px;
 
     .layer-opts {
-        width: 100%;
-        margin-top: 10px;
-        max-height: 500px;
-        overflow-y: auto;
+      width: 100%;
+      margin-top: 10px;
+      max-height: 500px;
+      overflow-y: auto;
     }
 
     .layer-area-opts {
-        width: 100%;
-        margin: 5px 0;
-        box-sizing: border-box;
-        padding-left: 25px;
+      width: 100%;
+      margin: 5px 0;
+      box-sizing: border-box;
+      padding-left: 25px;
     }
-}
+  }
 
-.ant-modal-header {
+  .ant-modal-header {
     text-align: center;
-}
+  }
 
-.area-opt-label {
+  .area-opt-label {
     display: inline-block;
     white-space: nowrap;
     text-overflow: ellipsis;
     overflow: hidden;
     width: 60px;
-    line-height: 10px;
-}
+    line-height: 12px;
+  }
 
-.button-group {
+  .button-group {
     text-align: right;
     box-sizing: border-box;
     padding: 10px 16px;
 
     .ant-btn {
-        width: 70px;
-        height: 35px;
-        font-size: 12px;
+      width: 70px;
+      height: 35px;
+      font-size: 12px;
     }
-}
+  }
 </style>
-  

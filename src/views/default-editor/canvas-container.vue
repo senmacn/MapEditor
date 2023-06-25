@@ -24,7 +24,7 @@
     @show-pin-modal="handleShowPinModal"
     @delete-pin="handleDeletePin"
   ></Contextmenu>
-  <Pin-modal ref="pinRef"></Pin-modal>
+  <pin-modal ref="pinRef"></pin-modal>
 </template>
 
 <script setup lang="ts">
