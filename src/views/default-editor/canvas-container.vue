@@ -22,7 +22,6 @@
   <Contextmenu
     ref="contextmenuRef"
     @show-pin-modal="handleShowPinModal"
-    @delete-pin="handleDeletePin"
   ></Contextmenu>
   <pin-modal ref="pinRef"></pin-modal>
 </template>
@@ -43,7 +42,6 @@
   import Contextmenu from './children/contextmenu.vue';
   import PinModal from './children/pin-modal.vue';
   import useSelecto from './utils/useSelecto';
-  import { Modal } from 'ant-design-vue';
 
   const state = useCanvasState();
   const configRef = useEditorConfig();
@@ -131,28 +129,6 @@
   const pinRef = ref();
   function handleShowPinModal(create?: boolean) {
     create ? pinRef.value.setPin(null) : pinRef.value.setPin(controller.getCurrentPin());
-  }
-  function handleDeletePin() {
-    if (!controller.getCurrentPin()) {
-      return;
-    }
-    const pinToDelete = controller.getCurrentPin();
-    Modal.confirm({
-      title: '提醒',
-      content: '确定要删除选中的点吗？',
-      okText: '确定',
-      cancelText: '取消',
-      onOk() {
-        const posIndex = pinToDelete?.layer?.pins.findIndex((value) => value.isSame(pinToDelete)) as number;
-        if (posIndex > -1) {
-          pinToDelete?.layer?.pins.splice(posIndex, 1);
-        }
-        controller.setCurrentPin(null);
-        setTimeout(() => {
-          pinToDelete?.destroy();
-        });
-      },
-    });
   }
 </script>
 

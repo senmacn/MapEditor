@@ -1,4 +1,4 @@
-import { Ref, onMounted, unref } from 'vue';
+import { Ref, onMounted, unref, watch } from 'vue';
 import Selecto from 'selecto';
 import { useCanvasState } from '@/store/modules/canvas-state';
 import Moveable from 'moveable';
@@ -9,9 +9,11 @@ function getNumberFromCss(css: string) {
 }
 
 export default function useSelecto(target: Ref<HTMLElement> | HTMLElement = document.body) {
+  let selecto: Selecto;
+  let moveable: Moveable;
   const canvasState = useCanvasState();
   onMounted(() => {
-    const selecto = new Selecto({
+    selecto = new Selecto({
       // The container to add a selection element
       container: unref(target),
       // Selecto's root container (No transformed container. (default: null)
@@ -38,7 +40,7 @@ export default function useSelecto(target: Ref<HTMLElement> | HTMLElement = docu
     // 历史记录
     const history = new Map<string, [number, number]>();
     // 框选后统一可拖动
-    const moveable = new Moveable(document.getElementById('scroller') as HTMLElement, {
+    moveable = new Moveable(document.getElementById('scroller') as HTMLElement, {
       draggable: true,
     })
       .on('clickGroup', (e) => {
@@ -169,4 +171,17 @@ export default function useSelecto(target: Ref<HTMLElement> | HTMLElement = docu
         }
       });
   });
+
+  // 新增、编辑时得取消选中
+  watch(
+    () => controller.isDrawingArea(),
+    () => {
+      if (controller.isDrawingArea()) {
+        selecto && selecto.setSelectedTargets([]);
+        if (moveable) {
+          moveable.target = null;
+        }
+      }
+    },
+  );
 }

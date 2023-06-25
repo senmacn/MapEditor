@@ -124,7 +124,7 @@
     controller.startDrawingArea(true);
   }
   function handleEndDrawingArea(complete: boolean) {
-    if (!areaNameRef.value.length || !areaIDRef.value.length) {
+    if (complete && !areaNameRef.value.length || !areaIDRef.value.length) {
       message.warning('请填写区域类型和ID！');
       return;
     }

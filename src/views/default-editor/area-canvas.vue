@@ -35,7 +35,7 @@
 
   // canvas相关
   const ctxRef = useCanvas();
-  const configRef = useEditorConfig();  
+  const configRef = useEditorConfig();
   let movedPoints: PointA[] = [];
   let beginPoint: PointA = { x: 0, y: 0 };
   const [activeRef, setActiveRef] = useToggle(false);
@@ -151,15 +151,29 @@
   }
   // 监听广播
   onEditAreaEvent(function () {
-    const currentArea = controller.getCurrentAreas()[0];
-    if (currentArea) {
-      currentArea.cancelSelect();
-      const data = currentArea.getData();
-      ctxRef.putImageData(
-        data,
-        currentArea.getBoundRect()[0] - props.offset.x,
-        currentArea.getBoundRect()[1] - props.offset.y,
-      );
+    if (controller.isEditingArea()) {
+      const currentArea = controller.getCurrentAreas()[0];
+      if (currentArea) {
+        currentArea.cancelSelect();
+        const data = currentArea.getData();
+        ctxRef.putImageData(
+          data,
+          currentArea.getBoundRect()[0] - props.offset.x,
+          currentArea.getBoundRect()[1] - props.offset.y,
+        );
+        ctxRef.putSave();
+      }
+    } else {
+      controller.getCurrentAreas().forEach((area) => {
+        area.cancelSelect();
+        const data = area.getData();
+        ctxRef.putImageData(
+          data,
+          area.getBoundRect()[0] - props.offset.x,
+          area.getBoundRect()[1] - props.offset.y,
+        );
+        ctxRef.putSave();
+      });
     }
   });
 
@@ -333,5 +347,6 @@
     top: 0;
     left: 0;
     /* border: 1px dotted black; */
+    z-index: 2;
   }
 </style>

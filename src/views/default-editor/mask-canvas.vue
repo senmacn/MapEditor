@@ -13,7 +13,7 @@
   import controller, { CanvasOption } from './common/canvas-state-controller';
   import { getPos } from './utils/canvas-util';
   import { onBeforeUnmount, onMounted } from 'vue';
-  import { emitPersistLineEvent, emitPersistShapeEvent, onDeleteAreaEvent } from './common/event';
+  import { emitPersistLineEvent, emitPersistShapeEvent } from './common/event';
   import * as canvasUtil from './utils/canvas-util';
   import { useEditorConfig } from '@/store/modules/editor-config';
   import { useToggle } from '@vueuse/core';
@@ -113,10 +113,6 @@
     ]);
     setActiveRef(false);
   }
-
-  onDeleteAreaEvent(() => {
-    ctxRef.clean();
-  });
 
   // 挂载时初始化
   function setup() {
