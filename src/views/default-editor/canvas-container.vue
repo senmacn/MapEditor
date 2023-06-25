@@ -133,6 +133,9 @@
     create ? pinRef.value.setPin(null) : pinRef.value.setPin(controller.getCurrentPin());
   }
   function handleDeletePin() {
+    if (!controller.getCurrentPin()) {
+      return;
+    }
     const pinToDelete = controller.getCurrentPin();
     Modal.confirm({
       title: '提醒',

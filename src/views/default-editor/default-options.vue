@@ -1,5 +1,5 @@
 <template>
-  <div v-if="!drawerVisibleRef" class="open-drawer" @click="drawerVisibleRef = true">
+  <div :class="['open-drawer', drawerVisibleRef ? 'hidden' : '']" @click="drawerVisibleRef = true">
     <img src="@/assets/images/map-open.png" />
   </div>
   <a-drawer
@@ -79,11 +79,12 @@
 <style lang="less">
   .option-drawer {
     position: fixed;
-    width: 400px;
     max-height: 75%;
+    width: 50px;
+    height: 1px !important;
     margin: 130px 35px 20px 0;
     border-radius: 3px;
-    transition: width 0.2s ease;
+    transition: all 0.3s ease !important;
     .ant-drawer-content {
       overflow: visible;
       border-radius: 10px;
@@ -103,13 +104,15 @@
       }
     }
     .ant-drawer-content-wrapper {
-      transform: translate(150%, -100%) !important;
+      visibility: hidden;
       overflow: hidden;
     }
     &.ant-drawer-open {
+      width: 400px;
+      height: 100% !important;
       .ant-drawer-content-wrapper {
         overflow: visible;
-        transform: translate(0, 0) !important;
+        visibility: visible;
       }
     }
   }
@@ -192,7 +195,13 @@
     z-index: 999;
     text-align: center;
     line-height: 80px;
+    opacity: 1;
+    transition: all 0.4s ease-in-out;
     cursor: pointer;
+    &.hidden {
+      opacity: 0.1;
+      transition: all 0.4s ease-in-out;
+    }
     img {
       height: 70px;
       width: 70px;

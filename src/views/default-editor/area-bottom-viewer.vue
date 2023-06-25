@@ -96,7 +96,7 @@
           message.info('粘贴成功！');
         }
       }
-      if (e.key === 'z' && !controller.isDrawingPen()) {
+      if (e.key === 'z' && !controller.isDrawingArea()) {
         controller.revertAction(state);
       }
     }
