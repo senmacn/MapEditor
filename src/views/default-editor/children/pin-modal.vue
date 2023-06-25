@@ -90,9 +90,7 @@
             :max-length="100"
           />
         </a-form-item>
-        <a-form-item name="position" label="坐标">
-          <span>{{ clickPositionRef?.offsetX }}, {{ clickPositionRef?.offsetY }}</span>
-        </a-form-item>
+        <a-form-item name="association" label="关联"> </a-form-item>
       </a-form>
     </div>
     <div class="button-group">
@@ -132,10 +130,6 @@
   function handleOk() {
     pinFormRef.value.validate().then(() => {
       const size = Number(formModel.size);
-      formModel.position = {
-        x: clickPositionRef.offsetX - size / 2,
-        y: clickPositionRef.offsetY - size / 2,
-      };
       for (let index = canvasState.getLayers.length - 1; index >= 0; index--) {
         const element = canvasState.getLayers[index];
         if (element.hot) {
@@ -147,7 +141,10 @@
               formModel.type,
               formModel.state,
               formModel.jira,
-              formModel.position,
+              {
+                x: clickPositionRef.offsetX - size / 2,
+                y: clickPositionRef.offsetY - size / 2,
+              },
               size,
               formModel.icon,
             );
@@ -164,8 +161,14 @@
                 sitPin.setState(formModel.state);
                 sitPin.setIcon(formModel.icon);
                 sitPin.setJira(formModel.jira);
-                sitPin.setBoundRect([formModel.position.x, formModel.position.y, size, size]);
-                // TODO: 重新渲染
+                sitPin.setBoundRect([
+                  sitPin.getBoundRect()[0],
+                  sitPin.getBoundRect()[1],
+                  size,
+                  size,
+                ]);
+                // 重新渲染
+                sitPin.draw = 'update';
               }
             });
           }

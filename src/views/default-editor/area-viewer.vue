@@ -76,7 +76,7 @@
         for (let index = 0; index < props.layer.pins.length; index++) {
           const pin = props.layer.pins[index];
           // 绘制
-          if (!pin.getDrawAreaComplete()) {
+          if (!pin.getDrawAreaComplete() || pin.getDrawAreaUpdate()) {
             render(pin);
           }
         }
@@ -153,5 +153,12 @@
   }
   .moveable-control-box {
     z-index: 500 !important;
+  }
+  .draw-element-tooltip {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    width: 100%;
+    height: 100%;
   }
 </style>

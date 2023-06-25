@@ -12,20 +12,24 @@ export interface DrawElementInterface {
   hide(): void;
 }
 
+type DrawType = 'done' | 'update' | 'none';
+
 export default class DrawElement implements DrawElementInterface {
   protected uuid;
   protected name;
   protected description;
+  // @json-delete
   public layer: Layer | undefined;
   protected boundRect: Box = [0, 0, 0, 0];
-  // 渲染的图片
+  // @json-delete 渲染的图片
   protected img;
-  // 渲染的实例
+  // @json-delete 渲染的实例
   public instance: HTMLElement | undefined;
+  // @json-delete
   public moveable: Moveable | undefined;
-  // 实例父级
+  // @json-delete 实例父级
   public target: HTMLElement | undefined;
-  protected draw = false;
+  public draw: DrawType = 'none';
   public scale = 1;
   public type: string = '';
   public visible = true;
@@ -49,10 +53,13 @@ export default class DrawElement implements DrawElementInterface {
     this.boundRect = value;
   }
   getDrawAreaComplete() {
-    return this.draw;
+    return this.draw !== 'none';
+  }
+  getDrawAreaUpdate() {
+    return this.draw === 'update';
   }
   drawAreaComplete() {
-    this.draw = true;
+    this.draw = 'done';
   }
   getImage() {}
   select() {}
