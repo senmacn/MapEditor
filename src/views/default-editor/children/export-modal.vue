@@ -46,10 +46,10 @@
         </a-row>
       </a-checkbox-group>
     </div>
-    <div class="button-group">
+    <div class="confirm-button-group">
       <a-space>
-        <a-button size="small" @click="handleCancel">取消</a-button>
         <a-button type="primary" @click="handleOk">确定</a-button>
+        <a-button size="small" @click="handleCancel">取消</a-button>
       </a-space>
     </div>
   </a-modal>
@@ -265,17 +265,5 @@
     overflow: hidden;
     width: 60px;
     line-height: 12px;
-  }
-
-  .button-group {
-    text-align: right;
-    box-sizing: border-box;
-    padding: 10px 16px;
-
-    .ant-btn {
-      width: 70px;
-      height: 35px;
-      font-size: 12px;
-    }
   }
 </style>
