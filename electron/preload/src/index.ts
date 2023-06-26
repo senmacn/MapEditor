@@ -6,6 +6,12 @@ window.addEventListener('DOMContentLoaded', () => {
     // @ts-ignore
     titleHorizontalAlignment: 'left',
     backgroundColor: TitlebarColor.fromHex('#222225'),
+    tooltips: {
+      maximize: '',
+      minimize: '',
+      restoreDown: '',
+      close: ''
+    }
   });
 });
 

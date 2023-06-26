@@ -39,7 +39,7 @@
             type="text"
             class="history-refresh"
             :disable="!isLocal()"
-            @click="refreshHistory"
+            @click="() => refreshHistory(false)"
           >
             <sync-outlined> </sync-outlined>
             刷新
@@ -52,9 +52,10 @@
                 <folder-open-outlined />打开
               </span>
               <span class="options" @click="editRef = index"> <edit-outlined />重命名</span>
-              <span class="options">
-                <download-outlined @click="handleDownloadProject(item.title)" />下载</span
-              >
+              <span class="options" @click="handleDownloadProject(item.title)">
+                <download-outlined />
+                下载
+              </span>
               <!-- <span class="options">
                 <heart-outlined />置顶</span> -->
               <span class="options" @click="handleDeleteProject(item.title)">
@@ -68,7 +69,7 @@
                   v-if="index === editRef"
                   :default-value="item.title"
                   type="text"
-                  @blur="(e) => handleEditProjectName(item.title, e.target.value)"
+                  @blur="(e) => handleEditProjectName(item.title, e?.target?.value)"
                 />
                 <span v-else>{{ item.title }}</span>
               </template>
@@ -85,9 +86,8 @@
   import type { LocalMapHistory } from './common/types';
   import { reactive, ref } from 'vue';
   import { isArray, isObject } from '@/utils/is';
-  import modal from 'ant-design-vue/lib/modal';
   import { exportFile } from '@/utils/file';
-  import { message } from 'ant-design-vue';
+  import { Modal, message } from 'ant-design-vue';
   import {
     PlusOutlined,
     ImportOutlined,
@@ -109,16 +109,17 @@
   });
 
   const localApi = getLocalApi();
-  function refreshHistory() {
+  function refreshHistory(silence: boolean = false) {
     localApi &&
       localApi.getLocalHistoryList().then((data: LocalMapHistory[]) => {
         if (isArray(data)) {
           dataSource.value = data;
           paginationProps.total = data.length;
+          !silence && message.success('历史记录刷新成功！');
         }
       });
   }
-  refreshHistory();
+  refreshHistory(true);
 
   function handleOpenProject(project: string) {
     // location.href = '/#/map-editor?name=' + project;
@@ -174,11 +175,11 @@
         .catch((err) => isObject(err) && err.showMessage && console.warn(err.showMessage))
         .finally(() => {
           editRef.value = -1;
-          refreshHistory();
+          refreshHistory(true);
         });
   }
   function handleDownloadProject(filename: string) {
-    modal.confirm({
+    Modal.confirm({
       title: '提醒',
       content: `下载${filename}?`,
       okText: '确定',
@@ -192,14 +193,14 @@
     });
   }
   function handleDeleteProject(filename: string) {
-    modal.confirm({
+    Modal.confirm({
       title: '提醒',
       content: `删除数据存档${filename}?`,
       okText: '确定',
       cancelText: '取消',
       onOk: () => {
         localApi && localApi.deleteLocalFile(filename);
-        refreshHistory();
+        refreshHistory(true);
       },
     });
   }

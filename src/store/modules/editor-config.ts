@@ -95,7 +95,7 @@ export const useEditorConfig = defineStore({
   actions: {
     setAll(_editorConfig: EditorConfig) {
       this.style = _editorConfig.style;
-      this.zoom = _editorConfig.zoom;
+      // this.zoom = _editorConfig.zoom;
       this.color = _editorConfig.color;
       this.lineWidth = _editorConfig.lineWidth;
       this.eraseSize = _editorConfig.eraseSize;
@@ -109,7 +109,7 @@ export const useEditorConfig = defineStore({
       this.style = value;
     },
     setZoom(value: number) {
-      localStorage.setItem('editor-config-zoom', JSON.stringify(value));
+      // localStorage.setItem('editor-config-zoom', JSON.stringify(value));
       this.zoom = value;
     },
     setColor(value: string) {

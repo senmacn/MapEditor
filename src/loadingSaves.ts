@@ -11,13 +11,13 @@ export default function loadingSaves() {
   const configRef = useEditorConfig();
   const localApi = getLocalApi();
   const canvasState = useCanvasState();
-  const [openLoading, closeLoading] = useLoading({ minTime: 500 });
+  const [openLoading, closeLoading] = useLoading({ minTime: 10000, tip: '读取存档中~' });
 
   const name = location.hash.match('name=([^$]+)')?.pop();
   if (name) {
     return new Promise((resolve) => {
       localState.setFileName(name as string);
-      openLoading();
+      openLoading();      
       localApi &&
         localApi
           .getLocalFileContent(name as string)

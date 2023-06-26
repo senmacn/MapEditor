@@ -19,10 +19,7 @@
     <pen-canvas v-show="controller.isDrawingPen()" :style="styleRef" :offset="offsetRef" />
     <mask-canvas v-show="controller.isDrawingShape()" :style="styleRef" :offset="offsetRef" />
   </div>
-  <Contextmenu
-    ref="contextmenuRef"
-    @show-pin-modal="handleShowPinModal"
-  ></Contextmenu>
+  <Contextmenu ref="contextmenuRef" @show-pin-modal="handleShowPinModal"></Contextmenu>
   <pin-modal ref="pinRef"></pin-modal>
 </template>
 
@@ -42,6 +39,7 @@
   import Contextmenu from './children/contextmenu.vue';
   import PinModal from './children/pin-modal.vue';
   import useSelecto from './utils/useSelecto';
+  import { getZoomChangeStyle } from './utils/canvas-util';
 
   const state = useCanvasState();
   const configRef = useEditorConfig();
@@ -73,9 +71,26 @@
       left = left < 0 ? 0 : left;
       offsetRef.value.x = left;
       offsetRef.value.y = top;
-      styleRef.value = `top: ${top}px; left: ${left}px;`;
+      // styleRef.value = `top: ${top}px; left: ${left}px;`;
     }
   });
+  // zoom配置修改时，修改canvas大小
+  function executeZoom() {
+    const style = getZoomChangeStyle(configRef.zoom, configRef.size.x, configRef.size.y);
+    styleRef.value = `transform: ${style.transform}; top: ${style.top}; left: ${style.left}`;
+  }
+  watch(
+    () => configRef.zoom,
+    () => {
+      if (configRef) {
+        executeZoom();
+
+        setTimeout(() => {
+          controller.getCurrentAreas().forEach((area) => area?.moveable?.updateRect());
+        }, 100);
+      }
+    },
+  );
   // 快速定位事件
   onFocusAreaEvent((_, ele: DrawElement) => {
     const scroller = scrollerRef.value;

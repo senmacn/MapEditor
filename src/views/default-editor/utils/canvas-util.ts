@@ -17,10 +17,10 @@ export function isPointOverlap(p1: PointA, p2: PointA): boolean {
 }
 
 // TODO: 1000 换成width
-export function getZoomChangeStyle(zoom: number) {
+export function getZoomChangeStyle(zoom: number, width, height) {
   return {
     transform: 'scale(' + zoom + ')',
-    left: 500 * (zoom - 1) + 'px',
-    top: 500 * (zoom - 1) + 'px',
+    left: width * (zoom - 1) / 2 + 'px',
+    top: height * (zoom - 1) / 2 + 'px',
   };
 }

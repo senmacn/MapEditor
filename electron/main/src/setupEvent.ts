@@ -62,7 +62,7 @@ export default function setupEvent(mainWindow: BrowserWindow) {
       .map((data) => ({
         // @ts-ignore
         title: data.fileName,
-        description: data.mtime.toLocaleDateString(),
+        description: data.mtime.toLocaleString(),
       }));
   });
 
@@ -156,5 +156,5 @@ export default function setupEvent(mainWindow: BrowserWindow) {
 
   ipcMain.handle('maximize-window', () => {
     mainWindow.maximize();
-  })
+  });
 }

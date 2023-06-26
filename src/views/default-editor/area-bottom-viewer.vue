@@ -1,5 +1,6 @@
 <template>
   <div
+    id="bottom-layer"
     class="layer-instance bottom-layer"
     :style="style"
     @mousedown="handleClickOutAreaBefore"
@@ -13,9 +14,10 @@
   import controller from './common/canvas-state-controller';
   import { Area } from './draw-element';
   import { message } from 'ant-design-vue';
-  import { onMounted, onBeforeUnmount } from 'vue';
+  import { onMounted, onBeforeUnmount, watch } from 'vue';
   import { copyImageData } from './utils/image-data-util';
   import { useCanvasState } from '@/store/modules/canvas-state';
+  import { getZoomChangeStyle } from './utils/canvas-util';
 
   const configRef = useEditorConfig();
   const style = `width: ${configRef.size.x}px; height: ${configRef.size.y}px;`;
@@ -108,6 +110,20 @@
   onBeforeUnmount(() => {
     document.body.removeEventListener('keydown', handleCopyPasteArea);
   });
+
+  watch(
+    () => configRef.zoom,
+    () => {
+      if (configRef) {
+        const layer = document.getElementById('bottom-layer');
+        if (!layer) return;
+        const style = getZoomChangeStyle(configRef.zoom, configRef.size.x, configRef.size.y);
+        layer.style.setProperty('transform', style.transform);
+        layer.style.setProperty('top', style.top);
+        layer.style.setProperty('left', style.left);
+      }
+    },
+  );
 </script>
 
 <style>

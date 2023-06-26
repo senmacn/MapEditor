@@ -10,6 +10,7 @@
   import { onDeleteAreaEvent, onEditAreaEvent } from './common/event';
   import { Area, Pin } from './draw-element';
   import { useCanvasState } from '@/store/modules/canvas-state';
+  import { getZoomChangeStyle } from './utils/canvas-util';
 
   const props = defineProps({
     layer: {
@@ -110,19 +111,19 @@
   });
 
   // zoom配置修改时，修改大小
-  // watch(
-  //   () => configRef.zoom,
-  //   () => {
-  //     if (configRef) {
-  //       const layer = document.getElementById(canvasId);
-  //       if (!layer) return;
-  //       const style = canvasUtil.getZoomChangeStyle(configRef.zoom);
-  //       layer.style.setProperty('transform', style.transform);
-  //       layer.style.setProperty('top', style.top);
-  //       layer.style.setProperty('left', style.left);
-  //     }
-  //   },
-  // );
+  watch(
+    () => configRef.zoom,
+    () => {
+      if (configRef) {
+        const layer = document.getElementById(props?.layer?.uuid as string);
+        if (!layer) return;
+        const style = getZoomChangeStyle(configRef.zoom, configRef.size.x, configRef.size.y);
+        layer.style.setProperty('transform', style.transform);
+        layer.style.setProperty('top', style.top);
+        layer.style.setProperty('left', style.left);
+      }
+    },
+  );
 </script>
 
 <style lang="less">
