@@ -5,16 +5,18 @@
       <div> 状态 [{{ statusRef }}] </div>
       <div> <drag-outlined /> {{ pos }} </div>
     </div>
+    <controlled-slider @register="registerControllerSlider"></controlled-slider>
   </div>
 </template>
 
 <script setup lang="ts">
-  import { computed } from 'vue';
+  import { computed, onBeforeUnmount, onMounted } from 'vue';
   import controller from '../common/canvas-state-controller';
   import { useMouse } from '@vueuse/core';
   import { useCanvasState } from '@/store/modules/canvas-state';
   import { DragOutlined } from '@ant-design/icons-vue';
   import { useEditorConfig } from '@/store/modules/editor-config';
+  import ControlledSlider, { useControllerSlider } from '@/components/controlled-slider';
 
   const configRef = useEditorConfig();
 
@@ -47,10 +49,35 @@
     const y = configRef.getMapSize.rbY - configRef.getMapSize.ltY;
     return `${x} X ${y}`;
   });
+
+  const [registerControllerSlider, { zoomIn, zoomOut }] = useControllerSlider({
+    onChange: function (val) {
+      configRef.setZoom(val);
+    },
+  });
+  function handleKeyBoardDown(e: KeyboardEvent) {
+    if (e.key === '=' && e.ctrlKey) {
+      zoomIn();
+      e.stopPropagation();
+      e.preventDefault();
+    }
+    if (e.key === '-' && e.ctrlKey) {
+      zoomOut();
+      e.stopPropagation();
+      e.preventDefault();
+    }
+  }
+  onMounted(() => {
+    document.body.addEventListener('keydown', handleKeyBoardDown);
+  });
+  onBeforeUnmount(() => {
+    document.body.removeEventListener('keydown', handleKeyBoardDown);
+  });
 </script>
 
 <style lang="less">
   .status-bar {
+    display: flex;
     position: fixed;
     left: 0;
     bottom: 0;
@@ -63,7 +90,9 @@
   }
   .status-bar .wrapper {
     display: flex;
+    flex: 1;
     font-size: 12px;
+    border-right: 1px solid rgb(235, 235, 235);
     > div {
       padding: 0 10px;
       min-width: 150px;

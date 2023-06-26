@@ -1,41 +1,37 @@
 <template>
-  <div class="controller-slider">
+  <a-space class="controller-slider">
     <span class="slider-value">{{ VALUES[valueIndexRef] * 100 + '%' }}</span>
-    <a-button @click="handleDown">
-      <template #icon>
-        <minus-outlined />
-      </template>
-    </a-button>
+    <a-tooltip title="ctrl + -">
+      <minus-circle-outlined @click="handleDown" />
+    </a-tooltip>
     <a-slider
-      :max="2"
-      :min="0"
+      :max="4"
+      :min="0.25"
+      :step="null"
       :default-value="1"
-      :show-tooltip="false"
       :marks="VALUE_MARKS"
-      :step="0.25"
       v-model:value="sliderValueRef"
       @change="handleChange"
     ></a-slider>
-    <a-button @click="handleUp">
-      <template #icon>
-        <plus-outlined />
-      </template>
-    </a-button>
-  </div>
+    <a-tooltip title="ctrl + +">
+      <plus-circle-outlined @click="handleUp" />
+    </a-tooltip>
+  </a-space>
 </template>
 
 <script setup lang="ts">
   import { Ref, ref, unref, watch } from 'vue';
   import { ControlledSliderAction, ControlledSliderProps } from './types';
-  import { MinusOutlined, PlusOutlined } from '@ant-design/icons-vue';
+  import { MinusCircleOutlined, PlusCircleOutlined } from '@ant-design/icons-vue';
 
-  const VALUES = [0.25, 0.5, 1, 1.5, 2];
+  const VALUES = [0.25, 0.5, 1, 1.5, 2, 4];
   const VALUE_MARKS = {
     0.25: '25%',
     0.5: '50%',
     1: '100%',
     1.5: '150%',
     2: '200%',
+    4: '400%',
   };
 
   const emits = defineEmits<{
@@ -105,27 +101,34 @@
 
 <style lang="less">
   .controller-slider {
-    display: flex;
-    align-items: center;
-    flex: 1;
-    margin: 5px 0;
-    height: 32px;
-  }
-  .slider-value {
-    width: 38px;
-    font-size: 8px;
-    font-weight: bold;
-  }
-  .ant-slider {
-    width: 100%;
-    &.ant-slider-with-marks {
-      margin-bottom: 12px;
-      padding-right: 16px;
-      padding-left: 10px;
+    width: 380px;
+    height: 100%;
+    padding: 0 20px;
+    > .ant-btn {
+      width: 32px;
+      height: 24px;
     }
-
-    .ant-slider-marks .ant-slider-mark {
+    > .anticon {
+      display: inline-block;
+      font-size: 18px;
+      cursor: pointer;
+    }
+    .slider-value {
+      width: 38px;
       font-size: 8px;
+      font-weight: bold;
+    }
+    .ant-slider {
+      width: 250px;
+      &.ant-slider-with-marks {
+        margin-bottom: 12px;
+      }
+      .ant-slider-mark {
+        display: none;
+      }
+      .ant-slider-marks .ant-slider-mark {
+        font-size: 8px;
+      }
     }
   }
 </style>

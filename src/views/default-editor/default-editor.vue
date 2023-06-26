@@ -50,13 +50,11 @@
   const vRulerInstance = useRuler(vRuler, {
     type: 'vertical',
     width: 30,
-    mainLineSize: 25,
-    font: '11px sans-serif',
     unit: configRef.getMapSize.used ? configRef.getSize.scale : 50,
     textFormat: (scale) =>
       Math.round(
         configRef.getMapSize.used
-          ? configRef.getMapSize.ltX + scale * configRef.getSize.scale
+          ? configRef.getMapSize.ltY + scale * configRef.getSize.scale
           : scale,
       ).toString(),
     range: [0, configRef.getSize.y],
@@ -66,9 +64,7 @@
   const hRulerInstance = useRuler(hRuler, {
     type: 'horizontal',
     height: 30,
-    mainLineSize: 25,
     unit: configRef.getMapSize.used ? configRef.getSize.scale : 50,
-    font: '11px sans-serif',
     textFormat: (scale) =>
       Math.round(
         configRef.getMapSize.used
@@ -83,6 +79,42 @@
     () => {
       hRulerInstance.scroll(canvasState.getOffset.x);
       vRulerInstance.scroll(canvasState.getOffset.y);
+    },
+  );
+  // zoom配置修改时，修改滚动条
+  watch(
+    () => configRef.zoom,
+    () => {
+      if (configRef) {
+        vRulerInstance.rebuild({
+          type: 'vertical',
+          width: 30,
+          unit: configRef.getMapSize.used ? configRef.getSize.scale : 50,
+          textFormat: (scale) =>
+            (
+              Math.round(
+                configRef.getMapSize.used
+                  ? configRef.getMapSize.ltY + scale * configRef.getSize.scale
+                  : scale,
+              ) / configRef.zoom
+            ).toString(),
+          range: [0, configRef.getSize.y * configRef.zoom],
+        });
+        hRulerInstance.rebuild({
+          type: 'horizontal',
+          height: 30,
+          unit: configRef.getMapSize.used ? configRef.getSize.scale : 50,
+          textFormat: (scale) =>
+            (
+              Math.round(
+                configRef.getMapSize.used
+                  ? configRef.getMapSize.ltX + scale * configRef.getSize.scale
+                  : scale,
+              ) / configRef.zoom
+            ).toString(),
+          range: [0, configRef.getSize.x * configRef.zoom],
+        });
+      }
     },
   );
 

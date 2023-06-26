@@ -48,10 +48,6 @@
             @change="(num: number) => configRef.setLineWidth(num)"
           />
         </a-col>
-        <!-- <a-col :span="20" :offset="4">
-          比例：
-          <controlled-slider @register="registerControllerSlider"></controlled-slider>
-        </a-col> -->
       </a-row>
     </div>
     <div class="confirm-button-group">
@@ -64,7 +60,6 @@
   import { watch } from 'vue';
   import { useEditorConfig } from '@/store/modules/editor-config';
   import { useColorPicker } from '@/hooks/useColorPicker';
-  // import ControlledSlider, { useControllerSlider } from '@/components/controlled-slider';
 
   const emit = defineEmits<{
     (e: 'close'): void;
@@ -78,12 +73,6 @@
   });
 
   const configRef = useEditorConfig();
-
-  // const [registerControllerSlider] = useControllerSlider({
-  //   onChange: function (val) {
-  //     configRef.setZoom(val);
-  //   },
-  // });
 
   let inited = false;
   const pickrInstance = useColorPicker('.change-map-size-modal #pickr-instance');
