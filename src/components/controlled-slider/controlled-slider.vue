@@ -24,13 +24,13 @@
   import { ControlledSliderAction, ControlledSliderProps } from './types';
   import { MinusCircleOutlined, PlusCircleOutlined } from '@ant-design/icons-vue';
 
-  const VALUES = [0.25, 0.5, 1, 1.5, 2, 4];
+  const VALUES = [0.25, 0.5, 1, 2, 3, 4];
   const VALUE_MARKS = {
     0.25: '25%',
     0.5: '50%',
     1: '100%',
-    1.5: '150%',
     2: '200%',
+    3: '300%',
     4: '400%',
   };
 
@@ -104,14 +104,13 @@
     width: 380px;
     height: 100%;
     padding: 0 20px;
-    > .ant-btn {
-      width: 32px;
-      height: 24px;
-    }
-    > .anticon {
+    .anticon {
       display: inline-block;
-      font-size: 18px;
+      font-size: 14px;
       cursor: pointer;
+    }
+    .anticon:hover {
+      color: rgb(118, 163, 253);
     }
     .slider-value {
       width: 38px;
@@ -128,6 +127,16 @@
       }
       .ant-slider-marks .ant-slider-mark {
         font-size: 8px;
+      }
+    }
+    .ant-slider-rail,
+    .ant-slider-track {
+      background-color: #17171a;
+    }
+    .ant-slider:hover {
+      .ant-slider-rail,
+      .ant-slider-track {
+        background-color: #17171a;
       }
     }
   }

@@ -332,6 +332,5 @@
     top: 0;
     left: 0;
     z-index: 2;
-    background-color: #333;
   }
 </style>
