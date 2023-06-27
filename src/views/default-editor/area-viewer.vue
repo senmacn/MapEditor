@@ -44,14 +44,14 @@
 
   // 添加区域时渲染
   const areaViewer = ref();
-  function render(target: Area | Pin) {
+  function render(element: Area | Pin) {
     if (areaViewer.value) {
-      target.render(areaViewer.value);
-      target.drawAreaComplete();
+      element.render(areaViewer.value);
+      element.drawAreaComplete();
     } else {
       setTimeout(() => {
-        render(target);
-        target.drawAreaComplete();
+        render(element);
+        element.drawAreaComplete();
       }, 50);
     }
   }
@@ -133,6 +133,7 @@
     left: 0;
     background-repeat: no-repeat;
     background-size: contain;
+    background-color: #333;
     pointer-events: none;
     .moveable {
       position: absolute;

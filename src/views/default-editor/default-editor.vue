@@ -91,12 +91,10 @@
           width: 30,
           unit: configRef.getMapSize.used ? configRef.getSize.scale : 50,
           textFormat: (scale) =>
-            (
-              Math.round(
-                configRef.getMapSize.used
-                  ? configRef.getMapSize.ltY + scale * configRef.getSize.scale
-                  : scale,
-              ) / configRef.zoom
+            Math.round(
+              (configRef.getMapSize.used
+                ? configRef.getMapSize.ltY + scale * configRef.getSize.scale
+                : scale) / configRef.zoom,
             ).toString(),
           range: [0, configRef.getSize.y * configRef.zoom],
         });
@@ -105,12 +103,10 @@
           height: 30,
           unit: configRef.getMapSize.used ? configRef.getSize.scale : 50,
           textFormat: (scale) =>
-            (
-              Math.round(
-                configRef.getMapSize.used
-                  ? configRef.getMapSize.ltX + scale * configRef.getSize.scale
-                  : scale,
-              ) / configRef.zoom
+            Math.round(
+              (configRef.getMapSize.used
+                ? configRef.getMapSize.ltX + scale * configRef.getSize.scale
+                : scale) / configRef.zoom,
             ).toString(),
           range: [0, configRef.getSize.x * configRef.zoom],
         });

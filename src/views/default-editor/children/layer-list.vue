@@ -17,7 +17,7 @@
             :draggable="!layer.lock"
             @dragenter.stop="dragenter($event, index)"
             @dragstart.stop="dragstart($event, index)"
-            @dragend.prevent="dragend()"
+            @dragend.stop="dragend($event, index)"
           >
             <a-tooltip title="隐藏图层" v-if="layer.visible">
               <a-button
@@ -199,30 +199,41 @@
     canvasState.layers[updateIndex].visible = true;
   }
 
-  const dragIndexRef = ref(-1);
-  function dragstart(_, index: number) {
-    dragIndexRef.value = index;
+  const dragStartRef = ref(-1);
+  const dragEnterRef = ref(-1);
+  function dragstart(e: DragEvent, index: number) {
+    if (canvasState.layers[index].lock) {
+      e.preventDefault();
+      return;
+    }
+    e.dataTransfer?.setDragImage(
+      (e.target as HTMLElement).parentElement as HTMLElement,
+      e.offsetX,
+      e.offsetY,
+    );
+    dragStartRef.value = index;
   }
   function dragenter(_, index: number) {
     // 避免源对象触发自身的dragenter事件
-    if (canvasState.layers[index].lock) {
-      dragIndexRef.value = -1;
-      return;
-    }
-    if (dragIndexRef.value !== index) {
-      const source = canvasState.layers[dragIndexRef.value];
-      canvasState.layers.splice(dragIndexRef.value, 1);
-      canvasState.layers.splice(index, 0, source);
-      // 排序变化后目标对象的索引变成源对象的索引
-      dragIndexRef.value = index;
-      refreshHot();
-    }
+    dragEnterRef.value = index;
   }
   const [openLoading, closeLoading] = useLoading({ tip: '移动中', minTime: 1000 });
-  function dragend() {
-    if (dragIndexRef.value < 0) {
+  function dragend(_) {
+    if (
+      dragStartRef.value < 0 ||
+      dragEnterRef.value < 0 ||
+      dragStartRef.value === dragEnterRef.value
+    ) {
       return;
     }
+    const source = canvasState.layers[dragStartRef.value];
+    canvasState.layers.splice(dragStartRef.value, 1);
+    canvasState.layers.splice(dragEnterRef.value, 0, source);
+    // 排序变化后目标对象的索引变成源对象的索引
+    dragStartRef.value = -1;
+    dragEnterRef.value = -1;
+    refreshHot();
+
     openLoading();
     setTimeout(() => {
       message.success('移动完成！');
@@ -316,6 +327,9 @@
     .layer-option {
       width: 140px;
       border-right: 0;
+    }
+    .ant-input-disabled {
+      background-color: transparent;
     }
   }
 </style>
