@@ -34,7 +34,16 @@
         :pagination="paginationProps"
       >
         <template #header>
-          <div class="history-title"> - 历史记录 - </div>
+          <div class="history-title"> - 本地存档 - </div>
+          <a-button
+            type="text"
+            class="history-open"
+            :disable="!isLocal()"
+            @click="openSavesFolder"
+          >
+            <folder-open-filled> </folder-open-filled>
+            访问存档目录
+          </a-button>
           <a-button
             type="text"
             class="history-refresh"
@@ -95,6 +104,7 @@
     EditOutlined,
     DeleteOutlined,
     SyncOutlined,
+    FolderOpenFilled,
     FolderOpenOutlined,
   } from '@ant-design/icons-vue';
   import { useLoading } from '@/components/Loading';
@@ -108,9 +118,12 @@
   });
 
   const localApi = getLocalApi();
+
+  function openSavesFolder() {
+    localApi?.openFolder('');
+  }
   function refreshHistory(silence: boolean = false) {
-    localApi &&
-      localApi.getLocalHistoryList().then((data: LocalMapHistory[]) => {
+    localApi?.getLocalHistoryList().then((data: LocalMapHistory[]) => {
         if (isArray(data)) {
           dataSource.value = data;
           paginationProps.total = data.length;
@@ -259,6 +272,11 @@
     .history-title {
       font-size: 16px;
       font-weight: bold;
+    }
+    .history-open {
+      position: absolute;
+      top: 0;
+      right: 120px;
     }
     .history-refresh {
       position: absolute;

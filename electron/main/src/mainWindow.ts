@@ -1,11 +1,8 @@
 import { app, BrowserWindow } from 'electron';
 import { join } from 'path';
 import setupEvent from './setupEvent';
-import { setupTitlebar, attachTitlebarToWindow } from 'custom-electron-titlebar/main';
 
 async function createWindow() {
-  setupTitlebar();
-
   const browserWindow = new BrowserWindow({
     fullscreen: false,
     webPreferences: {
@@ -23,8 +20,6 @@ async function createWindow() {
     height: 750,
     resizable: false,
   });
-
-  attachTitlebarToWindow(browserWindow);
 
   browserWindow.webContents.setWindowOpenHandler(({}) => {
     return {

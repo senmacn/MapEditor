@@ -39,7 +39,7 @@
           <span>线条宽度 </span>
           <a-input-number
             mode="button"
-            :max="10"
+            :max="5"
             :min="1"
             :step="1"
             :precision="1"

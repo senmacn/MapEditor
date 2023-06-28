@@ -268,8 +268,14 @@
     if (e.button !== 0 || !activeRef.value) return;
     const canvas = ctxRef.getCanvas().canvas;
     const canvasRect = canvas.getBoundingClientRect();
-    const x = Math.max(0, Math.min(e.clientX - canvasRect.left, canvas.width * configRef.zoom) / configRef.zoom);
-    const y = Math.max(0, Math.min(e.clientY - canvasRect.top, canvas.height * configRef.zoom) / configRef.zoom);
+    const x = Math.max(
+      0,
+      Math.min(e.clientX - canvasRect.left, canvas.width * configRef.zoom) / configRef.zoom,
+    );
+    const y = Math.max(
+      0,
+      Math.min(e.clientY - canvasRect.top, canvas.height * configRef.zoom) / configRef.zoom,
+    );
     handleMouseUp({ button: 0, offsetX: x, offsetY: y } as MouseEvent);
   }
 
@@ -277,16 +283,28 @@
     if (e.button !== 0 || !activeRef.value) return;
     const canvas = ctxRef.getCanvas().canvas;
     const canvasRect = canvas.getBoundingClientRect();
-    const x = Math.max(0, Math.min(e.clientX - canvasRect.left, canvas.width * configRef.zoom) / configRef.zoom);
-    const y = Math.max(0, Math.min(e.clientY - canvasRect.top, canvas.height * configRef.zoom) / configRef.zoom);
+    const x = Math.max(
+      0,
+      Math.min(e.clientX - canvasRect.left, canvas.width * configRef.zoom) / configRef.zoom,
+    );
+    const y = Math.max(
+      0,
+      Math.min(e.clientY - canvasRect.top, canvas.height * configRef.zoom) / configRef.zoom,
+    );
     handleMouseMove({ button: 0, offsetX: x, offsetY: y } as MouseEvent);
   }
   function handleMouseDownOuter(e: MouseEvent) {
     if (e.button !== 0) return;
     const canvas = ctxRef.getCanvas().canvas;
     const canvasRect = canvas.getBoundingClientRect();
-    const x = Math.max(0, Math.min(e.clientX - canvasRect.left, canvas.width * configRef.zoom) / configRef.zoom);
-    const y = Math.max(0, Math.min(e.clientY - canvasRect.top, canvas.height * configRef.zoom) / configRef.zoom);
+    const x = Math.max(
+      0,
+      Math.min(e.clientX - canvasRect.left, canvas.width * configRef.zoom) / configRef.zoom,
+    );
+    const y = Math.max(
+      0,
+      Math.min(e.clientY - canvasRect.top, canvas.height * configRef.zoom) / configRef.zoom,
+    );
     handleMouseDown({ button: 0, offsetX: x, offsetY: y } as MouseEvent);
   }
   // 挂载时初始化

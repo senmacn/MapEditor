@@ -23,19 +23,22 @@
           <a-input v-if="isLocal()" v-model:value="formModel.exportLocation" />
           <a-input v-else disabled placeholder="浏览器环境下此项配置不可用！" />
         </a-form-item>
-        <a-form-item name="autoSaveTime" label="自动保存时间">
+        <a-form-item name="autoSaveTime" label="自动保存时间" extra="值设置为0代表不自动保存">
           <div v-if="isLocal()">
-            <a-input-number
-              v-model:value="formModel.autoSaveTime"
-              :max="30"
-              :min="0"
-              :step="1"
-              placeholder="值为0时代表不自动保存"
-            />
+            <a-input-number v-model:value="formModel.autoSaveTime" :max="30" :min="0" :step="1" />
             分钟
           </div>
           <a-input v-else disabled placeholder="浏览器环境下此项配置不可用！" />
         </a-form-item>
+        <a-divider>
+          <a-form-item name="autoSaveTime" label="自动保存时间" extra="值设置为0代表不自动保存">
+            <div v-if="isLocal()">
+              <a-input-number v-model:value="formModel.autoSaveTime" :max="30" :min="0" :step="1" />
+              分钟
+            </div>
+            <a-input v-else disabled placeholder="浏览器环境下此项配置不可用！" />
+          </a-form-item>
+        </a-divider>
       </a-form>
     </div>
   </a-modal>

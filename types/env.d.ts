@@ -8,4 +8,7 @@ interface LocalApi {
   saveLocalFile(fileName: string, data: string | Buffer, folder?: string): Promise<unknown>;
   newWindow(url: string, browser?: boolean): Promise<LocalResult<null>>;
   maximizeWindow(): void;
+  minimizeWindow(): void;
+  closeWindow(): void;
+  openFolder(folderName: string): Promise<LocalResult<null>>
 }

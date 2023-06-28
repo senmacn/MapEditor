@@ -12,15 +12,15 @@
   import Navbar from '@/components/navbar/index.vue';
   import NavbarOptions from './navbar-options.vue';
   import DefaultEditor from './default-editor.vue';
-  import modal from 'ant-design-vue/lib/modal';
   import { onBeforeUnmount, onMounted } from 'vue';
   import EditOptions from './children/edit-options.vue';
   import { isLocal } from '@/utils/env';
+  import { Modal } from 'ant-design-vue';
 
   function F5Check(e: KeyboardEvent) {
     if (e.key === 'F5') {
       e.preventDefault();
-      modal.confirm({
+      Modal.confirm({
         title: '提醒',
         content: '刷新页面可能会导致数据丢失，请确认您已保存数据！',
         okText: '确定',

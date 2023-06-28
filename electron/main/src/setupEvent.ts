@@ -1,5 +1,4 @@
-import { BrowserWindow, app } from 'electron';
-import { ipcMain, shell } from 'electron';
+import { BrowserWindow, app, ipcMain, shell } from 'electron';
 import {
   existsSync,
   mkdirSync,
@@ -12,7 +11,6 @@ import {
 } from 'fs';
 import * as path from 'path';
 import { join } from 'path';
-import { attachTitlebarToWindow } from 'custom-electron-titlebar/main';
 
 const DATA_DIR = 'data';
 const SAVES_DIR = 'data/saves';
@@ -138,7 +136,6 @@ export default function setupEvent(mainWindow: BrowserWindow) {
           preload: join(app.getAppPath(), 'electron/preload/dist/index.cjs'),
         },
       });
-      attachTitlebarToWindow(win);
       win.on('ready-to-show', () => {
         win.maximize();
         win?.show();
@@ -156,5 +153,17 @@ export default function setupEvent(mainWindow: BrowserWindow) {
 
   ipcMain.handle('maximize-window', () => {
     mainWindow.maximize();
+  });
+
+  ipcMain.handle('minimize-window', () => {
+    mainWindow.minimize();
+  });
+
+  ipcMain.handle('close-window', () => {
+    mainWindow.close();
+  });
+
+  ipcMain.handle('open-folder', () => {
+    shell.openPath(path.resolve(process.cwd(), SAVES_DIR));
   });
 }
