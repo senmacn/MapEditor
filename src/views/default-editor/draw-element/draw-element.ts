@@ -73,7 +73,7 @@ export default class DrawElement implements DrawElementInterface {
       }, 5);
     }
   }
-  render(target: HTMLElement) {}
+  render(_: HTMLElement) {}
   show() {
     if (this.instance) {
       this.instance.style.display = 'block';
@@ -105,7 +105,7 @@ export default class DrawElement implements DrawElementInterface {
     let dragState: number[] = [];
     /* draggable */
     this.moveable
-      .on('dragStart', (e) => {
+      .on('dragStart', () => {
         dragState = [_this.boundRect[0], _this.boundRect[1]];
       })
       .on('drag', ({ target, left, top }) => {

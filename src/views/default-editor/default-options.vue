@@ -20,9 +20,13 @@
         </a-col>
         <a-col :span="24">
           <a-input-group compact>
-            <a-select v-model:value="searchTypeRef" style="width: 30%">
-              <a-select-option :value="0">区域名称</a-select-option>
-              <a-select-option :value="1">区域类型</a-select-option>
+            <a-select
+              dropdownClassName="element-search-item"
+              v-model:value="searchTypeRef"
+              style="width: 30%"
+            >
+              <a-select-option :value="0">名称搜索</a-select-option>
+              <a-select-option :value="1">类型搜索</a-select-option>
             </a-select>
             <a-input-search
               v-model:value="searchValueRef"
@@ -126,6 +130,24 @@
       width: 90px;
       height: 38px;
     }
+    .ant-select-selector {
+      font-size: 12px;
+    }
+    .ant-input-search .ant-input {
+      font-size: 12px;
+      height: 32px;
+      line-height: 32px;
+    }
+    .ant-input-search .ant-input-search-button {
+      width: 60px;
+      color: #fff !important;
+      border-color: #177ddc;
+      background: #177ddc;
+      &:hover {
+        border-color: #095cb5;
+        background: #095cb5;
+      }
+    }
     .ant-row {
       align-items: center;
       margin: 10px;
@@ -206,5 +228,8 @@
       height: 70px;
       width: 70px;
     }
+  }
+  .element-search-item .ant-select-item-option-content {
+    font-size: 12px;
   }
 </style>

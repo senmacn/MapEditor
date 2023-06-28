@@ -123,9 +123,12 @@ export default class Area extends DrawElement {
   }
   select() {
     this.moveable?.updateRect();
-    // 先重置，否则mask-area的offset会错误
-    // TODO: Pin error
-    controller.addCurrentArea(this);
+    controller.getCurrentAreas().forEach((area) => {
+      if (area.uuid !== this.uuid) {
+        area.cancelSelect();
+      }
+    });
+    controller.setCurrentAreas([this]);
     // @ts-ignore
     document.getElementsByClassName(this.uuid).item(0).style.visibility = 'visible';
     this.instance?.click();

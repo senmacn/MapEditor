@@ -99,7 +99,6 @@
   } from '@ant-design/icons-vue';
   import { useLoading } from '@/components/Loading';
   import { loadSaves } from '@/utils/persist';
-  import { useEditorConfig } from '@/store/modules/editor-config';
   import { useCanvasState } from '@/store/modules/canvas-state';
 
   const dataSource = ref<LocalMapHistory[]>([]);
@@ -133,7 +132,6 @@
   }
 
   const [openLoading, closeLoading] = useLoading({ tip: '加载中！', minTime: 1000 });
-  const configRef = useEditorConfig();
   const canvasState = useCanvasState();
   function handleLoadSaves(file: File) {
     openLoading();
@@ -141,10 +139,7 @@
     reader.readAsText(file); //将文件读取为 text
     reader.onload = function (evt) {
       try {
-        const result = loadSaves(String(evt.target?.result), true, [
-          configRef.getSize.x,
-          configRef.getSize.y,
-        ]);
+        const result = loadSaves(String(evt.target?.result), true);
         canvasState.setLayers(result.layers);
 
         const url = location.href.slice().replace(/\#\/.+/, '#/map-editor?name=' + file.name);

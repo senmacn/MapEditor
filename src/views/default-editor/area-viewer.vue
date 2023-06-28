@@ -102,14 +102,6 @@
     }
   });
 
-  onEditAreaEvent(function () {
-    const currentArea = controller.getCurrentAreas()[0];
-    if (currentArea) {
-      currentArea.cancelSelect();
-      currentArea.hide();
-    }
-  });
-
   // zoom配置修改时，修改大小
   watch(
     () => configRef.zoom,
