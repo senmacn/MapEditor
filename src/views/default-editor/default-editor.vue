@@ -131,9 +131,8 @@
           canvasState.getAreaMap.set(area.getUuid(), area);
         }
       }
-    } else {
-      controller.getCurrentAreas()[0]?.show();
     }
+    controller.getCurrentAreas().forEach((area) => area.show());
     controller.endDrawingArea();
   }
 </script>

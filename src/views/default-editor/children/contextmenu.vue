@@ -1,15 +1,15 @@
 <template>
   <v-contextmenu ref="contextmenu">
-    <!-- <v-contextmenu-item>
+    <!-- <v-contextmenu-item :disabled="true">
       <link-outlined />
       跳转到[UE]
-    </v-contextmenu-item> -->
-    <!-- <v-contextmenu-divider /> -->
+    </v-contextmenu-item>
+    <v-contextmenu-divider /> -->
     <v-contextmenu-item @click="handleDrawArea">
       <plus-outlined />
       新增区域
     </v-contextmenu-item>
-    <v-contextmenu-item @click="handleDrawAreaBaseOnChoose">
+    <v-contextmenu-item @click="handleDrawAreaBaseOnChoose" :disabled="!selectedAreaRef">
       <appstore-add-outlined />
       基于选中区域新增
     </v-contextmenu-item>
@@ -17,7 +17,7 @@
       <edit-outlined />
       修改区域
     </v-contextmenu-item> -->
-    <v-contextmenu-item @click="handleDeleteArea">
+    <v-contextmenu-item @click="handleDeleteArea" :disabled="!selectedAreaRef">
       <delete-outlined />
       删除区域
     </v-contextmenu-item>
@@ -26,11 +26,11 @@
       <pushpin-outlined />
       插入地图钉
     </v-contextmenu-item>
-    <v-contextmenu-item @click="handleEditPin">
+    <v-contextmenu-item @click="handleEditPin" :disabled="!selectedPinRef">
       <edit-outlined />
       修改地图钉
     </v-contextmenu-item>
-    <v-contextmenu-item @click="handleDeletePin">
+    <v-contextmenu-item @click="handleDeletePin" :disabled="!selectedPinRef">
       <delete-outlined />
       删除地图钉
     </v-contextmenu-item>
@@ -38,8 +38,9 @@
 </template>
 
 <script setup lang="ts">
-  import { inject, ref } from 'vue';
+  import { computed, inject, ref } from 'vue';
   import {
+    // LinkOutlined,
     PlusOutlined,
     AppstoreAddOutlined,
     PushpinOutlined,
@@ -79,6 +80,9 @@
       },
     });
   }
+
+  const selectedAreaRef = computed(() => controller.getCurrentAreas().length > 0);
+  const selectedPinRef = computed(() => controller.getCurrentPin() !== null);
 
   const clickPositionRef = inject<PointA>('clickPositionRef');
   function handleInsertPin() {

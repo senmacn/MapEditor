@@ -52,7 +52,7 @@ export function createSaves(layers: Layer[]) {
   return data;
 }
 
-export function loadSaves(str: string, useConfig: boolean, curSize: [number, number]) {
+export function loadNewSaves(str: string, useConfig: boolean, curSize: [number, number]) {
   const pureObj = JSON.parse(str) as Saves;
   if (
     pureObj.editorConfig &&
@@ -63,6 +63,15 @@ export function loadSaves(str: string, useConfig: boolean, curSize: [number, num
       `该存档尺寸为${pureObj.editorConfig.size.x}px x ${pureObj.editorConfig.size.y}px！请确认当前地图尺寸设置是否正确！`,
     );
   }
+  return _loadSaves(pureObj, useConfig);
+}
+
+export function loadSaves(str: string, useConfig: boolean) {
+  const pureObj = JSON.parse(str) as Saves;
+  return _loadSaves(pureObj, useConfig);
+}
+
+function _loadSaves(pureObj: Saves, useConfig: boolean) {
   // 设置存档属性，兼容旧数据
   if (useConfig && pureObj.editorConfig) {
     useEditorConfig().setAll(pureObj.editorConfig);
@@ -103,7 +112,7 @@ export function loadSaves(str: string, useConfig: boolean, curSize: [number, num
             for (let pin of pins) {
               const newPin = new Pin('', '', '', '', '', '', { x: 0, y: 0 }, 40, PinIcon.animal);
               Object.assign(newPin, pin);
-              newPin.draw = false;
+              newPin.draw = 'none';
               newLayer[key].push(newPin);
             }
           }

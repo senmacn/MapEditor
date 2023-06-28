@@ -29,7 +29,13 @@
           <a-input size="small" v-model:value="formModel.author" />
         </a-form-item>
         <a-form-item name="type" label="类型">
-          <a-input size="small" v-model:value="formModel.type" />
+          <a-select
+            mode="tags"
+            :value="formModel.type"
+            placeholder="选择一个已有类型或创建一个新类型"
+            :options="areaTypeOptionsRef"
+            @change="(val) => handleTypeChange(val)"
+          ></a-select>
         </a-form-item>
         <a-form-item name="state" label="状态">
           <a-input size="small" v-model:value="formModel.state" />
@@ -102,7 +108,7 @@
 </template>
 
 <script setup lang="ts">
-  import { inject, reactive, ref } from 'vue';
+  import { computed, inject, reactive, ref } from 'vue';
   import { isNull } from '@/utils/is';
   import cloneDeep from 'lodash-es/cloneDeep';
   import { Pin, PinIcon } from '../draw-element';
@@ -113,7 +119,7 @@
     name: '',
     author: '',
     description: '',
-    type: '',
+    type: [],
     state: '',
     jira: '',
     icon: PinIcon.star,
@@ -122,10 +128,26 @@
   };
   const formModel = reactive(cloneDeep(initFormModel));
 
+  const areaTypeOptionsRef = computed(() => {
+    const options: string[] = [];
+    canvasState.getLayers.forEach((layer) => {
+      layer.areas.forEach((area) => {
+        if (area.type && !options.includes(area.type)) {
+          options.push(area.type);
+        }
+      });
+    });
+    return options.map((val) => ({ value: val }));
+  });
+  function handleTypeChange(val) {
+    formModel.type = val.slice(-1);
+  }
+
   const visibleRef = ref(false);
   let isCreate = false;
   let uuid = '';
   const canvasState = useCanvasState();
+
   const pinFormRef = ref();
   function handleOk() {
     pinFormRef.value.validate().then(() => {
@@ -138,7 +160,7 @@
               formModel.name,
               formModel.author,
               formModel.description,
-              formModel.type,
+              formModel.type[0],
               formModel.state,
               formModel.jira,
               {
@@ -157,7 +179,7 @@
                 sitPin.setName(formModel.name);
                 sitPin.setAuthor(formModel.author);
                 sitPin.setDescription(formModel.description);
-                sitPin.setType(formModel.type);
+                sitPin.setType(formModel.type[0]);
                 sitPin.setState(formModel.state);
                 sitPin.setIcon(formModel.icon);
                 sitPin.setJira(formModel.jira);

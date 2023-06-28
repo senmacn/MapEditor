@@ -75,7 +75,7 @@
   import { useCanvasState } from '@/store/modules/canvas-state';
   import { useEditorConfig } from '@/store/modules/editor-config';
   import { getLocalApi, isLocal } from '@/utils/env';
-  import { loadSaves } from '@/utils/persist';
+  import { loadNewSaves } from '@/utils/persist';
   import { Modal, message } from 'ant-design-vue';
   import useSaves from './hooks/useSaves';
   import ChangeMapSizeModal from './children/change-map-size-modal.vue';
@@ -155,7 +155,7 @@
     reader.readAsText(file); //将文件读取为 text
     reader.onload = function (evt) {
       try {
-        const result = loadSaves(String(evt.target?.result), false, [
+        const result = loadNewSaves(String(evt.target?.result), false, [
           configRef.getSize.x,
           configRef.getSize.y,
         ]);

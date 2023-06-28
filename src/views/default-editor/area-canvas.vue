@@ -152,9 +152,10 @@
   // 监听广播
   onEditAreaEvent(function () {
     if (controller.isEditingArea()) {
-      const currentArea = controller.getCurrentAreas()[0];
+      const currentArea = controller.getCurrentAreas()[controller.getCurrentAreas().length - 1];
       if (currentArea) {
         currentArea.cancelSelect();
+        currentArea.hide();
         const data = currentArea.getData();
         ctxRef.putImageData(
           data,
@@ -166,6 +167,7 @@
     } else {
       controller.getCurrentAreas().forEach((area) => {
         area.cancelSelect();
+        area.hide();
         const data = area.getData();
         ctxRef.putImageData(
           data,

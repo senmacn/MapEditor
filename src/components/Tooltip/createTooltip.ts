@@ -6,6 +6,7 @@ import { createVNode, render, reactive } from 'vue';
 export function createTooltip(target: HTMLElement, props?: Recordable, wait = false) {
   let vm: Nullable<VNode> = null;
   const data = reactive({
+    title: '',
     ...props,
     class: 'draw-element-tooltip',
   });
