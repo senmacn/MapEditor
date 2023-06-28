@@ -1,19 +1,4 @@
 import { contextBridge, ipcRenderer } from 'electron';
-import { Titlebar, TitlebarColor } from 'custom-electron-titlebar';
-
-window.addEventListener('DOMContentLoaded', () => {
-  new Titlebar({
-    // @ts-ignore
-    titleHorizontalAlignment: 'left',
-    backgroundColor: TitlebarColor.fromHex('#222225'),
-    tooltips: {
-      maximize: '',
-      minimize: '',
-      restoreDown: '',
-      close: ''
-    }
-  });
-});
 
 const electronApi: LocalApi = {
   getUserConfig: async (): Promise<UserConfig> => {
@@ -42,6 +27,15 @@ const electronApi: LocalApi = {
   },
   maximizeWindow: () => {
     ipcRenderer.invoke('maximize-window');
+  },
+  minimizeWindow: () => {
+    ipcRenderer.invoke('minimize-window');
+  },
+  closeWindow: () => {
+    ipcRenderer.invoke('close-window');
+  },
+  openFolder: async () => {
+    return await ipcRenderer.invoke('open-folder');
   },
 };
 

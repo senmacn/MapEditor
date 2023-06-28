@@ -30,6 +30,15 @@ class ElectronApi implements LocalApi {
   maximizeWindow() {
     return window['electronAPI'].maximizeWindow();
   }
+  minimizeWindow() {
+    return window['electronAPI'].minimizeWindow();
+  }
+  closeWindow() {
+    return window['electronAPI'].closeWindow();
+  }
+  openFolder(folderName: string): Promise<LocalResult<null>> {
+    return window['electronAPI'].openFolder(folderName);
+  }
 }
 
 const electronApi = new ElectronApi();

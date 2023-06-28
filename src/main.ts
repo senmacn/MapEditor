@@ -33,7 +33,7 @@ async function bootstrap() {
   const localApi = getLocalApi();
   if (localApi) {
     const userConfig = await localApi.getUserConfig();
-    useLocalState().setUserConfig(Object.assign({}, userConfig));
+    useLocalState().initUserConfig(Object.assign({}, userConfig));
   }
 
   // 加载存档

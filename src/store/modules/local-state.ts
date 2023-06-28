@@ -37,6 +37,9 @@ export const useLocalState = defineStore({
       document.title = filename;
       this.filename = filename;
     },
+    initUserConfig(userConfig: UserConfig) {
+      this.userConfig = userConfig;
+    },
     setUserConfig(userConfig: UserConfig) {
       const localApi = getLocalApi();
       localApi && localApi.setUserConfig(userConfig);
