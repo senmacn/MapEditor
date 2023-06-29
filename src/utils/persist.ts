@@ -52,6 +52,13 @@ export function createSaves(layers: Layer[]) {
   return data;
 }
 
+/**
+ * 加载新内容
+ * @param str 
+ * @param useConfig 是否使用配置
+ * @param curSize 
+ * @returns 
+ */
 export function loadNewSaves(str: string, useConfig: boolean, curSize: [number, number]) {
   const pureObj = JSON.parse(str) as Saves;
   if (

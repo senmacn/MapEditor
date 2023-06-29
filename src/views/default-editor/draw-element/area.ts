@@ -79,7 +79,7 @@ export default class Area extends DrawElement {
   // 获取区域轮廓点
   getBoundRectPoints() {
     if (!this.boundRectPoints) {
-      const points = getPosition(this.data);
+      const points = getPosition(this.getData());
       points.forEach((point) => {
         point[0] = point[0] + this.boundRect[0];
         point[1] = point[1] + this.boundRect[1];
