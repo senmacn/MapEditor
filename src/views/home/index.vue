@@ -2,90 +2,38 @@
   <div class="home-container">
     <div class="home-left">
       <div class="home-info">
+        <img class="ant-nav-logo" width="100" height="100" src="../../assets/icons/map.svg" />
         <div> 地图编辑器 </div>
         <div> 版本: v0.0.1 </div>
       </div>
-      <div class="home-options">
-        <div class="button-wrapper">
-          <a-button type="primary" @click="() => handleOpenProject('')">
-            <plus-outlined />
-          </a-button>
-          <div>新建项目</div>
-        </div>
-        <div class="button-wrapper">
-          <a-upload
-            :before-upload="(file) => handleLoadSaves(file)"
-            accept=".json"
-            :showUploadList="false"
-          >
-            <a-button type="primary">
-              <import-outlined />
-            </a-button>
-          </a-upload>
-          <div>从文件打开项目</div>
-        </div>
+      <div class="home-bars">
+        <div class="bar-item">项目列表</div>
       </div>
     </div>
     <div class="history-list home-right">
-      <a-list
-        size="small"
-        :bordered="false"
-        :data-source="dataSource"
-        :pagination="paginationProps"
-      >
-        <template #header>
-          <div class="history-title"> - 本地存档 - </div>
-          <a-button
-            type="text"
-            class="history-open"
-            :disable="!isLocal()"
-            @click="openSavesFolder"
-          >
-            <folder-open-filled> </folder-open-filled>
-            访问存档目录
-          </a-button>
-          <a-button
-            type="text"
-            class="history-refresh"
-            :disable="!isLocal()"
-            @click="() => refreshHistory(false)"
-          >
-            <sync-outlined> </sync-outlined>
-            刷新
-          </a-button>
-        </template>
-        <template #renderItem="{ item, index }">
-          <a-list-item class="list-item" item-layout="vertical">
-            <template #actions>
-              <span class="options" @click="handleOpenProject(item.title)">
-                <folder-open-outlined />打开
-              </span>
-              <span class="options" @click="editRef = index"> <edit-outlined />重命名</span>
-              <span class="options" @click="handleDownloadProject(item.title)">
-                <download-outlined />
-                下载
-              </span>
-              <!-- <span class="options">
-                <heart-outlined />置顶</span> -->
-              <span class="options" @click="handleDeleteProject(item.title)">
-                <delete-outlined />
-                删除
-              </span>
-            </template>
-            <a-list-item-meta :class="[item.top ? 'top' : '']" :description="item.description">
-              <template #title>
-                <a-input
-                  v-if="index === editRef"
-                  :default-value="item.title"
-                  type="text"
-                  @blur="(e) => handleEditProjectName(item.title, e?.target?.value)"
-                />
-                <span v-else>{{ item.title }}</span>
-              </template>
-            </a-list-item-meta>
-          </a-list-item>
-        </template>
-      </a-list>
+      <a-space class="opt-button-group">
+        <a-button @click="() => handleOpenProject('')"> <plus-outlined />新建项目 </a-button>
+        <a-upload
+          :before-upload="(file) => handleLoadSaves(file)"
+          accept=".json"
+          :showUploadList="false"
+        >
+          <a-button> <import-outlined />从文件打开项目 </a-button>
+        </a-upload>
+        <a-button class="history-open" :disable="!isLocal()" @click="openSavesFolder">
+          <folder-open-filled> </folder-open-filled>
+          访问存档目录
+        </a-button>
+        <a-button
+          class="history-refresh"
+          :disable="!isLocal()"
+          @click="() => refreshHistory(false)"
+        >
+          <sync-outlined> </sync-outlined>
+          刷新
+        </a-button>
+      </a-space>
+      <project-list :dataSource="dataSource" @refresh-list="refreshHistory"></project-list>
     </div>
   </div>
 </template>
@@ -93,43 +41,40 @@
 <script setup lang="ts">
   import { getLocalApi, isLocal } from '@/utils/env';
   import type { LocalMapHistory } from './common/types';
-  import { reactive, ref } from 'vue';
-  import { isArray, isObject } from '@/utils/is';
-  import { exportFile } from '@/utils/file';
-  import { Modal, message } from 'ant-design-vue';
+  import { ref } from 'vue';
+  import { isArray } from '@/utils/is';
+  import { message } from 'ant-design-vue';
   import {
     PlusOutlined,
     ImportOutlined,
-    DownloadOutlined,
-    EditOutlined,
-    DeleteOutlined,
     SyncOutlined,
     FolderOpenFilled,
-    FolderOpenOutlined,
   } from '@ant-design/icons-vue';
   import { useLoading } from '@/components/Loading';
   import { loadSaves } from '@/utils/persist';
   import { useCanvasState } from '@/store/modules/canvas-state';
+  import ProjectList from './project-list.vue';
+  import { randomHSLColor } from './utils//random';
 
   const dataSource = ref<LocalMapHistory[]>([]);
-  const paginationProps = reactive({
-    pageSize: 4,
-    total: dataSource.value.length,
-  });
 
   const localApi = getLocalApi();
+  if (!localApi) {
+    const url = location.href.slice().replace(/\#\/.+/, '#/map-editor?name=');
+    location.replace(url);
+  }
 
   function openSavesFolder() {
     localApi?.openFolder('');
   }
   function refreshHistory(silence: boolean = false) {
     localApi?.getLocalHistoryList().then((data: LocalMapHistory[]) => {
-        if (isArray(data)) {
-          dataSource.value = data;
-          paginationProps.total = data.length;
-          !silence && message.success('历史记录刷新成功！');
-        }
-      });
+      if (isArray(data)) {
+        data.forEach((item) => (item.color = randomHSLColor()));
+        dataSource.value = data;
+        !silence && message.success('历史记录刷新成功！');
+      }
+    });
   }
   refreshHistory(true);
 
@@ -167,71 +112,20 @@
     };
     return Promise.reject() as any;
   }
-
-  const editRef = ref(-1);
-  function handleEditProjectName(filename: string, newname: string) {
-    if (filename === newname) {
-      editRef.value = -1;
-      return;
-    }
-    localApi &&
-      localApi
-        .renameLocalFile(filename, newname)
-        .then(() => {
-          message.success('修改成功！');
-        })
-        .catch((err) => isObject(err) && err.showMessage && console.warn(err.showMessage))
-        .finally(() => {
-          editRef.value = -1;
-          refreshHistory(true);
-        });
-  }
-  function handleDownloadProject(filename: string) {
-    Modal.confirm({
-      title: '提醒',
-      content: `下载${filename}?`,
-      okText: '确定',
-      cancelText: '取消',
-      onOk: () => {
-        localApi &&
-          localApi.getLocalFileContent(filename as string).then((data) => {
-            exportFile(filename, data, 'json');
-          });
-      },
-    });
-  }
-  function handleDeleteProject(filename: string) {
-    Modal.confirm({
-      title: '提醒',
-      content: `删除数据存档${filename}?`,
-      okText: '确定',
-      cancelText: '取消',
-      onOk: () => {
-        localApi && localApi.deleteLocalFile(filename);
-        refreshHistory(true);
-      },
-    });
-  }
 </script>
 
 <style lang="less">
   .home-container {
+    padding-top: 32px;
     display: flex;
-    justify-content: space-around;
     height: 100vh;
-    width: 95vw;
-    min-width: 600px;
+    width: 100vw;
     margin: 0 auto;
   }
   .home-left {
-    flex: 1;
     padding: 20px;
-    height: 480px;
-    border: 1px solid #746c5f;
-  }
-  .home-left,
-  .home-right {
-    margin-top: 10%;
+    width: 250px;
+    background-color: rgb(38, 38, 41);
   }
   .home-info {
     font-size: 16px;
@@ -240,68 +134,39 @@
     color: @color-text-1;
     text-align: center;
   }
-  .home-options {
+  .home-bars {
     display: flex;
     flex-direction: column;
     justify-content: space-around;
-    padding: 20px;
-    .button-wrapper {
-      font-size: 16px;
-      line-height: 28px;
-      text-align: center;
-      margin-top: 35px;
-      button {
-        width: 80%;
-        height: 60px;
-        border-radius: 10px;
-      }
-      .anticon {
-        width: 22px;
-        height: 22px;
-      }
-    }
-    .ant-upload.ant-upload-select {
-      width: 100%;
-    }
+    align-items: center;
+    margin-top: 30px;
   }
-  .history-list {
+  .bar-item {
+    width: 100%;
+    height: 32px;
+    line-height: 32px;
+    background-color: rgb(43, 43, 46);
+    text-align: center;
+    color: @color-text-1;
+    cursor: pointer;
+  }
+  .home-container .history-list {
     flex: 1;
-    height: 480px;
-    border: 1px solid #746c5f;
+    height: 100%;
     padding: 20px;
-    .history-title {
-      font-size: 16px;
-      font-weight: bold;
-    }
-    .history-open {
-      position: absolute;
-      top: 0;
-      right: 120px;
-    }
-    .history-refresh {
-      position: absolute;
-      top: 0;
-      right: 0;
-    }
-    .list-item {
-      flex-direction: column;
-      align-items: start;
-      color: @color-text-2;
-      span.options {
-        cursor: pointer;
+    .opt-button-group {
+      display: flex;
+      margin-left: 12px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid #4a6272;
+      .ant-btn {
+        width: auto;
+        font-size: 12px;
+        background: #444444;
+        &:hover {
+          color: white;
+        }
       }
-    }
-    .ant-list-item-meta-title {
-      font-size: 14px;
-    }
-    .top .ant-list-item-meta-title {
-      color: red !important;
-    }
-    .ant-list-item-meta-content {
-      width: 100%;
-    }
-    .ant-list-item-action {
-      margin-left: 150px;
     }
   }
 </style>

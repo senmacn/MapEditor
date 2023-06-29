@@ -1,23 +1,24 @@
 import { getLocalApi } from '@/utils/env';
 import { defineStore } from 'pinia';
 
-const userConfig = {
+const localConfig = {
   filename: '',
   userConfig: {
     exportLocation: '',
     downloadLocation: '',
     autoSaveTime: 5,
+    useLatestConfig: false,
   },
 };
 
 const storage = localStorage.getItem('user-config-filename');
 if (storage) {
-  userConfig['user-config-filename'] = storage;
+  localConfig['user-config-filename'] = storage;
 }
 
 export const useLocalState = defineStore({
   id: 'local-state',
-  state: () => userConfig,
+  state: () => localConfig,
   getters: {
     getFileName(): string {
       return this.filename;
@@ -30,6 +31,9 @@ export const useLocalState = defineStore({
     },
     getAutoSaveTime(): number {
       return this.userConfig.autoSaveTime;
+    },
+    getUseLatestConfig(): boolean {
+      return this.userConfig.useLatestConfig;
     },
   },
   actions: {

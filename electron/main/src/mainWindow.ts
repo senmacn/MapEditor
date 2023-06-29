@@ -17,7 +17,7 @@ async function createWindow() {
     titleBarStyle: 'hidden',
     frame: false,
     width: 1000,
-    height: 750,
+    height: 650,
     resizable: false,
   });
 
