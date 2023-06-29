@@ -4,6 +4,7 @@ import { useLocalState } from './store/modules/local-state';
 import { getLocalApi } from './utils/env';
 import { loadSaves } from './utils/persist';
 import { useCanvasState } from './store/modules/canvas-state';
+import controller from './views/default-editor/common/canvas-state-controller';
 
 export default function loadingSaves() {
   const localState = useLocalState();
@@ -23,6 +24,7 @@ export default function loadingSaves() {
             try {
               const result = loadSaves(data, true);
               canvasState.setLayers(result?.layers);
+              controller.setCurrentLayer(canvasState.getLayers[canvasState.getLayers.length - 1]);
             } catch (e: any) {
               console.warn(e);
               message.warning({
