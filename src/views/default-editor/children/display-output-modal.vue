@@ -1,54 +1,60 @@
 <template>
   <a-modal
     class="display-output-modal"
-    title="坐标下载"
     :width="1000"
     :visible="visible"
     :mask-closable="false"
     :onCancel="handleCancel"
+    :closable="false"
     :footer="null"
   >
+    <div class="modal-title">坐标下载</div>
     <a-spin tip="渲染中..." :spinning="spinningRef">
-      <div class="area-choose" v-if="isFirst">
-        <a-checkbox-group v-model:value="areasRef">
-          <a-row v-for="layer in canvasState.layers">
-            <a-col :span="4" class="title">
-              <block-outlined />
-              {{ layer.name }}
-            </a-col>
-            <a-col :span="4" v-for="areas in layer.areas">
-              <a-checkbox :value="areas.getUuid()">
-                <gateway-outlined />
-                {{ areas.getName() }}
-              </a-checkbox>
-            </a-col>
-          </a-row>
-        </a-checkbox-group>
-      </div>
-      <div v-else>
-        <div id="displayModal" class="canvas-wrapper"> </div>
-        <div class="tip">PS: 确认上图的区域填充（大小放缩后）是否与所画区域形状一致！</div>
-      </div>
-      <div class="confirm-button-group">
-        <a-button
-          type="primary"
-          v-if="isFirst"
-          :disabled="areasRef.length === 0"
-          @click="handleExportBySingle"
-        >
-          单独导出
-        </a-button>
-        <a-button
-          type="primary"
-          v-if="isFirst"
-          :disabled="areasRef.length < 2"
-          @click="handleExportMixin"
-        >
-          合并导出
-        </a-button>
-        <a-button type="primary" v-if="!isFirst" @click="handleConfirmOkExport">确定</a-button>
-        <a-button type="primary" v-if="!isFirst" @click="goToPrevious">返回</a-button>
-        <a-button @click="handleCancel">取消</a-button>
+      <div class="modal-content">
+        <div class="area-choose" v-if="isFirst">
+          <a-checkbox-group v-model:value="areasRef">
+            <a-row v-for="layer in canvasState.layers">
+              <a-col :span="4" class="title">
+                <block-outlined />
+                {{ layer.name }}
+              </a-col>
+              <a-col :span="4" v-for="areas in layer.areas">
+                <a-checkbox :value="areas.getUuid()">
+                  <gateway-outlined />
+                  {{ areas.getName() }}
+                </a-checkbox>
+              </a-col>
+            </a-row>
+          </a-checkbox-group>
+        </div>
+        <div v-else>
+          <div id="displayModal" class="canvas-wrapper"> </div>
+          <a-space class="mixin-name" v-if="mixinRef">
+            合并导出区域名称: <a-input v-model:value="mixinNameRef"></a-input>
+          </a-space>
+          <div class="tip">PS: 确认上图的区域填充（大小放缩后）是否与所画区域形状一致！</div>
+        </div>
+        <div class="confirm-button-group">
+          <a-button
+            type="primary"
+            v-if="isFirst"
+            :disabled="areasRef.length === 0"
+            @click="handleExportBySingle"
+          >
+            单独导出
+          </a-button>
+          <a-button
+            type="primary"
+            v-if="isFirst"
+            :disabled="areasRef.length < 2"
+            @click="handleExportMixin"
+          >
+            合并导出
+          </a-button>
+          <a-button type="primary" v-if="!isFirst" @click="handleConfirmOkExport">确定</a-button>
+          <a-button type="primary" v-if="!isFirst" @click="goToPrevious">返回</a-button>
+          <a-button @click="handleCancel">取消</a-button>
+        </div>
       </div>
     </a-spin>
   </a-modal>
@@ -83,7 +89,7 @@
 
   const canvasState = useCanvasState();
 
-  const areasRef = ref<String[]>([]);
+  const areasRef = ref<string[]>([]);
   const mixinRef = ref(false);
   const { goToNext, goToPrevious, isFirst } = useStepper([0, 1], 0);
   function handleExportBySingle() {
@@ -115,6 +121,7 @@
         });
       }
       if (mixinRef.value) {
+        mixinNameRef.value = areas.map((area) => area.getName()).join('_');
         // 计算合并后的边框尺寸，以及单独计算填充
         const toMixinData: Recordable<any>[] = [];
         const startsX: number[] = [];
@@ -206,13 +213,15 @@
   const configRef = useEditorConfig();
   const localState = useLocalState();
   const localApi = getLocalApi();
+
+  const mixinNameRef = ref('');
   function handleConfirmOkExport() {
     setTimeout(() => {
       for (let aData of areaData) {
         const { name, boundRect, data } = aData;
         const worker = new DownloadWorker();
         worker.onmessage = async function (e) {
-          const fileName = name + '.data.bin';
+          const fileName = mixinRef.value ? mixinNameRef.value : name + '.data.bin';
           const data = e.data;
           if (localApi) {
             const e = await localApi.saveLocalFile(fileName, data, localState.getDownloadLocation);
@@ -262,8 +271,6 @@
   .display-output-modal {
     .canvas-wrapper {
       display: flex;
-      margin: 15px auto;
-      padding: 5px;
       max-width: 1000px;
       max-height: 620px;
       overflow: auto;
@@ -274,6 +281,12 @@
         font-weight: bold;
       }
     }
+    .mixin-name {
+      margin: 0 auto;
+      display: flex;
+      width: 320px;
+      margin-bottom: 10px;
+    }
     .ant-checkbox-group {
       width: 100%;
     }
@@ -282,6 +295,9 @@
     }
     .tip {
       text-align: center;
+      color: red;
+      font-weight: bold;
+      font-size: 12px;
     }
   }
 </style>

@@ -152,7 +152,7 @@ export default function setupEvent(mainWindow: BrowserWindow) {
   });
 
   ipcMain.handle('maximize-window', () => {
-    mainWindow.maximize();
+    mainWindow?.isMaximized() ? mainWindow.unmaximize() : mainWindow?.maximize();
   });
 
   ipcMain.handle('minimize-window', () => {

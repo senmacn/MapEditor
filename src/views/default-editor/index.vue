@@ -40,4 +40,8 @@
   });
 </script>
 
-<style></style>
+<style>
+.ant-vue-site .ant-vue-body.is-local {
+  padding-top: 82px;
+}
+</style>
