@@ -19,6 +19,7 @@ const userConfig = {
   exportLocation: '',
   downloadLocation: '',
   autoSaveTime: 5,
+  useLatestConfig: false,
 } as UserConfig;
 
 export default function setupEvent(mainWindow: BrowserWindow) {
