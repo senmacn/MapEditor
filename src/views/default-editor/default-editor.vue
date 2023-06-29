@@ -43,6 +43,7 @@
         pins: [],
       },
     ]);
+    controller.setCurrentLayer(canvasState.getLayers[canvasState.getLayers.length - 1]);
   }
 
   // 标尺相关

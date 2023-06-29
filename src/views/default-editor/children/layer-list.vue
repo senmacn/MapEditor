@@ -10,6 +10,7 @@
         :class="['layer-item', layer.hot ? 'active' : 'inactive']"
         v-for="(layer, index) in (canvasState.layers as Layer[])"
         :key="layer.uuid"
+        @click="handleSelectLayer(index)"
       >
         <div class="layer-content">
           <div
@@ -17,7 +18,7 @@
             :draggable="!layer.lock"
             @dragenter.stop="dragenter($event, index)"
             @dragstart.stop="dragstart($event, index)"
-            @dragend.stop="dragend($event, index)"
+            @dragend.stop="dragend($event)"
           >
             <a-tooltip title="隐藏图层" v-if="layer.visible">
               <a-button
@@ -43,7 +44,7 @@
                 <a-button
                   type="text"
                   class="warning-color"
-                  @click="() => changeLayerLock(layer, false)"
+                  @click.stop="() => changeLayerLock(layer, false)"
                 >
                   <template #icon><lock-outlined /></template>
                 </a-button>
@@ -52,7 +53,7 @@
                 <a-button
                   type="text"
                   class="success-color"
-                  @click="() => changeLayerLock(layer, true)"
+                  @click.stop="() => changeLayerLock(layer, true)"
                 >
                   <template #icon><unlock-outlined /></template>
                 </a-button>
@@ -62,7 +63,7 @@
                   type="text"
                   :class="layer.map ? 'success-color' : 'none'"
                   :disabled="layer.lock"
-                  @click="handleUploadBackground(index)"
+                  @click.stop="handleUploadBackground(index)"
                 >
                   <template #icon>
                     <file-image-outlined />
@@ -73,7 +74,7 @@
                 :disabled="layer.lock"
                 class="warning-color"
                 type="text"
-                @click="() => handleLayerDelete(index)"
+                @click.stop="() => handleLayerDelete(index)"
               >
                 <template #icon>
                   <delete-outlined />
@@ -122,24 +123,15 @@
   import { useCanvasState } from '@/store/modules/canvas-state';
   import { useLoading } from '@/components/Loading';
   import { message } from 'ant-design-vue';
+  import controller from '../common/canvas-state-controller';
 
   const canvasState = useCanvasState();
-  // 当前聚焦
-  const refreshHot = () => {
-    let isHot = false;
-    for (let index = canvasState.layers.length - 1; index >= 0; index--) {
-      const element = canvasState.layers[index];
-      element.hot = false;
-      if (element.visible && !isHot) {
-        element.hot = true;
-        isHot = true;
-      }
-    }
-  };
-
   function changeLayerVisible(layer: Layer, visible: boolean) {
     layer.visible = visible;
-    refreshHot();
+  }
+
+  function handleSelectLayer(index: number) {
+    controller.setCurrentLayer(canvasState.getLayers[index]);
   }
 
   function changeLayerLock(layer: Layer, lock: boolean) {
@@ -165,20 +157,23 @@
       uuid: getRandomDomId(),
       name: '图层' + (canvasState.layers.length + 1),
       lock: false,
-      hot: true,
+      hot: false,
       visible: true,
       map: null,
       areas: [],
       pins: [],
       transparency: 1,
     });
-    refreshHot();
+    controller.setCurrentLayer(canvasState.getLayers[canvasState.getLayers.length - 1]);
   }
   function handleLayerDelete(index: number) {
     modal.confirm({
       title: '确认',
       content: `删除[${canvasState.layers[index].name}]的操作不可逆，请仔细确认！`,
       onOk: () => {
+        if (controller.getCurrentLayer() === canvasState.getLayers[index]) {
+          controller.setCurrentLayer(null);
+        }
         canvasState.layers.splice(index, 1);
       },
     });
@@ -232,7 +227,6 @@
     // 排序变化后目标对象的索引变成源对象的索引
     dragStartRef.value = -1;
     dragEnterRef.value = -1;
-    refreshHot();
 
     openLoading();
     setTimeout(() => {
@@ -286,6 +280,9 @@
     .layer-content {
       display: flex;
       justify-content: center;
+      .ant-input-disabled {
+        background-color: transparent;
+      }
     }
     .layer-index,
     .layer-name,
@@ -327,9 +324,6 @@
     .layer-option {
       width: 140px;
       border-right: 0;
-    }
-    .ant-input-disabled {
-      background-color: transparent;
     }
   }
 </style>

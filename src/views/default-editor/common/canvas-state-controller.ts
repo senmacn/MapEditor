@@ -3,6 +3,7 @@ import { Area, Pin } from '../draw-element';
 import { message } from 'ant-design-vue';
 import { isArray } from '@/utils/is';
 import PencilSvg from '@/assets/cursor/pencil.svg';
+import { Layer } from './types';
 
 export enum CanvasAreaOption {
   AreaCheck,
@@ -43,6 +44,7 @@ function setCursor(cursor: string) {
 class CanvasStateController {
   private areaState = ref(CanvasAreaOption.AreaCheck);
   private state = ref(CanvasOption.None);
+  private currentLayer: Ref<Layer | null> = ref(null);
   private currentAreas: Ref<Area[]> = ref([]);
   private currentPin: Ref<Pin | null> = ref(null);
   private actions: AreaAction[] = [];
@@ -65,6 +67,24 @@ class CanvasStateController {
   }
   isDrawingPen() {
     return this.state.value === CanvasOption.Pen;
+  }
+  getCurrentLayer() {
+    return this.currentLayer.value;
+  }
+  setCurrentLayer(layer: Layer | null) {
+    if (layer) {
+      if (layer.lock) {
+        return;
+      }
+      if (this.currentLayer && this.currentLayer.value === layer) {
+        return;
+      }
+      layer.hot = true;
+    }
+    if (this.currentLayer.value) {
+      this.currentLayer.value.hot = false;
+    }
+    this.currentLayer.value = layer;
   }
   isSelectedArea() {
     return this.currentAreas.value.length;

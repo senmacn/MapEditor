@@ -34,11 +34,7 @@
       ></a-select>
     </a-col>
     <a-col :span="4" :offset="2">
-      <a-button
-        type="primary"
-        :disabled="controller.isDrawingArea()"
-        @click="handleStartDrawingArea"
-      >
+      <a-button type="primary" :disabled="addBtnDisabled" @click="handleStartDrawingArea">
         <template #icon><plus-outlined /> </template>新增
       </a-button>
     </a-col>
@@ -177,6 +173,13 @@
       },
     });
   }
+
+  const addBtnDisabled = computed(
+    () =>
+      !controller.getCurrentLayer() ||
+      controller.getCurrentLayer()?.lock ||
+      controller.isDrawingArea(),
+  );
 
   const editBtnDisabled = computed(
     () => !controller.getCurrentAreas()[0] || controller.isDrawingArea(),
