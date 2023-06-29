@@ -1,7 +1,7 @@
 <template>
   <a-config-provider :locale="zhCN">
     <titlebar v-if="isLocal()" />
-    <div class="ant-vue-site">
+    <div :class="['ant-vue-site', isLocal() ?? 'is-local']">
       <router-view />
     </div>
   </a-config-provider>

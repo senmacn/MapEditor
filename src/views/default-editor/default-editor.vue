@@ -1,5 +1,8 @@
 <template>
-  <div class="map-editor">
+  <div
+    class="map-editor"
+    :style="{ height: isLocal() ? 'calc(100vh - 100px)' : 'calc(100vh - 70px)' }"
+  >
     <default-options @end-edit-area="handleEndEditArea" />
     <div class="content-box">
       <div ref="hRuler" class="ruler h-ruler"></div>
@@ -21,6 +24,7 @@
   import useRuler from '@/hooks/useRuler';
   import { useCanvasState } from '@/store/modules/canvas-state';
   import { useEditorConfig } from '@/store/modules/editor-config';
+  import { isLocal } from '@/utils/env';
 
   const configRef = useEditorConfig();
 

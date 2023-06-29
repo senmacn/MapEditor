@@ -114,7 +114,7 @@
     }
     .slider-value {
       width: 38px;
-      font-size: 8px;
+      font-size: 12px;
       font-weight: bold;
     }
     .ant-slider {
@@ -124,9 +124,6 @@
       }
       .ant-slider-mark {
         display: none;
-      }
-      .ant-slider-marks .ant-slider-mark {
-        font-size: 8px;
       }
     }
     .ant-slider-rail,
