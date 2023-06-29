@@ -149,13 +149,13 @@
 
   // 加载文件
   const [openLoading, closeLoading] = useLoading({ tip: '加载中！', minTime: 1000 });
-  function handleLoadSaves(file: File) {
+  function executeSaves(file: File, useConfig = true) {
     openLoading();
     var reader = new FileReader(); //调用FileReader
     reader.readAsText(file); //将文件读取为 text
     reader.onload = function (evt) {
       try {
-        const result = loadNewSaves(String(evt.target?.result), false, [
+        const result = loadNewSaves(String(evt.target?.result), useConfig, [
           configRef.getSize.x,
           configRef.getSize.y,
         ]);
@@ -187,8 +187,28 @@
         });
       }
       closeLoading();
+      if (useConfig) {
+        // 更新一下标尺
+        setTimeout(() => {
+          canvasState.setOffset({ x: 1, y: 1 });
+        }, 50);
+      }
     };
     return Promise.reject() as any;
+  }
+  function handleLoadSaves(file: File) {
+    Modal.confirm({
+      title: '提醒',
+      content: '是否使用加载内容中的尺寸设置以及编辑设置？可能会覆盖已有的设置！',
+      okText: '使用',
+      cancelText: '跳过',
+      onOk: () => {
+        executeSaves(file, true);
+      },
+      onCancel: () => {
+        executeSaves(file, false);
+      },
+    });
   }
 
   const displayOutputVisibleRef = ref(false);

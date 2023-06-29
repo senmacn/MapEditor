@@ -232,7 +232,19 @@ export function getPosition(imageData: ImageData) {
 export function getClosedCurvePointsData(area: Area, colors = [255, 0, 0, 255]) {
   const floodFill = new FloodFill(area.getData());
   const point = area.getChoosePoint();
-  floodFill.fill(`rgb(${colors.join(',')})`, point[0], point[1], 0);
+
+  if (point) {
+    floodFill.fill(`rgb(${colors.join(',')})`, point[0], point[1], 0);
+  } else {
+    const points = area.getBoundRectPoints();
+    const rect = area.getActualBoundRect();
+    floodFill.fill(
+      `rgb(${colors.join(',')})`,
+      points[0][0] - rect[0] + 2,
+      points[0][1] - rect[1] + 2,
+      0,
+    );
+  }
 
   // put the modified data back in context
   return floodFill.imageData;
