@@ -128,6 +128,7 @@
 
 <style>
   .layer-instance.bottom-layer {
+    background-color: #333;
     pointer-events: auto;
   }
 </style>

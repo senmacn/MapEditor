@@ -125,7 +125,6 @@
     left: 0;
     background-repeat: no-repeat;
     background-size: contain;
-    background-color: #333;
     pointer-events: none;
     .moveable {
       position: absolute;

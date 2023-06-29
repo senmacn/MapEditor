@@ -167,7 +167,6 @@
             if (initLayer.name === layer.name) {
               initLayer.areas = initLayer.areas.concat(layer.areas);
               initLayer.pins = initLayer.pins.concat(layer.pins);
-              initLayer.hot = layer.hot;
               initLayer.visible = layer.visible;
               if (layer.map) {
                 initLayer.map = layer.map;
