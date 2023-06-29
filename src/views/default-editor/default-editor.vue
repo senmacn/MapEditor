@@ -3,7 +3,7 @@
     class="map-editor"
     :style="{ height: isLocal() ? 'calc(100vh - 100px)' : 'calc(100vh - 70px)' }"
   >
-    <default-options @end-edit-area="handleEndEditArea" />
+    <default-options @end-edit-area="handleEndDrawingArea" />
     <div class="content-box">
       <div ref="hRuler" class="ruler h-ruler"></div>
       <div ref="vRuler" class="ruler v-ruler"></div>
@@ -11,12 +11,17 @@
     </div>
     <status-bar></status-bar>
   </div>
+  <choose-area-point-modal
+    ref="confirmModelRef"
+    @confirm-end="handleConfirmEnd"
+  ></choose-area-point-modal>
 </template>
 
 <script setup lang="ts">
   import { ref, watch } from 'vue';
   import StatusBar from './children/status-bar.vue';
   import CanvasContainer from './canvas-container.vue';
+  import ChooseAreaPointModal from './children/choose-area-point-modal.vue';
   import DefaultOptions from './default-options.vue';
   import { getRandomDomId } from '../../utils/uuid';
   import controller from './common/canvas-state-controller';
@@ -116,11 +121,23 @@
   );
 
   // 区域编辑
-  const areaCanvasRef = ref<Recordable>();
-  async function handleEndEditArea(name: string, type: string, complete: boolean) {
+  const areaCanvasRef = ref();
+  const confirmModelRef = ref();
+  const awaitConfirmBound = ref();
+  async function handleEndDrawingArea(name: string, type: string, complete: boolean) {
     if (complete && areaCanvasRef.value) {
       const area: Area = areaCanvasRef.value.getCreatedArea();
       if (!area) return;
+      const confirm = new Promise<[number, number]>((resolve) => {
+        awaitConfirmBound.value = resolve;
+        confirmModelRef.value?.setUpConfirmArea({
+          data: area.getData(),
+          boundRect: area.getBoundRect(),
+        });
+      });
+      const confirmPoint = await confirm;
+      if (!confirmPoint) return;
+      area.setChoosePoint(confirmPoint);
       for (let index = canvasState.getLayers.length - 1; index >= 0; index--) {
         const element = canvasState.getLayers[index];
         if (element.hot) {
@@ -135,6 +152,13 @@
     }
     controller.getCurrentAreas().forEach((area) => area.show());
     controller.endDrawingArea();
+  }
+  function handleConfirmEnd(data: [number, number], cancel: boolean) {
+    if (cancel) {
+      awaitConfirmBound.value && awaitConfirmBound.value(null);
+    } else {
+      awaitConfirmBound.value && awaitConfirmBound.value(data);
+    }
   }
 </script>
 

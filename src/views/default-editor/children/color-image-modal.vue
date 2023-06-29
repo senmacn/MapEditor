@@ -91,7 +91,7 @@
 
   const exportRef = ref(4);
   const totalAreasRef = ref(100);
-  const areasRef = ref<String[]>([]);
+  const areasRef = ref<string[]>([]);
   const areasColorValueRef = ref<Recordable<number>>({});
   const spinningRef = ref(false);
 
