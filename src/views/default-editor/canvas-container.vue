@@ -6,9 +6,9 @@
     @contextmenu="handleClickMenu"
     @click="handleClick"
   >
-    <area-bottom-viewer class="bottom-layer"></area-bottom-viewer>
+    <area-bottom-viewer class="bottom-layer" :style="styleRef"></area-bottom-viewer>
     <template v-for="layer in state.getLayers" :key="layer.uuid">
-      <area-viewer :layer="layer" v-show="layer.visible" />
+      <area-viewer :layer="layer" v-show="layer.visible" :style="styleRef" />
     </template>
     <area-canvas
       ref="areaCanvasRef"
@@ -53,27 +53,6 @@
     state.setOffset({ x: x.value, y: y.value });
   });
   const styleRef = ref('');
-  watch([() => controller.isDrawingArea(), () => controller.isDrawingShape()], () => {
-    if (controller.isDrawingArea() || controller.isDrawingShape()) {
-      let top =
-        y.value - 2000 > 0
-          ? y.value + 5000 > configRef.size.y
-            ? configRef.size.y - 5000
-            : y.value - 2000
-          : 0;
-      let left =
-        x.value - 2000 > 0
-          ? x.value + 5000 > configRef.size.x
-            ? configRef.size.x - 5000
-            : x.value - 2000
-          : 0;
-      top = top < 0 ? 0 : top;
-      left = left < 0 ? 0 : left;
-      offsetRef.value.x = left;
-      offsetRef.value.y = top;
-      // styleRef.value = `top: ${top}px; left: ${left}px;`;
-    }
-  });
   // zoom配置修改时，修改canvas大小
   function executeZoom() {
     const style = getZoomChangeStyle(configRef.zoom, configRef.size.x, configRef.size.y);

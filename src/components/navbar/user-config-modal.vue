@@ -30,12 +30,12 @@
           </div>
           <a-input v-else disabled placeholder="浏览器环境下此项配置不可用！" />
         </a-form-item>
-        <a-form-item name="useLatestConfig" label="默认使用最后一次配置">
+        <!-- <a-form-item name="useLatestConfig" label="默认使用最后一次配置">
           <div v-if="isLocal()">
             <a-switch v-model:checked="formModel.useLatestConfig" />
           </div>
           <a-input v-else disabled placeholder="浏览器环境下此项配置不可用！" />
-        </a-form-item>
+        </a-form-item> -->
       </a-form>
     </div>
   </a-modal>

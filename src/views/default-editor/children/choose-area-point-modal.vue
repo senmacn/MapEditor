@@ -1,16 +1,16 @@
 <template>
   <a-modal
     class="choose-area-point-modal"
-    title="区域内部点确认"
     :width="800"
     :visible="visibleRef"
     :mask-closable="false"
     :onCancel="handleCancel"
     :footer="null"
   >
-    <div class="modal-title">坐标下载</div>
+    <div class="modal-title">区域内部点确认</div>
     <a-spin tip="渲染中..." :spinning="spinningRef">
       <div class="modal-content">
+        <div class="tip">请点选区域内部一点，完成内部点填充预览！</div>
         <div class="canvas-wrapper">
           <canvas
             ref="baseCanvasRef"
@@ -119,6 +119,14 @@
       width: 500px;
       height: 500px;
       overflow: auto;
+    }
+    .modal-content {
+      padding: 36px 56px 56px;
+    }
+    .tip {
+      text-align: center;
+      font-size: 12px;
+
     }
     .base-canvas {
       position: absolute;

@@ -240,19 +240,12 @@
 <style lang="less">
   .ant-modal {
     border-radius: 4px;
+  }
+  .change-map-size-modal {
     .ant-modal-body {
       padding: 0;
       border-radius: 4px;
     }
-    .ant-modal-footer {
-      padding: 8px 10px;
-      button {
-        width: 80px;
-        height: 32px;
-      }
-    }
-  }
-  .change-map-size-modal {
     .modal-title {
       padding: 8px;
       border-bottom: 1px solid @color-modal-border;

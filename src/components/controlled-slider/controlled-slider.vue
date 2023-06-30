@@ -1,17 +1,15 @@
 <template>
   <a-space class="controller-slider">
-    <span class="slider-value">{{ VALUES[valueIndexRef] * 100 + '%' }}</span>
+    <span class="slider-value">{{  (100 * sliderValueRef).toFixed(0) + '%' }}</span>
     <a-tooltip title="ctrl + -">
       <minus-circle-outlined @click="handleDown" />
     </a-tooltip>
     <a-slider
-      :max="4"
-      :min="0.25"
-      :step="null"
+      :max="5"
+      :min="0.1"
+      :step="0.1"
       :default-value="1"
-      :marks="VALUE_MARKS"
       v-model:value="sliderValueRef"
-      @change="handleChange"
     ></a-slider>
     <a-tooltip title="ctrl + +">
       <plus-circle-outlined @click="handleUp" />
@@ -20,19 +18,9 @@
 </template>
 
 <script setup lang="ts">
-  import { Ref, ref, unref, watch } from 'vue';
+  import { Ref, ref, watch } from 'vue';
   import { ControlledSliderAction, ControlledSliderProps } from './types';
   import { MinusCircleOutlined, PlusCircleOutlined } from '@ant-design/icons-vue';
-
-  const VALUES = [0.25, 0.5, 1, 2, 3, 4];
-  const VALUE_MARKS = {
-    0.25: '25%',
-    0.5: '50%',
-    1: '100%',
-    2: '200%',
-    3: '300%',
-    4: '400%',
-  };
 
   const emits = defineEmits<{
     (e: 'register', slider: ControlledSliderAction): void;
@@ -45,51 +33,25 @@
     }
   }
 
-  const valueIndexRef = ref(2);
+  const sliderValueRef = ref(1);
   watch(
-    () => valueIndexRef.value,
+    () => sliderValueRef.value,
     () => {
-      propsRef.value.onChange && propsRef.value?.onChange(VALUES[valueIndexRef.value]);
-      sliderValueRef.value = VALUES[valueIndexRef.value];
+      propsRef.value.onChange && propsRef.value?.onChange(sliderValueRef.value);
     },
   );
 
   function handleUp() {
-    valueIndexRef.value =
-      valueIndexRef.value < VALUES.length - 1 ? valueIndexRef.value + 1 : VALUES.length - 1;
+    sliderValueRef.value = sliderValueRef.value + 0.1;
   }
 
   function handleDown() {
-    valueIndexRef.value = valueIndexRef.value > 0 ? valueIndexRef.value - 1 : 0;
-  }
-
-  const sliderValueRef = ref(1);
-  function handleChange(newVal: any) {
-    if (newVal === VALUES[valueIndexRef.value]) return;
-    if (newVal < 0.25) {
-      valueIndexRef.value = 0;
-      return;
-    }
-    for (let index = 0; index < VALUES.length; index++) {
-      const element = VALUES[index];
-      if (newVal === element) {
-        valueIndexRef.value = index;
-        break;
-      }
-      // if (newVal > element && newVal < VALUES[index + 1]) {
-      //   if (newVal > VALUES[valueIndexRef.value]) {
-      //     valueIndexRef.value = index + 1;
-      //   } else {
-      //     valueIndexRef.value = index;
-      //   }
-      // }
-    }
-    sliderValueRef.value = VALUES[valueIndexRef.value];
+    sliderValueRef.value = sliderValueRef.value - 0.1;
   }
 
   const slider = {
     getValue() {
-      return VALUES[unref(valueIndexRef)];
+      return sliderValueRef.value;
     },
     zoomIn: handleUp,
     zoomOut: handleDown,

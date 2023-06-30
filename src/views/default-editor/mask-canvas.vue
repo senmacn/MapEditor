@@ -17,6 +17,7 @@
   import * as canvasUtil from './utils/canvas-util';
   import { useEditorConfig } from '@/store/modules/editor-config';
   import { useToggle } from '@vueuse/core';
+  import throttle from 'lodash-es/throttle';
 
   // canvas相关
   const ctxRef = useCanvas();
@@ -41,7 +42,7 @@
       }
     }
   }
-  const handleMouseMove = function (e: MouseEvent) {
+  const handleMouseMove = throttle(function (e: MouseEvent) {
     if (e.button !== 0 || !activeRef.value) return;
     endPoint = getPos(e);
     // 清除
@@ -71,7 +72,7 @@
       }
     }
     prevPoint = getPos(e);
-  };
+  }, 16);
 
   function handleMouseUp(e: MouseEvent) {
     if (!activeRef.value) return;
@@ -111,9 +112,8 @@
   function setup() {
     let maskCanvas: HTMLCanvasElement | null = document.querySelector('#mask-canvas');
     if (maskCanvas == null) return;
-    const flag = configRef.size.x > 5000 || configRef.size.y > 5000;
-    maskCanvas.width = flag ? 5000 : configRef.size.x;
-    maskCanvas.height = flag ? 5000 : configRef.size.y;
+    maskCanvas.width = configRef.size.x;
+    maskCanvas.height = configRef.size.y;
     let ctx = maskCanvas.getContext('2d', {
       willReadFrequently: true,
     }) as CanvasRenderingContext2D;
