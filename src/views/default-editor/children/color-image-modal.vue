@@ -73,6 +73,8 @@
   import { exportFile } from '@/utils/file';
   import { message } from 'ant-design-vue';
   import { InfoCircleOutlined } from '@ant-design/icons-vue';
+  import { getLocalApi } from '@/utils/env';
+  import { useLocalState } from '@/store/modules/local-state';
 
   const emit = defineEmits<{
     (event: 'ok'): void;
@@ -88,6 +90,8 @@
 
   const canvasState = useCanvasState();
   const configRef = useEditorConfig();
+  const localApi = getLocalApi();
+  const localState = useLocalState();
 
   const exportRef = ref(4);
   const totalAreasRef = ref(100);
@@ -143,7 +147,22 @@
             tempCtx.putImageData(fullCtx.getImageData(_x, _y, blockWith, blockHeight), 0, 0);
             tempCanvas.toBlob(
               (blob) => {
-                exportFile(indexX + '_' + indexY + '.jpg', blob);
+                const filename = indexX + '_' + indexY + '.jpg';
+                if (localApi) {
+                  blob?.arrayBuffer().then((data) => {
+                    localApi
+                      .saveLocalFile(filename, data as Buffer, localState.getDownloadLocation)
+                      .then((e) => {
+                        if (e) {
+                          message.error(`色值图导出失败！`);
+                          console.error(e);
+                          return;
+                        }
+                      });
+                  });
+                } else {
+                  exportFile(filename, blob);
+                }
               },
               'image/jpeg',
               1.0,
