@@ -25,6 +25,7 @@
   import { message } from 'ant-design-vue';
   import Pen from './pen/Pen';
   import { useToggle } from '@vueuse/core';
+  import { throttle } from 'lodash-es';
 
   const props = defineProps({
     offset: {
@@ -75,12 +76,12 @@
     setActiveRef(true);
   }
 
-  function handleMouseMove(e: MouseEvent) {
+  const handleMouseMove = throttle(function (e: MouseEvent) {
     if (e.button !== 0 || !activeRef.value) return;
     const curPoint = canvasUtil.getPos(e);
     switch (controller.getState()) {
       case CanvasOption.FollowMouse: {
-        _drawSmoothLine(curPoint);
+        window.requestAnimationFrame(() => _drawSmoothLine(curPoint));
         break;
       }
       case CanvasOption.FollowMouseClear: {
@@ -88,7 +89,7 @@
         break;
       }
     }
-  }
+  }, 16);
 
   function handleMouseUp(e: MouseEvent) {
     if (e.button !== 0 || !activeRef.value) return;
@@ -236,9 +237,8 @@
     if (setUpState) return;
     let editCanvas: HTMLCanvasElement = document.getElementById('area-canvas') as HTMLCanvasElement;
     if (editCanvas == null) return;
-    const flag = configRef.getSize.x > 5000 || configRef.getSize.y > 5000;
-    editCanvas.width = flag ? 5000 : configRef.getSize.x;
-    editCanvas.height = flag ? 5000 : configRef.getSize.y;
+    editCanvas.width = configRef.getSize.x;
+    editCanvas.height = configRef.getSize.y;
     let ctx = editCanvas.getContext('2d', {
       willReadFrequently: true,
     }) as CanvasRenderingContext2D;

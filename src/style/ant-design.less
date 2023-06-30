@@ -13,10 +13,23 @@
   background-color: @color-bg-modal-1;
 }
 
+.ant-modal-body {
+  padding: 0;
+}
+
+.ant-modal-confirm .ant-modal-body {
+  padding: 32px 32px 24px;
+}
+
 .ant-modal-footer {
   display: flex;
   justify-content: center;
   flex-direction: row-reverse;
+  padding: 8px 10px;
+  button {
+    width: 80px;
+    height: 32px;
+  }
   button:last-child {
     margin-right: 80px;
   }
