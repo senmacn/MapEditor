@@ -14,6 +14,7 @@ import { getLocalApi } from './utils/env';
 import { useLocalState } from './store/modules/local-state';
 import loadingSaves from './loadingSaves';
 import setCustomDirectives from './directives';
+import { useEditorConfig } from './store/modules/editor-config';
 
 message.config({
   top: '25px',
@@ -31,9 +32,12 @@ async function bootstrap() {
 
   // 本地环境下更新个人配置
   const localApi = getLocalApi();
+  const configRef = useEditorConfig();
   if (localApi) {
     const userConfig = await localApi.getUserConfig();
     useLocalState().initUserConfig(Object.assign({}, userConfig));
+    userConfig.mapObj && configRef.setMapSize(userConfig.mapObj);
+    userConfig.sizeObj && configRef.setSize(userConfig.sizeObj);
   }
 
   // 加载存档

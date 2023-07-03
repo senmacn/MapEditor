@@ -3,4 +3,6 @@ interface UserConfig {
   downloadLocation: string;
   autoSaveTime: number;
   useLatestConfig: boolean;
+  mapObj?: Recordable;
+  sizeObj?: Recordable;
 }

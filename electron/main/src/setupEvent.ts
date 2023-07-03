@@ -38,7 +38,7 @@ export default function setupEvent(mainWindow: BrowserWindow) {
   // 设置事件
   ipcMain.handle('set-user-config', (_evt, config: UserConfig) => {
     Object.assign(userConfig, config);
-    return writeFileSync(path.join(DATA_DIR, 'config.json'), JSON.stringify(config), {
+    return writeFileSync(path.join(DATA_DIR, 'config.json'), JSON.stringify(userConfig), {
       encoding: 'utf8',
     });
   });
