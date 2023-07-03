@@ -11,11 +11,6 @@ const localConfig = {
   },
 };
 
-const storage = localStorage.getItem('user-config-filename');
-if (storage) {
-  localConfig['user-config-filename'] = storage;
-}
-
 export const useLocalState = defineStore({
   id: 'local-state',
   state: () => localConfig,

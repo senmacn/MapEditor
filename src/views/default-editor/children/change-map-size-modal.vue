@@ -10,9 +10,9 @@
     <div class="modal-title">尺寸设置</div>
     <div class="modal-content">
       <div class="left-box">
-        <div class="map-size">地图坐标参数</div>
+        <div class="map-size">地图坐标参数(可选)</div>
         <div class="map-size">
-          <a-tooltip title="单张图片对应的地块大小 xxx / 1024 (cm/px)得到的数值">
+          <a-tooltip title="单张图片对应的地块大小数值">
             <span>
               坐标/每1024px:
               <info-circle-outlined class="warning-color" />
@@ -60,9 +60,9 @@
         </a-button>
       </div>
       <div class="right-box">
-        <div class="map-size">编辑器数据参数</div>
+        <div class="map-size">编辑器数据参数(必选)</div>
         <div class="map-size">
-          <a-tooltip title="单张图片对应的地块大小 xxx / 1024 (cm/px)得到的数值">
+          <a-tooltip title="单张图片对应的地块大小 xxx / 1024px 得到的数值(cm/px)">
             <span>
               比例尺:
               <info-circle-outlined class="warning-color" />
@@ -96,13 +96,15 @@
         </div>
       </div>
     </div>
-    <div class="remind"
-      >可选择直接填写右侧编辑器数据参数，或通过填写地图坐标参数手动转换为编辑器参数</div
-    >
-    <div class="remind"
-      ><span class="error-color">修改地图尺寸会刷新页面！</span
-      >请提前使用导出功能保存当前数据！</div
-    >
+
+    <div class="remind">
+      左侧【地图坐标参数】可选填，用于快速换算右侧的【编辑器数据参数】，同时填写后可以将标尺与游戏实际坐标对应
+    </div>
+    <div class="remind"> 右侧【编辑器数据参数】必填，直接影响数据的正确性 </div>
+    <div class="remind">
+      <span class="error-color">修改地图尺寸会刷新页面！ </span>
+      数据将被自动保存！
+    </div>
   </a-modal>
 </template>
 
@@ -113,6 +115,7 @@
   import { InfoCircleOutlined, SwapRightOutlined } from '@ant-design/icons-vue';
   import { isNumber } from '@/utils/is';
   import { message } from 'ant-design-vue';
+  import { getLocalApi } from '@/utils/env';
 
   const emit = defineEmits<{
     (e: 'change-size'): void;
@@ -218,7 +221,7 @@
 
         if (mapConfig.value.used || Object.keys(mapConfig.value).some((val) => !!val)) {
           mapConfig.value.used = 1;
-          configRef.setMapSize({
+          const mapObj = {
             fullScale: Number(mapConfig.value.fullScale),
             used: Number(mapConfig.value.used),
             map_ltX: Number(mapConfig.value.map_ltX),
@@ -229,7 +232,17 @@
             ltY: Number(mapConfig.value.ltY),
             rbX: Number(mapConfig.value.rbX),
             rbY: Number(mapConfig.value.rbY),
-          });
+          };
+          configRef.setMapSize(mapObj);
+
+          // 自动保存数据
+          const localApi = getLocalApi();
+          if (localApi) {
+            localApi.setUserConfig({
+              sizeObj,
+              mapObj,
+            } as any as UserConfig);
+          }
         }
         emit('change-size');
       },
