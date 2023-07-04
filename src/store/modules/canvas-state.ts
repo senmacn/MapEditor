@@ -1,10 +1,11 @@
 import type { Layer } from '@/views/default-editor/common/types';
-import type { Area } from '@/views/default-editor/draw-element';
+import type { Area, Pin } from '@/views/default-editor/draw-element';
 import { defineStore } from 'pinia';
 
 interface CanvasState {
   layers: Layer[];
   areaMap: Map<String, Area>;
+  pinMap: Map<String, Pin>;
   offset: {
     x: number;
     y: number;
@@ -16,6 +17,7 @@ export const useCanvasState = defineStore({
   state: (): CanvasState => ({
     layers: [],
     areaMap: new Map(),
+    pinMap: new Map(),
     offset: {
       x: 0,
       y: 0,
@@ -24,6 +26,9 @@ export const useCanvasState = defineStore({
   getters: {
     getAreaMap(): Map<String, Area> {
       return this.areaMap;
+    },
+    getPinMap(): Map<String, Pin> {
+      return this.pinMap;
     },
     getOffset(): Offset {
       return this.offset;
@@ -41,6 +46,9 @@ export const useCanvasState = defineStore({
       const map = new Map();
       layers.forEach((layer) => layer.areas.forEach((area) => map.set(area.getUuid(), area)));
       this.areaMap = map;
+      const pinMap = new Map();
+      layers.forEach((layer) => layer.pins.forEach((pin) => pinMap.set(pin.getUuid(), pin)));
+      this.areaMap = pinMap;
       // @ts-ignore TODO: execute
       this.layers = layers;
     },
