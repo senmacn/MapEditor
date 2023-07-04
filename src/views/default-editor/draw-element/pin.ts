@@ -3,6 +3,7 @@ import controller from '../common/canvas-state-controller';
 import { nextTick } from 'vue';
 import DrawElement from './draw-element';
 import { useTooltip } from '@/components/Tooltip/useTooltip';
+import { PinAssociation } from './type';
 
 export enum PinIcon {
   star = 'star',
@@ -24,6 +25,8 @@ export default class Pin extends DrawElement {
   private jira: string;
 
   private icon: PinIcon;
+
+  public association: PinAssociation[] = [];
 
   constructor(
     name: string,
@@ -47,7 +50,6 @@ export default class Pin extends DrawElement {
     this.jira = jira;
     this.boundRect = [position.x, position.y, size, size];
   }
-
   setName(name): void {
     this.name = name;
   }
@@ -78,7 +80,7 @@ export default class Pin extends DrawElement {
     const top = 'top: ' + this.boundRect[1] + 'px;';
     instance.setAttribute('style', top + left);
     const imgElement = document.createElement('img');
-    imgElement.setAttribute('src', 'src/assets/images/' + this.icon + '.png');
+    imgElement.setAttribute('src', 'images/' + this.icon + '.png');
     imgElement.setAttribute('width', this.boundRect[2] + 'px');
     imgElement.setAttribute('height', this.boundRect[2] + 'px');
 

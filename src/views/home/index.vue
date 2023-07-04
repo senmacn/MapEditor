@@ -33,9 +33,18 @@
           刷新
         </a-button>
       </a-space>
+      <a-tooltip title="用户设置" placement="bottom">
+        <a class="settings" @click.prevent="handleOpenConfig">
+          <setting-outlined></setting-outlined>
+        </a>
+      </a-tooltip>
       <project-list :dataSource="dataSource" @refresh-list="refreshHistory"></project-list>
     </div>
   </div>
+  <user-config-modal
+    :visible="userConfigModalVisibleRef"
+    @close="userConfigModalVisibleRef = false"
+  />
 </template>
 
 <script setup lang="ts">
@@ -49,11 +58,13 @@
     ImportOutlined,
     SyncOutlined,
     FolderOpenFilled,
+    SettingOutlined,
   } from '@ant-design/icons-vue';
   import { useLoading } from '@/components/Loading';
   import { loadSaves } from '@/utils/persist';
   import { useCanvasState } from '@/store/modules/canvas-state';
   import ProjectList from './project-list.vue';
+  import UserConfigModal from '@/components/navbar/user-config-modal.vue';
   import { randomHSLColor } from './utils//random';
 
   const dataSource = ref<LocalMapHistory[]>([]);
@@ -112,6 +123,11 @@
     };
     return Promise.reject() as any;
   }
+
+  const userConfigModalVisibleRef = ref();
+  function handleOpenConfig() {
+    userConfigModalVisibleRef.value = true;
+  }
 </script>
 
 <style lang="less">
@@ -167,6 +183,14 @@
           color: white;
         }
       }
+    }
+  }
+  .settings {
+    position: absolute;
+    right: 30px;
+    top: 60px;
+    .anticon-setting {
+      font-size: 16px;
     }
   }
 </style>

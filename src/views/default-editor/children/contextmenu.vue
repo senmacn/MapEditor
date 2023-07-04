@@ -50,10 +50,13 @@
   import { emitDeleteAreaEvent, emitEditAreaEvent } from '../common/event';
   import { Modal } from 'ant-design-vue';
   import controller from '../common/canvas-state-controller';
+  import { useCanvasState } from '@/store/modules/canvas-state';
 
   const emit = defineEmits<{
     (e: 'show-pin-modal', create: boolean): void;
   }>();
+
+  const canvasState = useCanvasState();
 
   function handleDrawArea() {
     controller.startDrawingArea(true);
@@ -118,6 +121,7 @@
         ) as number;
         if (posIndex > -1) {
           pinToDelete?.layer?.pins.splice(posIndex, 1);
+          canvasState.getPinMap.delete(pinToDelete?.getUuid());
         }
         controller.setCurrentPin(null);
         setTimeout(() => {

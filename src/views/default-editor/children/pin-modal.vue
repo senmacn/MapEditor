@@ -52,31 +52,31 @@
           >
             <a-space>
               <a-radio-button :value="PinIcon.star">
-                <img src="@/assets/images/star.png" alt="star" />
+                <img src="images/star.png" alt="star" />
               </a-radio-button>
               <a-radio-button :value="PinIcon.more">
-                <img src="@/assets/images/more.png" alt="more" />
+                <img src="images/more.png" alt="more" />
               </a-radio-button>
               <a-radio-button :value="PinIcon.chest">
-                <img src="@/assets/images/chest.png" alt="chest" />
+                <img src="images/chest.png" alt="chest" />
               </a-radio-button>
               <a-radio-button :value="PinIcon.backpack">
-                <img src="@/assets/images/backpack.png" alt="backpack" />
+                <img src="images/backpack.png" alt="backpack" />
               </a-radio-button>
               <a-radio-button :value="PinIcon.book">
-                <img src="@/assets/images/book.png" alt="book" />
+                <img src="images/book.png" alt="book" />
               </a-radio-button>
               <a-radio-button :value="PinIcon.animal">
-                <img src="@/assets/images/animal.png" alt="animal" />
+                <img src="images/animal.png" alt="animal" />
               </a-radio-button>
               <a-radio-button :value="PinIcon.monster">
-                <img src="@/assets/images/monster.png" alt="monster" />
+                <img src="images/monster.png" alt="monster" />
               </a-radio-button>
               <a-radio-button :value="PinIcon.special">
-                <img src="@/assets/images/special.png" alt="special" />
+                <img src="images/special.png" alt="special" />
               </a-radio-button>
               <a-radio-button :value="PinIcon.world">
-                <img src="@/assets/images/world.png" alt="world" />
+                <img src="images/world.png" alt="world" />
               </a-radio-button>
             </a-space>
           </a-radio-group>
@@ -96,7 +96,30 @@
             :max-length="100"
           />
         </a-form-item>
-        <a-form-item name="association" label="关联"> </a-form-item>
+        <a-form-item name="association" label="关联">
+          <div class="association-wrapper">
+            <div class="association-row head">
+              <div>名称</div>
+              <div>关系</div>
+              <div>操作</div>
+            </div>
+            <div
+              class="association-row"
+              v-for="(item, index) in formModel.association"
+              :key="index"
+            >
+              <div>{{ item.name }}</div>
+              <div>{{ item.type }}</div>
+              <div>
+                <a type="text" @click="() => handleShowEditModal(item)"> 编辑 </a>
+                <a type="text" @click="() => formModel.association.splice(index, 1)"> 删除 </a>
+              </div>
+            </div>
+            <div class="association-row">
+              <a-button class="add" @click="() => handleShowEditModal()">+</a-button>
+            </div>
+          </div>
+        </a-form-item>
       </a-form>
     </div>
     <div class="button-group">
@@ -105,16 +128,20 @@
       <a-button @click="handleCancel">关闭</a-button>
     </div>
   </a-modal>
+  <pin-association-edit-modal ref="editModal" @edit="handleCompleteEdit" />
 </template>
 
 <script setup lang="ts">
+  import type { PinAssociation } from '../draw-element/type';
   import { computed, inject, reactive, ref } from 'vue';
   import { isNull } from '@/utils/is';
   import cloneDeep from 'lodash-es/cloneDeep';
   import { Pin, PinIcon } from '../draw-element';
   import { useCanvasState } from '@/store/modules/canvas-state';
+  import pinAssociationEditModal from './pin-association-edit-modal.vue';
 
   const clickPositionRef = inject<Recordable>('clickPositionRef', { offsetX: 0, offsetY: 0 });
+
   const initFormModel = {
     name: '',
     author: '',
@@ -125,6 +152,7 @@
     icon: PinIcon.star,
     size: '60',
     position: { x: 0, y: 0 },
+    association: [] as PinAssociation[],
   };
   const formModel = reactive(cloneDeep(initFormModel));
 
@@ -148,6 +176,23 @@
   let uuid = '';
   const canvasState = useCanvasState();
 
+  const editModal = ref();
+  function handleShowEditModal(item?: PinAssociation) {
+    editModal.value.setData(item);
+  }
+  function handleCompleteEdit(item: PinAssociation) {
+    let editFlag = false;
+    formModel.association.forEach((a) => {
+      if (a.uuid === item.uuid) {
+        Object.assign(a, item);
+        editFlag = true;
+      }
+    });
+    if (!editFlag) {
+      formModel.association.push(item);
+    }
+  }
+
   const pinFormRef = ref();
   function handleOk() {
     pinFormRef.value.validate().then(() => {
@@ -160,7 +205,7 @@
               formModel.name,
               formModel.author,
               formModel.description,
-              formModel.type[0],
+              formModel.type && formModel.type[0],
               formModel.state,
               formModel.jira,
               {
@@ -171,8 +216,11 @@
               formModel.icon,
             );
             pin.layer = element;
+            pin.association = formModel.association;
             // @ts-ignore
             element.pins.push(pin);
+            // 更新map
+            canvasState.getPinMap.set(pin.getUuid(), pin);
           } else {
             element.pins.forEach((sitPin) => {
               if (sitPin.getUuid() === uuid) {
@@ -189,6 +237,7 @@
                   size,
                   size,
                 ]);
+                sitPin.association = formModel.association;
                 // 重新渲染
                 sitPin.draw = 'update';
               }
@@ -200,7 +249,6 @@
       visibleRef.value = false;
     });
   }
-
   function handleCancel() {
     visibleRef.value = false;
   }
@@ -273,6 +321,30 @@
     }
     .ant-radio-button-content {
       padding: 4px;
+    }
+    .association-wrapper {
+      height: 110px;
+      border: 1px solid @color-border-3;
+      overflow-y: auto;
+    }
+    .association-row {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      height: 22px;
+      div {
+        flex: 1;
+        text-align: center;
+        font-size: 12px;
+      }
+      &.head .div {
+        font-weight: bold;
+      }
+      .ant-btn.add {
+        width: 100%;
+        height: 100%;
+        line-height: 4px;
+      }
     }
   }
 </style>
