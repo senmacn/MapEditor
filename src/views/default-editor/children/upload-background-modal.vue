@@ -20,13 +20,13 @@
         </a-space>
         <a-space>
           图层透明
-          <a-input-number 
+          <a-input-number
             v-model:value="transparencyRef"
-            :max="1" 
-            :min="0" 
-            :step="0.1" 
-            size="small" 
-            mode="button" 
+            :max="1"
+            :min="0"
+            :step="0.1"
+            size="small"
+            mode="button"
             class="trans-input"
           />
           <info-circle-outlined class="warning-color" />
@@ -38,6 +38,7 @@
           <a-divider plain>上传类型</a-divider>
           <button class="step-button" @click="handleGotoFull">全图上传</button>
           <button class="step-button" @click="handleGotoSlice">分片上传</button>
+          <button v-if="isLocal()" class="step-button" @click="handleGotoEXR">EXR上传</button>
         </div>
         <div v-else-if="stepRef === Step.Full" class="full-upload">
           <a-divider plain>全图上传</a-divider>
@@ -47,8 +48,7 @@
             list-type="picture-card"
             :showUploadList="false"
           >
-            <picture-outlined class="success-color" v-if="fileStringRef"></picture-outlined>
-            <plus-outlined v-else></plus-outlined>
+            <plus-outlined></plus-outlined>
           </a-upload>
         </div>
         <div v-else-if="stepRef === Step.SLICE" class="slice-upload">
@@ -68,7 +68,6 @@
             <a-upload
               v-model:file-list="sliceFileList"
               :beforeUpload="handleUploadSlice"
-              :previewIcon="null"
               :maxCount="slicesRef"
               accept=".png,.jpg"
               list-type="picture-card"
@@ -79,19 +78,31 @@
             </a-upload>
           </div>
         </div>
+        <div v-else-if="stepRef === Step.EXR" class="exr-upload">
+          <a-divider plain>EXR 上传</a-divider>
+          <a-space direction="vertical">
+            <div> 文件目录 </div>
+            <div>
+              <info-circle-outlined class="warning-color" />
+              <span class="tip"> 请填写需要上传的 EXR 文件目录的路径，然后点击上传按钮 </span>
+            </div>
+            <a-input v-model:value="exrDirectoryRef"></a-input>
+            <div class="option">
+              <a-button type="primary" @click="handleExecuteEXR" :disabled="!exrDirectoryRef">
+                上传
+              </a-button>
+            </div>
+          </a-space>
+        </div>
       </transition>
     </div>
     <div class="button-group">
-      <a-button
-        type="primary"
-        v-if="stepRef === Step.START"
-        @click="handleOk"
-      >
+      <a-button type="primary" v-if="stepRef === Step.START" @click="handleOk">
         透明度修改
       </a-button>
       <a-button
         type="primary"
-        v-if="stepRef === Step.Full"
+        v-if="stepRef === Step.Full || stepRef === Step.EXR"
         @click="handleOk"
         :disabled="!fileStringRef"
       >
@@ -114,6 +125,7 @@
 <script setup lang="ts">
   import { useLoading } from '@/components/Loading';
   import { useEditorConfig } from '@/store/modules/editor-config';
+  import { getLocalApi, isLocal } from '@/utils/env';
   import { compressionFile, dataURLToImage, fileToDataURL } from '@/utils/file/image';
   import { InfoCircleOutlined, PlusOutlined, PictureOutlined } from '@ant-design/icons-vue';
   import { message } from 'ant-design-vue';
@@ -124,6 +136,7 @@
     START,
     Full,
     SLICE,
+    EXR,
   }
 
   const emit = defineEmits<{
@@ -153,6 +166,10 @@
   function handleGotoSlice() {
     fileStringRef.value = '';
     stepRef.value = Step.SLICE;
+  }
+  function handleGotoEXR() {
+    fileStringRef.value = '';
+    stepRef.value = Step.EXR;
   }
 
   // 全图上传
@@ -206,25 +223,48 @@
     sliceFileList.value = [];
   }
 
+  const localApi = getLocalApi();
+  // EXR 上传
+  const exrDirectoryRef = ref();
+  async function handleExecuteEXR() {
+    openLoading();
+    if (localApi && exrDirectoryRef.value.length) {
+      try {
+        const result = await localApi.concatExr(exrDirectoryRef.value);
+        if (result) {
+          fileStringRef.value = result.toString();
+        }
+      } catch (err) {
+        console.error(err);
+        message.error('上传失败！请检查路径是否正确！');
+      }
+    }
+    setTimeout(() => {
+      closeLoading();
+    });
+  }
+
   function handleOk() {
     emit('ok', fileStringRef.value, transparencyRef.value);
     fileStringRef.value = '';
+    stepRef.value = Step.START;
   }
 
   function handleCancel() {
     emit('cancel');
+    stepRef.value = Step.START;
   }
 </script>
 
 <style lang="less">
   .upload-background-modal {
+    .tip {
+      font-size: 12px;
+      color: @color-text-4;
+    }
     .modal-content {
       padding-top: 20px;
       height: 500px;
-    }
-    .tip {
-      font-size: 10px;
-      color: @color-text-4;
     }
     .trans-input {
       width: 70px;
@@ -253,9 +293,9 @@
       }
     }
     .step-button {
-      margin: 0 48px;
-      width: 200px;
-      height: 200px;
+      margin: 0 24px;
+      width: 150px;
+      height: 150px;
       font-size: 14px;
       border-radius: 8px;
       color: @text-color;
@@ -274,6 +314,17 @@
         font-size: 12px;
       }
     }
+    .exr-upload {
+      .ant-space {
+        width: 90%;
+        padding: 20px;
+      }
+      .option {
+        margin: 0 auto;
+        text-align: center;
+      }
+    }
+
     .fade-enter-active,
     .fade-leave-active {
       transition: opacity 0.3s ease;

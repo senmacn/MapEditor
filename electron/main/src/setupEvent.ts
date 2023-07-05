@@ -11,6 +11,7 @@ import {
 } from 'fs';
 import * as path from 'path';
 import { join } from 'path';
+import { transformExrDir } from './utils/exr-utils';
 
 const DATA_DIR = 'data';
 const SAVES_DIR = 'data/saves';
@@ -166,5 +167,13 @@ export default function setupEvent(mainWindow: BrowserWindow) {
 
   ipcMain.handle('open-folder', () => {
     shell.openPath(path.resolve(process.cwd(), SAVES_DIR));
+  });
+
+  ipcMain.handle('concat-exr', (_evt, targetDir: string) => {
+    try {
+      return transformExrDir(targetDir);
+    } catch (err) {
+      return err as LocalError;
+    }
   });
 }

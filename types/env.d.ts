@@ -11,4 +11,5 @@ interface LocalApi {
   minimizeWindow(): void;
   closeWindow(): void;
   openFolder(folderName: string): Promise<LocalResult<null>>
+  concatExr(targetDir: string): Promise<LocalResult<string>> 
 }

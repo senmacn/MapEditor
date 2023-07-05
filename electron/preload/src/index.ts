@@ -37,6 +37,9 @@ const electronApi: LocalApi = {
   openFolder: async () => {
     return await ipcRenderer.invoke('open-folder');
   },
+  concatExr: async (targetDir: string) => {
+    return await ipcRenderer.invoke('concat-exr', targetDir);
+  }
 };
 
 contextBridge.exposeInMainWorld('electronAPI', electronApi);
