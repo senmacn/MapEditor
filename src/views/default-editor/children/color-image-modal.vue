@@ -151,7 +151,7 @@
                 if (localApi) {
                   blob?.arrayBuffer().then((data) => {
                     localApi
-                      .saveLocalFile(filename, data as Buffer, localState.getDownloadLocation)
+                      .saveLocalFile(filename, data as Buffer, localState.getColorExportLocation)
                       .then((e) => {
                         if (e) {
                           message.error(`色值图导出失败！`);

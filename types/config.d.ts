@@ -1,6 +1,7 @@
 interface UserConfig {
   exportLocation: string;
   downloadLocation: string;
+  colorExportLocation: string;
   autoSaveTime: number;
   useLatestConfig: boolean;
   mapObj?: Recordable;
