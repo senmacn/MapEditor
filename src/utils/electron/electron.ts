@@ -39,6 +39,9 @@ class ElectronApi implements LocalApi {
   openFolder(folderName: string): Promise<LocalResult<null>> {
     return window['electronAPI'].openFolder(folderName);
   }
+  concatExr(folderName: string): Promise<LocalResult<string>> {
+    return window['electronAPI'].concatExr(folderName);
+  }
 }
 
 const electronApi = new ElectronApi();
