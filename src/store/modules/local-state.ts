@@ -6,6 +6,7 @@ const localConfig = {
   userConfig: {
     exportLocation: '',
     downloadLocation: '',
+    colorExportLocation: '',
     autoSaveTime: 5,
     useLatestConfig: false,
   },
@@ -23,6 +24,9 @@ export const useLocalState = defineStore({
     },
     getDownloadLocation(): string {
       return this.userConfig.downloadLocation;
+    },
+    getColorExportLocation(): string{
+      return this.userConfig.colorExportLocation;
     },
     getAutoSaveTime(): number {
       return this.userConfig.autoSaveTime;

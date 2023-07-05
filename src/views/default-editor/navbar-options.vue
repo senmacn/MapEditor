@@ -28,7 +28,7 @@
             <div class="inner-content" @click="handleOpenDownloadModal">坐标下载</div>
           </a-menu-item>
           <a-menu-item key="5">
-            <div class="inner-content" @click="colorImageVisibleRef = true">色值图下载</div>
+            <div class="inner-content" @click="handleOpenColorExport">色值图下载</div>
           </a-menu-item>
           <a-divider></a-divider>
           <a-menu-item key="6">
@@ -224,6 +224,13 @@
   }
 
   const colorImageVisibleRef = ref(false);
+  function handleOpenColorExport() {
+    if (isLocal() && !localState.getColorExportLocation) {
+      message.warning('请设置色值图下载位置！');
+      return;
+    }
+    colorImageVisibleRef.value = true;
+  }
   function handleColorImageExport() {
     colorImageVisibleRef.value = false;
   }
