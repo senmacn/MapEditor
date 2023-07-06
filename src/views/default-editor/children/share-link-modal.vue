@@ -41,6 +41,7 @@
   import { ref, watch } from 'vue';
   import { useLoading } from '@/components/Loading';
   import { InfoCircleOutlined, LinkOutlined } from '@ant-design/icons-vue';
+  import { isObject } from '@/utils/is';
 
   const emits = defineEmits<{
     (e: 'close'): void;
@@ -68,7 +69,14 @@
     localApi
       ?.createShareLink(localState.getFileName, props.uuid)
       .then((data) => {
-        linkRef.value = data as string;
+        if (isObject(data)) {
+          message.error('生成失败！' + data.showMessage);
+        } else {
+          linkRef.value = data as string;
+        }
+      })
+      .catch((err) => {
+        message.error('生成失败！' + err.message);
       })
       .finally(() => {
         close();

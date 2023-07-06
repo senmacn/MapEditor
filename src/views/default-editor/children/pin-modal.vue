@@ -54,31 +54,31 @@
           >
             <a-space>
               <a-radio-button :value="PinIcon.star">
-                <img src="images/star.png" alt="star" />
+                <img src="/images/star.png" alt="star" />
               </a-radio-button>
               <a-radio-button :value="PinIcon.more">
-                <img src="images/more.png" alt="more" />
+                <img src="/images/more.png" alt="more" />
               </a-radio-button>
               <a-radio-button :value="PinIcon.chest">
-                <img src="images/chest.png" alt="chest" />
+                <img src="/images/chest.png" alt="chest" />
               </a-radio-button>
               <a-radio-button :value="PinIcon.backpack">
-                <img src="images/backpack.png" alt="backpack" />
+                <img src="/images/backpack.png" alt="backpack" />
               </a-radio-button>
               <a-radio-button :value="PinIcon.book">
-                <img src="images/book.png" alt="book" />
+                <img src="/images/book.png" alt="book" />
               </a-radio-button>
               <a-radio-button :value="PinIcon.animal">
-                <img src="images/animal.png" alt="animal" />
+                <img src="/images/animal.png" alt="animal" />
               </a-radio-button>
               <a-radio-button :value="PinIcon.monster">
-                <img src="images/monster.png" alt="monster" />
+                <img src="/images/monster.png" alt="monster" />
               </a-radio-button>
               <a-radio-button :value="PinIcon.special">
-                <img src="images/special.png" alt="special" />
+                <img src="/images/special.png" alt="special" />
               </a-radio-button>
               <a-radio-button :value="PinIcon.world">
-                <img src="images/world.png" alt="world" />
+                <img src="/images/world.png" alt="world" />
               </a-radio-button>
             </a-space>
           </a-radio-group>
