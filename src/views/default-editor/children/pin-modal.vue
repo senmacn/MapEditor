@@ -23,10 +23,10 @@
           :validate-trigger="['change', 'input']"
           :rules="[{ required: true, message: '请填写名称！' }]"
         >
-          <a-input size="small" v-model:value="formModel.name" />
+          <a-input size="small" v-model:value="formModel.name" :readonly="!canEditRef" />
         </a-form-item>
         <a-form-item name="author" label="作者">
-          <a-input size="small" v-model:value="formModel.author" />
+          <a-input size="small" v-model:value="formModel.author" :readonly="!canEditRef" />
         </a-form-item>
         <a-form-item name="type" label="类型">
           <a-select
@@ -34,14 +34,15 @@
             :value="formModel.type"
             placeholder="选择一个已有类型或创建一个新类型"
             :options="areaTypeOptionsRef"
+            :disabled="!canEditRef"
             @change="(val) => handleTypeChange(val)"
           ></a-select>
         </a-form-item>
         <a-form-item name="state" label="状态">
-          <a-input size="small" v-model:value="formModel.state" />
+          <a-input size="small" v-model:value="formModel.state" :readonly="!canEditRef" />
         </a-form-item>
         <a-form-item name="jira" label="JIRA">
-          <a-input size="small" v-model:value="formModel.jira" />
+          <a-input size="small" v-model:value="formModel.jira" :readonly="!canEditRef" />
         </a-form-item>
         <a-form-item name="icon" label="图标">
           <a-radio-group
@@ -49,6 +50,7 @@
             type="button"
             v-model:value="formModel.icon"
             size="small"
+            :disabled="!canEditRef"
           >
             <a-space>
               <a-radio-button :value="PinIcon.star">
@@ -82,7 +84,12 @@
           </a-radio-group>
         </a-form-item>
         <a-form-item name="size" label="尺寸">
-          <a-radio-group v-model:value="formModel.size" size="small" type="button">
+          <a-radio-group
+            size="small"
+            type="button"
+            v-model:value="formModel.size"
+            :disabled="!canEditRef"
+          >
             <a-radio-button value="40">40</a-radio-button>
             <a-radio-button value="60">60</a-radio-button>
             <a-radio-button value="80">80</a-radio-button>
@@ -94,6 +101,7 @@
             v-model:value="formModel.description"
             show-word-limit
             :max-length="100"
+            :readonly="!canEditRef"
           />
         </a-form-item>
         <a-form-item name="association" label="关联">
@@ -110,25 +118,33 @@
             >
               <div>{{ item.name }}</div>
               <div>{{ item.type }}</div>
-              <div>
+              <div v-if="canEditRef">
                 <a type="text" @click="() => handleShowEditModal(item)"> 编辑 </a>
                 <a type="text" @click="() => formModel.association.splice(index, 1)"> 删除 </a>
               </div>
             </div>
             <div class="association-row">
-              <a-button class="add" @click="() => handleShowEditModal()">+</a-button>
+              <a-button class="add" :disabled="!canEditRef" @click="() => handleShowEditModal()">
+                +
+              </a-button>
             </div>
           </div>
         </a-form-item>
       </a-form>
     </div>
     <div class="button-group">
-      <a-button type="primary" @click="handleOk">确定</a-button>
-      <a-button type="primary" @click="" disabled>分享</a-button>
+      <a-button type="primary" v-if="canEditRef" @click="handleOk">确定</a-button>
+      <a-button type="primary" v-else @click="() => (canEditRef = true)">编辑</a-button>
+      <a-button type="primary" @click="handleShareLink" v-if="!isCreateRef">分享</a-button>
       <a-button @click="handleCancel">关闭</a-button>
     </div>
   </a-modal>
   <pin-association-edit-modal ref="editModal" @edit="handleCompleteEdit" />
+  <share-link-modal
+    :visible="shareLinkModalVisibleRef"
+    :uuid="uuidRef"
+    @close="() => (shareLinkModalVisibleRef = false)"
+  />
 </template>
 
 <script setup lang="ts">
@@ -136,11 +152,15 @@
   import { computed, inject, reactive, ref } from 'vue';
   import { isNull } from '@/utils/is';
   import cloneDeep from 'lodash-es/cloneDeep';
-  import { Pin, PinIcon } from '../draw-element';
+  import DrawElement, { Pin, PinIcon } from '../draw-element';
   import { useCanvasState } from '@/store/modules/canvas-state';
   import pinAssociationEditModal from './pin-association-edit-modal.vue';
+  import ShareLinkModal from './share-link-modal.vue';
+  import { onFocusAreaEvent } from '../common/event';
 
   const clickPositionRef = inject<Recordable>('clickPositionRef', { offsetX: 0, offsetY: 0 });
+
+  const canEditRef = ref(false);
 
   const initFormModel = {
     name: '',
@@ -172,7 +192,7 @@
   }
 
   const visibleRef = ref(false);
-  let isCreate = false;
+  let isCreateRef = ref(false);
   let uuid = '';
   const canvasState = useCanvasState();
 
@@ -200,7 +220,7 @@
       for (let index = canvasState.getLayers.length - 1; index >= 0; index--) {
         const element = canvasState.getLayers[index];
         if (element.hot) {
-          if (isCreate) {
+          if (isCreateRef.value) {
             const pin = new Pin(
               formModel.name,
               formModel.author,
@@ -245,7 +265,6 @@
           }
         }
       }
-
       visibleRef.value = false;
     });
   }
@@ -256,9 +275,11 @@
   function setPin(pin: Pin) {
     if (isNull(pin)) {
       Object.assign(formModel, cloneDeep(initFormModel));
-      isCreate = true;
+      isCreateRef.value = true;
+      canEditRef.value = true;
     } else {
-      isCreate = false;
+      isCreateRef.value = false;
+      canEditRef.value = false;
       Object.assign(formModel, pin);
       uuid = pin.getUuid();
     }
@@ -266,6 +287,19 @@
   }
   defineExpose({
     setPin: setPin,
+  });
+
+  const shareLinkModalVisibleRef = ref(false);
+  const uuidRef = ref('');
+  function handleShareLink() {
+    uuidRef.value = uuid;
+    shareLinkModalVisibleRef.value = true;
+  }
+
+  onFocusAreaEvent((_, ele: DrawElement) => {    
+    if (ele instanceof Pin) {
+      setPin(ele);
+    }
   });
 </script>
 

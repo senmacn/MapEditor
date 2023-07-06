@@ -22,13 +22,13 @@
       删除区域
     </v-contextmenu-item>
     <v-contextmenu-divider />
+    <v-contextmenu-item @click="handleEditPin" :disabled="!selectedPinRef">
+      <edit-outlined />
+      查看地图钉
+    </v-contextmenu-item>
     <v-contextmenu-item @click="handleInsertPin">
       <pushpin-outlined />
       插入地图钉
-    </v-contextmenu-item>
-    <v-contextmenu-item @click="handleEditPin" :disabled="!selectedPinRef">
-      <edit-outlined />
-      修改地图钉
     </v-contextmenu-item>
     <v-contextmenu-item @click="handleDeletePin" :disabled="!selectedPinRef">
       <delete-outlined />

@@ -20,6 +20,7 @@
         >
           <a-button> <import-outlined />从文件打开项目 </a-button>
         </a-upload>
+        <a-button @click="handleShowLinkModal"> <link-outlined />从链接打开项目 </a-button>
         <a-button class="history-open" :disable="!isLocal()" @click="openSavesFolder">
           <folder-open-filled> </folder-open-filled>
           访问存档目录
@@ -45,6 +46,7 @@
     :visible="userConfigModalVisibleRef"
     @close="userConfigModalVisibleRef = false"
   />
+  <share-link-modal :visible="linkModalVisibleRef" @close="() => (linkModalVisibleRef = false)" />
 </template>
 
 <script setup lang="ts">
@@ -56,6 +58,7 @@
   import {
     PlusOutlined,
     ImportOutlined,
+    LinkOutlined,
     SyncOutlined,
     FolderOpenFilled,
     SettingOutlined,
@@ -65,6 +68,7 @@
   import { useCanvasState } from '@/store/modules/canvas-state';
   import ProjectList from './project-list.vue';
   import UserConfigModal from '@/components/navbar/user-config-modal.vue';
+  import ShareLinkModal from './children/share-link-modal.vue';
   import { randomHSLColor } from './utils//random';
 
   const dataSource = ref<LocalMapHistory[]>([]);
@@ -127,6 +131,11 @@
   const userConfigModalVisibleRef = ref();
   function handleOpenConfig() {
     userConfigModalVisibleRef.value = true;
+  }
+
+  const linkModalVisibleRef = ref(false);
+  function handleShowLinkModal() {
+    linkModalVisibleRef.value = true;
   }
 </script>
 

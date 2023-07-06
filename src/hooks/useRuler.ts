@@ -23,8 +23,7 @@ export default function useRuler(elementRef: Ref<any>, options?: Partial<RulerPr
       elementRef.value.innerHTML = '';
       try {
         rulerRef.value.destroy();
-      }catch(e) {
-      }
+      } catch (e) {}
     }
     if (elementRef.value) {
       rulerRef.value = new Ruler(elementRef.value, {

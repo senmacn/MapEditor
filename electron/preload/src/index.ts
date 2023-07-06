@@ -39,7 +39,13 @@ const electronApi: LocalApi = {
   },
   concatExr: async (targetDir: string) => {
     return await ipcRenderer.invoke('concat-exr', targetDir);
-  }
+  },
+  createShareLink: async (filename: string, uuid: string) => {
+    return await ipcRenderer.invoke('create-share-link', filename, uuid);
+  },
+  executeShareLink: async (link: string) => {
+    return await ipcRenderer.invoke('execute-share-link', link);
+  },
 };
 
 contextBridge.exposeInMainWorld('electronAPI', electronApi);

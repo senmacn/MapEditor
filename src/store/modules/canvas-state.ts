@@ -48,7 +48,7 @@ export const useCanvasState = defineStore({
       this.areaMap = map;
       const pinMap = new Map();
       layers.forEach((layer) => layer.pins.forEach((pin) => pinMap.set(pin.getUuid(), pin)));
-      this.areaMap = pinMap;
+      this.pinMap = pinMap;
       // @ts-ignore TODO: execute
       this.layers = layers;
     },

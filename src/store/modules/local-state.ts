@@ -7,6 +7,7 @@ const localConfig = {
     exportLocation: '',
     downloadLocation: '',
     colorExportLocation: '',
+    remoteURL: '',
     autoSaveTime: 5,
     useLatestConfig: false,
   },
@@ -25,8 +26,11 @@ export const useLocalState = defineStore({
     getDownloadLocation(): string {
       return this.userConfig.downloadLocation;
     },
-    getColorExportLocation(): string{
+    getColorExportLocation(): string {
       return this.userConfig.colorExportLocation;
+    },
+    getRemoteURL(): string {
+      return this.userConfig.remoteURL;
     },
     getAutoSaveTime(): number {
       return this.userConfig.autoSaveTime;
@@ -37,8 +41,8 @@ export const useLocalState = defineStore({
   },
   actions: {
     setFileName(filename: string) {
-      document.title = filename;
-      this.filename = filename;
+      document.title = decodeURIComponent(filename);
+      this.filename = decodeURIComponent(filename);
     },
     initUserConfig(userConfig: UserConfig) {
       this.userConfig = userConfig;
