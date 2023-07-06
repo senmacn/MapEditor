@@ -176,6 +176,8 @@ export default function setupEvent(mainWindow: BrowserWindow) {
     try {
       return transformExrDir(targetDir);
     } catch (err) {
+      (err as LocalError).showMessage =
+        'Error saving local file because of error: ' + (err as LocalError).message;
       return err as LocalError;
     }
   });
@@ -184,6 +186,8 @@ export default function setupEvent(mainWindow: BrowserWindow) {
     try {
       return createShareLink(userConfig.remoteURL, filename, uuid);
     } catch (err) {
+      (err as LocalError).showMessage =
+        'Error saving local file because of error: ' + (err as LocalError).message;
       return err as LocalError;
     }
   });
@@ -192,6 +196,8 @@ export default function setupEvent(mainWindow: BrowserWindow) {
     try {
       return executeShareLink(userConfig.remoteURL, link);
     } catch (err) {
+      (err as LocalError).showMessage =
+        'Error saving local file because of error: ' + (err as LocalError).message;
       return err as LocalError;
     }
   });

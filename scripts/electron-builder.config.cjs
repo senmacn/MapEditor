@@ -17,7 +17,6 @@ module.exports = async function () {
       '!**/node_modules/*/{CHANGELOG.md,README.md,README,readme.md,readme}',
       '!**/node_modules/*/{test,__tests__,tests,powered-test,example,examples}',
       '!**/node_modules/*.d.ts',
-      '!**/node_modules/.bin',
       '!**/*.{iml,o,hprof,orig,pyc,pyo,rbc,swp,csproj,sln,xproj}',
       '!.editorconfig',
       '!**/._*',
@@ -26,6 +25,7 @@ module.exports = async function () {
       '!**/{appveyor.yml,.travis.yml,circle.yml}',
       '!**/{npm-debug.log,yarn.lock,.yarn-integrity,.yarn-metadata.json}',
     ],
+    extraFiles: ['tools/**'],
     icon: 'buildResources/map256.ico',
     win: {
       artifactName: 'mapeditor-win.${ext}',
@@ -39,9 +39,6 @@ module.exports = async function () {
             // 'x64',
             'ia32',
           ],
-        },
-        {
-          target: 'portable',
         },
       ],
     },

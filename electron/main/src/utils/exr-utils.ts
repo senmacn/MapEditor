@@ -3,7 +3,8 @@ import * as path from 'path';
 import exeRunner from './exe-runner';
 
 // TODO: 获取当前项目目录
-const EXR_TOOL = path.join(__dirname, '..', '..', '..', 'tools', 'rexr.exe');
+const EXR_TOOL = path.join(process.cwd(), 'tools', 'rexr.exe');
+
 const TRANSFORM_COMMAND_BASE = 'transform -D ';
 const CONCAT_COMMAND_BASE = 'concat -o ';
 

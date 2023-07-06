@@ -36,6 +36,12 @@ const config = {
     emptyOutDir: true,
     reportCompressedSize: false,
   },
+  optimizeDeps: {
+    include: [
+      'axios',
+      'form-data',
+    ],
+  },
   plugins: [],
 };
 

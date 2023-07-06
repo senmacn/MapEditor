@@ -235,7 +235,6 @@
           fileStringRef.value = result.toString();
         }
       } catch (err) {
-        console.error(err);
         message.error('上传失败！请检查路径是否正确！');
       }
     }

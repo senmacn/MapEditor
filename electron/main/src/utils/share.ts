@@ -33,10 +33,10 @@ async function getFileFromRemote(remote: string, filename: string) {
 
 async function uploadFileFromRemote(remote: string, filePath: string) {
   const url = remote + '/file/uploadfile';
-  const form = new FormData();
-  const blob = new Blob([readFileSync(decodeURIComponent(filePath))]);
-  form.append('file', blob);
 
+  const blob = new Blob([readFileSync(decodeURIComponent(filePath))]);
+  const form = new FormData();
+  form.append('file', blob);
   const res = await axios.post(url, form);
 
   if (res.status === 200) {
