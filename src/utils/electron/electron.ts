@@ -42,6 +42,12 @@ class ElectronApi implements LocalApi {
   concatExr(folderName: string): Promise<LocalResult<string>> {
     return window['electronAPI'].concatExr(folderName);
   }
+  createShareLink(filename: string, uuid: string): Promise<LocalResult<string>> {
+    return window['electronAPI'].createShareLink(filename, uuid);
+  }
+  executeShareLink(link: string): Promise<LocalResult<Recordable>> {
+    return window['electronAPI'].executeShareLink(link);
+  }
 }
 
 const electronApi = new ElectronApi();

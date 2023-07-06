@@ -10,6 +10,8 @@ interface LocalApi {
   maximizeWindow(): void;
   minimizeWindow(): void;
   closeWindow(): void;
-  openFolder(folderName: string): Promise<LocalResult<null>>
-  concatExr(targetDir: string): Promise<LocalResult<string>> 
+  openFolder(folderName: string): Promise<LocalResult<null>>;
+  concatExr(targetDir: string): Promise<LocalResult<string>>;
+  createShareLink(filename: string, uuid: string): Promise<LocalResult<string>>;
+  executeShareLink(link: string): Promise<LocalResult<Recordable>>;
 }

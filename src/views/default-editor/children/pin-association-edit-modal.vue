@@ -91,6 +91,9 @@
 
 <style lang="less">
   .pin-edit-modal {
+    &.ant-modal {
+      top: 20%;
+    }
     .ant-radio-wrapper {
       font-size: 12px;
     }

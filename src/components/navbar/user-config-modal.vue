@@ -27,6 +27,10 @@
           <a-input v-if="isLocal()" v-model:value="formModel.colorExportLocation" />
           <a-input v-else disabled placeholder="浏览器环境下此项配置不可用！" />
         </a-form-item>
+        <a-form-item name="colorExportLocation" label="远端服务器地址">
+          <a-input v-if="isLocal()" v-model:value="formModel.remoteURL" />
+          <a-input v-else disabled placeholder="浏览器环境下此项配置不可用！" />
+        </a-form-item>
         <a-form-item name="autoSaveTime" label="自动保存时间" extra="值设置为0代表不自动保存">
           <div v-if="isLocal()">
             <a-input-number v-model:value="formModel.autoSaveTime" :max="30" :min="0" :step="1" />
@@ -70,6 +74,7 @@
     exportLocation: localState.getExportLocation,
     downloadLocation: localState.getDownloadLocation,
     colorExportLocation: localState.getColorExportLocation,
+    remoteURL: localState.getRemoteURL,
     autoSaveTime: localState.getAutoSaveTime,
     useLatestConfig: localState.getUseLatestConfig,
   });
@@ -79,6 +84,7 @@
       exportLocation: formModel.exportLocation,
       downloadLocation: formModel.downloadLocation,
       colorExportLocation: formModel.colorExportLocation,
+      remoteURL: formModel.remoteURL,
       autoSaveTime: formModel.autoSaveTime,
       useLatestConfig: formModel.useLatestConfig,
     });

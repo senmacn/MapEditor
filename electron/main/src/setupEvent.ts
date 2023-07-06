@@ -12,6 +12,7 @@ import {
 import * as path from 'path';
 import { join } from 'path';
 import { transformExrDir } from './utils/exr-utils';
+import { createShareLink, executeShareLink } from './utils/share';
 
 const DATA_DIR = 'data';
 const SAVES_DIR = 'data/saves';
@@ -19,6 +20,8 @@ const SAVES_DIR = 'data/saves';
 const userConfig = {
   exportLocation: '',
   downloadLocation: '',
+  colorExportLocation: '',
+  remoteURL: 'http://10.7.1.194:7792',
   autoSaveTime: 5,
   useLatestConfig: false,
 } as UserConfig;
@@ -67,7 +70,7 @@ export default function setupEvent(mainWindow: BrowserWindow) {
   });
 
   ipcMain.handle('get-local-file-content', (_evt, fileName: string) => {
-    return readFileSync(path.join(SAVES_DIR, fileName), 'utf8');
+    return readFileSync(path.join(SAVES_DIR, decodeURIComponent(fileName)), 'utf8');
   });
 
   ipcMain.handle(
@@ -172,6 +175,22 @@ export default function setupEvent(mainWindow: BrowserWindow) {
   ipcMain.handle('concat-exr', (_evt, targetDir: string) => {
     try {
       return transformExrDir(targetDir);
+    } catch (err) {
+      return err as LocalError;
+    }
+  });
+
+  ipcMain.handle('create-share-link', (_evt, filename: string, uuid: string) => {
+    try {
+      return createShareLink(userConfig.remoteURL, filename, uuid);
+    } catch (err) {
+      return err as LocalError;
+    }
+  });
+
+  ipcMain.handle('execute-share-link', (_evt, link: string) => {
+    try {
+      return executeShareLink(userConfig.remoteURL, link);
     } catch (err) {
       return err as LocalError;
     }
