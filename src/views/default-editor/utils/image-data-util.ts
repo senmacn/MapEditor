@@ -1,6 +1,6 @@
 import { Area } from '../draw-element';
 import { getDistance } from './canvas-util';
-import FloodFill from 'q-floodfill';
+import FloodFill from '@/utils/q-floodfill';
 
 // 是否是点
 export function isPointInData(data: Uint8ClampedArray, startIndex: number) {
@@ -230,7 +230,9 @@ export function getPosition(imageData: ImageData) {
  * @returns 包含内部点的imagedata
  */
 export function getClosedCurvePointsData(area: Area, colors = [255, 0, 0, 255]) {
-  const floodFill = new FloodFill(area.getData());
+  // FloodFill fill 会修改原数据，拷贝一份新的
+  const imageData = copyImageData(area.getData())
+  const floodFill = new FloodFill(imageData);
   const point = area.getChoosePoint();
 
   if (point) {
@@ -240,8 +242,8 @@ export function getClosedCurvePointsData(area: Area, colors = [255, 0, 0, 255]) 
     const rect = area.getActualBoundRect();
     floodFill.fill(
       `rgb(${colors.join(',')})`,
-      points[0][0] - rect[0] + 2,
-      points[0][1] - rect[1] + 2,
+      points[0][0] + rect[0],
+      points[0][1] + rect[1],
       0,
     );
   }

@@ -6,7 +6,7 @@ import { useEditorConfig } from '@/store/modules/editor-config';
 
 export default class Area extends DrawElement {
   // 手动选择的内部点，用于填充内容
-  private choosePoint = [0,0];
+  private choosePoint = [0, 0];
   private boundRectPoints: Point[] | undefined;
   // rect 内的data
   private data: ImageData;
@@ -16,7 +16,11 @@ export default class Area extends DrawElement {
     this.uuid = getShortUuid();
     this.name = name;
     this.data = data;
-    this.boundRect = boundRect;
+    if (Array.isArray(boundRect)) {
+      this.boundRect = boundRect;
+    } else {
+      this.boundRect = [boundRect[0], boundRect[1], boundRect[2], boundRect[3]];
+    }
   }
   getImage() {
     // 获取图片展示(延迟获取，因为创建时不知道名称；)
@@ -60,7 +64,10 @@ export default class Area extends DrawElement {
       const boundRect = this.boundRect.slice();
       boundRect[2] = this.boundRect[2] * this.scale;
       boundRect[3] = this.boundRect[3] * this.scale;
-      return [Math.round(this.choosePoint[0] * this.scale), Math.round(this.choosePoint[1] * this.scale)];
+      return [
+        Math.round(this.choosePoint[0] * this.scale),
+        Math.round(this.choosePoint[1] * this.scale),
+      ];
     } else {
       return this.choosePoint;
     }
