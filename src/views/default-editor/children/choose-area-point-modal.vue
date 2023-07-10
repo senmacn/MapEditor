@@ -4,13 +4,16 @@
     :width="800"
     :visible="visibleRef"
     :mask-closable="false"
-    :onCancel="handleCancel"
+    :closable="false"
     :footer="null"
   >
     <div class="modal-title">区域内部点确认</div>
     <a-spin tip="渲染中..." :spinning="spinningRef">
       <div class="modal-content">
-        <div class="tip">请点选区域内部一点，完成内部点填充预览！</div>
+        <div class="tip">
+          <info-circle-outlined></info-circle-outlined>
+          请点选区域内部一点，完成内部点填充预览！
+        </div>
         <div class="canvas-wrapper">
           <canvas
             ref="baseCanvasRef"
@@ -40,7 +43,8 @@
 <script setup lang="ts">
   import { ref } from 'vue';
   import { scaleImageData } from '../utils/image-data-util';
-  import FloodFill from 'q-floodfill';
+  import { InfoCircleOutlined } from '@ant-design/icons-vue';
+  import FloodFill from '@/utils/q-floodfill';
 
   const emit = defineEmits<{
     (event: 'confirm-end', data: [number, number] | null, cancel: boolean): void;
@@ -84,9 +88,13 @@
     spinningRef.value = true;
     pointRef.value = [e.offsetX, e.offsetY];
     if (!baseCtxRef.value) return;
-    const floodFill = new FloodFill(baseCtxRef.value.getImageData(0, 0, 500, 500));
-    floodFill.fill(`rgb(255,0,0)`, e.offsetX, e.offsetY, 0);
+    // 从点击位置开始计算2
+    const floodFill = new FloodFill(baseCtxRef.value.getImageData(0, 0, 500, 500), true);
+    floodFill.fill(`rgb(255, 0, 0)`, e.offsetX, e.offsetY, 0,);
     confirmCtxRef.value?.putImageData(floodFill.imageData, 0, 0);
+    const floodFill1 = new FloodFill(floodFill.imageData, true);
+    floodFill1.fill(`rgb(220, 255,255)`, e.offsetX, e.offsetY, 0);
+    confirmCtxRef.value?.putImageData(floodFill1.imageData, 0, 0);
     setTimeout(() => (spinningRef.value = false), 200);
   }
 
@@ -98,7 +106,12 @@
   function handleConfirmOk() {
     visibleRef.value = false;
     confirmCtxRef.value?.clearRect(0, 0, 500, 500);
-    emit('confirm-end', pointRef.value, false);
+    emit(
+      'confirm-end',
+      // @ts-ignore
+      [Math.round(pointRef.value[0] / scale), Math.round(pointRef.value[1] / scale)],
+      false,
+    );
     pointRef.value = null;
   }
 
@@ -126,7 +139,6 @@
     .tip {
       text-align: center;
       font-size: 12px;
-
     }
     .base-canvas {
       position: absolute;
