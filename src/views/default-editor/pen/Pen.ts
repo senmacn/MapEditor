@@ -48,7 +48,7 @@ class Pen {
   }
 
   onmousedown(e: MouseEvent) {
-    let loc = this.positionToCanvas(e.clientX, e.clientY);
+    let loc = { x: e.offsetX, y: e.offsetY };
     let relativeLoc = { x: loc.x, y: loc.y };
     let selectedPath = this.getSelectedPath();
     loc = { x: loc.x, y: loc.y };
@@ -98,7 +98,7 @@ class Pen {
     if (!this.dragging) {
       return;
     }
-    let loc = this.positionToCanvas(e.clientX, e.clientY);
+    let loc = { x: e.offsetX, y: e.offsetY };
     let ced = this.currentEndPoint;
     if (!ced) return;
 
@@ -222,14 +222,6 @@ class Pen {
       }
     }
     return null;
-  }
-  positionToCanvas(x, y) {
-    if (!this.ctx || !this.canvas) return { x: 0, y: 0 };
-    let bbox = this.canvas.getBoundingClientRect();
-    return {
-      x: x - bbox.left * (this.canvas.width / bbox.width),
-      y: y - bbox.top * (this.canvas.height / bbox.height),
-    };
   }
   renderer() {
     if (this.ctx && this.canvas) {
