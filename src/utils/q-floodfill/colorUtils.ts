@@ -42,7 +42,7 @@ export function isSameColor(a: ColorRGBA, b: ColorRGBA, tolerance = 0, isScale: 
     Math.abs(a.g - b.g) > tolerance ||
     Math.abs(a.b - b.b) > tolerance ||
     // canvas 放缩时可能将一个点分为两个点，造成透明度修改
-    (isScale && Math.abs(a.a - b.a) > tolerance)
+    (!isScale && Math.abs(a.a - b.a) > tolerance)
   );
 }
 
