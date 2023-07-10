@@ -47,7 +47,7 @@
     EditOutlined,
     DeleteOutlined,
   } from '@ant-design/icons-vue';
-  import { emitDeleteAreaEvent, emitEditAreaEvent } from '../common/event';
+  import { emitDeleteAreaEvent, emitEditWithAreaEvent } from '../common/event';
   import { Modal } from 'ant-design-vue';
   import controller from '../common/canvas-state-controller';
   import { useCanvasState } from '@/store/modules/canvas-state';
@@ -65,7 +65,7 @@
   function handleDrawAreaBaseOnChoose() {
     controller.startDrawingArea(true);
     setTimeout(() => {
-      emitEditAreaEvent();
+      emitEditWithAreaEvent();
     }, 30);
   }
 

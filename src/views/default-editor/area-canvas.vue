@@ -14,6 +14,7 @@
   import * as imageDataUtil from './utils/image-data-util';
   import useCanvas from './hooks/useCanvas';
   import {
+    onEditWithAreaEvent,
     onCanvasRedoEvent,
     onCanvasUndoEvent,
     onEditAreaEvent,
@@ -152,32 +153,31 @@
   }
   // 监听广播
   onEditAreaEvent(function () {
-    if (controller.isEditingArea()) {
-      const currentArea = controller.getCurrentAreas()[controller.getCurrentAreas().length - 1];
-      if (currentArea) {
-        currentArea.cancelSelect();
-        currentArea.hide();
-        const data = currentArea.getData();
-        ctxRef.putImageData(
-          data,
-          currentArea.getBoundRect()[0] - props.offset.x,
-          currentArea.getBoundRect()[1] - props.offset.y,
-        );
-        ctxRef.putSave();
-      }
-    } else {
-      controller.getCurrentAreas().forEach((area) => {
-        area.cancelSelect();
-        area.hide();
-        const data = area.getData();
-        ctxRef.putImageData(
-          data,
-          area.getBoundRect()[0] - props.offset.x,
-          area.getBoundRect()[1] - props.offset.y,
-        );
-        ctxRef.putSave();
-      });
+    const currentArea = controller.getCurrentAreas()[controller.getCurrentAreas().length - 1];
+    if (currentArea) {
+      currentArea.cancelSelect();
+      currentArea.hide();
+      const data = currentArea.getData();
+      ctxRef.putImageData(
+        data,
+        currentArea.getBoundRect()[0] - props.offset.x,
+        currentArea.getBoundRect()[1] - props.offset.y,
+      );
+      ctxRef.putSave();
     }
+  });
+  onEditWithAreaEvent(function () {
+    controller.getCurrentAreas().forEach((area) => {
+      area.cancelSelect();
+      area.hide();
+      const data = area.getData();
+      ctxRef.putImageData(
+        data,
+        area.getBoundRect()[0] - props.offset.x,
+        area.getBoundRect()[1] - props.offset.y,
+      );
+      ctxRef.putSave();
+    });
   });
 
   onCanvasRedoEvent(() => {

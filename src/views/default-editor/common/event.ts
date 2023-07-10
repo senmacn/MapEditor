@@ -46,6 +46,15 @@ const onEditAreaEvent = (listener: EventBusListener) => {
 };
 const emitEditAreaEvent = () => editAreaBus.emit(editAreaEvent);
 
+// 基于已有创建
+const editWithAreaEvent = Symbol('editWithArea');
+const editWithAreaBus = useEventBus<Symbol>(editWithAreaEvent);
+const onEditWithAreaEvent = (listener: EventBusListener) => {
+  editWithAreaBus.on(listener);
+  onUnmounted(() => editWithAreaBus.off(listener));
+};
+const emitEditWithAreaEvent = () => editWithAreaBus.emit(editWithAreaEvent);
+
 // 删除区域
 const deleteAreaEvent = Symbol('deleteArea');
 const deleteAreaBus = useEventBus<Symbol>(deleteAreaEvent);
@@ -75,6 +84,8 @@ export {
   emitPersistShapeEvent,
   onEditAreaEvent,
   emitEditAreaEvent,
+  onEditWithAreaEvent,
+  emitEditWithAreaEvent,
   onDeleteAreaEvent,
   emitDeleteAreaEvent,
   onFocusAreaEvent,
