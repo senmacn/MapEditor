@@ -36,13 +36,12 @@ export function setColorAtPixel(
   data[startPos + 3] = color.a & 0xff;
 }
 
-export function isSameColor(a: ColorRGBA, b: ColorRGBA, tolerance = 0, isScale: boolean): boolean {
+export function isSameColor(a: ColorRGBA, b: ColorRGBA, tolerance = 0): boolean {
   return !(
     Math.abs(a.r - b.r) > tolerance ||
     Math.abs(a.g - b.g) > tolerance ||
     Math.abs(a.b - b.b) > tolerance ||
-    // canvas 放缩时可能将一个点分为两个点，造成透明度修改
-    (!isScale && Math.abs(a.a - b.a) > tolerance)
+    Math.abs(a.a - b.a) > tolerance
   );
 }
 

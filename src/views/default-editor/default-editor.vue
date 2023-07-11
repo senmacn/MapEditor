@@ -128,16 +128,22 @@
     if (complete && areaCanvasRef.value) {
       const area: Area = areaCanvasRef.value.getCreatedArea();
       if (!area) return;
-      const confirm = new Promise<[number, number]>((resolve) => {
+      const confirm = new Promise<Recordable>((resolve) => {
         awaitConfirmBound.value = resolve;
         confirmModelRef.value?.setUpConfirmArea({
           data: area.getData(),
           boundRect: area.getBoundRect(),
         });
       });
-      const confirmPoint = await confirm;
-      if (!confirmPoint) return;
-      area.setChoosePoint(confirmPoint);
+      const confirmData = await confirm;
+      if (!confirmData) return;
+      area.setChoosePoint(confirmData.point);
+      area.setData(confirmData.data);
+      // 重新计算边界，编辑过程可能修改
+      const oldRect = area.getBoundRect();
+      confirmData.rect[0] = confirmData.rect[0] + oldRect[0];
+      confirmData.rect[1] = confirmData.rect[1] + oldRect[1];
+      area.setBoundRect(confirmData.rect);
       for (let index = canvasState.getLayers.length - 1; index >= 0; index--) {
         const element = canvasState.getLayers[index];
         if (element.hot) {
@@ -153,11 +159,16 @@
     controller.getCurrentAreas().forEach((area) => area.show());
     controller.endDrawingArea();
   }
-  function handleConfirmEnd(data: [number, number], cancel: boolean) {
+  function handleConfirmEnd(point: [number, number], data: ImageData, rect: any, cancel: boolean) {
     if (cancel) {
       awaitConfirmBound.value && awaitConfirmBound.value(null);
     } else {
-      awaitConfirmBound.value && awaitConfirmBound.value(data);
+      awaitConfirmBound.value &&
+        awaitConfirmBound.value({
+          point,
+          data,
+          rect,
+        });
     }
   }
 </script>

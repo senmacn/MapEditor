@@ -127,7 +127,7 @@ export function getConnectEndPoint(
 }
 
 // 拷贝imageData
-export function copyImageData(imageData) {
+export function copyImageData(imageData: ImageData) {
   return new ImageData(new Uint8ClampedArray(imageData.data), imageData.width, imageData.height);
 }
 
