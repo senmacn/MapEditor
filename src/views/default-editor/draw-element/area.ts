@@ -127,7 +127,7 @@ export default class Area extends DrawElement {
 
     instance.ondblclick = this.select.bind(this);
     instance.oncontextmenu = this.select.bind(this);
-    if (this.draw === 'update') {
+    if (this.draw === 'update' || this.draw === 'done') {
       // 防止切换时target变了
       this.target?.removeChild(this.instance as HTMLElement);
       this.target = target;
