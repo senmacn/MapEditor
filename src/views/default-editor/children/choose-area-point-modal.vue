@@ -16,6 +16,7 @@
         </div>
         <div class="canvas-wrapper">
           <canvas
+            v-show="!pointRef"
             ref="baseCanvasRef"
             class="base-canvas"
             width="500"
@@ -42,13 +43,23 @@
 
 <script setup lang="ts">
   import { ref } from 'vue';
-  import { scaleImageData } from '../utils/image-data-util';
+  import { scaleImageData, copyImageData } from '../utils/image-data-util';
   import { InfoCircleOutlined } from '@ant-design/icons-vue';
   import FloodFill from '@/utils/q-floodfill';
+  import { message } from 'ant-design-vue';
 
   const emit = defineEmits<{
-    (event: 'confirm-end', data: [number, number] | null, cancel: boolean): void;
+    (
+      event: 'confirm-end',
+      point: [number, number] | null,
+      data: any,
+      rect: any,
+      cancel: boolean,
+    ): void;
   }>();
+
+  let imageData;
+  let outData;
 
   const spinningRef = ref(false);
   const visibleRef = ref(false);
@@ -63,6 +74,7 @@
   function setUpConfirmArea({ data, boundRect }: { data: ImageData; boundRect: Box }) {
     visibleRef.value = true;
     setTimeout(() => {
+      imageData = data;
       scale = boundRect[2] > boundRect[3] ? 500 / boundRect[2] : 500 / boundRect[3];
       if (baseCanvasRef.value) {
         baseCtxRef.value = baseCanvasRef.value.getContext('2d', {
@@ -88,13 +100,24 @@
     spinningRef.value = true;
     pointRef.value = [e.offsetX, e.offsetY];
     if (!baseCtxRef.value) return;
-    // 从点击位置开始计算2
-    const floodFill = new FloodFill(baseCtxRef.value.getImageData(0, 0, 500, 500), true);
-    floodFill.fill(`rgb(255, 0, 0)`, e.offsetX, e.offsetY, 0,);
-    confirmCtxRef.value?.putImageData(floodFill.imageData, 0, 0);
-    const floodFill1 = new FloodFill(floodFill.imageData, true);
-    floodFill1.fill(`rgb(220, 255,255)`, e.offsetX, e.offsetY, 0);
-    confirmCtxRef.value?.putImageData(floodFill1.imageData, 0, 0);
+    // 从点击位置开始计算
+    const _data = copyImageData(imageData);
+    const floodFill = new FloodFill(_data, true);
+    try {
+      floodFill.fill(
+        `rgba(29, 180, 64, 0.75)`,
+        Math.round(e.offsetX / scale),
+        Math.round(e.offsetY / scale),
+        0,
+      );
+    } catch (e) {
+      pointRef.value = null;
+      message.error('无效的点！');
+      spinningRef.value = false;
+    }
+
+    confirmCtxRef.value?.putImageData(scaleImageData(floodFill.imageData, scale), 0, 0);
+    outData = floodFill;
     setTimeout(() => (spinningRef.value = false), 200);
   }
 
@@ -110,6 +133,8 @@
       'confirm-end',
       // @ts-ignore
       [Math.round(pointRef.value[0] / scale), Math.round(pointRef.value[1] / scale)],
+      // @ts-ignore
+      ...outData.getImageDataFrom(imageData),
       false,
     );
     pointRef.value = null;
@@ -118,7 +143,7 @@
   function handleCancel() {
     visibleRef.value = false;
     confirmCtxRef.value?.clearRect(0, 0, 500, 500);
-    emit('confirm-end', null, true);
+    emit('confirm-end', null, null, null, true);
     pointRef.value = null;
   }
 </script>
