@@ -1,8 +1,11 @@
 import Ruler, { RulerProps } from '@scena/ruler';
-import { Ref, onMounted, ref } from 'vue';
+import { Ref, onBeforeUnmount, onMounted, ref } from 'vue';
 
 export default function useRuler(elementRef: Ref<any>, options?: Partial<RulerProps>) {
   const rulerRef = ref<Ruler>();
+  function resize() {
+    rulerRef.value?.resize();
+  }
   onMounted(() => {
     if (elementRef.value) {
       rulerRef.value = new Ruler(elementRef.value, {
@@ -12,10 +15,11 @@ export default function useRuler(elementRef: Ref<any>, options?: Partial<RulerPr
         ...options,
       });
       rulerRef.value.resize();
-      window.addEventListener('resize', () => {
-        rulerRef.value?.resize();
-      });
+      window.addEventListener('resize', resize);
     }
+  });
+  onBeforeUnmount(() => {
+    window.removeEventListener('resize', resize);
   });
   function rebuild(newOptions) {
     if (rulerRef.value) {

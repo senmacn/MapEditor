@@ -42,7 +42,8 @@
       }
     }
   }
-  const handleMouseMove = throttle(function (e: MouseEvent) {
+  const handleMouseMove = throttle(syncHandleMouseMove, 16);
+  function syncHandleMouseMove(e: MouseEvent) {
     if (e.button !== 0 || !activeRef.value) return;
     endPoint = getPos(e);
     // 清除
@@ -72,7 +73,7 @@
       }
     }
     prevPoint = getPos(e);
-  }, 16);
+  }
 
   function handleMouseUp(e: MouseEvent) {
     if (!activeRef.value) return;
@@ -135,7 +136,7 @@
     const canvasRect = canvas.getBoundingClientRect();
     const x = e.clientX - canvasRect.left;
     const y = e.clientY - canvasRect.top;
-    handleMouseMove({ button: 0, offsetX: x, offsetY: y } as MouseEvent);
+    syncHandleMouseMove({ button: 0, offsetX: x, offsetY: y } as MouseEvent);
   }
   // 挂载时初始化
   onMounted(() => {

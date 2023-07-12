@@ -75,7 +75,8 @@
     setActiveRef(true);
   }
 
-  const handleMouseMove = throttle(function (e: MouseEvent) {
+  const handleMouseMove = throttle(syncHandleMouseMove, 16);
+  function syncHandleMouseMove(e: MouseEvent) {
     if (e.button !== 0 || !activeRef.value) return;
     const curPoint = canvasUtil.getPos(e);
     switch (controller.getState()) {
@@ -88,7 +89,7 @@
         break;
       }
     }
-  }, 16);
+  }
 
   function handleMouseUp(e: MouseEvent) {
     if (e.button !== 0 || !activeRef.value) return;
@@ -289,7 +290,7 @@
       0,
       Math.min(e.clientY - canvasRect.top, canvas.height * configRef.zoom) / configRef.zoom,
     );
-    handleMouseMove({ button: 0, offsetX: x, offsetY: y } as MouseEvent);
+    syncHandleMouseMove({ button: 0, offsetX: x, offsetY: y } as MouseEvent);
   }
   function handleMouseDownOuter(e: MouseEvent) {
     if (e.button !== 0) return;
@@ -319,7 +320,7 @@
     const fullDrawer = document.getElementsByClassName('map-editor')[0];
     fullDrawer.removeEventListener('mousedown', handleMouseDownOuter);
     fullDrawer.removeEventListener('mousemove', handleMouseMoveOuter);
-    fullDrawer.removeEventListener('mouseup', handleMouseDownOuter);
+    fullDrawer.removeEventListener('mouseup', handleMouseUpOuter);
 
     handleMouseMove.cancel();
   });
