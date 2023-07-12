@@ -58,9 +58,7 @@
             movedPoints.push(point);
             break;
           } else {
-            setTimeout(() => {
-              _autoConnect(point);
-            });
+            _autoConnect(point);
           }
         }
         beginPoint = point;
@@ -322,6 +320,8 @@
     fullDrawer.removeEventListener('mousedown', handleMouseDownOuter);
     fullDrawer.removeEventListener('mousemove', handleMouseMoveOuter);
     fullDrawer.removeEventListener('mouseup', handleMouseDownOuter);
+
+    handleMouseMove.cancel();
   });
 
   // 对外暴露

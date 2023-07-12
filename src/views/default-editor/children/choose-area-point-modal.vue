@@ -101,24 +101,26 @@
     pointRef.value = [e.offsetX, e.offsetY];
     if (!baseCtxRef.value) return;
     // 从点击位置开始计算
-    const _data = copyImageData(imageData);
-    const floodFill = new FloodFill(_data, true);
-    try {
-      floodFill.fill(
-        `rgba(29, 180, 64, 0.75)`,
-        Math.round(e.offsetX / scale),
-        Math.round(e.offsetY / scale),
-        0,
-      );
-    } catch (e) {
-      pointRef.value = null;
-      message.error('无效的点！');
-      spinningRef.value = false;
-    }
+    setTimeout(() => {
+      const _data = copyImageData(imageData);
+      const floodFill = new FloodFill(_data, true);
+      try {
+        floodFill.fill(
+          `rgba(29, 180, 64, 0.75)`,
+          Math.round(e.offsetX / scale),
+          Math.round(e.offsetY / scale),
+          0,
+        );
+      } catch (e) {
+        pointRef.value = null;
+        message.error('无效的点！');
+        spinningRef.value = false;
+      }
 
-    confirmCtxRef.value?.putImageData(scaleImageData(floodFill.imageData, scale), 0, 0);
-    outData = floodFill;
-    setTimeout(() => (spinningRef.value = false), 200);
+      confirmCtxRef.value?.putImageData(scaleImageData(floodFill.imageData, scale), 0, 0);
+      outData = floodFill;
+      setTimeout(() => (spinningRef.value = false), 200);
+    });
   }
 
   function handleRevert() {

@@ -1,3 +1,4 @@
+import throttle from 'lodash-es/throttle';
 import ControlPoint from './ControllPoint';
 import EndPoint from './EndPoint';
 import Path from './Path';
@@ -271,6 +272,8 @@ class Pen {
       this.canvas.removeEventListener('mouseup', listeners.mouseup, false);
       document.body.removeEventListener('keydown', listeners.keydown, false);
       document.body.removeEventListener('keyup', listeners.keyup, false);
+
+      listeners.mousemove.cancel();
     }
   }
   active() {
@@ -281,9 +284,9 @@ class Pen {
       mousedown: function (e) {
         _this.onmousedown(e);
       },
-      mousemove: function (e) {
+      mousemove: throttle(function (e) {
         _this.onmousemove(e);
-      },
+      }, 16),
       mouseup: function () {
         _this.onmouseup();
       },
