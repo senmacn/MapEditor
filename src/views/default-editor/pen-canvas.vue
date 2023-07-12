@@ -5,7 +5,7 @@
 <script setup lang="ts">
   import useCanvas from './hooks/useCanvas';
   import controller, { CanvasOption } from './common/canvas-state-controller';
-  import { onMounted, watch } from 'vue';
+  import { onBeforeUnmount, onMounted, watch } from 'vue';
   import { useEditorConfig } from '@/store/modules/editor-config';
   import Pen from './pen/Pen';
 
@@ -39,7 +39,10 @@
       willReadFrequently: true,
     }) as CanvasRenderingContext2D;
     ctxRef.setupCanvas(ctx);
+  });
 
+  onBeforeUnmount(() =>{
+    Pen.deactive();
   });
 </script>
 

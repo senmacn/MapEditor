@@ -148,6 +148,8 @@
     const fullDrawer = document.getElementsByClassName('map-editor')[0];
     fullDrawer.removeEventListener('mouseup', handleMouseUpOuter);
     fullDrawer.removeEventListener('mousemove', handleMouseMoveOuter);
+
+    handleMouseMove.cancel();
   });
 </script>
 
