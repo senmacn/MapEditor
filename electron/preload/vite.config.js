@@ -1,6 +1,6 @@
-import {chrome} from '../../.electron-vendors.cache.json';
-import {preload} from 'unplugin-auto-expose';
-import {join} from 'node:path';
+import { chrome } from '../../.electron-vendors.cache.json';
+import { preload } from 'unplugin-auto-expose';
+import { join } from 'node:path';
 
 const PACKAGE_ROOT = __dirname;
 const PROJECT_ROOT = join(PACKAGE_ROOT, '../..');
@@ -14,8 +14,7 @@ const config = {
   root: PACKAGE_ROOT,
   envDir: PROJECT_ROOT,
   build: {
-    ssr: true,
-    sourcemap: 'inline',
+    sourcemap: false,
     target: `chrome${chrome}`,
     outDir: 'dist',
     assetsDir: '.',
@@ -28,11 +27,23 @@ const config = {
       output: {
         entryFileNames: '[name].cjs',
       },
+      external: ['path', 'electron'],
     },
     emptyOutDir: true,
     reportCompressedSize: false,
   },
-  plugins: [preload.vite()],
+  plugins: [
+    preload.vite(),
+    {
+      name: 'node-externals',
+      resolveId(source) {
+        if (['path', 'electron'].includes(source)) {
+          return { id: source, external: true };
+        }
+      },
+    },
+    ,
+  ],
 };
 
 export default config;
