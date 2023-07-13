@@ -1,5 +1,5 @@
-import {node} from '../../.electron-vendors.cache.json';
-import {join} from 'node:path';
+import { node } from '../../.electron-vendors.cache.json';
+import { join } from 'path';
 
 const PACKAGE_ROOT = __dirname;
 const PROJECT_ROOT = join(PACKAGE_ROOT, '../..');
@@ -18,12 +18,11 @@ const config = {
     },
   },
   build: {
-    ssr: true,
-    sourcemap: 'inline',
     target: `node${node}`,
-    outDir: 'dist',
+    sourcemap: false,
+    outDir: './dist',
     assetsDir: '.',
-    minify: process.env.MODE !== 'development',
+    minify: false,
     lib: {
       entry: 'src/index.ts',
       formats: ['cjs'],
@@ -32,17 +31,21 @@ const config = {
       output: {
         entryFileNames: '[name].cjs',
       },
+      external: ['path', 'child_process', 'fs', 'electron'],
     },
     emptyOutDir: true,
     reportCompressedSize: false,
   },
-  optimizeDeps: {
-    include: [
-      'axios',
-      'form-data',
-    ],
-  },
-  plugins: [],
+  plugins: [
+    {
+      name: 'node-externals',
+      resolveId(source) {
+        if (['path', 'child_process', 'fs', 'electron'].includes(source)) {
+          return { id: source, external: true };
+        }
+      },
+    },
+  ],
 };
 
 export default config;

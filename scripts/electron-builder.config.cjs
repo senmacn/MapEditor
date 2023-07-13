@@ -13,10 +13,8 @@ module.exports = async function () {
       buildResources: 'buildResources',
     },
     files: [
-      'electron/**/dist/**',
-      '!**/node_modules/*/{CHANGELOG.md,README.md,README,readme.md,readme}',
-      '!**/node_modules/*/{test,__tests__,tests,powered-test,example,examples}',
-      '!**/node_modules/*.d.ts',
+      'electron/*/dist/**',
+      '!node_modules/',
       '!**/*.{iml,o,hprof,orig,pyc,pyo,rbc,swp,csproj,sln,xproj}',
       '!.editorconfig',
       '!**/._*',

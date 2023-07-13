@@ -1,6 +1,5 @@
 import { app } from 'electron';
 import { restoreOrCreateWindow } from '/@/mainWindow';
-import { platform } from 'node:process';
 
 /**
  * Prevent electron from running multiple instances.
@@ -21,9 +20,7 @@ app.disableHardwareAcceleration();
  * Shout down background process if all windows was closed
  */
 app.on('window-all-closed', () => {
-  if (platform !== 'darwin') {
-    app.quit();
-  }
+  app.quit();
 });
 
 /**
@@ -37,7 +34,7 @@ app.on('activate', restoreOrCreateWindow);
 app
   .whenReady()
   .then(restoreOrCreateWindow)
-  .catch(e => console.error('Failed create window:', e));
+  .catch((e) => console.error('Failed create window:', e));
 
 /**
  * Install Vue.js or any other extension in development mode only.
