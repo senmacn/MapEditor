@@ -189,9 +189,10 @@
       .ant-btn {
         width: auto;
         font-size: 12px;
-        background: #444444;
+        background: #333333;
         &:hover {
           color: white;
+          background: #444444;
         }
       }
     }
@@ -200,6 +201,7 @@
     position: absolute;
     right: 30px;
     top: 60px;
+    color: @color-text-1;
     .anticon-setting {
       font-size: 16px;
     }
