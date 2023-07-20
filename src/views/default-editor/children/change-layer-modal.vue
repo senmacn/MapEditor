@@ -27,14 +27,13 @@
         </div>
       </a-row>
     </div>
-    <div class="confirm-button-group">
+    <div class="ant-modal-footer">
       <a-button @click="emit('close')">关闭</a-button>
     </div>
   </a-modal>
 </template>
 
 <script setup lang="ts">
-  import { watch } from 'vue';
   import DrawElement, { Area, Pin } from '../draw-element';
   import { useCanvasState } from '@/store/modules/canvas-state';
   import { GatewayOutlined, BlockOutlined, RightCircleOutlined } from '@ant-design/icons-vue';

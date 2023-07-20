@@ -31,10 +31,10 @@
             height="500"
           />
         </div>
-        <div class="confirm-button-group">
-          <a-button type="primary" @click="handleConfirmOk">确定</a-button>
-          <a-button type="primary" @click="handleRevert">重选</a-button>
+        <div class="ant-modal-footer">
           <a-button @click="handleCancel">取消</a-button>
+          <a-button type="primary" @click="handleRevert">重选</a-button>
+          <a-button type="primary" @click="handleConfirmOk">确定</a-button>
         </div>
       </div>
     </a-spin>

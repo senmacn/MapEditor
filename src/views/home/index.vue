@@ -3,7 +3,7 @@
     <div class="home-left">
       <div class="home-info">
         <img class="ant-nav-logo" width="100" height="100" src="../../assets/icons/map.svg" />
-        <div> 地图编辑器 </div>
+        <div class="title"> 地图编辑器 </div>
         <div> 版本: v0.0.1 </div>
       </div>
       <div class="home-bars">
@@ -150,14 +150,16 @@
   .home-left {
     padding: 20px;
     width: 250px;
-    background-color: rgb(38, 38, 41);
   }
   .home-info {
-    font-size: 16px;
-    font-weight: bold;
+    font-size: 12px;
     line-height: 20px;
     color: @color-text-1;
     text-align: center;
+    .title {
+      font-size: 18px;
+      font-weight: bold;
+    }
   }
   .home-bars {
     display: flex;

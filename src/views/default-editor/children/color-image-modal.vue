@@ -53,11 +53,11 @@
           </a-row>
         </a-checkbox-group>
       </div>
-      <div class="confirm-button-group">
+      <div class="ant-modal-footer">
+        <a-button @click="handleCancel">取消</a-button>
         <a-button type="primary" @click="handleExportColorImage" :disabled="areasRef.length === 0">
           导出
         </a-button>
-        <a-button @click="handleCancel">取消</a-button>
       </div>
     </a-spin>
   </a-modal>

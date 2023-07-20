@@ -18,9 +18,9 @@
         </a-input>
       </div>
     </div>
-    <div class="confirm-button-group">
-      <a-button type="primary" @click="handleOpenShareLink" :disable="!linkRef">打开</a-button>
+    <div class="ant-modal-footer">
       <a-button @click="handleCancel">关闭</a-button>
+      <a-button type="primary" @click="handleOpenShareLink" :disable="!linkRef">打开</a-button>
     </div>
   </a-modal>
 </template>
@@ -83,7 +83,7 @@
     .link-create {
       margin-top: 20px;
     }
-    .confirm-button-group {
+    .ant-modal-footer {
       width: 75%;
     }
   }

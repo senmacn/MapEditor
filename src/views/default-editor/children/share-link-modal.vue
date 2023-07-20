@@ -23,12 +23,12 @@
         </a-input>
       </div>
     </div>
-    <div class="confirm-button-group">
-      <a-button type="primary" @click="handleCreateShareLink">生成链接</a-button>
+    <div class="ant-modal-footer">
+      <a-button @click="handleCancel">关闭</a-button>
       <a-button type="primary" @click="handleCopyShareLink" :disabled="!linkRef">
         复制链接
       </a-button>
-      <a-button @click="handleCancel">关闭</a-button>
+      <a-button type="primary" @click="handleCreateShareLink">生成链接</a-button>
     </div>
   </a-modal>
 </template>
@@ -109,7 +109,7 @@
     .link-create {
       margin-top: 20px;
     }
-    .confirm-button-group {
+    .ant-modal-footer {
       width: 75%;
     }
   }

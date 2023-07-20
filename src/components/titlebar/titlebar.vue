@@ -1,7 +1,7 @@
 <template>
   <div
     class="cet-titlebar cet-windows inactive"
-    style="background-color: rgb(38, 38, 41); height: 32px; color: rgb(238, 238, 238)"
+    style="height: 32px; color: rgb(238, 238, 238)"
   >
     <div class="cet-drag-region"> </div>
     <div class="cet-resizer left"> </div>
@@ -84,7 +84,6 @@
     padding: 0 16px;
     overflow: hidden;
     height: 32px;
-    background-color: rgb(38, 38, 38);
     color: rgb(238, 238, 238);
     -webkit-user-select: none;
     -ms-user-select: none;

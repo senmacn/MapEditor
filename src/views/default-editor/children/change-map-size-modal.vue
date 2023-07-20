@@ -251,14 +251,7 @@
 </script>
 
 <style lang="less">
-  .ant-modal {
-    border-radius: 4px;
-  }
   .change-map-size-modal {
-    .ant-modal-body {
-      padding: 0;
-      border-radius: 4px;
-    }
     .modal-title {
       padding: 8px;
       border-bottom: 1px solid @color-modal-border;

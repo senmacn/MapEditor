@@ -22,40 +22,42 @@ export default function loadingSaves() {
   const localState = useLocalState();
   const localApi = getLocalApi();
   const canvasState = useCanvasState();
-  const [openLoading, closeLoading] = useLoading({ minTime: 10000, tip: '读取存档中~' });
+  const [openLoading, closeLoading] = useLoading({ minTime: 1000, tip: '初始化存档~', size: 32 });
 
   const { name, uuid } = parseQueryString(location.hash);
   if (name) {
     return new Promise((resolve) => {
       localState.setFileName(name as string);
-      openLoading();
-      localApi &&
-        localApi
-          .getLocalFileContent(name as string)
-          .then((data) => {
-            try {
-              const result = loadSaves(data, true);
-              canvasState.setLayers(result?.layers);
-              controller.setCurrentLayer(canvasState.getLayers[canvasState.getLayers.length - 1]);
-              if (uuid) {
-                setTimeout(() => {
-                  if (canvasState.getPinMap.has(uuid)) {
-                    emitFocusAreaEvent(canvasState.getPinMap.get(uuid));
-                  }
-                }, 1000);
+      setTimeout(() => {
+        openLoading();
+        localApi &&
+          localApi
+            .getLocalFileContent(name as string)
+            .then((data) => {
+              try {
+                const result = loadSaves(data, true);
+                canvasState.setLayers(result?.layers);
+                controller.setCurrentLayer(canvasState.getLayers[canvasState.getLayers.length - 1]);
+                if (uuid) {
+                  setTimeout(() => {
+                    if (canvasState.getPinMap.has(uuid)) {
+                      emitFocusAreaEvent(canvasState.getPinMap.get(uuid));
+                    }
+                  }, 600);
+                }
+              } catch (e: any) {
+                console.warn(e);
+                message.warning({
+                  content: e.message,
+                  duration: 60000,
+                });
               }
-            } catch (e: any) {
-              console.warn(e);
-              message.warning({
-                content: e.message,
-                duration: 60000,
-              });
-            }
-          })
-          .finally(() => {
-            setTimeout(() => closeLoading(), 100);
-            resolve(1);
-          });
+            })
+            .finally(() => {
+              closeLoading();
+              resolve(1);
+            });
+      });
     });
   } else {
     localState.setFileName('新建项目');

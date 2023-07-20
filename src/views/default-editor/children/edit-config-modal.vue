@@ -50,7 +50,7 @@
         </a-col>
       </a-row>
     </div>
-    <div class="confirm-button-group">
+    <div class="ant-modal-footer">
       <a-button @click="emit('close')">关闭</a-button>
     </div>
   </a-modal>

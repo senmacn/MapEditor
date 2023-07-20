@@ -34,7 +34,9 @@
           </a-space>
           <div class="tip">PS: 确认上图的区域填充（大小放缩后）是否与所画区域形状一致！</div>
         </div>
-        <div class="confirm-button-group">
+        <div class="ant-modal-footer">
+          <a-button @click="handleCancel">取消</a-button>
+          <a-button type="primary" v-if="!isFirst" @click="goToPrevious">返回</a-button>
           <a-button
             type="primary"
             v-if="isFirst"
@@ -52,8 +54,6 @@
             合并导出
           </a-button>
           <a-button type="primary" v-if="!isFirst" @click="handleConfirmOkExport">确定</a-button>
-          <a-button type="primary" v-if="!isFirst" @click="goToPrevious">返回</a-button>
-          <a-button @click="handleCancel">取消</a-button>
         </div>
       </div>
     </a-spin>
