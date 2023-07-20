@@ -227,4 +227,8 @@ export class ExtendCanvas implements CanvasExtendImp {
       ? ctx.getImageData(...props)
       : ctx.getImageData(0, 0, ctx.canvas.width, ctx.canvas.height);
   }
+  destroy() {
+    this.reset();
+    this.canvasInstance = null;
+  }
 }
