@@ -27,6 +27,8 @@ const userConfig = {
 } as UserConfig;
 
 export default function setupEvent(mainWindow: BrowserWindow) {
+  const windMap = new Map<number, BrowserWindow>();
+  windMap.set(mainWindow.webContents.id, mainWindow);
   // 初始化
   try {
     if (!existsSync('data/config.json')) {
@@ -148,24 +150,36 @@ export default function setupEvent(mainWindow: BrowserWindow) {
           win?.webContents.openDevTools();
         }
       });
-
       win.loadURL(url);
+
+      windMap.set(win.webContents.id, win);
+
       return null;
     } catch (err) {
       return err as LocalError;
     }
   });
 
-  ipcMain.handle('maximize-window', () => {
-    mainWindow?.isMaximized() ? mainWindow.unmaximize() : mainWindow?.maximize();
+  ipcMain.handle('maximize-window', (event) => {
+    const window = windMap.get(event.sender.id);
+    if (window) {
+      window?.isMaximized() ? window.unmaximize() : window?.maximize();
+    }
   });
 
-  ipcMain.handle('minimize-window', () => {
-    mainWindow.minimize();
+  ipcMain.handle('minimize-window', (event) => {
+    const window = windMap.get(event.sender.id);
+    if (window) {
+      window.minimize();
+    }
   });
 
-  ipcMain.handle('close-window', () => {
-    mainWindow.close();
+  ipcMain.handle('close-window', (event) => {
+    const window = windMap.get(event.sender.id);
+    if (window) {
+      window.close();
+      windMap.delete(event.sender.id);
+    }
   });
 
   ipcMain.handle('open-folder', () => {

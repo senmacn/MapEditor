@@ -117,7 +117,7 @@
 </script>
 
 <style lang="less">
-  .list-item {
+  .ant-list-item.list-item {
     position: relative;
     flex-direction: column;
     align-items: start;
