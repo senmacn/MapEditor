@@ -5,52 +5,53 @@
     :visible="visibleRef"
     :closable="false"
     :onCancel="handleCancel"
-    title="请选择导出图层"
+    :title="null"
     :footer="null"
   >
-    <div class="layer-group">
-      <a-checkbox
-        v-model:checked="state.checkAll"
-        :indeterminate="state.indeterminate"
-        @change="onCheckAllChange"
-      >
-        全部
-      </a-checkbox>
-      <a-checkbox-group v-model:value="state.checkedLayerList" class="layer-opts">
-        <a-row>
-          <a-col :span="24" v-for="(item, idx) in state.plainOptions" :key="idx">
-            <a-checkbox :value="item.value" @change="handleChangeLayer(idx, item.value)">
-              {{ item.label }}
-            </a-checkbox>
-            <a-checkbox-group v-model:value="state.checkedAreaList[idx]" class="layer-area-opts">
-              <a-row>
-                <a-col :span="6" v-for="(area, adx) in item.areas" :key="adx">
-                  <a-checkbox :value="area.value" @change="handleChangeArea(idx)">
-                    <gateway-outlined />
-                    <span class="area-opt-label">{{ area.label }}</span>
-                  </a-checkbox>
-                </a-col>
-              </a-row>
-            </a-checkbox-group>
-            <a-checkbox-group v-model:value="state.checkedPinList[idx]" class="layer-area-opts">
-              <a-row>
-                <a-col :span="6" v-for="(pin, adx) in item.pins" :key="adx">
-                  <a-checkbox :value="pin.value" @change="handleChangeArea(idx)">
-                    <pushpin-outlined />
-                    <span class="area-opt-label">{{ pin.label }}</span>
-                  </a-checkbox>
-                </a-col>
-              </a-row>
-            </a-checkbox-group>
-          </a-col>
-        </a-row>
-      </a-checkbox-group>
+    <div class="modal-title">请选择导出图层</div>
+    <div class="modal-content">
+      <div class="layer-group">
+        <a-checkbox
+          v-model:checked="state.checkAll"
+          :indeterminate="state.indeterminate"
+          @change="onCheckAllChange"
+        >
+          全部
+        </a-checkbox>
+        <a-checkbox-group v-model:value="state.checkedLayerList" class="layer-opts">
+          <a-row>
+            <a-col :span="24" v-for="(item, idx) in state.plainOptions" :key="idx">
+              <a-checkbox :value="item.value" @change="handleChangeLayer(idx, item.value)">
+                {{ item.label }}
+              </a-checkbox>
+              <a-checkbox-group v-model:value="state.checkedAreaList[idx]" class="layer-area-opts">
+                <a-row>
+                  <a-col :span="6" v-for="(area, adx) in item.areas" :key="adx">
+                    <a-checkbox :value="area.value" @change="handleChangeArea(idx)">
+                      <gateway-outlined />
+                      <span class="area-opt-label">{{ area.label }}</span>
+                    </a-checkbox>
+                  </a-col>
+                </a-row>
+              </a-checkbox-group>
+              <a-checkbox-group v-model:value="state.checkedPinList[idx]" class="layer-area-opts">
+                <a-row>
+                  <a-col :span="6" v-for="(pin, adx) in item.pins" :key="adx">
+                    <a-checkbox :value="pin.value" @change="handleChangeArea(idx)">
+                      <pushpin-outlined />
+                      <span class="area-opt-label">{{ pin.label }}</span>
+                    </a-checkbox>
+                  </a-col>
+                </a-row>
+              </a-checkbox-group>
+            </a-col>
+          </a-row>
+        </a-checkbox-group>
+      </div>
     </div>
-    <div class="confirm-button-group">
-      <a-space>
-        <a-button type="primary" @click="handleOk">确定</a-button>
-        <a-button size="small" @click="handleCancel">取消</a-button>
-      </a-space>
+    <div class="ant-modal-footer">
+      <a-button size="small" @click="handleCancel">取消</a-button>
+      <a-button type="primary" @click="handleOk">确定</a-button>
     </div>
   </a-modal>
 </template>
@@ -252,10 +253,6 @@
       box-sizing: border-box;
       padding-left: 25px;
     }
-  }
-
-  .ant-modal-header {
-    text-align: center;
   }
 
   .area-opt-label {

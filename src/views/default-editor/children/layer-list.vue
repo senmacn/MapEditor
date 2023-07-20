@@ -169,6 +169,8 @@
   function handleLayerDelete(index: number) {
     modal.confirm({
       title: '确认',
+      okText: '确定',
+      cancelText: '取消',
       content: `删除[${canvasState.layers[index].name}]的操作不可逆，请仔细确认！`,
       onOk: () => {
         if (controller.getCurrentLayer() === canvasState.getLayers[index]) {

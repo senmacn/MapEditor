@@ -33,22 +33,28 @@
             删除
           </span>
         </template>
-        <a-list-item-meta :class="[item.top ? 'top' : '']" :description="item.description">
-          <template #avatar>
-            <a-avatar shape="square" :style="{ background: item.color, color: 'black' }">
-              {{ item.title.slice(0, 1) }}
-            </a-avatar>
-          </template>
-          <template #title>
-            <a-input
-              v-if="index === editRef"
-              :default-value="item.title"
-              type="text"
-              @blur="(e) => handleEditProjectName(item.title, e?.target?.value)"
-            />
-            <span v-else>{{ item.title }}</span>
-          </template>
-        </a-list-item-meta>
+        <a-tooltip title="双击打开">
+          <a-list-item-meta
+            :class="[item.top ? 'top' : '']"
+            :description="item.description"
+            @dblclick="handleOpenProject(item.title)"
+          >
+            <template #avatar>
+              <a-avatar shape="square" :style="{ background: item.color, color: 'black' }">
+                {{ item.title.slice(0, 1) }}
+              </a-avatar>
+            </template>
+            <template #title>
+              <a-input
+                v-if="index === editRef"
+                :default-value="item.title"
+                type="text"
+                @blur="(e) => handleEditProjectName(item.title, e?.target?.value)"
+              />
+              <span v-else>{{ item.title }}</span>
+            </template>
+          </a-list-item-meta>
+        </a-tooltip>
       </a-list-item>
     </template>
   </a-list>
@@ -153,6 +159,9 @@
 
 <style lang="less">
   .project-list {
+    .ant-list-header {
+      border-bottom: 0 !important;
+    }
     .history-search {
       padding-left: 12px;
       .ant-input-affix-wrapper {
@@ -162,15 +171,30 @@
         color: aquamarine;
       }
     }
-
     .list-item {
       position: relative;
       flex-direction: column;
       align-items: start;
-      color: @color-text-2;
       padding-bottom: 15px;
+      border: 0 !important;
+      color: @color-text-2;
+      background-position: 100%;
+      transition: background-position 1s;
+      cursor: pointer;
       span.options {
         cursor: pointer;
+      }
+      &:hover {
+        background: linear-gradient(
+          25deg,
+          rgb(120, 120, 120),
+          rgb(120, 120, 120),
+          rgba(0, 0, 0, 0),
+          rgba(0, 0, 0, 0)
+        );
+        border-radius: 6px;
+        background-size: 200%;
+        background-position: 40% 0;
       }
     }
     .ant-avatar-string {
@@ -187,6 +211,9 @@
     }
     .ant-list-item-meta-content {
       width: 100%;
+    }
+    .ant-list-item-meta-description {
+      font-size: 12px;
     }
     .ant-list-item-action {
       position: absolute;

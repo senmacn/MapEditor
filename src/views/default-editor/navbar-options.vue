@@ -243,7 +243,6 @@
       cancelText: '取消',
       onOk: () => {
         location.replace(location.href.slice().replace(/\#\/.+/, '#/'));
-        localApi && localApi.minimizeWindow();
       },
     });
   }

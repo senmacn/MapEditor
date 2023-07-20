@@ -18,6 +18,8 @@ export default function useSaves() {
     Modal.confirm({
       title: '确认',
       content: '保存当前编辑的数据存档？',
+      okText: '确定',
+      cancelText: '取消',
       onOk: () => {
         handleCreateSaves();
         message.success('保存成功！');

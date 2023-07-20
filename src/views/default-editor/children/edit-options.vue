@@ -95,7 +95,6 @@
     <a-tooltip title="固定工具">
       <a-button
         class="middle-btn"
-        type="primary"
         shape="circle"
         :disabled="!editableRef"
         @click="stableRef = !stableRef"
@@ -272,9 +271,14 @@
     .ant-btn-circle {
       border-radius: 50%;
     }
-    .middle-btn {
+    button.middle-btn {
       width: 40px;
       height: 40px;
+      background-color: rgb(50, 50, 50);
+      &[disabled] {
+        color: rgba(255, 255, 255, 0.3);
+        background: rgba(50, 50, 50, 0.3);
+      }
     }
   }
 </style>

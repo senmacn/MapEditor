@@ -1,19 +1,50 @@
-@import "_variable";
+@import '_variable';
 
-.modal-title {
-  padding: 8px;
-  border-bottom: 1px solid @color-modal-border;
-  text-align: center;
-}
-.modal-content {
-  padding: 32px;
-}
+.ant-modal {
+  .modal-title {
+    padding: 8px;
+    border-bottom: 1px solid @color-modal-border;
+    text-align: center;
+  }
+  .modal-content {
+    padding: 20px 24px;
+    div,
+    label,
+    input {
+      font-size: 12px;
+    }
+  }
+  .ant-modal-content {
+    background-color: @color-bg-modal-1;
+    border-radius: 6px;
+  }
+  .ant-modal-body {
+    padding: 0;
+  }
+  &.ant-modal-confirm .ant-modal-body {
+    padding: 32px 32px 24px;
+  }
+  .ant-modal-footer {
+    display: flex;
+    justify-content: center;
+    flex-direction: row-reverse;
+    padding: 8px 10px;
+    border-top: 1px solid #484849;
+    button {
+      width: 80px;
+      height: 32px;
+      margin-right: 80px;
+    }
+    button:first-child {
+      margin-right: 0;
+    }
+  }
 
-.confirm-button-group {
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-  width: 50%;
-  height: 80px;
-  margin: 0 auto;
+  .ant-modal-confirm .ant-modal-confirm-btns {
+    width: 100%;
+    padding: 0 8%;
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: space-around;
+  }
 }

@@ -10,6 +10,7 @@
     <div class="modal-title">用户设置</div>
     <div class="modal-content">
       <a-form
+        size="small"
         :model="formModel"
         :labelCol="{ span: 6 }"
         :wrapperCol="{ span: 18 }"
@@ -94,19 +95,8 @@
 
 <style lang="less">
   .user-config-modal {
-    .ant-modal-body {
-      padding: 0;
-      border-radius: 4px;
-    }
     .ant-form {
-      width: 85%;
-    }
-    .ant-modal-footer {
-      padding: 8px 10px;
-      button {
-        width: 80px;
-        height: 32px;
-      }
+      padding: 0 20px;
     }
   }
 </style>
