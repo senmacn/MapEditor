@@ -323,6 +323,8 @@
     fullDrawer.removeEventListener('mouseup', handleMouseUpOuter);
 
     handleMouseMove.cancel();
+
+    ctxRef.destroy();
   });
 
   // 对外暴露

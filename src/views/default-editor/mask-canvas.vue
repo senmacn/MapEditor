@@ -151,6 +151,8 @@
     fullDrawer.removeEventListener('mousemove', handleMouseMoveOuter);
 
     handleMouseMove.cancel();
+
+    ctxRef.destroy();
   });
 </script>
 

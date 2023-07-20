@@ -1,4 +1,4 @@
-import { Ref, onMounted, unref, watch } from 'vue';
+import { Ref, onBeforeUnmount, onMounted, unref, watch } from 'vue';
 import Selecto from 'selecto';
 import { useCanvasState } from '@/store/modules/canvas-state';
 import Moveable from 'moveable';
@@ -170,6 +170,10 @@ export default function useSelecto(target: Ref<HTMLElement> | HTMLElement = docu
           }
         }
       });
+  });
+  onBeforeUnmount(() => {
+    moveable.destroy();
+    selecto.destroy();
   });
 
   // 新增、编辑时得取消选中

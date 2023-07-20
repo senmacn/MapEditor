@@ -85,6 +85,7 @@
   import EditConfigModal from './children/edit-config-modal.vue';
   import { ref } from 'vue';
   import { useLocalState } from '@/store/modules/local-state';
+  import { useRouter } from 'vue-router';
 
   const localApi = getLocalApi();
   const configRef = useEditorConfig();
@@ -235,6 +236,7 @@
     colorImageVisibleRef.value = false;
   }
 
+  const router = useRouter();
   function handleCloseProject() {
     Modal.confirm({
       title: '提醒',
@@ -242,7 +244,10 @@
       okText: '确定',
       cancelText: '取消',
       onOk: () => {
-        location.replace(location.href.slice().replace(/\#\/.+/, '#/'));
+        router.push('/home');
+        setTimeout(() => {
+          location.reload();
+        });
       },
     });
   }

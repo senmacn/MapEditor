@@ -19,6 +19,7 @@ export interface CanvasExtendImp {
   drawRect: (beginPoint: PointA, endPoint: PointA, fill?: boolean) => void;
   drawText: (point: PointA, text: string) => void;
   getImageData: (props?: [number, number, number, number]) => ImageData;
+  destroy: () => void;
 }
 
 export interface Layer {

@@ -41,8 +41,10 @@
     ctxRef.setupCanvas(ctx);
   });
 
-  onBeforeUnmount(() =>{
+  onBeforeUnmount(() => {
     Pen.deactive();
+
+    ctxRef.destroy();
   });
 </script>
 
