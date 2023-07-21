@@ -11,6 +11,9 @@
   import Titlebar from '@/components/titlebar/titlebar.vue';
   import zhCN from 'ant-design-vue/es/locale/zh_CN';
   import { isLocal } from '@/utils/env';
+  import useLinearGradientRotate from './hooks/useLinearGradientRotate';
+
+  useLinearGradientRotate('ant-vue-site');
 </script>
 
 <style lang="less">

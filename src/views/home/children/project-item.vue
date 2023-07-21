@@ -45,6 +45,7 @@
   import { exportFile } from '@/utils/file';
   import { message, Modal } from 'ant-design-vue';
   import { isObject } from 'lodash-es';
+  import { DownloadOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons-vue';
 
   const emits = defineEmits<{
     (e: 'refresh-list', showMessage: boolean): void;
