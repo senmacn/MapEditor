@@ -15,8 +15,10 @@ import { join } from 'path';
 import { transformExrDir } from './utils/exr-utils';
 import { createShareLink, executeShareLink } from './utils/share';
 
-const DATA_DIR = 'data';
-const SAVES_DIR = 'data/saves';
+const DATA_DIR = join(app.getPath('userData'), 'mapeditor_data');
+const SAVES_DIR = join(app.getPath('userData'), 'mapeditor_data', 'saves');
+const CONFIG_PATH = join(app.getPath('userData'), 'mapeditor_data', 'config.json');
+const FILE_PATH = join(app.getPath('userData'), 'mapeditor_data', 'file-property.json');
 
 const userConfig = {
   exportLocation: '',
@@ -33,25 +35,25 @@ export default function setupEvent(mainWindow: BrowserWindow) {
   windMap.set(mainWindow.webContents.id, mainWindow);
   // 初始化配置
   try {
-    if (!existsSync('data/config.json')) {
+    if (!existsSync(CONFIG_PATH)) {
       mkdirSync(DATA_DIR);
       mkdirSync(SAVES_DIR);
-      writeFileSync('data/config.json', JSON.stringify(userConfig));
+      writeFileSync(CONFIG_PATH, JSON.stringify(userConfig));
     } else {
-      const config = JSON.parse(readFileSync('data/config.json', 'utf8'));
+      const config = JSON.parse(readFileSync(CONFIG_PATH, 'utf8'));
       Object.assign(userConfig, config);
     }
   } catch (e) {}
 
   // 初始化本地文件额外属性管理工具
-  const projectItemStore = new ProjectItemStore(SAVES_DIR);
+  const projectItemStore = new ProjectItemStore(FILE_PATH, SAVES_DIR);
   projectItemStore.init();
 
   // --- 下面开始设置事件 ---
 
   ipcMain.handle('set-user-config', (_evt, config: UserConfig) => {
     Object.assign(userConfig, config);
-    return writeFileSync(path.join(DATA_DIR, 'config.json'), JSON.stringify(userConfig), {
+    return writeFileSync(CONFIG_PATH, JSON.stringify(userConfig), {
       encoding: 'utf8',
     });
   });

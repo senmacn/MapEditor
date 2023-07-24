@@ -1,7 +1,7 @@
 import { createApp } from 'vue';
 import App from './App.vue';
 import router from './routes';
-import Antd, { message } from 'ant-design-vue';
+import Antd, { message, notification } from 'ant-design-vue';
 import 'ant-design-vue/dist/antd.dark.css';
 import './style.less';
 import contextmenu from 'v-contextmenu';
@@ -15,6 +15,10 @@ import { useLocalState } from './store/modules/local-state';
 import loadingSaves from './loadingSaves';
 import setCustomDirectives from './directives';
 import { useEditorConfig } from './store/modules/editor-config';
+
+notification.config({
+  placement: 'topLeft',
+});
 
 message.config({
   top: '25px',
