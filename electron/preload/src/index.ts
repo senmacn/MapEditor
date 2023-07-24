@@ -46,6 +46,9 @@ const electronApi: LocalApi = {
   executeShareLink: async (link: string) => {
     return await ipcRenderer.invoke('execute-share-link', link);
   },
+  starItem: async (filename: string, star: boolean) => {
+    return await ipcRenderer.invoke('star-item', filename, star);
+  }
 };
 
 contextBridge.exposeInMainWorld('electronAPI', electronApi);

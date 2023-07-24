@@ -50,6 +50,10 @@ declare global {
   declare interface ViteEnv {
     VITE_PORT: number;
   }
+
+  declare interface Window {
+    electronAPI: LocalApi;
+  }
 }
 
 declare module 'vue' {

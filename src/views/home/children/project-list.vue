@@ -22,9 +22,9 @@
 </template>
 
 <script setup lang="ts">
-  import type { LocalMapHistory } from './common/types';
+  import type { LocalMapHistory } from '../common/types';
   import { computed, ref } from 'vue';
-  import ProjectItem from './children/project-item.vue';
+  import ProjectItem from './project-item.vue';
   import { SearchOutlined } from '@ant-design/icons-vue';
 
   const emits = defineEmits<{

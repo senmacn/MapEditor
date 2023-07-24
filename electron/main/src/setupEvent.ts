@@ -1,3 +1,4 @@
+import { ProjectItemStore } from './utils/project-item-store';
 import { BrowserWindow, app, ipcMain, shell } from 'electron';
 import {
   existsSync,
@@ -27,9 +28,10 @@ const userConfig = {
 } as UserConfig;
 
 export default function setupEvent(mainWindow: BrowserWindow) {
+  // 创建多窗口表
   const windMap = new Map<number, BrowserWindow>();
   windMap.set(mainWindow.webContents.id, mainWindow);
-  // 初始化
+  // 初始化配置
   try {
     if (!existsSync('data/config.json')) {
       mkdirSync(DATA_DIR);
@@ -41,7 +43,12 @@ export default function setupEvent(mainWindow: BrowserWindow) {
     }
   } catch (e) {}
 
-  // 设置事件
+  // 初始化本地文件额外属性管理工具
+  const projectItemStore = new ProjectItemStore(SAVES_DIR);
+  projectItemStore.init();
+
+  // --- 下面开始设置事件 ---
+
   ipcMain.handle('set-user-config', (_evt, config: UserConfig) => {
     Object.assign(userConfig, config);
     return writeFileSync(path.join(DATA_DIR, 'config.json'), JSON.stringify(userConfig), {
@@ -59,15 +66,28 @@ export default function setupEvent(mainWindow: BrowserWindow) {
       .map((fileName) => {
         const filePath = path.join(SAVES_DIR, fileName);
         const stat = statSync(filePath);
-        // @ts-ignore
-        stat.fileName = fileName;
-        return stat;
+        // 查找附带额外属性
+        let property: Recordable = {};
+        projectItemStore.files.forEach((file) => {
+          if (file.name === fileName) {
+            Object.assign(property, file.property);
+          }
+        });
+        return { fileName: fileName, mtime: stat.mtime, property };
       })
-      .sort((a, b) => (a.mtime < b.mtime ? 1 : -1))
+      .sort((a, b) => {
+        if (!a.property.star && b.property.star) {
+          return 1;
+        }
+        if (a.property.star && !b.property.star) {
+          return -1;
+        }
+        return a.mtime < b.mtime ? 1 : -1;
+      })
       .map((data) => ({
-        // @ts-ignore
         title: data.fileName,
         description: data.mtime.toLocaleString(),
+        property: data.property,
       }));
   });
 
@@ -209,6 +229,16 @@ export default function setupEvent(mainWindow: BrowserWindow) {
   ipcMain.handle('execute-share-link', (_evt, link: string) => {
     try {
       return executeShareLink(userConfig.remoteURL, link);
+    } catch (err) {
+      (err as LocalError).showMessage =
+        'Error saving local file because of error: ' + (err as LocalError).message;
+      return err as LocalError;
+    }
+  });
+
+  ipcMain.handle('star-item', (_evt, filename: string, star: boolean) => {
+    try {
+      projectItemStore.setProperty(filename, 'star', star);
     } catch (err) {
       (err as LocalError).showMessage =
         'Error saving local file because of error: ' + (err as LocalError).message;

@@ -5,7 +5,7 @@ interface LocalApi {
   getLocalFileContent(fileName: string): Promise<string>;
   deleteLocalFile(fileName: string): Promise<unknown>;
   renameLocalFile(fileName: string, newname: string): Promise<LocalResult<null>>;
-  saveLocalFile(fileName: string, data: string | Buffer, folder?: string): Promise<unknown>;
+  saveLocalFile(fileName: string, data: string | Buffer, folder?: string): Promise<LocalResult<null>>;
   newWindow(url: string, browser?: boolean): Promise<LocalResult<null>>;
   maximizeWindow(): void;
   minimizeWindow(): void;
@@ -14,4 +14,5 @@ interface LocalApi {
   concatExr(targetDir: string): Promise<LocalResult<string>>;
   createShareLink(filename: string, uuid: string): Promise<LocalResult<string>>;
   executeShareLink(link: string): Promise<LocalResult<Recordable>>;
+  starItem(filename: string, star: boolean): Promise<LocalResult<null>>;
 }
