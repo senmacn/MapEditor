@@ -1,30 +1,26 @@
 class ElectronApi implements LocalApi {
-  getUserConfig(): Promise<UserConfig> {
+  getUserConfig() {
     return window['electronAPI'].getUserConfig();
   }
-  setUserConfig(config: UserConfig): Promise<LocalResult<null>> {
+  setUserConfig(config: UserConfig) {
     return window['electronAPI'].setUserConfig(config);
   }
-  getLocalHistoryList(): Promise<Recordable<any>[]> {
+  getLocalHistoryList() {
     return window['electronAPI'].getLocalHistoryList();
   }
-  getLocalFileContent(fileName: string): Promise<string> {
+  getLocalFileContent(fileName: string) {
     return window['electronAPI'].getLocalFileContent(fileName);
   }
-  renameLocalFile(fileName: string, newname: string): Promise<LocalResult<null>> {
+  renameLocalFile(fileName: string, newname: string) {
     return window['electronAPI'].renameLocalFile(fileName, newname);
   }
   deleteLocalFile(fileName: string): Promise<unknown> {
     return window['electronAPI'].deleteLocalFile(fileName);
   }
-  saveLocalFile(
-    fileName: string,
-    data: string | Buffer,
-    folder?: string,
-  ): Promise<LocalResult<null>> {
+  saveLocalFile(fileName: string, data: string | Buffer, folder?: string) {
     return window['electronAPI'].saveLocalFile(fileName, data, folder);
   }
-  newWindow(url: string, browser = false): Promise<LocalResult<null>> {
+  newWindow(url: string, browser = false) {
     return window['electronAPI'].newWindow(url, browser);
   }
   maximizeWindow() {
@@ -36,17 +32,20 @@ class ElectronApi implements LocalApi {
   closeWindow() {
     return window['electronAPI'].closeWindow();
   }
-  openFolder(folderName: string): Promise<LocalResult<null>> {
+  openFolder(folderName: string) {
     return window['electronAPI'].openFolder(folderName);
   }
-  concatExr(folderName: string): Promise<LocalResult<string>> {
+  concatExr(folderName: string) {
     return window['electronAPI'].concatExr(folderName);
   }
-  createShareLink(filename: string, uuid: string): Promise<LocalResult<string>> {
+  createShareLink(filename: string, uuid: string) {
     return window['electronAPI'].createShareLink(filename, uuid);
   }
-  executeShareLink(link: string): Promise<LocalResult<Recordable>> {
+  executeShareLink(link: string) {
     return window['electronAPI'].executeShareLink(link);
+  }
+  starItem(id: string, star: boolean) {
+    return window['electronAPI'].starItem(id, star);
   }
 }
 

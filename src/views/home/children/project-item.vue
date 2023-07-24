@@ -1,13 +1,17 @@
 <template>
-  <a-list-item class="list-item" item-layout="vertical">
+  <a-list-item :class="['list-item', item.property.star && 'star-item']" item-layout="vertical">
     <template #actions>
+      <span class="options" v-if="!item.property.star" @click.stop="handleStarItem(true)">
+        <star-outlined />置顶
+      </span>
+      <span class="options" v-else @click.stop="handleStarItem(false)">
+        <star-filled />取消置顶
+      </span>
       <span class="options" @click.stop="editRef = true"> <edit-outlined />重命名</span>
       <span class="options" @click.stop="handleDownloadProject(item.title)">
         <download-outlined />
         下载
       </span>
-      <!-- <span class="options">
-                <heart-outlined />置顶</span> -->
       <span class="options" @click.stop="handleDeleteProject(item.title)">
         <delete-outlined />
         删除
@@ -20,7 +24,7 @@
         @dblclick="handleOpenProject(item.title)"
       >
         <template #avatar>
-          <a-avatar shape="square" :style="{ background: item.color, color: 'black' }">
+          <a-avatar shape="square" :style="{ background: item.property.color, color: 'black' }">
             {{ item.title.slice(0, 1) }}
           </a-avatar>
         </template>
@@ -45,13 +49,19 @@
   import { exportFile } from '@/utils/file';
   import { message, Modal } from 'ant-design-vue';
   import { isObject } from 'lodash-es';
-  import { DownloadOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons-vue';
+  import {
+    StarOutlined,
+    StarFilled,
+    DownloadOutlined,
+    EditOutlined,
+    DeleteOutlined,
+  } from '@ant-design/icons-vue';
 
   const emits = defineEmits<{
-    (e: 'refresh-list', showMessage: boolean): void;
+    (e: 'refresh-list', silence: boolean): void;
   }>();
 
-  defineProps({
+  const props = defineProps({
     item: {
       type: Object as PropType<LocalMapHistory>,
       default: () => ({} as LocalMapHistory),
@@ -68,6 +78,13 @@
       location.reload();
       localApi && localApi.maximizeWindow();
     });
+  }
+
+  async function handleStarItem(star: boolean) {
+    if (localApi) {
+      await localApi.starItem(props.item.title, star);
+      emits('refresh-list', true);
+    }
   }
 
   const editRef = ref(false);
@@ -126,11 +143,11 @@
     border: 0 !important;
     color: @color-text-2;
     cursor: pointer;
-    span.options {
-      font-size: 12px;
-      cursor: pointer;
-      &:hover {
-        color: @color-text-1;
+    &.star-item {
+      border-radius: 6px;
+      background: #5e5e5e;
+      .ant-list-item-action li:first-child {
+        visibility: visible;
       }
     }
     &:hover {
@@ -157,6 +174,13 @@
       }
     }
 
+    span.options {
+      font-size: 12px;
+      cursor: pointer;
+      &:hover {
+        color: @color-text-1;
+      }
+    }
     .ant-avatar-string {
       font-size: 10px;
     }
@@ -181,7 +205,7 @@
     .ant-list-item-action {
       position: absolute;
       visibility: hidden;
-      bottom: 15px;
+      bottom: 10px;
       top: auto;
       right: 10px;
     }
