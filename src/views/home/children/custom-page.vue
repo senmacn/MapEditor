@@ -4,8 +4,6 @@
       <div class="custom-title"> 通用设置 </div>
       <div class="custom-content">
         <a-checkbox>打开项目在新窗口显示</a-checkbox>
-        <a-checkbox>项目文件大小显示</a-checkbox>
-        <a-checkbox>项目文件大小显示</a-checkbox>
       </div>
     </div>
     <div class="custom-wrapper">

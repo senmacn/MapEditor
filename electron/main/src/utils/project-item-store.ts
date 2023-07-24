@@ -13,16 +13,17 @@ interface ExtendFile {
  * 封装本地文件的一些读写属性的操作，替代数据库
  */
 export class ProjectItemStore {
-  static path = 'data/file-property.json';
+  path: string;
   save_path: string;
   files: ExtendFile[] = [];
-  constructor(save_path: string) {
+  constructor(path: string, save_path: string) {
+    this.path = path;
     this.save_path = save_path;
   }
   init() {
     // 读取已有文件信息或创建新的
-    if (existsSync(ProjectItemStore.path)) {
-      this.files = JSON.parse(readFileSync(ProjectItemStore.path, 'utf8')) as ExtendFile[];
+    if (existsSync(this.path)) {
+      this.files = JSON.parse(readFileSync(this.path, 'utf8')) as ExtendFile[];
     } else {
       // 根据已有文件存档，创建 file-property.json
       const files = readdirSync(this.save_path)
@@ -38,7 +39,7 @@ export class ProjectItemStore {
             },
           };
         });
-      writeFileSync(ProjectItemStore.path, JSON.stringify(files));
+      writeFileSync(this.path, JSON.stringify(files));
       this.files = files;
     }
   }
@@ -63,6 +64,6 @@ export class ProjectItemStore {
 
   // 同步数据
   private syncLocal() {
-    writeFileSync(ProjectItemStore.path, JSON.stringify(this.files));
+    writeFileSync(this.path, JSON.stringify(this.files));
   }
 }
