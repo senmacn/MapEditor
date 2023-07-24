@@ -254,7 +254,7 @@
         ]);
         notification.info({
           message: '下载坐标',
-          description: `区域[${name}]的下载已在后台进行，请勿关闭浏览器！`,
+          description: `区域[${name}]的下载已在后台进行，请勿关闭编辑器！`,
         });
       }
     }, 0);
