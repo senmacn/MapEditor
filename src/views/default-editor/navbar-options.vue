@@ -30,6 +30,9 @@
           <a-menu-item key="5">
             <div class="inner-content" @click="handleOpenColorExport">色值图下载</div>
           </a-menu-item>
+          <a-menu-item key="6">
+            <div class="inner-content" @click="handleAreaBoundaryExport">边框数据下载</div>
+          </a-menu-item>
           <a-divider></a-divider>
           <a-menu-item key="6">
             <div class="inner-content" @click="handleCloseProject">关闭项目</div>
@@ -76,7 +79,7 @@
   import { useEditorConfig } from '@/store/modules/editor-config';
   import { getLocalApi, isLocal } from '@/utils/env';
   import { loadNewSaves } from '@/utils/persist';
-  import { Modal, message } from 'ant-design-vue';
+  import { Modal, message, notification } from 'ant-design-vue';
   import useSaves from './hooks/useSaves';
   import ChangeMapSizeModal from './children/change-map-size-modal.vue';
   import DisplayOutputModal from './children/display-output-modal.vue';
@@ -86,6 +89,7 @@
   import { ref } from 'vue';
   import { useLocalState } from '@/store/modules/local-state';
   import { useRouter } from 'vue-router';
+  import { handleExportBoundary } from './utils/boundary-export';
 
   const localApi = getLocalApi();
   const configRef = useEditorConfig();
@@ -222,6 +226,22 @@
       return;
     }
     displayOutputVisibleRef.value = true;
+  }
+
+  function handleAreaBoundaryExport() {
+    Modal.confirm({
+      title: '区域边框数据导出',
+      content: '导出位置将使用【坐标下载位置】，确认导出所有区域边框数据？',
+      okText: '确定',
+      cancelText: '取消',
+      onOk: () => {
+        notification.info({
+          message: '下载坐标',
+          description: `区域边界数据的下载已在后台进行，请勿关闭编辑器！`,
+        });
+        handleExportBoundary();
+      },
+    });
   }
 
   const colorImageVisibleRef = ref(false);
