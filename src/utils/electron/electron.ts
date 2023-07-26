@@ -5,6 +5,12 @@ class ElectronApi implements LocalApi {
   setUserConfig(config: UserConfig) {
     return window['electronAPI'].setUserConfig(config);
   }
+  getCustomConfig() {
+    return window['electronAPI'].getCustomConfig();
+  }
+  setCustomConfig(key: CustomSettingKey, value: any) {
+    return window['electronAPI'].setCustomConfig(key, value);
+  }
   getLocalHistoryList() {
     return window['electronAPI'].getLocalHistoryList();
   }
@@ -17,11 +23,17 @@ class ElectronApi implements LocalApi {
   deleteLocalFile(fileName: string): Promise<unknown> {
     return window['electronAPI'].deleteLocalFile(fileName);
   }
+  saveLoads(fileName: string, data: string | Buffer) {
+    return window['electronAPI'].saveLoads(fileName, data);
+  }
   saveLocalFile(fileName: string, data: string | Buffer, folder?: string) {
     return window['electronAPI'].saveLocalFile(fileName, data, folder);
   }
   newWindow(url: string, browser = false) {
     return window['electronAPI'].newWindow(url, browser);
+  }
+  relaunch() {
+    return window['electronAPI'].relaunch();
   }
   maximizeWindow() {
     return window['electronAPI'].maximizeWindow();

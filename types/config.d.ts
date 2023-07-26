@@ -8,3 +8,11 @@ interface UserConfig {
   mapObj?: Recordable;
   sizeObj?: Recordable;
 }
+
+interface CustomSetting {
+  openProjectInNewWindow: boolean;
+  ctrlSSaveProject: boolean;
+  closeCPUAcceleration: boolean;
+}
+
+type CustomSettingKey = keyof CustomSetting;

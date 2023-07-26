@@ -7,6 +7,12 @@ const electronApi: LocalApi = {
   setUserConfig: async (config: UserConfig) => {
     return await ipcRenderer.invoke('set-user-config', config);
   },
+  getCustomConfig: async() => {
+    return await ipcRenderer.invoke('get-custom-config');
+  },
+  setCustomConfig: async(key, value) => {
+    return await ipcRenderer.invoke('set-custom-config', key, value);
+  },
   getLocalHistoryList: async () => {
     return await ipcRenderer.invoke('get-local-history-list');
   },
@@ -19,11 +25,17 @@ const electronApi: LocalApi = {
   deleteLocalFile: async (fileName: string) => {
     return await ipcRenderer.invoke('delete-local-file', fileName);
   },
+  saveLoads: async (fileName: string, data: string | Buffer) => {
+    return await ipcRenderer.invoke('save-loads', fileName, data);
+  },
   saveLocalFile: async (fileName: string, data: string | Buffer, folder?: string) => {
     return await ipcRenderer.invoke('save-local-file', fileName, data, folder);
   },
   newWindow: async (url: string, browser?: boolean) => {
     return await ipcRenderer.invoke('new-window', url, browser);
+  },
+  relaunch: () => {
+    return ipcRenderer.invoke('relaunch');
   },
   maximizeWindow: () => {
     ipcRenderer.invoke('maximize-window');
@@ -48,7 +60,7 @@ const electronApi: LocalApi = {
   },
   starItem: async (filename: string, star: boolean) => {
     return await ipcRenderer.invoke('star-item', filename, star);
-  }
+  },
 };
 
 contextBridge.exposeInMainWorld('electronAPI', electronApi);

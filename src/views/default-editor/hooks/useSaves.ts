@@ -37,7 +37,7 @@ export default function useSaves() {
               'MM-dd_hh-mm',
             )}.json`;
       if (localApi) {
-        localApi.saveLocalFile(fileName, createSaves(canvasState.getLayers));
+        localApi.saveLoads(fileName, createSaves(canvasState.getLayers));
         localState.setFileName(fileName);
       }
       return fileName;

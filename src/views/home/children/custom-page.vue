@@ -3,7 +3,12 @@
     <div class="custom-wrapper">
       <div class="custom-title"> 通用设置 </div>
       <div class="custom-content">
-        <!-- <a-checkbox>打开项目在新窗口显示</a-checkbox> -->
+        <a-checkbox
+          v-model:checked="customSettingRef.openProjectInNewWindow"
+          @change="(e) => handleSettingChange(e, 'openProjectInNewWindow')"
+        >
+          打开项目在新窗口显示
+        </a-checkbox>
       </div>
     </div>
     <div class="custom-wrapper">
@@ -13,17 +18,70 @@
     <div class="custom-wrapper">
       <div class="custom-title"> 按键映射启用 </div>
       <div class="custom-content">
-        <!-- <a-checkbox>CTRL + S 快速保存项目</a-checkbox> -->
+        <!-- <a-checkbox
+          v-model:checked="customSettingRef.ctrlSSaveProject"
+          @change="(e) => handleSettingChange(e, 'ctrlSSaveProject')"
+        >
+          CTRL + S 快速保存项目
+        </a-checkbox> -->
       </div>
     </div>
     <div class="custom-wrapper">
-      <div class="custom-title"> 启动设置 </div>
-      <div class="custom-content"> </div>
+      <div class="custom-title"> Beta </div>
+      <div class="custom-content">
+        <a-checkbox
+          v-model:checked="customSettingRef.closeCPUAcceleration"
+          @change="(e) => handleSettingChange(e, 'closeCPUAcceleration')"
+        >
+          禁用GPU和硬件加速
+        </a-checkbox>
+      </div>
     </div>
   </div>
 </template>
 
-<script setup lang="ts"></script>
+<script setup lang="ts">
+  import { onMounted, reactive } from 'vue';
+  import { getLocalApi } from '@/utils/env';
+import { Modal } from 'ant-design-vue';
+
+  const localApi = getLocalApi();
+
+  const customSettingRef = reactive({
+    openProjectInNewWindow: false,
+    ctrlSSaveProject: false,
+    closeCPUAcceleration: false,
+  });
+
+  async function handleSettingChange(e, key) {
+    if (localApi) {
+      await localApi.setCustomConfig(key, e.target.checked);
+      if (key === 'closeCPUAcceleration') {
+        Modal.confirm({
+        title: '重启',
+        content: '修改【禁用GPU和硬件加速】后需要重启应用才能生效，是否立即重启？',
+        type: 'warning',
+        okText: '重启',
+        cancelText: '稍后重启',
+        onOk: () => {
+          localApi.relaunch();
+        },
+      });
+      }
+    }
+  }
+
+  onMounted(async () => {
+    if (localApi) {
+      const setting = await localApi.getCustomConfig();
+      Object.keys(setting).forEach((key) => {
+        if (Reflect.has(customSettingRef, key)) {
+          Reflect.set(customSettingRef, key, setting[key]);
+        }
+      });
+    }
+  });
+</script>
 
 <style lang="less">
   .custom-page {
