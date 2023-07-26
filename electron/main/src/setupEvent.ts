@@ -1,4 +1,4 @@
-import { ProjectItemStore } from './utils/project-item-store';
+import { ProjectItemStore } from './store/project-item-store';
 import { BrowserWindow, app, ipcMain, shell } from 'electron';
 import {
   existsSync,
@@ -14,6 +14,7 @@ import * as path from 'path';
 import { join } from 'path';
 import { transformExrDir } from './utils/exr-utils';
 import { createShareLink, executeShareLink } from './utils/share';
+import CustomSettingStore from './store/custom-setting-store';
 
 const DATA_DIR = join(app.getPath('userData'), 'mapeditor_data');
 const SAVES_DIR = join(app.getPath('userData'), 'mapeditor_data', 'saves');
@@ -49,8 +50,10 @@ export default function setupEvent(mainWindow: BrowserWindow) {
   const projectItemStore = new ProjectItemStore(FILE_PATH, SAVES_DIR);
   projectItemStore.init();
 
-  // --- 下面开始设置事件 ---
+  // 自定义设置
+  const customSettingStore = CustomSettingStore.getInstance();
 
+  // --- 下面开始设置事件 ---
   ipcMain.handle('set-user-config', (_evt, config: UserConfig) => {
     Object.assign(userConfig, config);
     return writeFileSync(CONFIG_PATH, JSON.stringify(userConfig), {
@@ -60,6 +63,14 @@ export default function setupEvent(mainWindow: BrowserWindow) {
 
   ipcMain.handle('get-user-config', (): UserConfig => {
     return userConfig;
+  });
+
+  ipcMain.handle('get-custom-config', (): CustomSetting => {
+    return customSettingStore.getCustomSettings();
+  });
+
+  ipcMain.handle('set-custom-config', (_evt, key: CustomSettingKey, value: any) => {
+    customSettingStore.setCustomSettings(key, value);
   });
 
   ipcMain.handle('get-local-history-list', () => {
@@ -102,6 +113,7 @@ export default function setupEvent(mainWindow: BrowserWindow) {
     (_evt, fileName: string, newname: string): LocalResult<null> => {
       try {
         renameSync(path.join(SAVES_DIR, fileName), path.join(SAVES_DIR, newname));
+        projectItemStore.setFileName(newname, fileName);
         return null;
       } catch (err: any) {
         err.showMessage = '重命名失败！';
@@ -113,10 +125,37 @@ export default function setupEvent(mainWindow: BrowserWindow) {
   ipcMain.handle('delete-local-file', (_evt, fileName: string) => {
     try {
       rmSync(path.join(SAVES_DIR, fileName));
+      projectItemStore.deleteFile(fileName);
       return;
     } catch (err) {
       return err as LocalError;
     }
+  });
+
+  function saveFile(fileName: string, data: string | Buffer, folder: string) {
+    try {
+      if (typeof data === 'string') {
+        writeFileSync(path.join(folder, fileName), data, {
+          encoding: 'utf8',
+        });
+      } else {
+        writeFileSync(path.join(folder, fileName), new Uint8Array(data));
+      }
+
+      return;
+    } catch (err) {
+      (err as LocalError).showMessage =
+        'Error saving local file because of error: ' + (err as LocalError).message;
+      return err as LocalError;
+    }
+  }
+
+  ipcMain.handle('save-loads', (_evt, fileName: string, data: string) => {
+    const result = saveFile(fileName, data, SAVES_DIR);
+    if (!result) {
+      projectItemStore.addFile(fileName);
+    }
+    return result;
   });
 
   ipcMain.handle(
@@ -127,21 +166,7 @@ export default function setupEvent(mainWindow: BrowserWindow) {
       data: string | Buffer,
       folder: string = SAVES_DIR,
     ): undefined | Error => {
-      try {
-        if (typeof data === 'string') {
-          writeFileSync(path.join(folder || SAVES_DIR, fileName), data, {
-            encoding: 'utf8',
-          });
-        } else {
-          writeFileSync(path.join(folder || SAVES_DIR, fileName), new Uint8Array(data));
-        }
-
-        return;
-      } catch (err) {
-        (err as LocalError).showMessage =
-          'Error saving local file because of error: ' + (err as LocalError).message;
-        return err as LocalError;
-      }
+      return saveFile(fileName, data, folder);
     },
   );
 
@@ -180,6 +205,11 @@ export default function setupEvent(mainWindow: BrowserWindow) {
     } catch (err) {
       return err as LocalError;
     }
+  });
+
+  ipcMain.handle('relaunch', () => {
+    app.relaunch();
+    app.exit();
   });
 
   ipcMain.handle('maximize-window', (event) => {

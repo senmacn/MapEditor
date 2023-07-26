@@ -31,7 +31,7 @@ const config = {
       output: {
         entryFileNames: '[name].cjs',
       },
-      external: ['path', 'child_process', 'fs', 'electron'],
+      external: ['path', 'child_process', 'fs', 'electron', 'os', 'util', 'events'],
     },
     emptyOutDir: true,
     reportCompressedSize: false,
@@ -40,7 +40,7 @@ const config = {
     {
       name: 'node-externals',
       resolveId(source) {
-        if (['path', 'child_process', 'fs', 'electron'].includes(source)) {
+        if (['path', 'child_process', 'fs', 'electron', 'os', 'util', 'event'].includes(source)) {
           return { id: source, external: true };
         }
       },

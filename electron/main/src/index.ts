@@ -1,5 +1,22 @@
 import { app } from 'electron';
 import { restoreOrCreateWindow } from '/@/mainWindow';
+import CustomSettingStore from './store/custom-setting-store';
+
+// 设置调试
+app.commandLine.appendSwitch('remote-debugging-port', '8315');
+// 设置内存上限为 2048MB
+app.commandLine.appendSwitch('js-flags', '--max-old-space-size=2048');
+// 日志路径
+app.commandLine.appendSwitch('log-file', app.getPath('userData') + '/log.txt');
+if (CustomSettingStore.getInstance().getCustomSettings().closeCPUAcceleration) {
+// 禁用GPU和硬件加速
+app.commandLine.appendSwitch('disable-gpu');
+app.commandLine.appendSwitch('disable-software-rasterizer');
+app.commandLine.appendSwitch('disable-gpu-compositing');
+app.commandLine.appendSwitch('disable-gpu-rasterization');
+app.commandLine.appendSwitch('disable-gpu-sandbox');
+app.disableHardwareAcceleration();
+}
 
 /**
  * Prevent electron from running multiple instances.
@@ -10,11 +27,6 @@ if (!isSingleInstance) {
   process.exit(0);
 }
 app.on('second-instance', restoreOrCreateWindow);
-
-/**
- * Disable Hardware Acceleration to save more system resources.
- */
-app.disableHardwareAcceleration();
 
 /**
  * Shout down background process if all windows was closed
@@ -57,16 +69,3 @@ app
 //     })
 //     .catch(e => console.error('Failed install extension:', e));
 // }
-
-if (import.meta.env.PROD) {
-  app
-    .whenReady()
-    .then(() => import('electron-updater'))
-    .then((module) => {
-      const autoUpdater =
-        module.autoUpdater ||
-        (module.default.autoUpdater as (typeof module)['autoUpdater']);
-      return autoUpdater.checkForUpdatesAndNotify();
-    })
-    .catch((e) => console.error('Failed check and install updates:', e));
-}

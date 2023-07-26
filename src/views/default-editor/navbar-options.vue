@@ -292,6 +292,9 @@
   function handleShowEditConfig() {
     editConfigModalVisible.value = true;
   }
+
+  // CTRL + C
+  
 </script>
 
 <style lang="less">

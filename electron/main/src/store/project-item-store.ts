@@ -1,5 +1,5 @@
 import { existsSync, readFileSync, readdirSync, writeFileSync } from 'fs';
-import { getRandomDomId, randomHSLColor } from './random';
+import { getRandomDomId, randomHSLColor } from '../utils/random';
 
 interface ExtendFile {
   name: string;
@@ -24,14 +24,25 @@ export class ProjectItemStore {
     // 读取已有文件信息或创建新的
     if (existsSync(this.path)) {
       this.files = JSON.parse(readFileSync(this.path, 'utf8')) as ExtendFile[];
+      // 查询本地是否更改
+      const files = readdirSync(this.save_path)
+        .filter((fileName) => fileName.endsWith('.json'))
+        .map((fileName) => {
+          return {
+            name: fileName,
+            property: {
+              star: false,
+              color: randomHSLColor(),
+            },
+          };
+        });
     } else {
       // 根据已有文件存档，创建 file-property.json
       const files = readdirSync(this.save_path)
         .filter((fileName) => fileName.endsWith('.json'))
         .map((fileName) => {
-          const uuid = getRandomDomId();
           return {
-            id: uuid,
+            id: getRandomDomId(),
             name: fileName,
             property: {
               star: false,
@@ -59,6 +70,25 @@ export class ProjectItemStore {
         Reflect.set(file.property, key, value);
       }
     });
+    this.syncLocal();
+  }
+
+  addFile(filename: string) {
+    this.files.push({
+      name: filename,
+      property: {
+        star: false,
+        color: randomHSLColor(),
+      },
+    });
+    this.syncLocal();
+  }
+
+  deleteFile(filename: string) {
+    const index = this.files.findIndex((file) => file.name === filename);
+    if (index > -1) {
+      this.files.splice(index, 1);
+    }
     this.syncLocal();
   }
 

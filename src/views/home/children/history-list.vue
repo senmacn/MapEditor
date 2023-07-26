@@ -71,15 +71,20 @@
     localApi?.openFolder('');
   }
 
-  function handleOpenProject(project: string) {
+  async function handleOpenProject(project: string) {
     // location.href = '/#/map-editor?name=' + project;
     const url = location.href.slice().replace(/\#\/.+/, '#/map-editor?name=' + project);
-    location.replace(url);
-    // 刷新加载存档
-    setTimeout(() => {
-      location.reload();
-      localApi && localApi.maximizeWindow();
-    });
+    const config = await localApi?.getCustomConfig();
+    if (localApi && config && config.openProjectInNewWindow) {
+      localApi.newWindow(url);
+    } else {
+      location.replace(url);
+      // 刷新加载存档
+      setTimeout(() => {
+        location.reload();
+        localApi && localApi.maximizeWindow();
+      });
+    }
   }
 
   const [openLoading, closeLoading] = useLoading({ tip: '加载中！', minTime: 1000 });
