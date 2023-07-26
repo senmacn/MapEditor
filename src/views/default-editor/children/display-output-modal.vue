@@ -74,6 +74,7 @@
   import { Area } from '../draw-element';
   import { max, min } from 'lodash-es';
   import { useCanvasState } from '@/store/modules/canvas-state';
+  import { useProgressEvent } from '@/components/controlled-progress';
 
   const emit = defineEmits<{
     (event: 'ok'): void;
@@ -86,6 +87,8 @@
       default: false,
     },
   });
+
+  const [start, progress] = useProgressEvent();
 
   const canvasState = useCanvasState();
 
@@ -216,6 +219,7 @@
 
   const mixinNameRef = ref('');
   function handleConfirmOkExport() {
+    start(areaData.length);
     setTimeout(() => {
       for (let aData of areaData) {
         const { name, boundRect, data } = aData;
@@ -233,6 +237,7 @@
           } else {
             exportFile(fileName, data);
           }
+          progress();
           notification.success({
             message: '下载坐标',
             description: `区域[${name}]下载完成！`,

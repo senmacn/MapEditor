@@ -2,10 +2,13 @@
   <div class="status-bar">
     <div class="wrapper">
       <div class="status-col"> 地图大小 [{{ mapSize }}] </div>
-      <div> 状态 [{{ statusRef }}] </div>
-      <div> <drag-outlined /> {{ pos }} </div>
+      <div class="status-col"> 状态 [{{ statusRef }}] </div>
+      <div class="status-col"> <drag-outlined /> {{ pos }} </div>
     </div>
     <controlled-slider @register="registerControllerSlider"></controlled-slider>
+    <div class="progress">
+      <controlled-progress></controlled-progress>
+    </div>
   </div>
 </template>
 
@@ -17,6 +20,7 @@
   import { DragOutlined } from '@ant-design/icons-vue';
   import { useEditorConfig } from '@/store/modules/editor-config';
   import ControlledSlider, { useControllerSlider } from '@/components/controlled-slider';
+  import ControlledProgress from '@/components/controlled-progress';
 
   const configRef = useEditorConfig();
 
@@ -95,7 +99,6 @@
     border-right: 1px solid rgb(235, 235, 235);
     > div {
       padding: 0 10px;
-      min-width: 150px;
       border-right: 1px solid rgb(235, 235, 235);
     }
     .anticon {
@@ -104,5 +107,10 @@
     .status-col {
       width: 180px;
     }
+  }
+  .progress {
+    width: 300px;
+    padding: 0 10px;
+    border-left: 1px solid rgb(235, 235, 235);
   }
 </style>

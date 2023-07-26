@@ -5,15 +5,20 @@ import { getLocalApi } from '@/utils/env';
 import { exportFile } from '@/utils/file';
 import { message, notification } from 'ant-design-vue';
 import { useEditorConfig } from '@/store/modules/editor-config';
+import { useProgressEvent } from '@/components/controlled-progress';
 
 export function handleExportBoundary() {
   const configRef = useEditorConfig();
   const localState = useLocalState();
   const localApi = getLocalApi();
   const canvasState = useCanvasState();
+  const [start, progress] = useProgressEvent();
 
   let iter = canvasState.getAreaMap.values();
   let areaNext = iter.next();
+
+  start(canvasState.getAreaMap.size);
+  
   while (!areaNext.done) {
     const name = areaNext.value.getName(),
       boundRect = areaNext.value.getBoundRect(),
@@ -37,6 +42,7 @@ export function handleExportBoundary() {
       } else {
         exportFile(fileName, data);
       }
+      progress();
       notification.success({
         message: '下载边框坐标',
         description: `区域[${name}]下载完成！`,
@@ -48,7 +54,7 @@ export function handleExportBoundary() {
       message.error('下载失败！');
       worker.terminate();
     };
-    
+
     worker.postMessage([
       data,
       boundRect[0] + Number(configRef.getSize.offsetX),
