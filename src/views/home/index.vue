@@ -19,12 +19,8 @@
         >
           自定义
         </div>
-        <div
-          :class="['bar-item', activePanelRef === HomePanel.Beta && 'active']"
-          @click="activePanelRef = HomePanel.Beta"
-        >
-          Beta功能
-        </div>
+        <div class="bar-item" @click="openDocument"> 使用文档 </div>
+        <div class="bar-item" @click="openLog"> 更新日志 </div>
       </div>
     </div>
     <div class="home-right">
@@ -52,7 +48,6 @@
   enum HomePanel {
     HistoryList,
     Custom,
-    Beta,
   }
 
   const activePanelRef = ref(HomePanel.HistoryList);
@@ -61,6 +56,16 @@
   if (!localApi) {
     const url = location.href.slice().replace(/\#\/.+/, '#/map-editor?name=');
     location.replace(url);
+  }
+
+  function openDocument() {
+    getLocalApi()?.newWindow('https://docs.oa.wanmei.net/kdocs/l/cgpQRPmL23TQ', true);
+  }
+  function openLog() {
+    getLocalApi()?.newWindow(
+      'https://docs.oa.wanmei.net/weboffice/l/cvFBr84fiEZz?timestamp=1690340901454',
+      true,
+    );
   }
 </script>
 
