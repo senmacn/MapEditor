@@ -73,7 +73,7 @@ export async function restoreOrCreateWindow() {
 
   window.focus();
 
-  setupEvent(window);
+  setupEvent();
 
   return window;
 }
