@@ -35,6 +35,7 @@
         >
           禁用GPU和硬件加速
         </a-checkbox>
+        <a-button class="tools" @click="localApi?.openDevTools()"> 开发者工具 </a-button>
       </div>
     </div>
   </div>
@@ -43,7 +44,7 @@
 <script setup lang="ts">
   import { onMounted, reactive } from 'vue';
   import { getLocalApi } from '@/utils/env';
-import { Modal } from 'ant-design-vue';
+  import { Modal } from 'ant-design-vue';
 
   const localApi = getLocalApi();
 
@@ -58,15 +59,15 @@ import { Modal } from 'ant-design-vue';
       await localApi.setCustomConfig(key, e.target.checked);
       if (key === 'closeCPUAcceleration') {
         Modal.confirm({
-        title: '重启',
-        content: '修改【禁用GPU和硬件加速】后需要重启应用才能生效，是否立即重启？',
-        type: 'warning',
-        okText: '重启',
-        cancelText: '稍后重启',
-        onOk: () => {
-          localApi.relaunch();
-        },
-      });
+          title: '重启',
+          content: '修改【禁用GPU和硬件加速】后需要重启应用才能生效，是否立即重启？',
+          type: 'warning',
+          okText: '重启',
+          cancelText: '稍后重启',
+          onOk: () => {
+            localApi.relaunch();
+          },
+        });
       }
     }
   }
@@ -97,6 +98,18 @@ import { Modal } from 'ant-design-vue';
       display: flex;
       flex-direction: column;
       padding: 10px;
+      > * {
+        margin-bottom: 10px;
+      }
+    }
+    .tools {
+      width: auto;
+      font-size: 12px;
+      background: #333333;
+      &:hover {
+        color: white;
+        background: #444444;
+      }
     }
   }
 </style>

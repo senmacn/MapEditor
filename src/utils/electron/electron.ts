@@ -59,6 +59,9 @@ class ElectronApi implements LocalApi {
   starItem(id: string, star: boolean) {
     return window['electronAPI'].starItem(id, star);
   }
+  openDevTools() {
+    return window['electronAPI'].openDevTools();
+  }
 }
 
 const electronApi = new ElectronApi();

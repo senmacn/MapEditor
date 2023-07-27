@@ -2,6 +2,8 @@ import { app } from 'electron';
 import { restoreOrCreateWindow } from '/@/mainWindow';
 import CustomSettingStore from './store/custom-setting-store';
 
+// 禁止缓存，调试使用
+// app.commandLine.appendSwitch('--disable-http-cache');
 // 设置调试
 app.commandLine.appendSwitch('remote-debugging-port', '8315');
 // 设置内存上限为 2048MB
@@ -9,13 +11,13 @@ app.commandLine.appendSwitch('js-flags', '--max-old-space-size=2048');
 // 日志路径
 app.commandLine.appendSwitch('log-file', app.getPath('userData') + '/log.txt');
 if (CustomSettingStore.getInstance().getCustomSettings().closeCPUAcceleration) {
-// 禁用GPU和硬件加速
-app.commandLine.appendSwitch('disable-gpu');
-app.commandLine.appendSwitch('disable-software-rasterizer');
-app.commandLine.appendSwitch('disable-gpu-compositing');
-app.commandLine.appendSwitch('disable-gpu-rasterization');
-app.commandLine.appendSwitch('disable-gpu-sandbox');
-app.disableHardwareAcceleration();
+  // 禁用GPU和硬件加速
+  app.commandLine.appendSwitch('disable-gpu');
+  app.commandLine.appendSwitch('disable-software-rasterizer');
+  app.commandLine.appendSwitch('disable-gpu-compositing');
+  app.commandLine.appendSwitch('disable-gpu-rasterization');
+  app.commandLine.appendSwitch('disable-gpu-sandbox');
+  app.disableHardwareAcceleration();
 }
 
 /**

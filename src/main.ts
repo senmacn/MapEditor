@@ -8,8 +8,6 @@ import contextmenu from 'v-contextmenu';
 import 'v-contextmenu/dist/themes/dark.css';
 import '@simonwep/pickr/dist/themes/nano.min.css';
 import { setupStore } from './store';
-import 'virtual:svg-icons-register';
-import './utils/extend';
 import { getLocalApi } from './utils/env';
 import { useLocalState } from './store/modules/local-state';
 import loadingSaves from './loadingSaves';
