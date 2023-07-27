@@ -61,6 +61,9 @@ const electronApi: LocalApi = {
   starItem: async (filename: string, star: boolean) => {
     return await ipcRenderer.invoke('star-item', filename, star);
   },
+  openDevTools: () => {
+    return ipcRenderer.invoke('open-dev-tools');
+  }
 };
 
 contextBridge.exposeInMainWorld('electronAPI', electronApi);

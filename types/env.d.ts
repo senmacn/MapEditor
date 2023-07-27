@@ -23,4 +23,5 @@ interface LocalApi {
   createShareLink(filename: string, uuid: string): Promise<LocalResult<string>>;
   executeShareLink(link: string): Promise<LocalResult<Recordable>>;
   starItem(filename: string, star: boolean): Promise<LocalResult<null>>;
+  openDevTools(): void;
 }

@@ -277,4 +277,11 @@ export default function setupEvent(mainWindow: BrowserWindow) {
       return err as LocalError;
     }
   });
+
+  ipcMain.handle('open-dev-tools', (event) => {
+    const window = windMap.get(event.sender.id);
+    if (window) {
+      window.webContents.openDevTools();
+    }
+  })
 }
