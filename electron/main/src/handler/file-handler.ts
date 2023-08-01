@@ -11,7 +11,7 @@ export default function () {
 
   ipcMain.handle('get-local-history-list', () => {
     return readdirSync(SAVES_DIR)
-      .filter((fileName) => fileName.endsWith('.json'))
+      .filter((fileName) => !fileName.endsWith('.boundary.json') && fileName.endsWith('.json'))
       .map((fileName) => {
         const filePath = path.join(SAVES_DIR, fileName);
         const stat = statSync(filePath);
