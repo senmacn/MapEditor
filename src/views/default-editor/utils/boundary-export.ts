@@ -18,10 +18,9 @@ export function handleExportBoundary() {
   let areaNext = iter.next();
 
   start(canvasState.getAreaMap.size);
-  
+
   while (!areaNext.done) {
     const name = areaNext.value.getName(),
-      boundRect = areaNext.value.getBoundRect(),
       data = areaNext.value.getData();
 
     const worker = new DownloadWorker();
@@ -57,8 +56,6 @@ export function handleExportBoundary() {
 
     worker.postMessage([
       data,
-      boundRect[0] + Number(configRef.getSize.offsetX),
-      boundRect[1] + Number(configRef.getSize.offsetY),
       Number(configRef.getMapSize.ltX),
       Number(configRef.getMapSize.ltY),
       Number(configRef.getSize.scale),
