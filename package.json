@@ -45,6 +45,7 @@
     "moveable": "^0.46.1",
     "pinia": "^2.1.4",
     "selecto": "^1.25.0",
+    "simplify-js": "^1.2.4",
     "v-contextmenu": "^3.0.0",
     "vue": "^3.3.4",
     "vue-router": "^4.2.2"

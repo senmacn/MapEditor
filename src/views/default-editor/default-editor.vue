@@ -145,8 +145,10 @@
           boundRect: area.getBoundRect(),
         });
       });
+      // 等待确定
       const confirmData = await confirm;
       if (!confirmData) return;
+      // 使用选取区域内的点后的新data
       area.setChoosePoint(confirmData.point);
       area.setData(confirmData.data);
       // 重新计算边界，编辑过程可能修改

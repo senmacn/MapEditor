@@ -79,6 +79,11 @@ export default class FloodFill {
     }
   }
 
+  /**
+   * 混合原有的imageData和新imageData，更新边界
+   * @param initialData 
+   * @returns 
+   */
   public getImageDataFrom(initialData: ImageData) {
     const data = initialData.data;
     const newData = this.imageData.data;
@@ -89,12 +94,14 @@ export default class FloodFill {
     for (let yIndex = 0; yIndex < this.imageData.height; yIndex++) {
       for (let xIndex = 0; xIndex < this.imageData.width; xIndex++) {
         const pointStartIndex = xIndex * 4 + yIndex * 4 * this.imageData.width;
+        // 去除无用点（原来有点，新data没点）
         if (isPointInData(data, pointStartIndex) && !isPointInData(newData, pointStartIndex)) {
           data[pointStartIndex] = 0;
           data[pointStartIndex + 1] = 0;
           data[pointStartIndex + 2] = 0;
           data[pointStartIndex + 3] = 0;
         }
+        // 更新边界，二者都有点
         if (isPointInData(data, pointStartIndex) && isPointInData(newData, pointStartIndex)) {
           if (xIndex < minX) {
             minX = xIndex;

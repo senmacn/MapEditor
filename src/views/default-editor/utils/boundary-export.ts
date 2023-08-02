@@ -18,7 +18,7 @@ export function handleExportBoundary() {
   let areaNext = iter.next();
 
   start(canvasState.getAreaMap.size);
-  
+
   while (!areaNext.done) {
     const name = areaNext.value.getName(),
       boundRect = areaNext.value.getBoundRect(),
@@ -27,20 +27,33 @@ export function handleExportBoundary() {
     const worker = new DownloadWorker();
     worker.onmessage = async function (e) {
       const fileName = name + '.boundary.json';
-      const data = e.data;
+      const retData = e.data;
       if (localApi) {
         const e = await localApi.saveLocalFile(
           fileName,
-          JSON.stringify(data),
+          JSON.stringify(retData),
           localState.getDownloadLocation,
         );
+        // #[test]
+        // let maskCanvas: HTMLCanvasElement | null = document.querySelector('#mask-canvas');
+        // if (maskCanvas == null) return;
+        // maskCanvas.style.display = 'block';
+        // let ctx = maskCanvas.getContext('2d', {}) as CanvasRenderingContext2D;
+        // ctx.putImageData(data ,0,0);
+        // ctx.fillStyle = 'red';
+        // console.log(retData);
+        
+        // retData.value.forEach((p) => {
+        //   ctx.fillRect(Math.round(p[0]), Math.round(p[1]), 1, 1);
+        // });
+        // test end
         if (e) {
           message.error(`区域[${name}]导出失败！`);
           console.error(e);
           return;
         }
       } else {
-        exportFile(fileName, data);
+        exportFile(fileName, retData);
       }
       progress();
       notification.success({
