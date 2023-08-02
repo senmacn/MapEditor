@@ -10,6 +10,13 @@ function getIntegerPoint(point: PointA) {
   };
 }
 
+function getRoundedPoint(point: PointA) {
+  return {
+    x: Math.round(point.x),
+    y: Math.round(point.y),
+  };
+}
+
 /**
  * canvas 直接操作的封装
  * @returns CanvasInstance
@@ -174,6 +181,7 @@ export class ExtendCanvas implements CanvasExtendImp {
     ctx.stroke();
   }
   drawCircle(point: PointA, radius: number, fill: boolean = false) {
+    point = getRoundedPoint(point);
     const ctx = this.getCanvas();
     point = getIntegerPoint(point);
     ctx.beginPath();
@@ -183,6 +191,8 @@ export class ExtendCanvas implements CanvasExtendImp {
     fill ? ctx.fill() : ctx.stroke();
   }
   drawLine(beginPoint: PointA, endPoint: PointA) {
+    beginPoint = getRoundedPoint(beginPoint)
+    endPoint = getRoundedPoint(endPoint)
     const ctx = this.getCanvas();
     beginPoint = getIntegerPoint(beginPoint);
     endPoint = getIntegerPoint(endPoint);
@@ -195,6 +205,8 @@ export class ExtendCanvas implements CanvasExtendImp {
     ctx.stroke();
   }
   drawRect(beginPoint: PointA, endPoint: PointA, fill: boolean = false) {
+    beginPoint = getRoundedPoint(beginPoint)
+    endPoint = getRoundedPoint(endPoint)
     const ctx = this.getCanvas();
     beginPoint = getIntegerPoint(beginPoint);
     endPoint = getIntegerPoint(endPoint);
