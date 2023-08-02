@@ -1,5 +1,5 @@
 <template>
-  <ul class="layer-areas">
+  <ul class="layer-areas" v-auto-animate>
     <li class="area-item" v-for="(area, index) in visibleList" :key="index">
       <div class="area-index">
         <a-tooltip title="隐藏区域" v-if="!hideStatesRef[area.getUuid()]">
