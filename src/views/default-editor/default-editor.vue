@@ -53,10 +53,15 @@
 
   // 标尺相关
   const vRuler = ref();
+  const unit = configRef.getMapSize.used
+    ? configRef.getSize.scale > 50
+      ? configRef.getSize.scale
+      : 50
+    : 50;
   const vRulerInstance = useRuler(vRuler, {
     type: 'vertical',
     width: 30,
-    unit: configRef.getMapSize.used ? configRef.getSize.scale : 50,
+    unit: unit,
     textFormat: (scale) =>
       Math.round(
         configRef.getMapSize.used
@@ -70,7 +75,7 @@
   const hRulerInstance = useRuler(hRuler, {
     type: 'horizontal',
     height: 30,
-    unit: configRef.getMapSize.used ? configRef.getSize.scale : 50,
+    unit: unit,
     textFormat: (scale) =>
       Math.round(
         configRef.getMapSize.used
@@ -92,10 +97,15 @@
     () => configRef.zoom,
     () => {
       if (configRef) {
+        const unit = configRef.getMapSize.used
+          ? configRef.getSize.scale > 50
+            ? configRef.getSize.scale
+            : 50
+          : 50;
         vRulerInstance.rebuild({
           type: 'vertical',
           width: 30,
-          unit: configRef.getMapSize.used ? configRef.getSize.scale : 50,
+          unit: unit,
           textFormat: (scale) =>
             Math.round(
               (configRef.getMapSize.used
@@ -107,7 +117,7 @@
         hRulerInstance.rebuild({
           type: 'horizontal',
           height: 30,
-          unit: configRef.getMapSize.used ? configRef.getSize.scale : 50,
+          unit: unit,
           textFormat: (scale) =>
             Math.round(
               (configRef.getMapSize.used
