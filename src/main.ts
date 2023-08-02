@@ -13,6 +13,7 @@ import { useLocalState } from './store/modules/local-state';
 import loadingSaves from './loadingSaves';
 import setCustomDirectives from './directives';
 import { useEditorConfig } from './store/modules/editor-config';
+import { autoAnimatePlugin } from '@formkit/auto-animate/vue'
 
 notification.config({
   placement: 'topLeft',
@@ -31,6 +32,7 @@ async function bootstrap() {
   app.use(router);
   app.use(Antd);
   app.use(contextmenu);
+  app.use(autoAnimatePlugin);
 
   // 本地环境下更新个人配置
   const localApi = getLocalApi();

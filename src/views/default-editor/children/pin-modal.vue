@@ -105,7 +105,7 @@
           />
         </a-form-item>
         <a-form-item name="association" label="关联">
-          <div class="association-wrapper">
+          <div class="association-wrapper" v-auto-animate>
             <div class="association-row head">
               <div>名称</div>
               <div>关系</div>
