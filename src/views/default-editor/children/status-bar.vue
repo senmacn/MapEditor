@@ -13,7 +13,7 @@
 </template>
 
 <script setup lang="ts">
-  import { computed, onBeforeUnmount, onMounted } from 'vue';
+  import { computed, onBeforeUnmount, onMounted, watch } from 'vue';
   import controller from '../common/canvas-state-controller';
   import { useMouse } from '@vueuse/core';
   import { useCanvasState } from '@/store/modules/canvas-state';
@@ -54,7 +54,7 @@
     return `${x} X ${y}`;
   });
 
-  const [registerControllerSlider, { zoomIn, zoomOut }] = useControllerSlider({
+  const [registerControllerSlider, { zoomIn, zoomOut, setValue }] = useControllerSlider({
     onChange: function (val) {
       configRef.setZoom(val);
     },
@@ -77,6 +77,14 @@
   onBeforeUnmount(() => {
     document.body.removeEventListener('keydown', handleKeyBoardDown);
   });
+
+  // zoom配置修改时，更新
+  watch(
+    () => configRef.zoom,
+    () => {
+      setValue(configRef.zoom);
+    },
+  );
 </script>
 
 <style lang="less">

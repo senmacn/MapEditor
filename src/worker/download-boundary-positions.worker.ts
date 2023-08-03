@@ -3,6 +3,7 @@ import isEqual from 'lodash-es/isEqual';
 import uniqWith from 'lodash-es/uniqWith';
 import filter from 'lodash-es/filter';
 import simplify from 'simplify-js';
+import { getDistance } from '@/views/default-editor/utils/canvas-util';
 
 function getCentroid(points: PointA[]) {
   let xSum = 0;
@@ -47,12 +48,18 @@ function getPosition(imageData: ImageData) {
     true,
   );
   const pointsB = simplify(
-    positions.sort((a, b) => a.x - a.y - b.x + b.y),
+    positions.sort((a, b) => -a.x + a.y + b.x - b.y),
     5,
     true,
   );
   const simplePoints = uniqWith(pointsA.concat(pointsB), isEqual);
-  return filter(sortVertices(simplePoints), (_, index) => index % 3 === 0);
+
+  let sortedPoints = sortVertices(simplePoints);
+  sortedPoints = filter(
+    uniqWith(sortedPoints, (p1, p2) => getDistance(p1, p2) <= 1),
+    (_, index) => index % 2 === 0,
+  );
+  return sortedPoints;
 }
 
 addEventListener(
@@ -67,6 +74,7 @@ addEventListener(
       Math.round(ltX + (point.x + offsetX) * scale + 50),
       Math.round(ltY + (point.y + offsetY) * scale + 50),
     ]);
+    // const formatPoints = points.map((point) => [point.x + offsetX, point.y + offsetY]);
     postMessage({
       type: type,
       value: formatPoints,

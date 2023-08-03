@@ -1,9 +1,9 @@
 <template>
   <canvas
     id="mask-canvas"
-    @mousemove.stop="handleMouseMove"
-    @mouseup.stop="handleMouseUp"
-    @mousedown.stop="handleMouseDown"
+    @mousemove="handleMouseMove"
+    @mouseup="handleMouseUp"
+    @mousedown="handleMouseDown"
     @mouseout="handleMouseMove"
   ></canvas>
 </template>
@@ -30,6 +30,7 @@
   // 鼠标事件根据不同按钮按下后分别处理
   function handleMouseDown(e: MouseEvent) {
     if (e.button !== 0) return;
+    e.stopPropagation();
     switch (controller.getState()) {
       case CanvasOption.DrawLine:
       case CanvasOption.DrawCircle:
@@ -45,6 +46,7 @@
   const handleMouseMove = throttle(syncHandleMouseMove, 16);
   function syncHandleMouseMove(e: MouseEvent) {
     if (e.button !== 0 || !activeRef.value) return;
+    e.stopPropagation();
     endPoint = getPos(e);
     // 清除
     const radius = Math.sqrt(
@@ -76,7 +78,8 @@
   }
 
   function handleMouseUp(e: MouseEvent) {
-    if (!activeRef.value) return;
+    if (!activeRef.value || e.button !== 0) return;
+    e.stopPropagation();
     endPoint = getPos(e);
     switch (controller.getState()) {
       case CanvasOption.DrawLine: {
@@ -123,6 +126,7 @@
 
   function handleMouseUpOuter(e: MouseEvent) {
     if (e.button !== 0 || !activeRef.value) return;
+    e?.stopPropagation();
     const canvas = ctxRef.getCanvas().canvas;
     const canvasRect = canvas.getBoundingClientRect();
     const x = e.clientX - canvasRect.left;
@@ -132,6 +136,7 @@
 
   function handleMouseMoveOuter(e: MouseEvent) {
     if (e.button !== 0 || !activeRef.value) return;
+    e?.stopPropagation();
     const canvas = ctxRef.getCanvas().canvas;
     const canvasRect = canvas.getBoundingClientRect();
     const x = e.clientX - canvasRect.left;
