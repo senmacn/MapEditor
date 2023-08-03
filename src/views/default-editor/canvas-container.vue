@@ -2,22 +2,19 @@
   <div
     id="scroller"
     ref="scrollerRef"
-    :class="['scroller', controller.isDrawingArea() ? 'active' : '']"
+    :class="[controller.isDrawingArea() ? 'active' : '']"
     @contextmenu="handleClickMenu"
     @click="handleClick"
   >
-    <area-bottom-viewer class="bottom-layer" :style="styleRef"></area-bottom-viewer>
-    <template v-for="layer in state.getLayers" :key="layer.uuid">
-      <area-viewer :layer="layer" v-show="layer.visible" :style="styleRef" />
-    </template>
-    <area-canvas
-      ref="areaCanvasRef"
-      v-if="controller.isDrawingArea()"
-      :style="styleRef"
-      :offset="offsetRef"
-    />
-    <pen-canvas v-show="controller.isDrawingPen()" :style="styleRef" :offset="offsetRef" />
-    <mask-canvas v-show="controller.isDrawingShape()" :style="styleRef" :offset="offsetRef" />
+    <div class="viewport" :style="style">
+      <area-bottom-viewer :style="style"></area-bottom-viewer>
+      <template v-for="layer in state.getLayers" :key="layer.uuid">
+        <area-viewer :layer="layer" v-show="layer.visible" :style="style" />
+      </template>
+      <area-canvas ref="areaCanvasRef" v-if="controller.isDrawingArea()" />
+      <pen-canvas v-show="controller.isDrawingPen()" />
+      <mask-canvas v-show="controller.isDrawingShape()" />
+    </div>
   </div>
   <Contextmenu ref="contextmenuRef" @show-pin-modal="handleShowPinModal"></Contextmenu>
   <pin-modal ref="pinRef"></pin-modal>
@@ -34,43 +31,31 @@
   import { useEditorConfig } from '@/store/modules/editor-config';
   import { onFocusAreaEvent } from './common/event';
   import controller from './common/canvas-state-controller';
-  import { useScroll } from '@vueuse/core';
   import { useCanvasState } from '@/store/modules/canvas-state';
   import Contextmenu from './children/contextmenu.vue';
   import PinModal from './children/pin-modal.vue';
   import useSelecto from './utils/useSelecto';
-  import { getZoomChangeStyle } from './utils/canvas-util';
+  import useInfiniteViewer from './hooks/useInfiniteViewer';
 
   const state = useCanvasState();
   const configRef = useEditorConfig();
 
-  // 滚动偏移，以及框选
-  const scrollerRef = ref();
-  useSelecto(scrollerRef);
-  const { x, y } = useScroll(scrollerRef, { throttle: 50 });
-  const offsetRef = ref<Offset>({ x: 0, y: 0 });
-  watch([() => x.value, () => y.value], () => {
-    state.setOffset({ x: x.value, y: y.value });
-  });
-  const styleRef = ref('');
-  // zoom配置修改时，修改canvas大小
-  function executeZoom() {
-    const style = getZoomChangeStyle(configRef.zoom, configRef.size.x, configRef.size.y);
-    styleRef.value = `transform: ${style.transform}; top: ${style.top}; left: ${style.left}`;
-  }
+  const style = `width: ${configRef.size.x}px; height: ${configRef.size.y}px;`;
+
+  // zoom配置修改时，更新Rect
   watch(
     () => configRef.zoom,
     () => {
-      if (configRef) {
-        executeZoom();
-
-        setTimeout(() => {
+      setTimeout(() => {
+        requestAnimationFrame(() => {
           controller.getCurrentAreas().forEach((area) => area?.moveable?.updateRect());
-        }, 100);
-      }
+          updateRect();
+        });
+      }, 100);
     },
   );
   // 快速定位事件
+  const scrollerRef = ref();
   onFocusAreaEvent((_, ele: DrawElement) => {
     const scroller = scrollerRef.value;
     if (scroller) {
@@ -124,6 +109,24 @@
   function handleShowPinModal(create?: boolean) {
     create ? pinRef.value.setPin(null) : pinRef.value.setPin(controller.getCurrentPin());
   }
+
+  // 无限视窗
+  const [offset] = useInfiniteViewer('#scroller', '.viewport');
+  watch(
+    () => [offset.value[0], offset.value[1]],
+    () => {
+      state.setOffset({ x: -offset.value[0], y: -offset.value[1] });
+      setTimeout(() => {
+        requestAnimationFrame(() => {
+          controller.getCurrentAreas().forEach((area) => area?.moveable?.updateRect());
+          updateRect();
+        });
+      }, 100);
+    },
+  );
+
+  // 框选
+  const { updateRect } = useSelecto(scrollerRef);
 </script>
 
 <style lang="less">
@@ -131,14 +134,42 @@
     width: 100%;
     height: 100%;
   }
-  .scroller {
+  .scroll-area-bg1 {
+    width: calc(100% + 1000px);
+    height: calc(100% + 1000px);
+    position: absolute;
+    top: 0;
+    left: 0;
+    background-position: -2px -2px;
+    background-image: linear-gradient(0deg, rgb(146, 146, 146), transparent 3%),
+      linear-gradient(90deg, rgb(146, 146, 146), transparent 3%);
+    background-size: 25px 25px;
+  }
+  .scroll-area-bg2 {
+    width: calc(100% + 1000px);
+    height: calc(100% + 1000px);
+    position: absolute;
+    top: 0;
+    left: 0;
+    background-position: -2px -2px;
+    background-image: linear-gradient(0deg, rgb(146, 146, 146), transparent 2%),
+      linear-gradient(90deg, rgb(146, 146, 146), transparent 2%);
+    background-size: 50px 50px;
+  }
+  #scroller {
     position: relative;
     height: calc(100% - 10px);
     width: calc(100% - 10px);
     border: 2px solid #5a5a5a;
-    overflow: auto;
+    overflow: hidden;
   }
-  .scroller.active {
+  #scroller.active {
     border: 2px solid black;
+  }
+  .viewport {
+    position: relative;
+    transition: transform 0.1s;
+    transform-origin: 0px 0px;
+    will-change: transform;
   }
 </style>

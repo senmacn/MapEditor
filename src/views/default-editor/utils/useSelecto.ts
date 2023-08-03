@@ -188,4 +188,13 @@ export default function useSelecto(target: Ref<HTMLElement> | HTMLElement = docu
       }
     },
   );
+
+  function updateRect() {
+    if (selecto && moveable) {
+      moveable.updateRect();
+    }
+  }
+  return {
+    updateRect 
+  }
 }

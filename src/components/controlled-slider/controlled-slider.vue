@@ -1,6 +1,6 @@
 <template>
   <a-space class="controller-slider">
-    <span class="slider-value">{{  (100 * sliderValueRef).toFixed(0) + '%' }}</span>
+    <span class="slider-value">{{ (100 * sliderValueRef).toFixed(0) + '%' }}</span>
     <a-tooltip title="ctrl + -">
       <minus-circle-outlined @click="handleDown" />
     </a-tooltip>
@@ -49,6 +49,10 @@
     sliderValueRef.value = sliderValueRef.value - 0.1;
   }
 
+  function setValue(val: number) {
+    sliderValueRef.value = val;
+  }
+
   const slider = {
     getValue() {
       return sliderValueRef.value;
@@ -56,6 +60,7 @@
     zoomIn: handleUp,
     zoomOut: handleDown,
     setProps: setProps,
+    setValue: setValue,
   };
 
   emits('register', slider);

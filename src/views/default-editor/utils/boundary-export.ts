@@ -39,10 +39,22 @@ export function handleExportBoundary() {
         // if (maskCanvas == null) return;
         // maskCanvas.style.display = 'block';
         // let ctx = maskCanvas.getContext('2d', {}) as CanvasRenderingContext2D;
-        // ctx.putImageData(data ,0,0);
         // ctx.fillStyle = 'red';
         // console.log(retData);
-        
+        // const formatPoints = retData.value.map((point) => ([
+        //   Math.round(
+        //     Number(configRef.getMapSize.ltX) +
+        //       (point[0] + boundRect[0]) * Number(configRef.getSize.scale) +
+        //       50,
+        //   ),
+        //   Math.round(
+        //     Number(configRef.getMapSize.ltY) +
+        //       (point[1] + boundRect[1]) * Number(configRef.getSize.scale) +
+        //       50,
+        //   ),
+        // ]));
+        // console.log('111', formatPoints);
+
         // retData.value.forEach((p) => {
         //   ctx.fillRect(Math.round(p[0]), Math.round(p[1]), 1, 1);
         // });

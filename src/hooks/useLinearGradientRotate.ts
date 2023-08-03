@@ -8,9 +8,11 @@ export default function useLinearGradientRotate(target: string) {
     if (!targetElement) {
       return;
     }
-    angle = (angle + 2) % 360; // 使角度保持在 0 到 359 度之间
-    
-    targetElement.style.backgroundImage = `linear-gradient(${angle}deg, #222222, #333333, #555555, #444444)`;
+
+    if (location.hash.includes('home')) {
+      angle = (angle + 2) % 360; // 使角度保持在 0 到 359 度之间
+      targetElement.style.backgroundImage = `linear-gradient(${angle}deg, #222222, #333333, #555555, #444444)`;
+    }
     stop = setTimeout(() => {
       rotateGradient();
     }, 100);

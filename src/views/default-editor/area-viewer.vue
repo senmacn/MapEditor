@@ -1,11 +1,10 @@
 <template>
-  <div :id="layer?.uuid" class="layer-instance" ref="areaViewer" :style="style"></div>
+  <div :id="layer?.uuid" class="layer-instance area-viewer" ref="areaViewer"></div>
 </template>
 
 <script setup lang="ts">
   import { ref, watch } from 'vue';
   import { Layer } from './common/types';
-  import { useEditorConfig } from '@/store/modules/editor-config';
   import controller from './common/canvas-state-controller';
   import { onDeleteAreaEvent } from './common/event';
   import { Area, Pin } from './draw-element';
@@ -16,9 +15,6 @@
       type: Object as PropType<Layer>,
     },
   });
-
-  const configRef = useEditorConfig();
-  const style = `width: ${configRef.size.x}px; height: ${configRef.size.y}px;`;
 
   // 背景图片
   watch(

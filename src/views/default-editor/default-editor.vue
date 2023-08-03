@@ -68,7 +68,6 @@
           ? configRef.getMapSize.ltY + scale * configRef.getSize.scale
           : scale,
       ).toString(),
-    range: [0, configRef.getSize.y],
   });
 
   const hRuler = ref();
@@ -82,7 +81,6 @@
           ? configRef.getMapSize.ltX + scale * configRef.getSize.scale
           : scale,
       ).toString(),
-    range: [0, configRef.getSize.x],
   });
   // 滚动条滚动时修改标尺offset
   watch(
@@ -112,7 +110,6 @@
                 ? configRef.getMapSize.ltY + scale * configRef.getSize.scale
                 : scale) / configRef.zoom,
             ).toString(),
-          range: [0, configRef.getSize.y * configRef.zoom],
         });
         hRulerInstance.rebuild({
           type: 'horizontal',
@@ -124,7 +121,6 @@
                 ? configRef.getMapSize.ltX + scale * configRef.getSize.scale
                 : scale) / configRef.zoom,
             ).toString(),
-          range: [0, configRef.getSize.x * configRef.zoom],
         });
       }
     },

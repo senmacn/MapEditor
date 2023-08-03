@@ -2,14 +2,12 @@
   <div
     id="bottom-layer"
     class="layer-instance bottom-layer"
-    :style="style"
     @mousedown="handleClickOutAreaBefore"
     @mouseup="handleClickOutArea"
   ></div>
 </template>
 
 <script setup lang="ts">
-  import { useEditorConfig } from '@/store/modules/editor-config';
   import { isString } from 'lodash-es';
   import controller from './common/canvas-state-controller';
   import { Area } from './draw-element';
@@ -17,9 +15,6 @@
   import { onMounted, onBeforeUnmount } from 'vue';
   import { copyImageData } from './utils/image-data-util';
   import { useCanvasState } from '@/store/modules/canvas-state';
-
-  const configRef = useEditorConfig();
-  const style = `width: ${configRef.size.x}px; height: ${configRef.size.y}px;`;
 
   const mouseDown = [0, 0];
   function handleClickOutAreaBefore(e: MouseEvent) {

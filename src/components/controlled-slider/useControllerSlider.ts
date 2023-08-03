@@ -31,6 +31,7 @@ export default function useControllerSlider(
       zoomIn: () => getInstance().zoomIn(),
       zoomOut: () => getInstance().zoomOut(),
       setProps: (props) => getInstance().setProps(props),
+      setValue: (value) => getInstance().setValue(value)
     },
   ];
 }
