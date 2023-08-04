@@ -6,7 +6,7 @@ import { useEditorConfig } from '@/store/modules/editor-config';
 
 export default class Area extends DrawElement {
   // 手动选择的内部点，用于填充内容
-  private choosePoint = [0, 0];
+  private choosePoint;
   private boundRectPoints: Point[] | undefined;
   // rect 内的data
   private data: ImageData;

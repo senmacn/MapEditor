@@ -145,7 +145,7 @@
       const confirmData = await confirm;
       if (!confirmData) return;
       // 使用选取区域内的点后的新data
-      area.setChoosePoint(confirmData.point);
+      area.setChoosePoint([confirmData.point[0], confirmData.point[1]]);
       area.setData(confirmData.data);
       // 重新计算边界，编辑过程可能修改
       const oldRect = area.getBoundRect();

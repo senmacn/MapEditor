@@ -10,10 +10,10 @@ function getIntegerPoint(point: PointA) {
   };
 }
 
-function getRoundedPoint(point: PointA) {
+function getRoundedPoint(point: PointA, isOdd: boolean = false) {
   return {
-    x: Math.round(point.x),
-    y: Math.round(point.y),
+    x: Math.round(point.x) + (isOdd ? 0.5 : 0),
+    y: Math.round(point.y) + (isOdd ? 0.5 : 0),
   };
 }
 
@@ -191,8 +191,9 @@ export class ExtendCanvas implements CanvasExtendImp {
     fill ? ctx.fill() : ctx.stroke();
   }
   drawLine(beginPoint: PointA, endPoint: PointA) {
-    beginPoint = getRoundedPoint(beginPoint)
-    endPoint = getRoundedPoint(endPoint)
+    const isOdd = this.canvasConfig.lineWidth % 2 === 1;
+    beginPoint = getRoundedPoint(beginPoint, isOdd);
+    endPoint = getRoundedPoint(endPoint, isOdd);
     const ctx = this.getCanvas();
     beginPoint = getIntegerPoint(beginPoint);
     endPoint = getIntegerPoint(endPoint);
@@ -205,8 +206,9 @@ export class ExtendCanvas implements CanvasExtendImp {
     ctx.stroke();
   }
   drawRect(beginPoint: PointA, endPoint: PointA, fill: boolean = false) {
-    beginPoint = getRoundedPoint(beginPoint)
-    endPoint = getRoundedPoint(endPoint)
+    const isOdd = this.canvasConfig.lineWidth % 2 === 1;
+    beginPoint = getRoundedPoint(beginPoint, isOdd);
+    endPoint = getRoundedPoint(endPoint, isOdd);
     const ctx = this.getCanvas();
     beginPoint = getIntegerPoint(beginPoint);
     endPoint = getIntegerPoint(endPoint);
