@@ -1,8 +1,5 @@
 <template>
-  <div
-    class="cet-titlebar cet-windows inactive"
-    style="height: 32px; color: rgb(238, 238, 238)"
-  >
+  <div class="cet-titlebar cet-windows inactive" style="height: 32px; color: rgb(238, 238, 238)">
     <div class="cet-drag-region"> </div>
     <div class="cet-resizer left"> </div>
     <div class="cet-resizer top"> </div>

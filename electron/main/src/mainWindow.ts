@@ -18,7 +18,7 @@ async function createWindow() {
     frame: false,
     width: 1000,
     height: 650,
-    resizable: false,
+    resizable: true,
   });
 
   browserWindow.webContents.setWindowOpenHandler(({}) => {

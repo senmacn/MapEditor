@@ -82,7 +82,7 @@
           : scale,
       ).toString(),
   });
-  // 滚动条滚动时修改标尺offset
+  // 视窗滚动时修改标尺offset
   watch(
     () => canvasState.getOffset,
     () => {
@@ -100,15 +100,16 @@
             ? configRef.getSize.scale
             : 50
           : 50;
+        // 根据放缩大小和地图左上角（假如有的话）计算
         vRulerInstance.rebuild({
           type: 'vertical',
           width: 30,
           unit: unit,
           textFormat: (scale) =>
             Math.round(
-              (configRef.getMapSize.used
-                ? configRef.getMapSize.ltY + scale * configRef.getSize.scale
-                : scale) / configRef.zoom,
+              configRef.getMapSize.used
+                ? configRef.getMapSize.ltY + (scale * configRef.getSize.scale) / configRef.zoom
+                : scale / configRef.zoom,
             ).toString(),
         });
         hRulerInstance.rebuild({
@@ -117,9 +118,9 @@
           unit: unit,
           textFormat: (scale) =>
             Math.round(
-              (configRef.getMapSize.used
-                ? configRef.getMapSize.ltX + scale * configRef.getSize.scale
-                : scale) / configRef.zoom,
+              configRef.getMapSize.used
+                ? configRef.getMapSize.ltX + (scale * configRef.getSize.scale) / configRef.zoom
+                : scale / configRef.zoom,
             ).toString(),
         });
       }
