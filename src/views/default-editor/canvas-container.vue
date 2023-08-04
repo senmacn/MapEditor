@@ -21,15 +21,13 @@
 </template>
 
 <script setup lang="ts">
-  import DrawElement from './draw-element';
-  import { nextTick, provide, reactive, ref, watch } from 'vue';
+  import { provide, reactive, ref, watch } from 'vue';
   import MaskCanvas from './mask-canvas.vue';
   import AreaCanvas from './area-canvas.vue';
   import PenCanvas from './pen-canvas.vue';
   import AreaViewer from './area-viewer.vue';
   import AreaBottomViewer from './area-bottom-viewer.vue';
   import { useEditorConfig } from '@/store/modules/editor-config';
-  import { onFocusAreaEvent } from './common/event';
   import controller from './common/canvas-state-controller';
   import { useCanvasState } from '@/store/modules/canvas-state';
   import Contextmenu from './children/contextmenu.vue';
@@ -54,24 +52,6 @@
       }, 100);
     },
   );
-  // 快速定位事件
-  const scrollerRef = ref();
-  onFocusAreaEvent((_, ele: DrawElement) => {
-    const scroller = scrollerRef.value;
-    if (scroller) {
-      const boundRect = ele.getBoundRect();
-      let left = boundRect[0] - scroller.clientWidth / 2 + boundRect[2] / 2;
-      left = left > 0 ? Math.floor(left) : 0;
-      let top = boundRect[1] - scroller.clientHeight / 2 + boundRect[3] / 2;
-      top = top > 0 ? Math.floor(top) : 0;
-      scroller.scroll({ left, top });
-      controller.setCurrentAreas([]);
-      controller.setCurrentPin(null);
-      nextTick(() => {
-        ele.select();
-      });
-    }
-  });
 
   // 区域编辑
   const areaCanvasRef = ref<Recordable>();
@@ -126,6 +106,7 @@
   );
 
   // 框选
+  const scrollerRef = ref();
   const { updateRect } = useSelecto(scrollerRef);
 </script>
 
