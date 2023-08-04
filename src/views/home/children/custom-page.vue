@@ -18,12 +18,12 @@
     <div class="custom-wrapper">
       <div class="custom-title"> 按键映射启用 </div>
       <div class="custom-content">
-        <!-- <a-checkbox
+        <a-checkbox
           v-model:checked="customSettingRef.ctrlSSaveProject"
           @change="(e) => handleSettingChange(e, 'ctrlSSaveProject')"
         >
           CTRL + S 快速保存项目
-        </a-checkbox> -->
+        </a-checkbox>
       </div>
     </div>
     <div class="custom-wrapper">

@@ -6,6 +6,7 @@ import { getLocalApi, isLocal } from '@/utils/env';
 import { exportFile } from '@/utils/file';
 import { createSaves } from '@/utils/persist';
 import { message, Modal } from 'ant-design-vue';
+import { debounce } from 'lodash-es';
 import { onMounted, onUnmounted } from 'vue';
 
 export default function useSaves() {
@@ -77,6 +78,17 @@ export default function useSaves() {
     });
   }
 
+  // 按键保存
+  const handleKeyboardSave = debounce(async function (e: KeyboardEvent) {
+    if (e.key === 's' && e.ctrlKey) {
+      const config = await localApi?.getCustomConfig();
+      if (config?.ctrlSSaveProject) {
+        handleCreateSaves();
+        message.success('保存成功！');
+      }
+    }
+  }, 250);
+
   // 自动保存相关
   let endAutoSave: any = null;
   function handleAutoSave() {
@@ -92,9 +104,14 @@ export default function useSaves() {
     if (localState.getAutoSaveTime && isLocal()) {
       endAutoSave = setTimeout(handleAutoSave, localState.getAutoSaveTime * 60 * 1000);
     }
+
+    document.body.addEventListener('keydown', handleKeyboardSave);
   });
   onUnmounted(() => {
     endAutoSave && clearTimeout(endAutoSave);
+
+    handleKeyboardSave.cancel();
+    document.body.removeEventListener('keydown', handleKeyboardSave);
   });
 
   return { handleConfirmCreateSaves, handleCreateSaves, handleExportSaves };
