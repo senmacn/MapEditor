@@ -46,7 +46,6 @@
   const handleMouseMove = throttle(syncHandleMouseMove, 16);
   function syncHandleMouseMove(e: MouseEvent) {
     if (e.button !== 0 || !activeRef.value) return;
-    e.stopPropagation();
     endPoint = getPos(e);
     // 清除
     const radius = Math.sqrt(

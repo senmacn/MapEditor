@@ -1,6 +1,7 @@
 import { useEditorConfig, EditorConfig } from '@/store/modules/editor-config';
 import { Layer } from '@/views/default-editor/common/types';
 import { Area, Pin, PinIcon } from '@/views/default-editor/draw-element';
+import { toRaw } from 'vue';
 
 interface Saves {
   editorConfig: EditorConfig;
@@ -16,7 +17,7 @@ export function createSaves(layers: Layer[]) {
 
     const areas: Partial<Area>[] = [];
     layer.areas.forEach((area) => {
-      const newArea = Object.assign({}, area);
+      const newArea = Object.assign({}, toRaw(area));
       // 删除一些用不到且很难序列化的属性
       Reflect.deleteProperty(newArea, 'instance');
       Reflect.deleteProperty(newArea, 'moveable');
