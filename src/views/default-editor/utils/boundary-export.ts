@@ -6,6 +6,7 @@ import { exportFile } from '@/utils/file';
 import { message, notification } from 'ant-design-vue';
 import { useEditorConfig } from '@/store/modules/editor-config';
 import { useProgressEvent } from '@/components/controlled-progress';
+import { canvasToFile } from '@/utils/file/image';
 
 export function handleExportBoundary() {
   const configRef = useEditorConfig();
@@ -92,4 +93,17 @@ export function handleExportBoundary() {
 
     areaNext = iter.next();
   }
+
+  const dataCanvas = document.createElement('canvas');
+  const dataContext = dataCanvas.getContext('2d') as CanvasRenderingContext2D;
+  dataCanvas.width = configRef.getSize.x;
+  dataCanvas.height = configRef.getSize.y;
+  canvasState.getAreaMap.forEach((area) => {
+    dataContext.putImageData(area.getData(), area.getBoundRect()[0], area.getBoundRect()[1]);
+  });
+  canvasToFile(dataCanvas, 'image/jpeg', 0.5).then((blob) => {
+    blob?.arrayBuffer().then((buffer) => {
+      localApi?.saveLocalFile('2d_areas.png', buffer as Buffer, localState.getDownloadLocation);
+    });
+  });
 }
