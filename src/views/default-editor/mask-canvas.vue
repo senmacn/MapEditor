@@ -1,9 +1,9 @@
 <template>
   <canvas
     id="mask-canvas"
-    @mousemove="handleMouseMove"
-    @mouseup="handleMouseUp"
-    @mousedown="handleMouseDown"
+    @mousemove.stop="handleMouseMove"
+    @mouseup.stop="handleMouseUp"
+    @mousedown.stop="handleMouseDown"
     @mouseout="handleMouseMove"
   ></canvas>
 </template>
