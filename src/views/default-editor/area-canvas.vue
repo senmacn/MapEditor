@@ -1,7 +1,7 @@
 <template>
   <canvas
     id="area-canvas"
-    @mousemove="handleMouseMove"
+    @mousemove.stop="handleMouseMove"
     @mouseup="handleMouseUp"
     @mousedown="handleMouseDown"
   ></canvas>

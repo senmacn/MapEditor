@@ -183,7 +183,6 @@ export class ExtendCanvas implements CanvasExtendImp {
   drawCircle(point: PointA, radius: number, fill: boolean = false) {
     point = getRoundedPoint(point);
     const ctx = this.getCanvas();
-    point = getIntegerPoint(point);
     ctx.beginPath();
     ctx.lineWidth = this.canvasConfig.lineWidth;
     ctx.strokeStyle = this.canvasConfig.color;
@@ -195,8 +194,6 @@ export class ExtendCanvas implements CanvasExtendImp {
     beginPoint = getRoundedPoint(beginPoint, isOdd);
     endPoint = getRoundedPoint(endPoint, isOdd);
     const ctx = this.getCanvas();
-    beginPoint = getIntegerPoint(beginPoint);
-    endPoint = getIntegerPoint(endPoint);
     ctx.beginPath();
     ctx.lineCap = 'round';
     ctx.lineWidth = this.canvasConfig.lineWidth;
@@ -210,8 +207,6 @@ export class ExtendCanvas implements CanvasExtendImp {
     beginPoint = getRoundedPoint(beginPoint, isOdd);
     endPoint = getRoundedPoint(endPoint, isOdd);
     const ctx = this.getCanvas();
-    beginPoint = getIntegerPoint(beginPoint);
-    endPoint = getIntegerPoint(endPoint);
     ctx.beginPath();
     ctx.lineWidth = this.canvasConfig.lineWidth;
     ctx.strokeStyle = this.canvasConfig.color;
