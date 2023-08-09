@@ -6,7 +6,7 @@ import { exportFile } from '@/utils/file';
 import { message, notification } from 'ant-design-vue';
 import { useEditorConfig } from '@/store/modules/editor-config';
 import { useProgressEvent } from '@/components/controlled-progress';
-import { canvasToFile } from '@/utils/file/image';
+import { canvasToFile, compressImage } from '@/utils/file/image';
 
 export function handleExportBoundary() {
   const configRef = useEditorConfig();
@@ -93,17 +93,54 @@ export function handleExportBoundary() {
 
     areaNext = iter.next();
   }
-
   const dataCanvas = document.createElement('canvas');
-  const dataContext = dataCanvas.getContext('2d') as CanvasRenderingContext2D;
-  dataCanvas.width = configRef.getSize.x;
-  dataCanvas.height = configRef.getSize.y;
+  dataCanvas.width = configRef.getSize.allX;
+  dataCanvas.height = configRef.getSize.allY;
+  const dataContext = dataCanvas.getContext('2d', {
+    willReadFrequently: true,
+  }) as CanvasRenderingContext2D;
   canvasState.getAreaMap.forEach((area) => {
-    dataContext.putImageData(area.getData(), area.getBoundRect()[0], area.getBoundRect()[1]);
+    const boundRect = area.getBoundRect();
+    // 创建临时画布
+    const cacheCanvas = document.createElement('canvas');
+    cacheCanvas.width = boundRect[2];
+    cacheCanvas.height = boundRect[3];
+    const cacheCtx = cacheCanvas.getContext('2d', {
+      willReadFrequently: true,
+    }) as CanvasRenderingContext2D;
+    cacheCtx.putImageData(area.getData(), 0, 0);
+    // putImageData会相互覆盖，使用drawImage
+    dataContext.drawImage(
+      cacheCanvas,
+      configRef.size.offsetX + boundRect[0],
+      configRef.size.offsetY + boundRect[1],
+    );
   });
-  canvasToFile(dataCanvas, 'image/jpeg', 0.5).then((blob) => {
-    blob?.arrayBuffer().then((buffer) => {
-      localApi?.saveLocalFile('2d_areas.png', buffer as Buffer, localState.getDownloadLocation);
+  // compressImage(dataCanvas.toDataURL(), 8192, 8192).then((blob) => {
+  //   blob?.arrayBuffer().then((buffer) => {
+  //     localApi?.saveLocalFile('2d_areas.jpg', buffer as Buffer, localState.getDownloadLocation);
+  //   });
+  // });
+  // compressImage(dataCanvas.toDataURL(), 2048, 2048).then((blob) => {
+  //   blob?.arrayBuffer().then((buffer) => {
+  //     localApi?.saveLocalFile('2d_areas_2048.jpg', buffer as Buffer, localState.getDownloadLocation);
+  //   });
+  // });
+  canvasToFile(dataCanvas, 'image/png', 1)
+    .then((blob) => {
+      if (!blob) {
+        message.warning('构建图片数据为空，请检查区域或尺寸设置！');
+      }
+      blob?.arrayBuffer().then((buffer) => {
+        localApi?.saveLocalFile(
+          '10000_boundary.png',
+          buffer as Buffer,
+          localState.getDownloadLocation,
+        );
+      });
+    })
+    .catch((err) => {
+      console.log(err);
+      message.error('图片下载失败！');
     });
-  });
 }
