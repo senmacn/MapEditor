@@ -57,3 +57,22 @@ export const compressionFile = async (file, type = 'image/jpeg', quality = 0.2) 
   });
   return newFile;
 };
+
+export function compressImage(url, targetWidth, targetHeight): Promise<Blob> {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.src = url;
+    img.onload = function () {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      canvas.width = targetWidth;
+      canvas.height = targetHeight;
+      ctx?.drawImage(img, 0, 0, targetWidth, targetHeight);
+      canvas.toBlob((blob) => resolve(blob as Blob), 'image/jpeg', 1);
+    };
+    img.onerror = function (error) {
+      console.log(error);
+      reject(error);
+    };
+  });
+}
