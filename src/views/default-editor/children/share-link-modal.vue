@@ -109,8 +109,5 @@
     .link-create {
       margin-top: 20px;
     }
-    .ant-modal-footer {
-      width: 75%;
-    }
   }
 </style>
