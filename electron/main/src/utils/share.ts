@@ -1,9 +1,9 @@
-import axios from 'axios';
 import * as AES from 'crypto-js/aes';
 import { enc } from 'crypto-js';
 import { readFileSync, writeFileSync } from 'fs';
 import * as path from 'path';
 import moment from 'moment';
+import { SAVES_DIR } from '../common/const';
 
 interface ShareLinkAttr {
   filename: string;
@@ -15,16 +15,18 @@ interface ShareLinkAttr {
 const BASE_SHARE_LINK = 'MAP_EDITOR_LINK[%s]';
 const BASE_SHARE_LINK_REG = /MAP_EDITOR_LINK\[(.+)\]/;
 const SECRET_KEY = 'pwrd';
-const SAVES_DIR = 'data/saves';
 
 async function getFileFromRemote(remote: string, filename: string) {
   const url = remote + '/file/getfile/' + filename;
-  const res = await axios.get(url, {
-    responseType: 'text',
-    responseEncoding: 'utf8',
+  const res = await fetch(url, {
+    method: 'GET',
+    headers: {
+      responseType: 'text',
+      responseEncoding: 'utf8',
+    },
   });
   if (res.status === 200) {
-    const data = res.data;
+    const data = await res.text();
     return data;
   } else {
     throw new Error('请求错误！');
@@ -33,14 +35,16 @@ async function getFileFromRemote(remote: string, filename: string) {
 
 async function uploadFileFromRemote(remote: string, filePath: string) {
   const url = remote + '/file/uploadfile';
-
   const blob = new Blob([readFileSync(decodeURIComponent(filePath))]);
   const form = new FormData();
   form.append('file', blob);
-  const res = await axios.post(url, form);
-
+  const res = await fetch(url, {
+    method: 'POST',
+    body: form,
+  });
   if (res.status === 200) {
-    return res.data;
+    const data = await res.text();
+    return data;
   } else {
     throw new Error('请求错误！');
   }
