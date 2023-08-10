@@ -30,27 +30,26 @@
       : '区域查看';
   });
 
-  const computedPos = computed(() => {
-    return (value) =>
-      Math.floor(
-        configRef.getMapSize.used
-          ? configRef.getMapSize.ltX + value * configRef.getSize.scale
-          : value,
-      );
-  });
-
   const state = useCanvasState();
   const mouseRef = useMouse();
   const pos = computed(() => {
     let pureX = Number(mouseRef.x.value) + state.getOffset.x - 23;
     let pureY = Number(mouseRef.y.value) + state.getOffset.y - 76;
-    if (pureX < 0 || pureY < 0) return `x: ${computedPos.value(0)}   y: ${computedPos.value(0)}`;
-    return `x: ${computedPos.value(pureX)}   y: ${computedPos.value(pureY)}`;
+    let [x, y] =
+      pureX < 0 || pureY < 0
+        ? [configRef.getProjectSizeConfig.startPointX, configRef.getProjectSizeConfig.startPointY]
+        : [
+            configRef.getProjectSizeConfig.startPointX +
+              pureX * configRef.getProjectSizeConfigScale,
+            configRef.getProjectSizeConfig.startPointY +
+              pureY * configRef.getProjectSizeConfigScale,
+          ];
+    return `x: ${x} y: ${y}`;
   });
 
   const mapSize = computed(() => {
-    const x = configRef.getMapSize.rbX - configRef.getMapSize.ltX;
-    const y = configRef.getMapSize.rbY - configRef.getMapSize.ltY;
+    const x = configRef.getProjectSizeConfig.mapWidth;
+    const y = configRef.getProjectSizeConfig.mapHeight;
     return `${x} X ${y}`;
   });
 

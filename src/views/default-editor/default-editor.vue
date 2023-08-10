@@ -53,20 +53,14 @@
 
   // 标尺相关
   const vRuler = ref();
-  const unit = configRef.getMapSize.used
-    ? configRef.getSize.scale > 50
-      ? configRef.getSize.scale
-      : 50
-    : 50;
+  const unit = configRef.getProjectSizeConfigScale > 50 ? configRef.getProjectSizeConfigScale : 50;
   const vRulerInstance = useRuler(vRuler, {
     type: 'vertical',
     width: 30,
     unit: unit,
     textFormat: (scale) =>
       Math.round(
-        configRef.getMapSize.used
-          ? configRef.getMapSize.ltY + scale * configRef.getSize.scale
-          : scale,
+        configRef.getProjectSizeConfig.offsetY + scale * configRef.getProjectSizeConfigScale,
       ).toString(),
   });
 
@@ -77,9 +71,7 @@
     unit: unit,
     textFormat: (scale) =>
       Math.round(
-        configRef.getMapSize.used
-          ? configRef.getMapSize.ltX + scale * configRef.getSize.scale
-          : scale,
+        configRef.projectSizeConfig.offsetX + scale * configRef.getProjectSizeConfigScale,
       ).toString(),
   });
   // 视窗滚动时修改标尺offset
@@ -95,11 +87,8 @@
     () => configRef.zoom,
     () => {
       if (configRef) {
-        const unit = configRef.getMapSize.used
-          ? configRef.getSize.scale > 50
-            ? configRef.getSize.scale
-            : 50
-          : 50;
+        const unit =
+          configRef.getProjectSizeConfigScale > 50 ? configRef.getProjectSizeConfigScale : 50;
         // 根据放缩大小和地图左上角（假如有的话）计算
         vRulerInstance.rebuild({
           type: 'vertical',
@@ -107,9 +96,8 @@
           unit: unit,
           textFormat: (scale) =>
             Math.round(
-              configRef.getMapSize.used
-                ? configRef.getMapSize.ltY + (scale * configRef.getSize.scale) / configRef.zoom
-                : scale / configRef.zoom,
+              configRef.getProjectSizeConfig.offsetY +
+                (scale * configRef.getProjectSizeConfigScale) / configRef.zoom,
             ).toString(),
         });
         hRulerInstance.rebuild({
@@ -118,9 +106,8 @@
           unit: unit,
           textFormat: (scale) =>
             Math.round(
-              configRef.getMapSize.used
-                ? configRef.getMapSize.ltX + (scale * configRef.getSize.scale) / configRef.zoom
-                : scale / configRef.zoom,
+              configRef.projectSizeConfig.offsetX +
+                (scale * configRef.getProjectSizeConfigScale) / configRef.zoom,
             ).toString(),
         });
       }

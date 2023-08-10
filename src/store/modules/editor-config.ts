@@ -13,6 +13,7 @@ export interface EditorConfig {
   autoConnectScope: number;
   size: Recordable<number>;
   mapSize: Recordable<number>;
+  projectSizeConfig: ProjectSizeConfig;
 }
 
 const editorConfig: EditorConfig = {
@@ -23,26 +24,29 @@ const editorConfig: EditorConfig = {
   eraseSize: 10,
   autoConnect: true,
   autoConnectScope: 24,
-  size: {
-    scale: 100,
-    x: 2048,
-    y: 2048,
+  projectSizeConfig: {
+    Sn: '',
+    // 3d地图起始点
+    startPointX: 0,
+    startPointY: 0,
+    // 3d地图长度
+    mapWidth: 0,
+    // 3d地图宽度
+    mapHeight: 0,
+    // 截屏Actor宽度（一张文理所对应3d世界边长）
+    actorWidth: 0,
+    // 截屏Actor生成纹理宽度（1024）
+    actorPxWidth: 0,
+    // 项目底图起始点位置
     offsetX: 0,
     offsetY: 0,
-    allX: 2048,
-    allY: 2048,
+    // 项目长度
+    offsetWidth: 0,
+    // 项目宽度
+    offsetHeight: 0,
   },
-  mapSize: {
-    used: 0,
-    map_ltX: 0,
-    map_ltY: 0,
-    map_rbX: 0,
-    map_rbY: 0,
-    ltX: 0,
-    ltY: 0,
-    rbX: 0,
-    rbY: 0,
-  },
+  size: {},
+  mapSize: {},
 };
 // 非本地端使用localstorage
 if (!isLocal()) {
@@ -85,11 +89,49 @@ export const useEditorConfig = defineStore({
     getAutoConnectScope(): number {
       return this.autoConnectScope;
     },
-    getSize(): Recordable<number> {
-      return this.size;
+    getProjectSizeConfig(): ProjectSizeConfig {
+      return this.projectSizeConfig;
     },
-    getMapSize(): Recordable<number> {
-      return this.mapSize;
+    getProjectSizeConfigScale(): number {
+      return this.projectSizeConfig.actorWidth / this.projectSizeConfig.actorPxWidth;
+    },
+    getProjectSizeConfigFullHeight(): number {
+      return (
+        (this.projectSizeConfig.mapHeight / this.projectSizeConfig.actorWidth) *
+        this.projectSizeConfig.actorPxWidth
+      );
+    },
+    getProjectSizeConfigPxOffsetY(): number {
+      return (
+        ((this.projectSizeConfig.offsetY - this.projectSizeConfig.startPointY) /
+          this.projectSizeConfig.actorWidth) *
+        this.projectSizeConfig.actorPxWidth
+      );
+    },
+    getProjectSizeConfigPxHeight(): number {
+      return (
+        (this.projectSizeConfig.offsetHeight / this.projectSizeConfig.actorWidth) *
+        this.projectSizeConfig.actorPxWidth
+      );
+    },
+    getProjectSizeConfigFullWidth(): number {
+      return (
+        (this.projectSizeConfig.mapWidth / this.projectSizeConfig.actorWidth) *
+        this.projectSizeConfig.actorPxWidth
+      );
+    },
+    getProjectSizeConfigPxOffsetX(): number {
+      return (
+        ((this.projectSizeConfig.offsetX - this.projectSizeConfig.startPointX) /
+          this.projectSizeConfig.actorWidth) *
+        this.projectSizeConfig.actorPxWidth
+      );
+    },
+    getProjectSizeConfigPxWidth(): number {
+      return (
+        (this.projectSizeConfig.offsetWidth / this.projectSizeConfig.actorWidth) *
+        this.projectSizeConfig.actorPxWidth
+      );
     },
   },
   actions: {
@@ -101,8 +143,47 @@ export const useEditorConfig = defineStore({
       this.eraseSize = _editorConfig.eraseSize;
       this.autoConnect = _editorConfig.autoConnect;
       this.autoConnectScope = _editorConfig.autoConnectScope;
-      this.size = _editorConfig.size;
-      this.mapSize = _editorConfig.mapSize;
+      // 兼容旧数据，转换一下
+      if (_editorConfig.mapSize && _editorConfig.size && !_editorConfig.projectSizeConfig) {
+        let projectSizeConfig;
+        if (_editorConfig.mapSize.used) {
+          projectSizeConfig = {
+            Sn: '',
+            startPointX: _editorConfig.mapSize.map_ltX,
+            startPointY: _editorConfig.mapSize.map_ltY,
+            mapWidth: _editorConfig.size.allX * _editorConfig.size.scale,
+            mapHeight: _editorConfig.size.allY * _editorConfig.size.scale,
+            actorWidth: 1024 * _editorConfig.size.scale,
+            actorPxWidth: 1024,
+            offsetX:
+              _editorConfig.mapSize.map_ltX + _editorConfig.size.offsetX * _editorConfig.size.scale,
+            offsetY:
+              _editorConfig.mapSize.map_ltY + _editorConfig.size.offsetY * _editorConfig.size.scale,
+            offsetWidth: _editorConfig.size.x * _editorConfig.size.scale,
+            offsetHeight: _editorConfig.size.y * _editorConfig.size.scale,
+          };
+        } else {
+          projectSizeConfig = {
+            Sn: '',
+            startPointX: 0,
+            startPointY: 0,
+            mapWidth: _editorConfig.size.allX * _editorConfig.size.scale,
+            mapHeight: _editorConfig.size.allY * _editorConfig.size.scale,
+            actorWidth: 1024 * _editorConfig.size.scale,
+            actorPxWidth: 1024,
+            offsetX:
+              _editorConfig.mapSize.map_ltX + _editorConfig.size.offsetX * _editorConfig.size.scale,
+            offsetY:
+              _editorConfig.mapSize.map_ltY + _editorConfig.size.offsetY * _editorConfig.size.scale,
+            offsetWidth: _editorConfig.size.x * _editorConfig.size.scale,
+            offsetHeight: _editorConfig.size.y * _editorConfig.size.scale,
+          };
+        }
+        this.setProjectSizeConfig(projectSizeConfig);
+      } else {
+        _editorConfig.projectSizeConfig &&
+          this.setProjectSizeConfig(_editorConfig.projectSizeConfig);
+      }
     },
     setStyle(value: Recordable<string>) {
       localStorage.setItem('editor-config-style', JSON.stringify(value));
@@ -132,13 +213,11 @@ export const useEditorConfig = defineStore({
       localStorage.setItem('editor-config-autoConnectScope', JSON.stringify(value));
       this.autoConnectScope = value;
     },
-    setSize(value: Recordable) {
-      localStorage.setItem('editor-config-size', JSON.stringify(value));
-      this.size = value;
-    },
-    setMapSize(value: Recordable) {
-      localStorage.setItem('editor-config-mapSize', JSON.stringify(value));
-      this.mapSize = value;
+    setProjectSizeConfig(projectSizeConfig: ProjectSizeConfig) {
+      Object.keys(projectSizeConfig).forEach((key) => {
+        projectSizeConfig[key] = Number(projectSizeConfig[key]);
+      });
+      this.projectSizeConfig = projectSizeConfig;
     },
   },
 });

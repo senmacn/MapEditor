@@ -33,13 +33,13 @@ export default function useSaves() {
       const fileName =
         localState.getFileName !== '新建项目'
           ? localState.getFileName
-          : `map_data_${configRef.getSize.x}x${configRef.getSize.y}.${getFormatDate(
-              new Date(),
-              'MM-dd_hh-mm',
-            )}.json`;
+          : `map_data_${configRef.getProjectSizeConfigPxWidth}x${
+              configRef.getProjectSizeConfigPxHeight
+            }.${getFormatDate(new Date(), 'MM-dd_hh-mm')}.json`;
       if (localApi) {
         localApi.saveLoads(fileName, createSaves(canvasState.getLayers));
         localState.setFileName(fileName);
+        location.href = location.href.slice().replace(/\#\/.+/, '#/map-editor?name=' + fileName);
       }
       return fileName;
     } catch (_err) {
@@ -57,10 +57,9 @@ export default function useSaves() {
       okText: '确定',
       cancelText: '取消',
       onOk: () => {
-        const fileName = `map_data_${configRef.getSize.x}x${configRef.getSize.y}.${getFormatDate(
-          new Date(),
-          'MM-dd_hh-mm',
-        )}.json`;
+        const fileName = `map_data_${configRef.getProjectSizeConfigPxWidth}x${
+          configRef.getProjectSizeConfigPxHeight
+        }.${getFormatDate(new Date(), 'MM-dd_hh-mm')}.json`;
         const data = createSaves(expLayer);
         if (localApi) {
           localApi

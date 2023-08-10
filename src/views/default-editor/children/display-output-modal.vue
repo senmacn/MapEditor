@@ -188,25 +188,29 @@
         });
       } else {
         for (const area of areas) {
-          const cacheCanvas = document.createElement('canvas');
-          cacheCanvas.width = 300;
-          cacheCanvas.height = 300;
-          const cacheCtx = cacheCanvas.getContext('2d', {
-            willReadFrequently: true,
-          }) as CanvasRenderingContext2D;
-          const data = getClosedCurvePointsData(area);
-          const boundRect = area.getActualBoundRect();
-          let scale = boundRect[2] > boundRect[3] ? 300 / boundRect[2] : 300 / boundRect[3];
-          cacheCtx.putImageData(scaleImageData(data, scale), 1, 1);
-          cacheCtx.font = '12px serif';
-          cacheCtx.fillStyle = 'white';
-          cacheCtx.fillText(area.getName(), 20, 20);
-          document.getElementById('displayModal')?.appendChild(cacheCanvas);
-          areaData.push({
-            name: area.getName(),
-            boundRect: area.getActualBoundRect(),
-            data: data,
-          });
+          try {
+            const cacheCanvas = document.createElement('canvas');
+            cacheCanvas.width = 300;
+            cacheCanvas.height = 300;
+            const cacheCtx = cacheCanvas.getContext('2d', {
+              willReadFrequently: true,
+            }) as CanvasRenderingContext2D;
+            const data = getClosedCurvePointsData(area);
+            const boundRect = area.getActualBoundRect();
+            let scale = boundRect[2] > boundRect[3] ? 300 / boundRect[2] : 300 / boundRect[3];
+            cacheCtx.putImageData(scaleImageData(data, scale), 1, 1);
+            cacheCtx.font = '12px serif';
+            cacheCtx.fillStyle = 'white';
+            cacheCtx.fillText(area.getName(), 20, 20);
+            document.getElementById('displayModal')?.appendChild(cacheCanvas);
+            areaData.push({
+              name: area.getName(),
+              boundRect: area.getActualBoundRect(),
+              data: data,
+            });
+          } catch (e) {
+            message.warning(`区域${area.getName()}构建失败！请确认编辑数据！`);
+          }
         }
       }
       spinningRef.value = false;
@@ -251,11 +255,11 @@
         };
         worker.postMessage([
           data,
-          boundRect[0] + Number(configRef.getSize.offsetX),
-          boundRect[1] + Number(configRef.getSize.offsetY),
-          Number(configRef.getSize.allX),
-          Number(configRef.getSize.allY),
-          Number(configRef.getSize.scale),
+          boundRect[0] + Number(configRef.getProjectSizeConfigPxOffsetX),
+          boundRect[1] + Number(configRef.getProjectSizeConfigPxOffsetY),
+          Number(configRef.getProjectSizeConfigFullWidth),
+          Number(configRef.getProjectSizeConfigFullHeight),
+          Number(configRef.getProjectSizeConfigScale),
         ]);
         notification.info({
           message: '下载坐标',

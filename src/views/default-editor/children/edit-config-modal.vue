@@ -1,6 +1,6 @@
 <template>
   <a-modal
-    class="change-map-size-modal"
+    class="edit-config-modal"
     :width="500"
     :visible="visible"
     :closable="false"
@@ -75,7 +75,7 @@
   const configRef = useEditorConfig();
 
   let inited = false;
-  const pickrInstance = useColorPicker('.change-map-size-modal #pickr-instance');
+  const pickrInstance = useColorPicker('.edit-config-modal #pickr-instance');
   watch(
     () => props.visible,
     () => {

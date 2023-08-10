@@ -13,7 +13,7 @@ import { useLocalState } from './store/modules/local-state';
 import loadingSaves from './loadingSaves';
 import setCustomDirectives from './directives';
 import { useEditorConfig } from './store/modules/editor-config';
-import { autoAnimatePlugin } from '@formkit/auto-animate/vue'
+import { autoAnimatePlugin } from '@formkit/auto-animate/vue';
 
 notification.config({
   placement: 'topLeft',
@@ -25,9 +25,8 @@ message.config({
 
 async function bootstrap() {
   const app = createApp(App);
-
+  // 一些插件
   setCustomDirectives(app);
-
   setupStore(app);
   app.use(router);
   app.use(Antd);
@@ -40,8 +39,7 @@ async function bootstrap() {
   if (localApi) {
     const userConfig = await localApi.getUserConfig();
     useLocalState().initUserConfig(Object.assign({}, userConfig));
-    userConfig.mapObj && configRef.setMapSize(userConfig.mapObj);
-    userConfig.sizeObj && configRef.setSize(userConfig.sizeObj);
+    userConfig.projectSizeConfig && configRef.setProjectSizeConfig(userConfig.projectSizeConfig);
   }
 
   // 加载存档

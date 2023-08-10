@@ -115,8 +115,8 @@
         }
         // 开始画图，先用一个离屏canvas画
         const fullCanvas = document.createElement('canvas');
-        fullCanvas.width = configRef.size.x;
-        fullCanvas.height = configRef.size.y;
+        fullCanvas.width = configRef.getProjectSizeConfigPxWidth;
+        fullCanvas.height = configRef.getProjectSizeConfigPxHeight;
         const fullCtx = fullCanvas.getContext('2d', {
           willReadFrequently: true,
         }) as CanvasRenderingContext2D;
@@ -130,8 +130,8 @@
         }
         // 分块导出准备
         const blocks = Math.sqrt(exportRef.value);
-        const blockWith = configRef.size.x / blocks;
-        const blockHeight = configRef.size.x / blocks;
+        const blockWith = configRef.getProjectSizeConfigPxWidth / blocks;
+        const blockHeight = configRef.getProjectSizeConfigPxWidth / blocks;
         // 创建临时canvas
         const tempCanvas = document.createElement('canvas');
         tempCanvas.width = blockWith;
