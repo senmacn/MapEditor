@@ -236,8 +236,8 @@
     if (setUpState) return;
     let editCanvas: HTMLCanvasElement = document.getElementById('area-canvas') as HTMLCanvasElement;
     if (editCanvas == null) return;
-    editCanvas.width = configRef.getSize.x;
-    editCanvas.height = configRef.getSize.y;
+    editCanvas.width = configRef.getProjectSizeConfigPxWidth;
+    editCanvas.height = configRef.getProjectSizeConfigPxHeight;
     let ctx = editCanvas.getContext('2d', {
       willReadFrequently: true,
     }) as CanvasRenderingContext2D;

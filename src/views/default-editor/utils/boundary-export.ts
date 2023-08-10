@@ -6,7 +6,7 @@ import { exportFile } from '@/utils/file';
 import { message, notification } from 'ant-design-vue';
 import { useEditorConfig } from '@/store/modules/editor-config';
 import { useProgressEvent } from '@/components/controlled-progress';
-import { canvasToFile, compressImage } from '@/utils/file/image';
+import { canvasToFile } from '@/utils/file/image';
 
 export function handleExportBoundary() {
   const configRef = useEditorConfig();
@@ -44,13 +44,13 @@ export function handleExportBoundary() {
         // console.log(retData);
         // const formatPoints = retData.value.map((point) => ([
         //   Math.round(
-        //     Number(configRef.getMapSize.ltX) +
-        //       (point[0] + boundRect[0]) * Number(configRef.getSize.scale) +
+        //     Number(configRef.getProjectSizeConfig.startPointX) +
+        //       (point[0] + boundRect[0]) * Number(configRef.getProjectSizeConfigScale) +
         //       50,
         //   ),
         //   Math.round(
         //     Number(configRef.getMapSize.ltY) +
-        //       (point[1] + boundRect[1]) * Number(configRef.getSize.scale) +
+        //       (point[1] + boundRect[1]) * Number(configRef.getProjectSizeConfigScale) +
         //       50,
         //   ),
         // ]));
@@ -85,17 +85,17 @@ export function handleExportBoundary() {
       data,
       boundRect[0],
       boundRect[1],
-      Number(configRef.getMapSize.ltX),
-      Number(configRef.getMapSize.ltY),
-      Number(configRef.getSize.scale),
+      Number(configRef.getProjectSizeConfig.startPointX),
+      Number(configRef.getProjectSizeConfig.startPointY),
+      Number(configRef.getProjectSizeConfigScale),
       areaNext.value.type,
     ]);
 
     areaNext = iter.next();
   }
   const dataCanvas = document.createElement('canvas');
-  dataCanvas.width = configRef.getSize.allX;
-  dataCanvas.height = configRef.getSize.allY;
+  dataCanvas.width = configRef.getProjectSizeConfigFullWidth;
+  dataCanvas.height = configRef.getProjectSizeConfigFullHeight;
   const dataContext = dataCanvas.getContext('2d', {
     willReadFrequently: true,
   }) as CanvasRenderingContext2D;
@@ -110,10 +110,14 @@ export function handleExportBoundary() {
     }) as CanvasRenderingContext2D;
     cacheCtx.putImageData(area.getData(), 0, 0);
     // putImageData会相互覆盖，使用drawImage
+    console.log(configRef.getProjectSizeConfigPxOffsetX);
+    console.log(configRef.getProjectSizeConfigPxOffsetY);
+    console.log(boundRect);
+    
     dataContext.drawImage(
       cacheCanvas,
-      configRef.size.offsetX + boundRect[0],
-      configRef.size.offsetY + boundRect[1],
+      configRef.getProjectSizeConfigPxOffsetX + boundRect[0],
+      configRef.getProjectSizeConfigPxOffsetY + boundRect[1],
     );
   });
   // compressImage(dataCanvas.toDataURL(), 8192, 8192).then((blob) => {

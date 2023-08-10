@@ -38,7 +38,7 @@
   const state = useCanvasState();
   const configRef = useEditorConfig();
 
-  const style = `width: ${configRef.size.x}px; height: ${configRef.size.y}px;`;
+  const style = `width: ${configRef.getProjectSizeConfigPxWidth}px; height: ${configRef.getProjectSizeConfigPxHeight}px;`;
 
   // zoom配置修改时，更新Rect
   watch(

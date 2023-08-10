@@ -55,20 +55,20 @@ export function createSaves(layers: Layer[]) {
 
 /**
  * 加载新内容
- * @param str 
+ * @param str
  * @param useConfig 是否使用配置
- * @param curSize 
- * @returns 
+ * @param curSize
+ * @returns
  */
 export function loadNewSaves(str: string, useConfig: boolean, curSize: [number, number]) {
   const pureObj = JSON.parse(str) as Saves;
   if (
-    pureObj.editorConfig &&
-    (Number(curSize[0]) !== Number(pureObj.editorConfig.size.x) ||
-      Number(curSize[1]) !== Number(pureObj.editorConfig.size.y))
+    pureObj.editorConfig.projectSizeConfig &&
+    (Number(curSize[0]) !== Number(pureObj.editorConfig.projectSizeConfig.offsetWidth) ||
+      Number(curSize[1]) !== Number(pureObj.editorConfig.projectSizeConfig.offsetHeight))
   ) {
     throw new Error(
-      `该存档尺寸为${pureObj.editorConfig.size.x}px x ${pureObj.editorConfig.size.y}px！请确认当前地图尺寸设置是否正确！`,
+      `该存档尺寸为${pureObj.editorConfig.projectSizeConfig.offsetWidth}px x ${pureObj.editorConfig.projectSizeConfig.offsetHeight}px！请确认当前地图尺寸设置是否正确！`,
     );
   }
   return _loadSaves(pureObj, useConfig);
@@ -110,6 +110,7 @@ function _loadSaves(pureObj: Saves, useConfig: boolean) {
               );
               const newArea = new Area(area['name'], newData, area['boundRect']);
               newArea.layer = newLayer;
+              newArea.setChoosePoint(area['choosePoint']);
               newLayer[key].push(newArea);
             }
           }

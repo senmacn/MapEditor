@@ -182,7 +182,10 @@
       fileStringRef.value = await fileToDataURL(file);
     }
     const image = await dataURLToImage(fileStringRef.value);
-    if (image.width !== configRef.getSize.x || image.height !== configRef.getSize.y) {
+    if (
+      image.width !== configRef.getProjectSizeConfigPxWidth ||
+      image.height !== configRef.getProjectSizeConfigPxHeight
+    ) {
       message.warning('图片尺寸未对应当前尺寸设置，请确认设置或检查文件是否上传正确！', 10);
     }
     closeLoading();
@@ -199,8 +202,8 @@
   }
   async function handleSlicesUpload() {
     const canvas = document.createElement('canvas');
-    canvas.width = configRef.getSize.x;
-    canvas.height = configRef.getSize.y;
+    canvas.width = configRef.getProjectSizeConfigPxWidth;
+    canvas.height = configRef.getProjectSizeConfigPxHeight;
     const context = canvas.getContext('2d', {
       willReadFrequently: true,
     }) as CanvasRenderingContext2D;
@@ -213,7 +216,7 @@
       const image = await dataURLToImage(dataUrl);
       context.drawImage(image, usedX, usedY);
       usedX += image.width;
-      if (usedX >= configRef.getSize.x) {
+      if (usedX >= configRef.getProjectSizeConfigPxWidth) {
         usedX = 0;
         usedY += image.height;
       }

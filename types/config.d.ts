@@ -7,6 +7,7 @@ interface UserConfig {
   useLatestConfig: boolean;
   mapObj?: Recordable;
   sizeObj?: Recordable;
+  projectSizeConfig?: ProjectSizeConfig;
 }
 
 interface CustomSetting {

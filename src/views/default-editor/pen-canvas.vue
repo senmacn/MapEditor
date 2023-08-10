@@ -33,8 +33,8 @@
   onMounted(() => {
     let maskCanvas: HTMLCanvasElement | null = document.querySelector('#pen-canvas');
     if (maskCanvas == null) return;
-    maskCanvas.width = configRef.size.x;
-    maskCanvas.height = configRef.size.y;
+    maskCanvas.width = configRef.getProjectSizeConfigPxWidth;
+    maskCanvas.height = configRef.getProjectSizeConfigPxHeight;
     let ctx = maskCanvas.getContext('2d', {
       willReadFrequently: true,
     }) as CanvasRenderingContext2D;

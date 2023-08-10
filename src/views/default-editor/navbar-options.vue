@@ -54,10 +54,10 @@
       </template>
     </a-dropdown>
   </a-space>
-  <change-map-size-modal
-    :visible="changeMapSizeModalVisible"
+  <project-size-config-modal
+    :visible="projectSizeConfigModalVisible"
     @change-size="handleMapSizeChanged"
-    @close="changeMapSizeModalVisible = false"
+    @close="projectSizeConfigModalVisible = false"
   />
   <display-output-modal :visible="displayOutputVisibleRef" @cancel="handleConfirmCancelExport" />
   <color-image-modal :visible="colorImageVisibleRef" @cancel="handleColorImageExport" />
@@ -81,7 +81,7 @@
   import { loadNewSaves } from '@/utils/persist';
   import { Modal, message, notification } from 'ant-design-vue';
   import useSaves from './hooks/useSaves';
-  import ChangeMapSizeModal from './children/change-map-size-modal.vue';
+  import ProjectSizeConfigModal from './children/project-size-config-modal.vue';
   import DisplayOutputModal from './children/display-output-modal.vue';
   import ColorImageModal from './children/color-image-modal.vue';
   import ExportModal from './children/export-modal.vue';
@@ -161,8 +161,8 @@
     reader.onload = function (evt) {
       try {
         const result = loadNewSaves(String(evt.target?.result), useConfig, [
-          configRef.getSize.x,
-          configRef.getSize.y,
+          configRef.getProjectSizeConfig.offsetWidth,
+          configRef.getProjectSizeConfig.offsetHeight,
         ]);
         const initLayers = canvasState.getLayers.slice();
         // 混入
@@ -273,9 +273,9 @@
   }
 
   // 尺寸设置
-  const changeMapSizeModalVisible = ref(false);
+  const projectSizeConfigModalVisible = ref(false);
   function handleChangeMapSize() {
-    changeMapSizeModalVisible.value = true;
+    projectSizeConfigModalVisible.value = true;
   }
   function handleMapSizeChanged() {
     // 先保存存档，主要是为了保存尺寸设置
@@ -294,7 +294,6 @@
   }
 
   // CTRL + C
-  
 </script>
 
 <style lang="less">
