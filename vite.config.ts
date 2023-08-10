@@ -7,7 +7,7 @@ import { createSvgIconsPlugin } from 'vite-plugin-svg-icons';
 import { wrapperEnv } from './build/util';
 import commpressPlugin from 'vite-plugin-compression';
 
-export default defineConfig(({ command, mode }: ConfigEnv) => {
+export default defineConfig(({ mode }: ConfigEnv) => {
   const root = process.cwd();
   const env = loadEnv(mode, root);
 

@@ -45,7 +45,7 @@
       <template #overlay>
         <a-menu>
           <a-menu-item key="0">
-            <div class="inner-content" @click="handleChangeMapSize">尺寸设置</div>
+            <div class="inner-content" @click="handleChangeMapSize">项目设置</div>
           </a-menu-item>
           <a-menu-item key="1">
             <div class="inner-content" @click="handleShowEditConfig">编辑设置</div>
@@ -272,8 +272,8 @@
     });
   }
 
-  // 尺寸设置
-  const projectSizeConfigModalVisible = ref(false);
+  // 项目设置(新建的项目默认打开)
+  const projectSizeConfigModalVisible = ref(localState.getFileName === '新建项目');
   function handleChangeMapSize() {
     projectSizeConfigModalVisible.value = true;
   }

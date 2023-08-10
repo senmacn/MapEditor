@@ -26,24 +26,16 @@ const editorConfig: EditorConfig = {
   autoConnectScope: 24,
   projectSizeConfig: {
     Sn: '',
-    // 3d地图起始点
     startPointX: 0,
     startPointY: 0,
-    // 3d地图长度
-    mapWidth: 0,
-    // 3d地图宽度
-    mapHeight: 0,
-    // 截屏Actor宽度（一张文理所对应3d世界边长）
-    actorWidth: 0,
-    // 截屏Actor生成纹理宽度（1024）
-    actorPxWidth: 0,
-    // 项目底图起始点位置
+    mapWidth: 100800,
+    mapHeight: 100800,
+    actorWidth: 25200,
+    actorPxWidth: 1024,
     offsetX: 0,
     offsetY: 0,
-    // 项目长度
-    offsetWidth: 0,
-    // 项目宽度
-    offsetHeight: 0,
+    offsetWidth: 25200,
+    offsetHeight: 25200,
   },
   size: {},
   mapSize: {},
