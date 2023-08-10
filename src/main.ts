@@ -39,7 +39,9 @@ async function bootstrap() {
   if (localApi) {
     const userConfig = await localApi.getUserConfig();
     useLocalState().initUserConfig(Object.assign({}, userConfig));
-    userConfig.projectSizeConfig && configRef.setProjectSizeConfig(userConfig.projectSizeConfig);
+    if (userConfig.useLatestConfig) {
+      userConfig.projectSizeConfig && configRef.setProjectSizeConfig(userConfig.projectSizeConfig);
+    }
   }
 
   // 加载存档

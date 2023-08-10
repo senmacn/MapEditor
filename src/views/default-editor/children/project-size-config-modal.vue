@@ -7,32 +7,37 @@
     @ok="handleChange"
     :closable="false"
   >
-    <div class="modal-title">尺寸设置</div>
+    <div class="modal-title">项目设置</div>
     <div class="modal-content">
+      <a-divider>基础设置</a-divider>
+      <div class="map-size">
+        <span class="necessary">项目名称</span>
+        <a-input v-model:value="baseConfigRef.name"></a-input>
+      </div>
       <a-divider>地图设置</a-divider>
       <div class="map-size">
         <span>地图Sn</span>
         <a-input v-model:value="projectConfigRef.Sn"></a-input>
       </div>
       <div class="map-size">
-        <span>3d地图起始点X坐标</span>
+        <span class="necessary">3d地图起始点X坐标</span>
         <a-input v-model:value="projectConfigRef.startPointX"></a-input>
       </div>
       <div class="map-size">
-        <span>3d地图起始点Y坐标</span>
+        <span class="necessary">3d地图起始点Y坐标</span>
         <a-input v-model:value="projectConfigRef.startPointY"></a-input>
       </div>
       <div class="map-size">
-        <span>3d地图长度</span>
+        <span class="necessary">3d地图长度</span>
         <a-input v-model:value="projectConfigRef.mapWidth"></a-input>
       </div>
       <div class="map-size">
-        <span>3d地图宽度</span>
+        <span class="necessary">3d地图宽度</span>
         <a-input v-model:value="projectConfigRef.mapHeight"></a-input>
       </div>
       <div class="map-size">
         <a-tooltip title="一张纹理所对应3d世界边长">
-          <span>
+          <span class="necessary">
             截屏Actor宽度
             <info-circle-outlined class="warning-color" />
           </span>
@@ -40,24 +45,24 @@
         <a-input v-model:value="projectConfigRef.actorWidth"></a-input>
       </div>
       <div class="map-size">
-        <span>截屏Actor生成纹理宽度</span>
+        <span class="necessary">截屏Actor生成纹理宽度</span>
         <a-input v-model:value="projectConfigRef.actorPxWidth"></a-input>
       </div>
       <a-divider>项目底图设置</a-divider>
       <div class="map-size">
-        <span>项目底图起始点位置X坐标</span>
+        <span class="necessary">项目底图起始点位置X坐标</span>
         <a-input v-model:value="projectConfigRef.offsetX"></a-input>
       </div>
       <div class="map-size">
-        <span>项目底图起始点位置Y坐标</span>
+        <span class="necessary">项目底图起始点位置Y坐标</span>
         <a-input v-model:value="projectConfigRef.offsetY"></a-input>
       </div>
       <div class="map-size">
-        <span>项目长度</span>
+        <span class="necessary">项目长度</span>
         <a-input v-model:value="projectConfigRef.offsetWidth"></a-input>
       </div>
       <div class="map-size">
-        <span>项目宽度</span>
+        <span class="necessary">项目宽度</span>
         <a-input v-model:value="projectConfigRef.offsetHeight"></a-input>
       </div>
     </div>
@@ -76,6 +81,7 @@
   import { message } from 'ant-design-vue';
   import { getLocalApi } from '@/utils/env';
   import { InfoCircleOutlined } from '@ant-design/icons-vue';
+  import { useLocalState } from '@/store/modules/local-state';
 
   const emit = defineEmits<{
     (e: 'change-size'): void;
@@ -90,19 +96,23 @@
   });
 
   const configRef = useEditorConfig();
+  const localState = useLocalState();
 
+  const baseConfigRef = ref({
+    name: localState.filename,
+  });
   const projectConfigRef: Ref<ProjectSizeConfig> = ref({
     Sn: '',
     startPointX: 0,
     startPointY: 0,
-    mapWidth: 0,
-    mapHeight: 0,
-    actorWidth: 0,
+    mapWidth: 100800,
+    mapHeight: 100800,
+    actorWidth: 25200,
     actorPxWidth: 1024,
     offsetX: 0,
     offsetY: 0,
-    offsetWidth: 0,
-    offsetHeight: 0,
+    offsetWidth: 25200,
+    offsetHeight: 25200,
   });
 
   watch(
@@ -113,6 +123,9 @@
           projectConfigRef.value = Object.assign({}, configRef.getProjectSizeConfig);
         }
       }
+    },
+    {
+      immediate: true,
     },
   );
 
@@ -161,6 +174,11 @@
       .ant-input,
       .ant-input-affix-wrapper {
         width: 280px;
+      }
+      .necessary::before {
+        content: '*';
+        color: #ff502c;
+        font-size: 14px;
       }
     }
     .remind {
