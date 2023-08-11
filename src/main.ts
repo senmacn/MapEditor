@@ -7,6 +7,7 @@ import './style.less';
 import contextmenu from 'v-contextmenu';
 import 'v-contextmenu/dist/themes/dark.css';
 import '@simonwep/pickr/dist/themes/nano.min.css';
+import 'driver.js/dist/driver.css';
 import { setupStore } from './store';
 import { getLocalApi } from './utils/env';
 import { useLocalState } from './store/modules/local-state';
