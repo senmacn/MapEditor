@@ -63,6 +63,9 @@ const electronApi: LocalApi = {
   },
   openDevTools: () => {
     return ipcRenderer.invoke('open-dev-tools');
+  },
+  stringifyData: (obj: object) => {
+    return ipcRenderer.invoke('stringify-data', obj);
   }
 };
 
