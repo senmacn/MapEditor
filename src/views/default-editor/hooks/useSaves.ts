@@ -5,6 +5,7 @@ import { useLocalState } from '@/store/modules/local-state';
 import { getFormatDate } from '@/utils/date';
 import { getLocalApi, isLocal } from '@/utils/env';
 import { exportFile } from '@/utils/file';
+import { isObject } from '@/utils/is';
 import { createSaves } from '@/utils/persist';
 import { message, Modal } from 'ant-design-vue';
 import { debounce } from 'lodash-es';
@@ -80,12 +81,21 @@ export default function useSaves() {
         }.${getFormatDate(new Date(), 'MM-dd_hh-mm')}.json`;
         const data = await createSaves(expLayer);
         if (localApi) {
+          console.log(data);
+          const str = await localApi.stringifyData(data);
+          console.log(str);
+          
+          if (isObject(str) && str?.showMessage) {
+            message.error('导出失败！');
+            return;
+          }
           localApi
-            .saveLocalFile(fileName, data, localState.getExportLocation)
+            .saveLocalFile(fileName, str as string, localState.getExportLocation)
             .then((e) => {
               if (e) {
                 message.error('导出失败！');
               }
+              message.success('导出成功！');
             })
             .finally(() => {});
         } else {
