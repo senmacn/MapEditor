@@ -39,6 +39,7 @@
     "driver.js": "^1.2.1",
     "electron-store": "^8.1.0",
     "fast-glob": "^3.2.12",
+    "fast-json-stringify": "^5.8.0",
     "form-data": "^4.0.0",
     "lodash-es": "^4.17.21",
     "lz-string": "^1.5.0",

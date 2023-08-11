@@ -7,7 +7,7 @@ interface LocalApi {
   getLocalFileContent(fileName: string): Promise<string>;
   deleteLocalFile(fileName: string): Promise<unknown>;
   renameLocalFile(fileName: string, newname: string): Promise<LocalResult<null>>;
-  saveLoads(fileName: string, data: string | Buffer): Promise<LocalResult<null>>;
+  saveLoads(fileName: string, data: Object): Promise<LocalResult<null>>;
   saveLocalFile(
     fileName: string,
     data: string | Buffer,

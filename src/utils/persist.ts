@@ -8,7 +8,29 @@ interface Saves {
   layers: Layer[];
 }
 
-export function createSaves(layers: Layer[]) {
+function stringifyImageData(data: ImageData) {
+  const obj: Recordable<number> = {};
+  obj.width = data.width;
+  obj.height = data.height;
+  data.data.forEach((v, i) => {
+    if (v) {
+      obj[i] = v;
+    }
+  });
+  return obj;
+}
+
+function parseImageData(data: Recordable<number>) {
+  const imageData = new ImageData(data.width, data.height);
+  Object.keys(data).forEach((key) => {
+    if (key !== 'width' && key !== 'height') {
+      imageData.data[key] = data[key];
+    }
+  });
+  return imageData;
+}
+
+export async function createSaves(layers: Layer[]) {
   const editorConfig = useEditorConfig();
   const partLayers: Partial<Layer>[] = [];
   layers.forEach((layer) => {
@@ -25,13 +47,15 @@ export function createSaves(layers: Layer[]) {
       Reflect.deleteProperty(newArea, 'img');
       // 处理循环引用
       Reflect.deleteProperty(newArea, 'layer');
+      newArea.data = stringifyImageData(area.data) as any;
       areas.push(newArea);
     });
     partLay.areas = areas as Area[];
 
     const pins: Partial<Area>[] = [];
     layer.pins.forEach((pin) => {
-      const newPin = Object.assign({}, pin);
+      const newPin = Object.assign({}, toRaw(pin));
+      newPin.association = Object.assign({}, toRaw(pin.association));
       // 删除一些用不到且很难序列化的属性
       Reflect.deleteProperty(newPin, 'instance');
       Reflect.deleteProperty(newPin, 'moveable');
@@ -45,12 +69,10 @@ export function createSaves(layers: Layer[]) {
 
     partLayers.push(partLay);
   });
-  const data = JSON.stringify({
-    editorConfig: editorConfig.$state,
+  return {
+    editorConfig: toRaw(editorConfig.$state),
     layers: partLayers,
-  });
-  partLayers.splice(0, partLayers.length - 1);
-  return data;
+  };
 }
 
 /**
@@ -98,16 +120,18 @@ function _loadSaves(pureObj: Saves, useConfig: boolean) {
             newLayer[key] = [];
             for (let area of areas) {
               // imagedata 的 data 序列化后为普通的（序列化）数组，因此得重新生成 Uint8ClampedArray
-              const newArray: any[] = [];
-              Object.keys(area['data'].data).forEach((key) => {
-                newArray[Number(key)] = area['data'].data[key];
-              });
-              const newUint8Array = new Uint8ClampedArray(newArray);
-              const newData = new ImageData(
-                newUint8Array,
-                area['boundRect'][2],
-                area['boundRect'][3],
-              );
+              // TODO: 删除 兼容旧数据
+              let newData;
+              try {
+                newData = parseImageData(area['data']);
+              } catch (_) {
+                const newArray: any[] = [];
+                Object.keys(area['data'].data).forEach((key) => {
+                  newArray[Number(key)] = area['data'].data[key];
+                });
+                const newUint8Array = new Uint8ClampedArray(newArray);
+                newData = new ImageData(newUint8Array, area['boundRect'][2], area['boundRect'][3]);
+              }
               const newArea = new Area(area['name'], newData, area['boundRect']);
               newArea.layer = newLayer;
               newArea.setChoosePoint(area['choosePoint']);

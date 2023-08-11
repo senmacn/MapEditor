@@ -71,7 +71,6 @@ export function compressImage(url, targetWidth, targetHeight): Promise<Blob> {
       canvas.toBlob((blob) => resolve(blob as Blob), 'image/jpeg', 1);
     };
     img.onerror = function (error) {
-      console.log(error);
       reject(error);
     };
   });
