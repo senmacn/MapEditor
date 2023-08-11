@@ -277,9 +277,9 @@
   function handleChangeMapSize() {
     projectSizeConfigModalVisible.value = true;
   }
-  function handleMapSizeChanged() {
+  async function handleMapSizeChanged() {
     // 先保存存档，主要是为了保存尺寸设置
-    const name = handleCreateSaves();
+    const name = await handleCreateSaves();
     const url = location.href.slice().replace(/\#\/.+/, '#/map-editor?name=' + name);
     location.replace(url);
     setTimeout(() => {
