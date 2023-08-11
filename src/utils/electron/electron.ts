@@ -62,6 +62,9 @@ class ElectronApi implements LocalApi {
   openDevTools() {
     return window['electronAPI'].openDevTools();
   }
+  stringifyData(obj: object) {
+    return window['electronAPI'].stringifyData(obj);
+  }
 }
 
 const electronApi = new ElectronApi();

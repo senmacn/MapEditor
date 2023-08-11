@@ -2,6 +2,7 @@ import { ipcMain } from 'electron';
 import { transformExrDir } from '../utils/exr-utils';
 import { createShareLink, executeShareLink } from '../utils/share';
 import UserConfigStore from '../store/user-config-store';
+import { stringifySave } from '../utils/json';
 
 export default function () {
   // 用户设置
@@ -30,6 +31,16 @@ export default function () {
   ipcMain.handle('execute-share-link', (_evt, link: string) => {
     try {
       return executeShareLink(userConfig.remoteURL, link);
+    } catch (err) {
+      (err as LocalError).showMessage =
+        'Error saving local file because of error: ' + (err as LocalError).message;
+      return err as LocalError;
+    }
+  });
+
+  ipcMain.handle('stringify-data', (_evt, obj: object) => {
+    try {
+      return stringifySave(obj);
     } catch (err) {
       (err as LocalError).showMessage =
         'Error saving local file because of error: ' + (err as LocalError).message;

@@ -47,6 +47,12 @@ export async function createSaves(layers: Layer[]) {
       Reflect.deleteProperty(newArea, 'img');
       // 处理循环引用
       Reflect.deleteProperty(newArea, 'layer');
+      // 处理 undefined Key
+      Object.keys(newArea).forEach((key) => {
+        if (typeof newArea[key] === 'undefined') {
+          Reflect.deleteProperty(newArea, key);
+        }
+      });
       newArea.data = stringifyImageData(area.data) as any;
       areas.push(newArea);
     });
@@ -63,6 +69,12 @@ export async function createSaves(layers: Layer[]) {
       Reflect.deleteProperty(newPin, 'img');
       // 处理循环引用
       Reflect.deleteProperty(newPin, 'layer');
+      // 处理 undefined Key
+      Object.keys(newPin).forEach((key) => {
+        if (typeof newPin[key] === 'undefined') {
+          Reflect.deleteProperty(newPin, key);
+        }
+      });
       pins.push(newPin);
     });
     partLay.pins = pins as Pin[];

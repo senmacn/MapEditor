@@ -81,10 +81,7 @@ export default function useSaves() {
         }.${getFormatDate(new Date(), 'MM-dd_hh-mm')}.json`;
         const data = await createSaves(expLayer);
         if (localApi) {
-          console.log(data);
           const str = await localApi.stringifyData(data);
-          console.log(str);
-          
           if (isObject(str) && str?.showMessage) {
             message.error('导出失败！');
             return;

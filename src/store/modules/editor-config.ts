@@ -128,7 +128,7 @@ export const useEditorConfig = defineStore({
   },
   actions: {
     setAll(_editorConfig: EditorConfig) {
-      this.style = _editorConfig.style;
+      // this.style = _editorConfig.style;
       // this.zoom = _editorConfig.zoom;
       this.color = _editorConfig.color;
       this.lineWidth = _editorConfig.lineWidth;
