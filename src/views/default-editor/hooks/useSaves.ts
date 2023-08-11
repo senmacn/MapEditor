@@ -1,3 +1,4 @@
+import { useLoading } from '@/components/Loading';
 import { useCanvasState } from '@/store/modules/canvas-state';
 import { useEditorConfig } from '@/store/modules/editor-config';
 import { useLocalState } from '@/store/modules/local-state';
@@ -15,21 +16,35 @@ export default function useSaves() {
   const configRef = useEditorConfig();
   const canvasState = useCanvasState();
 
+  const [openLoading, closeLoading] = useLoading({ tip: '保存中', minTime: 500 });
+
+  // 防止重复运行
+  let isSaving = false;
+
   function handleConfirmCreateSaves() {
-    Modal.confirm({
-      title: '确认',
-      content: '保存当前编辑的数据存档？',
-      okText: '确定',
-      cancelText: '取消',
-      onOk: () => {
-        handleCreateSaves();
-        message.success('保存成功！');
-      },
+    return new Promise((resolve) => {
+      Modal.confirm({
+        title: '确认',
+        content: '保存当前编辑的数据存档？',
+        okText: '确定',
+        cancelText: '取消',
+        onOk: () => {
+          openLoading();
+          setTimeout(async () => {
+            await handleCreateSaves();
+            resolve(true);
+            message.success('保存成功！');
+            closeLoading();
+          });
+        },
+      });
     });
   }
 
-  function handleCreateSaves() {
+  async function handleCreateSaves() {
+    if (isSaving) return;
     try {
+      isSaving = true;
       const fileName =
         localState.getFileName !== '新建项目'
           ? localState.getFileName
@@ -37,12 +52,15 @@ export default function useSaves() {
               configRef.getProjectSizeConfigPxHeight
             }.${getFormatDate(new Date(), 'MM-dd_hh-mm')}.json`;
       if (localApi) {
-        localApi.saveLoads(fileName, createSaves(canvasState.getLayers));
+        const data = await createSaves(canvasState.getLayers);
+        await localApi.saveLoads(fileName, data);
         localState.setFileName(fileName);
         location.href = location.href.slice().replace(/\#\/.+/, '#/map-editor?name=' + fileName);
       }
+      isSaving = false;
       return fileName;
     } catch (_err) {
+      isSaving = false;
       message.error('保存失败！');
       console.warn(_err);
       throw new Error();
@@ -56,11 +74,11 @@ export default function useSaves() {
       content: '导出当前编辑的数据存档？',
       okText: '确定',
       cancelText: '取消',
-      onOk: () => {
+      onOk: async () => {
         const fileName = `map_data_${configRef.getProjectSizeConfigPxWidth}x${
           configRef.getProjectSizeConfigPxHeight
         }.${getFormatDate(new Date(), 'MM-dd_hh-mm')}.json`;
-        const data = createSaves(expLayer);
+        const data = await createSaves(expLayer);
         if (localApi) {
           localApi
             .saveLocalFile(fileName, data, localState.getExportLocation)
@@ -80,10 +98,16 @@ export default function useSaves() {
   // 按键保存
   const handleKeyboardSave = debounce(async function (e: KeyboardEvent) {
     if (e.key === 's' && e.ctrlKey) {
+      if (isSaving) return;
       const config = await localApi?.getCustomConfig();
       if (config?.ctrlSSaveProject) {
-        handleCreateSaves();
-        message.success('保存成功！');
+        openLoading();
+        setTimeout(() => {
+          handleCreateSaves().then(() => {
+            message.success('保存成功！');
+            closeLoading();
+          });
+        }, 16);
       }
     }
   }, 250);
@@ -92,8 +116,9 @@ export default function useSaves() {
   let endAutoSave: any = null;
   function handleAutoSave() {
     try {
-      handleCreateSaves();
-      message.success('自动保存成功！');
+      handleCreateSaves().then(() => {
+        message.success('自动保存成功！');
+      });
     } catch (_) {}
     if (localState.getAutoSaveTime) {
       endAutoSave = setTimeout(handleAutoSave, localState.getAutoSaveTime * 60 * 1000);

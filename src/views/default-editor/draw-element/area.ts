@@ -9,7 +9,7 @@ export default class Area extends DrawElement {
   private choosePoint;
   private boundRectPoints: Point[] | undefined;
   // rect 内的data
-  private data: ImageData;
+  public data: ImageData;
 
   constructor(name: string, data: ImageData, boundRect: Box) {
     super();

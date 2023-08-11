@@ -25,7 +25,7 @@ const electronApi: LocalApi = {
   deleteLocalFile: async (fileName: string) => {
     return await ipcRenderer.invoke('delete-local-file', fileName);
   },
-  saveLoads: async (fileName: string, data: string | Buffer) => {
+  saveLoads: async (fileName: string, data: object) => {
     return await ipcRenderer.invoke('save-loads', fileName, data);
   },
   saveLocalFile: async (fileName: string, data: string | Buffer, folder?: string) => {

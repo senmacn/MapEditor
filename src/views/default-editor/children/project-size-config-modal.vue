@@ -50,19 +50,19 @@
       </div>
       <a-divider>项目底图设置</a-divider>
       <div class="map-size">
-        <span class="necessary">项目底图起始点位置X坐标</span>
+        <span class="necessary">底图起始点位置X坐标</span>
         <a-input v-model:value="projectConfigRef.offsetX"></a-input>
       </div>
       <div class="map-size">
-        <span class="necessary">项目底图起始点位置Y坐标</span>
+        <span class="necessary">底图起始点位置Y坐标</span>
         <a-input v-model:value="projectConfigRef.offsetY"></a-input>
       </div>
       <div class="map-size">
-        <span class="necessary">项目长度</span>
+        <span class="necessary">底图长度</span>
         <a-input v-model:value="projectConfigRef.offsetWidth"></a-input>
       </div>
       <div class="map-size">
-        <span class="necessary">项目宽度</span>
+        <span class="necessary">底图宽度</span>
         <a-input v-model:value="projectConfigRef.offsetHeight"></a-input>
       </div>
     </div>

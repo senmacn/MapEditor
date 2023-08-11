@@ -110,10 +110,6 @@ export function handleExportBoundary() {
     }) as CanvasRenderingContext2D;
     cacheCtx.putImageData(area.getData(), 0, 0);
     // putImageData会相互覆盖，使用drawImage
-    console.log(configRef.getProjectSizeConfigPxOffsetX);
-    console.log(configRef.getProjectSizeConfigPxOffsetY);
-    console.log(boundRect);
-    
     dataContext.drawImage(
       cacheCanvas,
       configRef.getProjectSizeConfigPxOffsetX + boundRect[0],
@@ -144,7 +140,6 @@ export function handleExportBoundary() {
       });
     })
     .catch((err) => {
-      console.log(err);
       message.error('图片下载失败！');
     });
 }

@@ -3,6 +3,20 @@ import { readdirSync, statSync, readFileSync, renameSync, rmSync, writeFileSync 
 import path from 'path';
 import { FILE_PATH, SAVES_DIR } from '../common/const';
 import { ProjectItemStore } from '../store/project-item-store';
+import { stringifySave } from '../utils/json';
+
+function saveFile(fileName: string, data: string | Buffer, folder: string) {
+  console.log(data);
+
+  if (typeof data === 'string') {
+    writeFileSync(path.join(folder, fileName), data, {
+      encoding: 'utf8',
+    });
+  } else {
+    writeFileSync(path.join(folder, fileName), new Uint8Array(data));
+  }
+  return;
+}
 
 export default function () {
   // 初始化本地文件额外属性管理工具
@@ -68,41 +82,28 @@ export default function () {
     }
   });
 
-  function saveFile(fileName: string, data: string | Buffer, folder: string) {
+  ipcMain.handle('save-loads', (_evt, fileName: string, data: Object) => {
     try {
-      if (typeof data === 'string') {
-        writeFileSync(path.join(folder, fileName), data, {
-          encoding: 'utf8',
-        });
-      } else {
-        writeFileSync(path.join(folder, fileName), new Uint8Array(data));
-      }
-
+      saveFile(fileName, stringifySave(data), SAVES_DIR);
+      projectItemStore.addFile(fileName);
       return;
     } catch (err) {
       (err as LocalError).showMessage =
         'Error saving local file because of error: ' + (err as LocalError).message;
       return err as LocalError;
     }
-  }
-
-  ipcMain.handle('save-loads', (_evt, fileName: string, data: string) => {
-    const result = saveFile(fileName, data, SAVES_DIR);
-    if (!result) {
-      projectItemStore.addFile(fileName);
-    }
-    return result;
   });
 
   ipcMain.handle(
     'save-local-file',
-    (
-      _evt,
-      fileName: string,
-      data: string | Buffer,
-      folder: string = SAVES_DIR,
-    ): undefined | Error => {
-      return saveFile(fileName, data, folder);
+    (_evt, fileName: string, data: string | Buffer, folder: string = SAVES_DIR): void | Error => {
+      try {
+        return saveFile(fileName, data, folder);
+      } catch (err) {
+        (err as LocalError).showMessage =
+          'Error saving local file because of error: ' + (err as LocalError).message;
+        return err as LocalError;
+      }
     },
   );
 
