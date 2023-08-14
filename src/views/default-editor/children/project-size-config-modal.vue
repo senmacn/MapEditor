@@ -203,7 +203,7 @@
       margin-bottom: 12px;
       justify-content: center;
       > span:first-child {
-        width: 160px;
+        width: 180px;
         text-align: left;
       }
       .ant-input,

@@ -1,9 +1,9 @@
 <template>
   <canvas
     id="mask-canvas"
-    @mousemove.stop="handleMouseMove"
-    @mouseup.stop="handleMouseUp"
-    @mousedown.stop="handleMouseDown"
+    @mousemove="handleMouseMove"
+    @mouseup="handleMouseUp"
+    @mousedown="handleMouseDown"
     @mouseout="handleMouseMove"
   ></canvas>
 </template>
@@ -46,6 +46,9 @@
   const handleMouseMove = throttle(syncHandleMouseMove, 16);
   function syncHandleMouseMove(e: MouseEvent) {
     if (e.button !== 0 || !activeRef.value) return;
+    if (Reflect.has(e, 'stopPropagation')) {
+      e.stopPropagation();
+    }
     endPoint = getPos(e);
     // 清除
     const radius = Math.sqrt(
@@ -135,7 +138,10 @@
 
   function handleMouseMoveOuter(e: MouseEvent) {
     if (e.button !== 0 || !activeRef.value) return;
-    e?.stopPropagation();
+    // 跳过当前canvas上触发的
+    if ((<HTMLElement>e.target).id.includes('mask-canvas')){
+      return;
+    }
     const canvas = ctxRef.getCanvas().canvas;
     const canvasRect = canvas.getBoundingClientRect();
     const x = e.clientX - canvasRect.left;
