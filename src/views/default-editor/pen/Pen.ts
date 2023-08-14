@@ -49,6 +49,9 @@ class Pen {
   }
 
   onmousedown(e: MouseEvent) {
+    if (e.button !== 0) {
+      return;
+    }
     let loc = { x: e.offsetX, y: e.offsetY };
     let relativeLoc = { x: loc.x, y: loc.y };
     let selectedPath = this.getSelectedPath();

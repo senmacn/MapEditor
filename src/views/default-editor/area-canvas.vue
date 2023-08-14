@@ -1,7 +1,7 @@
 <template>
   <canvas
     id="area-canvas"
-    @mousemove.stop="handleMouseMove"
+    @mousemove="handleMouseMove"
     @mouseup="handleMouseUp"
     @mousedown="handleMouseDown"
   ></canvas>
@@ -265,7 +265,6 @@
   }
   function handleMouseUpOuter(e: MouseEvent) {
     if (e.button !== 0 || !activeRef.value) return;
-    e?.stopPropagation();
     const canvas = ctxRef.getCanvas().canvas;
     const canvasRect = canvas.getBoundingClientRect();
     const x = Math.max(
@@ -296,7 +295,6 @@
   }
   function handleMouseDownOuter(e: MouseEvent) {
     if (e.button !== 0) return;
-    e?.stopPropagation();
     const canvas = ctxRef.getCanvas().canvas;
     const canvasRect = canvas.getBoundingClientRect();
     const x = Math.max(
