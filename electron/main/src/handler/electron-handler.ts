@@ -72,10 +72,10 @@ export default function () {
     }
   });
 
-  ipcMain.handle('open-dev-tools', (event) => {
-    const window = windMap.get(event.sender.id);
-    if (window) {
-      window.webContents.openDevTools();
+  ipcMain.handle('clear-cache', (event) => {
+    const focusedWindow = BrowserWindow.getFocusedWindow();
+    if (focusedWindow) {
+      focusedWindow.webContents.session.clearCache();
     }
   });
 

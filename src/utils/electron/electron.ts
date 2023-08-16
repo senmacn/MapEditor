@@ -68,6 +68,9 @@ class ElectronApi implements LocalApi {
   openDevTools() {
     return window['electronAPI'].openDevTools();
   }
+  clearCache() {
+    return window['electronAPI'].clearCache();
+  }
   stringifyData(obj: object) {
     return window['electronAPI'].stringifyData(obj);
   }

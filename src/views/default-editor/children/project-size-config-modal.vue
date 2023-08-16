@@ -168,32 +168,34 @@
     });
   }
 
-  useDriver('project-size-config-modal', [
-    {
-      element: '.map-config',
-      popover: {
-        title: '地图设置设置',
-        description: '从2D地图Excel表中查找对应的数据填入！',
-        align: 'start',
+  if (localState.filename === '新建项目') {
+    useDriver('project-size-config-modal', [
+      {
+        element: '.map-config',
+        popover: {
+          title: '地图设置',
+          description: '从2D地图Excel表中查找对应的数据填入！',
+          align: 'start',
+        },
       },
-    },
-    {
-      element: '.backend-config',
-      popover: {
-        popoverClass: 'backend-config-popover',
-        title: '底图设置',
-        description: `根据想要画的底图的大小填充数据<br>
+      {
+        element: '.backend-config',
+        popover: {
+          popoverClass: 'backend-config-popover',
+          title: '底图设置',
+          description: `根据想要画的底图的大小填充数据<br>
           例: 想要导入完整地图中的3-2和3-3这两张图进行绘制<br>
           这两张图的起始位置(左上角)的XY坐标为3-2的左上角XY坐标<br>
           3-2水平方向左侧有三张图(3-0, 3-1, 3-2)，使用[截屏Actor宽度] * 3 得到X坐标<br>
           3-2垂直方向上侧有两张图(0-2, 1-2)，使用[截屏Actor宽度] * 2 得到Y坐标<br>
           3-2和3-3这两张图水平方向长[截屏Actor宽度]* 2，垂直方向宽[截屏Actor宽度]* 1
           `,
-        align: 'start',
-        side: 'left',
+          align: 'start',
+          side: 'left',
+        },
       },
-    },
-  ]);
+    ]);
+  }
 </script>
 
 <style lang="less">

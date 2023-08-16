@@ -35,6 +35,7 @@
         >
           禁用GPU和硬件加速
         </a-checkbox>
+        <a-button class="tools" @click="localApi?.clearCache()"> 清除缓存 </a-button>
         <a-button class="tools" @click="localApi?.openDevTools()"> 开发者工具 </a-button>
       </div>
     </div>

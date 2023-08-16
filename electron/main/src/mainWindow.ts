@@ -1,6 +1,7 @@
 import { app, BrowserWindow } from 'electron';
 import { join } from 'path';
 import setupEvent from './setupEvent';
+import { version } from './version.json';
 
 async function createWindow() {
   const browserWindow = new BrowserWindow({
@@ -11,6 +12,7 @@ async function createWindow() {
       sandbox: false,
       webSecurity: false,
       webviewTag: true,
+      partition: version,
       preload: join(app.getAppPath(), 'electron/preload/dist/index.cjs'),
     },
     icon: join(app.getAppPath(), 'src/assets/ico/map32.ico'),
