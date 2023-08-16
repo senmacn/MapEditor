@@ -159,15 +159,11 @@
         for (const aData of toMixinData) {
           const { boundRect, data } = aData;
           // 临时canvas
-          const cacheCanvas = document.createElement('canvas');
-          cacheCanvas.width = boundRect[2];
-          cacheCanvas.height = boundRect[3];
-          const cacheCtx = cacheCanvas.getContext('2d', {
-            willReadFrequently: true,
-          }) as CanvasRenderingContext2D;
-          cacheCtx.putImageData(data, 0, 0);
+          const offscreenCanvas = new OffscreenCanvas(data.width, data.height);
+          const context = <OffscreenCanvasRenderingContext2D>offscreenCanvas.getContext('2d');
+          context?.putImageData(data, 0, 0);
           // 计算偏移画入
-          tempCtx.drawImage(cacheCanvas, boundRect[0] - x, boundRect[1] - y);
+          tempCtx.drawImage(offscreenCanvas, boundRect[0] - x, boundRect[1] - y);
         }
         // 放缩展示内容
         const cacheCanvas = document.createElement('canvas');

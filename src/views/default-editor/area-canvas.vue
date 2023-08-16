@@ -166,15 +166,18 @@
     }
   });
   onEditWithAreaEvent(function () {
-    controller.getCurrentAreas().forEach((area) => {
+    const results = controller.getCurrentAreas().map((area) => {
       area.cancelSelect();
       area.hide();
-      const data = area.getData();
-      ctxRef.putImageData(
-        data,
-        area.getBoundRect()[0] - props.offset.x,
-        area.getBoundRect()[1] - props.offset.y,
-      );
+      return createImageBitmap(area.getData()).then((imageBitmap) => {
+        ctxRef.drawImage(
+          imageBitmap,
+          area.getBoundRect()[0] - props.offset.x,
+          area.getBoundRect()[1] - props.offset.y,
+        );
+      });
+    });
+    Promise.all(results).then(() => {
       ctxRef.putSave();
     });
   });
