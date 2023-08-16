@@ -24,15 +24,19 @@ export default function loadingSaves() {
   const canvasState = useCanvasState();
   const [openLoading, closeLoading] = useLoading({ minTime: 1000, tip: '初始化存档~', size: 32 });
 
-  const { name, uuid } = parseQueryString(location.hash);
+  const { name, uuid, history } = parseQueryString(location.hash);
   if (name) {
     return new Promise((resolve) => {
       localState.setFileName(name as string);
+      if (history && history.length) {
+        localState.setHistoryName((history || '') as string);
+        localState.setHistoryMode();
+      }
       setTimeout(() => {
         openLoading();
         localApi &&
           localApi
-            .getLocalFileContent(name as string)
+            .getLocalFileContent(name as string, history as string)
             .then((data) => {
               try {
                 const result = loadSaves(data, true);

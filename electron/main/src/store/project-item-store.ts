@@ -1,5 +1,6 @@
 import { existsSync, readFileSync, readdirSync, writeFileSync } from 'fs';
 import { getRandomDomId, randomHSLColor } from '../utils/random';
+import uniqBy from 'lodash-es/uniqBy';
 
 interface ExtendFile {
   name: string;
@@ -7,6 +8,7 @@ interface ExtendFile {
     star: boolean;
     color: string;
   };
+  history: string[];
 }
 
 /**
@@ -25,17 +27,17 @@ export class ProjectItemStore {
     if (existsSync(this.path)) {
       this.files = JSON.parse(readFileSync(this.path, 'utf8')) as ExtendFile[];
       // 查询本地是否更改
-      const files = readdirSync(this.save_path)
-        .filter((fileName) => fileName.endsWith('.json'))
-        .map((fileName) => {
-          return {
-            name: fileName,
-            property: {
-              star: false,
-              color: randomHSLColor(),
-            },
-          };
-        });
+      // const files = readdirSync(this.save_path)
+      //   .filter((fileName) => fileName.endsWith('.json'))
+      //   .map((fileName) => {
+      //     return {
+      //       name: fileName,
+      //       property: {
+      //         star: false,
+      //         color: randomHSLColor(),
+      //       },
+      //     };
+      //   });
     } else {
       // 根据已有文件存档，创建 file-property.json
       const files = readdirSync(this.save_path)
@@ -48,6 +50,7 @@ export class ProjectItemStore {
               star: false,
               color: randomHSLColor(),
             },
+            history: [],
           };
         });
       writeFileSync(this.path, JSON.stringify(files));
@@ -73,15 +76,30 @@ export class ProjectItemStore {
     this.syncLocal();
   }
 
-  addFile(filename: string) {
-    this.files.push({
-      name: filename,
-      property: {
-        star: false,
-        color: randomHSLColor(),
-      },
-    });
-    this.syncLocal();
+  addFile(filename: string, historyName?: string): string | undefined {
+    const file = this.files.find((file) => file.name === filename);
+    if (!file) {
+      this.files.push({
+        name: filename,
+        property: {
+          star: false,
+          color: randomHSLColor(),
+        },
+        history: [],
+      });
+      this.syncLocal();
+    } else {
+      if (historyName) {
+        if (!Array.isArray(file.history)) file.history = [];
+        if (file.history.length < 8) {
+          file.history.push(historyName);
+        } else {
+          file.history.push(historyName);
+          return file.history.shift();
+        }
+        this.syncLocal();
+      }
+    }
   }
 
   deleteFile(filename: string) {
@@ -94,6 +112,7 @@ export class ProjectItemStore {
 
   // 同步数据
   private syncLocal() {
+    this.files = uniqBy(this.files, 'name');
     writeFileSync(this.path, JSON.stringify(this.files));
   }
 }

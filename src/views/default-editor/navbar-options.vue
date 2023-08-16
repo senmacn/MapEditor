@@ -23,18 +23,21 @@
               <div class="inner-content">加载文件</div>
             </a-upload>
           </a-menu-item>
-          <a-divider></a-divider>
           <a-menu-item key="4">
+            <div class="inner-content" @click="handleOpenHistoryModal">历史版本</div>
+          </a-menu-item>
+          <a-divider></a-divider>
+          <a-menu-item key="5">
             <div class="inner-content" @click="handleOpenDownloadModal">坐标下载</div>
           </a-menu-item>
-          <a-menu-item key="5">
+          <a-menu-item key="6">
             <div class="inner-content" @click="handleOpenColorExport">色值图下载</div>
           </a-menu-item>
-          <a-menu-item key="6">
+          <a-menu-item key="7">
             <div class="inner-content" @click="handleAreaBoundaryExport">边框数据下载</div>
           </a-menu-item>
           <a-divider></a-divider>
-          <a-menu-item key="6">
+          <a-menu-item key="8">
             <div class="inner-content" @click="handleCloseProject">关闭项目</div>
           </a-menu-item>
         </a-menu>
@@ -59,6 +62,7 @@
     @change-size="handleMapSizeChanged"
     @close="projectSizeConfigModalVisible = false"
   />
+  <history-modal :visible="historyOutputVisibleRef" @close="handleCloseHistoryModal" />
   <display-output-modal :visible="displayOutputVisibleRef" @cancel="handleConfirmCancelExport" />
   <color-image-modal :visible="colorImageVisibleRef" @cancel="handleColorImageExport" />
   <export-modal
@@ -82,6 +86,7 @@
   import { Modal, message, notification } from 'ant-design-vue';
   import useSaves from './hooks/useSaves';
   import ProjectSizeConfigModal from './children/project-size-config-modal.vue';
+  import HistoryModal from './children/history-modal.vue';
   import DisplayOutputModal from './children/display-output-modal.vue';
   import ColorImageModal from './children/color-image-modal.vue';
   import ExportModal from './children/export-modal.vue';
@@ -214,6 +219,14 @@
         executeSaves(file, false);
       },
     });
+  }
+
+  const historyOutputVisibleRef = ref(false);
+  function handleCloseHistoryModal() {
+    historyOutputVisibleRef.value = false;
+  }
+  function handleOpenHistoryModal() {
+    historyOutputVisibleRef.value = true;
   }
 
   const displayOutputVisibleRef = ref(false);

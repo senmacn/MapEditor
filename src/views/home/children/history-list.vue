@@ -58,7 +58,7 @@
   const dataSource = ref<LocalMapHistory[]>([]);
 
   function refreshHistory(silence: boolean = false) {
-    localApi?.getLocalHistoryList().then((data: LocalMapHistory[]) => {
+    localApi?.getLocalFileList().then((data: LocalMapHistory[]) => {
       if (isArray(data)) {
         dataSource.value = data;
         !silence && message.success('历史记录刷新成功！');

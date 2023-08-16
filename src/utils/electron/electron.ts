@@ -11,11 +11,17 @@ class ElectronApi implements LocalApi {
   setCustomConfig(key: CustomSettingKey, value: any) {
     return window['electronAPI'].setCustomConfig(key, value);
   }
-  getLocalHistoryList() {
-    return window['electronAPI'].getLocalHistoryList();
+  getLocalFileList() {
+    return window['electronAPI'].getLocalFileList();
   }
-  getLocalFileContent(fileName: string) {
-    return window['electronAPI'].getLocalFileContent(fileName);
+  getLocalHistoryList(fileName: string) {
+    return window['electronAPI'].getLocalHistoryList(fileName);
+  }
+  getLocalFileContent(fileName, history) {
+    return window['electronAPI'].getLocalFileContent(fileName, history);
+  }
+  useLocalFileHistory(historyName: string) {
+    return window['electronAPI'].useLocalFileHistory(historyName);
   }
   renameLocalFile(fileName: string, newname: string) {
     return window['electronAPI'].renameLocalFile(fileName, newname);

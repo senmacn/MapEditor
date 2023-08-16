@@ -1,8 +1,15 @@
 import { getLocalApi } from '@/utils/env';
 import { defineStore } from 'pinia';
 
+enum Mode {
+  Normal,
+  History
+}
+
 const localConfig = {
+  mode: Mode.Normal,
   filename: '',
+  historyName: '',
   userConfig: {
     exportLocation: '',
     downloadLocation: '',
@@ -19,6 +26,12 @@ export const useLocalState = defineStore({
   getters: {
     getFileName(): string {
       return this.filename;
+    },
+    getHistoryName(): string {
+      return this.historyName;
+    },
+    isHistoryMode(): boolean {
+      return this.mode === Mode.History;
     },
     getExportLocation(): string {
       return this.userConfig.exportLocation;
@@ -43,6 +56,15 @@ export const useLocalState = defineStore({
     setFileName(filename: string) {
       document.title = decodeURIComponent(filename);
       this.filename = decodeURIComponent(filename);
+    },
+    setHistoryName(historyName: string) {
+      if (historyName.length > 5) {
+        document.title = decodeURIComponent(historyName);
+      }
+      this.historyName = historyName;
+    },
+    setHistoryMode() {
+      this.mode = Mode.History;
     },
     initUserConfig(userConfig: UserConfig) {
       this.userConfig = userConfig;

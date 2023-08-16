@@ -7,17 +7,23 @@ const electronApi: LocalApi = {
   setUserConfig: async (config: UserConfig) => {
     return await ipcRenderer.invoke('set-user-config', config);
   },
-  getCustomConfig: async() => {
+  getCustomConfig: async () => {
     return await ipcRenderer.invoke('get-custom-config');
   },
-  setCustomConfig: async(key, value) => {
+  setCustomConfig: async (key, value) => {
     return await ipcRenderer.invoke('set-custom-config', key, value);
   },
-  getLocalHistoryList: async () => {
-    return await ipcRenderer.invoke('get-local-history-list');
+  getLocalFileList: async () => {
+    return await ipcRenderer.invoke('get-local-file-list');
   },
-  getLocalFileContent: async (fileName: string) => {
-    return await ipcRenderer.invoke('get-local-file-content', fileName);
+  getLocalHistoryList: async (fileName) => {
+    return await ipcRenderer.invoke('get-local-history-list', fileName);
+  },
+  getLocalFileContent: async (fileName: string, history?: string) => {
+    return await ipcRenderer.invoke('get-local-file-content', fileName, history);
+  },
+  useLocalFileHistory: async (historyName: string) => {
+    return await ipcRenderer.invoke('use-local-file-history', historyName);
   },
   renameLocalFile: async (fileName: string, newname: string): Promise<LocalResult<null>> => {
     return await ipcRenderer.invoke('rename-local-file', fileName, newname);
@@ -66,7 +72,7 @@ const electronApi: LocalApi = {
   },
   stringifyData: (obj: object) => {
     return ipcRenderer.invoke('stringify-data', obj);
-  }
+  },
 };
 
 contextBridge.exposeInMainWorld('electronAPI', electronApi);

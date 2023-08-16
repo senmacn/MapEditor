@@ -1,5 +1,5 @@
 import { mkdirSync, existsSync, writeFileSync, readFileSync } from "fs";
-import { CONFIG_PATH, DATA_DIR, SAVES_DIR } from "../common/const";
+import { CONFIG_PATH, DATA_DIR, HISTORY_DIR, SAVES_DIR } from "../common/const";
 
 export default class UserConfigStore {
   config = {
@@ -16,8 +16,12 @@ export default class UserConfigStore {
       if (!existsSync(CONFIG_PATH)) {
         mkdirSync(DATA_DIR);
         mkdirSync(SAVES_DIR);
+        mkdirSync(HISTORY_DIR);
         writeFileSync(CONFIG_PATH, JSON.stringify(this.config));
       } else {
+        if (!existsSync(HISTORY_DIR)) {
+          mkdirSync(HISTORY_DIR);
+        }
         const config = JSON.parse(readFileSync(CONFIG_PATH, 'utf8'));
         Object.assign(this.config, config);
       }
