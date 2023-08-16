@@ -132,25 +132,6 @@ export function copyImageData(imageData: ImageData) {
 }
 
 /**
- * 混入区域（只混入有数据的部分）
- * @param imageData 原imageData
- * @param area 新imageData
- * @returns 新imageData
- */
-export function mixinData(imageData: ImageData, points: Point[]) {
-  const newData = copyImageData(imageData);
-  for (let i = 0; i < points.length; i++) {
-    const point = points[i];
-    const pointStartIndex = (point[0] + point[1] * imageData.width) * 4;
-    newData.data[pointStartIndex] = 255;
-    newData.data[pointStartIndex + 1] = 0;
-    newData.data[pointStartIndex + 2] = 0;
-    newData.data[pointStartIndex + 3] = 255;
-  }
-  return newData;
-}
-
-/**
  * 获取缩放计算后的imagedata
  * @param imageData 原data
  * @param scale 缩放比例
@@ -162,17 +143,17 @@ export function scaleImageData(imageData, scale) {
   const w = Math.floor(imageData.width * scale);
   const h = Math.floor(imageData.height * scale);
 
-  const dataCanvas = document.createElement('canvas');
-  const dataContext = dataCanvas.getContext('2d') as CanvasRenderingContext2D;
-  dataCanvas.width = dataW;
-  dataCanvas.height = dataH;
-  dataContext.putImageData(imageData, 0, 0);
+  const offscreenCanvas = new OffscreenCanvas(imageData.width, imageData.height);
+  const context = <OffscreenCanvasRenderingContext2D>offscreenCanvas.getContext('2d', {
+    willReadFrequently: true,
+  });
+  context.putImageData(imageData, 0, 0);
 
   const tempCanvas = document.createElement('canvas');
   const tempContext = tempCanvas.getContext('2d') as CanvasRenderingContext2D;
   tempCanvas.width = w;
   tempCanvas.height = h;
-  tempContext.drawImage(dataCanvas, 0, 0, dataW, dataH, 0, 0, w, h);
+  tempContext.drawImage(offscreenCanvas, 0, 0, dataW, dataH, 0, 0, w, h);
 
   return tempContext.getImageData(0, 0, w, h);
 }
@@ -231,7 +212,7 @@ export function getPosition(imageData: ImageData) {
  */
 export function getClosedCurvePointsData(area: Area, colors = [255, 0, 0, 255]) {
   // FloodFill fill 会修改原数据，拷贝一份新的
-  const imageData = copyImageData(area.getData())
+  const imageData = copyImageData(area.getData());
   const floodFill = new FloodFill(imageData);
   const point = area.getChoosePoint();
 
@@ -240,12 +221,7 @@ export function getClosedCurvePointsData(area: Area, colors = [255, 0, 0, 255]) 
   } else {
     const points = area.getBoundRectPoints();
     const rect = area.getActualBoundRect();
-    floodFill.fill(
-      `rgb(${colors.join(',')})`,
-      points[0][0] + rect[0],
-      points[0][1] + rect[1],
-      0,
-    );
+    floodFill.fill(`rgb(${colors.join(',')})`, points[0][0] + rect[0], points[0][1] + rect[1], 0);
   }
 
   // put the modified data back in context
