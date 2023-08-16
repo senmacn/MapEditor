@@ -47,6 +47,7 @@
   import { InfoCircleOutlined } from '@ant-design/icons-vue';
   import FloodFill from '@/utils/q-floodfill';
   import { message } from 'ant-design-vue';
+  import { useLoading } from '@/components/Loading';
 
   const emit = defineEmits<{
     (
@@ -75,12 +76,13 @@
     visibleRef.value = true;
     setTimeout(() => {
       imageData = data;
+      // 放缩展示
       scale = boundRect[2] > boundRect[3] ? 500 / boundRect[2] : 500 / boundRect[3];
       if (baseCanvasRef.value) {
         baseCtxRef.value = baseCanvasRef.value.getContext('2d', {
           willReadFrequently: true,
         }) as CanvasRenderingContext2D;
-        baseCtxRef.value.clearRect(0, 0, 600, 600);
+        baseCtxRef.value.clearRect(0, 0, 500, 500);
         baseCtxRef.value.putImageData(scaleImageData(data, scale), 0, 0);
       }
       if (confirmCanvasRef.value) {
@@ -128,18 +130,26 @@
     pointRef.value = null;
   }
 
+  const [openLoading, closeLoading] = useLoading({ size: 32 });
   function handleConfirmOk() {
-    visibleRef.value = false;
-    confirmCtxRef.value?.clearRect(0, 0, 500, 500);
-    emit(
-      'confirm-end',
-      // @ts-ignore
-      [Math.round(pointRef.value[0] / scale), Math.round(pointRef.value[1] / scale)],
-      // @ts-ignore
-      ...outData.getImageDataFrom(imageData),
-      false,
-    );
-    pointRef.value = null;
+    // 大区域下显示loading
+    if (imageData.width > 3000) {
+      openLoading();
+    }
+    setTimeout(() => {
+      visibleRef.value = false;
+      confirmCtxRef.value?.clearRect(0, 0, 500, 500);
+      emit(
+        'confirm-end',
+        // @ts-ignore
+        [Math.round(pointRef.value[0] / scale), Math.round(pointRef.value[1] / scale)],
+        // @ts-ignore
+        ...outData.getImageDataFrom(imageData),
+        false,
+      );
+      pointRef.value = null;
+      closeLoading();
+    });
   }
 
   function handleCancel() {

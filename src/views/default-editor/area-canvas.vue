@@ -75,7 +75,7 @@
     setActiveRef(true);
   }
 
-  const handleMouseMove = throttle(syncHandleMouseMove, 16);
+  const handleMouseMove = throttle(syncHandleMouseMove, 8);
   function syncHandleMouseMove(e: MouseEvent) {
     if (e.button !== 0 || !activeRef.value) return;
     const curPoint = canvasUtil.getPos(e);
