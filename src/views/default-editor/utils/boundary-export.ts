@@ -101,17 +101,15 @@ export function handleExportBoundary() {
   }) as CanvasRenderingContext2D;
   canvasState.getAreaMap.forEach((area) => {
     const boundRect = area.getBoundRect();
-    // 创建临时画布
-    const cacheCanvas = document.createElement('canvas');
-    cacheCanvas.width = boundRect[2];
-    cacheCanvas.height = boundRect[3];
-    const cacheCtx = cacheCanvas.getContext('2d', {
-      willReadFrequently: true,
-    }) as CanvasRenderingContext2D;
-    cacheCtx.putImageData(area.getData(), 0, 0);
     // putImageData会相互覆盖，使用drawImage
+    const initData = area.getData();
+    const offscreenCanvas = new OffscreenCanvas(initData.width, initData.height);
+    const context = <OffscreenCanvasRenderingContext2D>offscreenCanvas.getContext('2d', {
+      willReadFrequently: true,
+    });
+    context?.putImageData(initData, 0, 0);
     dataContext.drawImage(
-      cacheCanvas,
+      offscreenCanvas,
       configRef.getProjectSizeConfigPxOffsetX + boundRect[0],
       configRef.getProjectSizeConfigPxOffsetY + boundRect[1],
     );
