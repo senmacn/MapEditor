@@ -26,5 +26,6 @@ interface LocalApi {
   executeShareLink(link: string): Promise<LocalResult<Recordable>>;
   starItem(filename: string, star: boolean): Promise<LocalResult<null>>;
   openDevTools(): void;
+  clearCache(): void;
   stringifyData(obj: object): Promise<LocalResult<string>>;
 }

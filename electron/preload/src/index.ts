@@ -70,6 +70,9 @@ const electronApi: LocalApi = {
   openDevTools: () => {
     return ipcRenderer.invoke('open-dev-tools');
   },
+  clearCache: () => {
+    return ipcRenderer.invoke('clear-cache');
+  },
   stringifyData: (obj: object) => {
     return ipcRenderer.invoke('stringify-data', obj);
   },
