@@ -13,18 +13,6 @@ const stringify = fastJson({
         zoom: { type: 'number' },
         autoConnect: { type: 'boolean' },
         autoConnectScope: { type: 'number' },
-        size: {
-          type: 'object',
-          additionalProperties: {
-            type: 'number',
-          },
-        },
-        mapSize: {
-          type: 'object',
-          additionalProperties: {
-            type: 'number',
-          },
-        },
         projectSizeConfig: {
           type: 'object',
           properties: {
@@ -139,9 +127,18 @@ const stringify = fastJson({
   },
 });
 
-export function stringifySave(obj: object) {
+export function stringifySave(obj: object | string) {
   try {
-    return stringify(obj);
+    if (typeof obj === 'string') {
+      return obj;
+    } else {
+      const jsonStr = stringify(obj);
+      // stringify 解析错误，使用 JSON 的 stringify
+      if (jsonStr === '{}') {
+        return JSON.stringify(obj);
+      }
+      return jsonStr;
+    }
   } catch (err) {
     throw err;
   }

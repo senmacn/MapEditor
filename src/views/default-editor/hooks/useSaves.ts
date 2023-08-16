@@ -43,6 +43,10 @@ export default function useSaves() {
   }
 
   async function handleCreateSaves() {
+    if (localState.isHistoryMode) {
+      message.info('当前为历史数据预览，无法使用保存功能');
+      throw new Error('cancel save');
+    }
     if (isSaving) return;
     try {
       isSaving = true;
@@ -110,10 +114,13 @@ export default function useSaves() {
       if (config?.ctrlSSaveProject) {
         openLoading();
         setTimeout(() => {
-          handleCreateSaves().then(() => {
-            message.success('保存成功！');
-            closeLoading();
-          });
+          handleCreateSaves()
+            .then(() => {
+              message.success('保存成功！');
+            })
+            .finally(() => {
+              closeLoading();
+            });
         }, 16);
       }
     }

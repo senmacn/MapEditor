@@ -3,8 +3,10 @@ interface LocalApi {
   setUserConfig(config: UserConfig): Promise<LocalResult<null>>;
   getCustomConfig(): Promise<CustomSetting>;
   setCustomConfig(key: CustomSettingKey, value: any): Promise<LocalResult<null>>;
-  getLocalHistoryList(): Promise<Recordable[]>;
-  getLocalFileContent(fileName: string): Promise<string>;
+  getLocalFileList(): Promise<Recordable[]>;
+  getLocalHistoryList(fileName: string): Promise<string[]>;
+  getLocalFileContent(fileName: string, history?: string): Promise<string>;
+  useLocalFileHistory(historyName: string): Promise<string>;
   deleteLocalFile(fileName: string): Promise<unknown>;
   renameLocalFile(fileName: string, newname: string): Promise<LocalResult<null>>;
   saveLoads(fileName: string, data: Object): Promise<LocalResult<null>>;
