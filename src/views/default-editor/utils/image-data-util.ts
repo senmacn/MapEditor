@@ -132,7 +132,7 @@ export function copyImageData(imageData: ImageData) {
 }
 
 /**
- * 获取缩放计算后的imagedata
+ * 获取缩放计算后的imagedata（性能较差）
  * @param imageData 原data
  * @param scale 缩放比例
  * @returns 新data
