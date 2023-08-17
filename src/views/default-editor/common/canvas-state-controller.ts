@@ -37,7 +37,7 @@ const DrawingShape = [CanvasOption.DrawCircle, CanvasOption.DrawLine, CanvasOpti
 
 function setCursor(cursor: string) {
   // 替换成用class实现
-  const scroller = document.getElementsByClassName('map-editor')[0] as HTMLElement;
+  const scroller = document.getElementById('scroller') as HTMLElement;
   scroller.style.cursor = cursor;
 }
 
@@ -55,10 +55,12 @@ class CanvasStateController {
   setState(option: CanvasOption) {
     if (option === CanvasOption.FollowMouse) {
       setCursor(`url(${PencilSvg}), pointer`);
+    } else if (option === CanvasOption.Pen) {
+      setCursor(`url(${PencilSvg}), pointer`);
     } else if (DrawingShape.includes(option)) {
       setCursor('crosshair');
     } else {
-      setCursor('default');
+      setCursor('auto');
     }
     this.state.value = option;
   }
