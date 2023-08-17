@@ -5,9 +5,10 @@ import CustomSettingStore from './store/custom-setting-store';
 // 禁止缓存，调试使用
 // app.commandLine.appendSwitch('--disable-http-cache');
 // 设置调试
-app.commandLine.appendSwitch('remote-debugging-port', '8315');
+// app.commandLine.appendSwitch('remote-debugging-port', '8315');
+// app.commandLine.appendSwitch('remote-allow-origins', '*');
 // 设置内存上限为 2048MB
-app.commandLine.appendSwitch('js-flags', '--max-old-space-size=2048');
+app.commandLine.appendArgument('--max-old-space-size=2048');
 // 日志路径
 app.commandLine.appendSwitch('log-file', app.getPath('userData') + '/log.txt');
 if (CustomSettingStore.getInstance().getCustomSettings().closeCPUAcceleration) {
