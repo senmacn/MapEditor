@@ -1,7 +1,7 @@
 <template>
   <canvas
     id="area-canvas"
-    @mousemove="handleMouseMove"
+    @mousemove="syncHandleMouseMove"
     @mouseup="handleMouseUp"
     @mousedown="handleMouseDown"
   ></canvas>
@@ -26,7 +26,6 @@
   import { message } from 'ant-design-vue';
   import Pen from './pen/Pen';
   import { useToggle } from '@vueuse/core';
-  import { throttle } from 'lodash-es';
 
   const props = defineProps({
     offset: {
@@ -36,7 +35,7 @@
   });
 
   // canvas相关
-  const ctxRef = useCanvas();
+  const ctxRef = useCanvas();  
   const configRef = useEditorConfig();
   let movedPoints: PointA[] = [];
   let beginPoint: PointA = { x: 0, y: 0 };
@@ -45,6 +44,7 @@
   // 鼠标事件根据不同按钮按下后分别处理
   function handleMouseDown(e: MouseEvent) {
     if (e.button !== 0) return;
+    e?.stopPropagation();
     switch (controller.getState()) {
       case CanvasOption.FollowMouse: {
         const lastedPoint = movedPoints.pop();
@@ -75,7 +75,6 @@
     setActiveRef(true);
   }
 
-  const handleMouseMove = throttle(syncHandleMouseMove, 8);
   function syncHandleMouseMove(e: MouseEvent) {
     if (e.button !== 0 || !activeRef.value) return;
     const curPoint = canvasUtil.getPos(e);
@@ -93,6 +92,7 @@
 
   function handleMouseUp(e: MouseEvent) {
     if (e.button !== 0 || !activeRef.value) return;
+    e?.stopPropagation();
     const curPoint = canvasUtil.getPos(e);
     switch (controller.getState()) {
       case CanvasOption.FollowMouse: {
@@ -140,8 +140,11 @@
   }
   // 判断是否需要自动连接
   function _autoConnect(curPoint: PointA) {
+    // 仅计算点周围
+    const startX = curPoint.x - 50 > 0 ? curPoint.x - 50 : 0;
+    const startY = curPoint.y - 50 > 0 ? curPoint.y - 50 : 0;
     const endPoint = imageDataUtil.getConnectEndPoint(
-      ctxRef.getImageData(),
+      ctxRef.getImageData([startX, startY, 100, 100]),
       curPoint,
       configRef.lineWidth,
       configRef.getAutoConnectScope,
@@ -157,12 +160,14 @@
       currentArea.cancelSelect();
       currentArea.hide();
       const data = currentArea.getData();
-      ctxRef.putImageData(
-        data,
-        currentArea.getBoundRect()[0] - props.offset.x,
-        currentArea.getBoundRect()[1] - props.offset.y,
-      );
-      ctxRef.putSave();
+      createImageBitmap(data).then((data) => {
+        ctxRef.drawImage(
+          data,
+          currentArea.getBoundRect()[0] - props.offset.x,
+          currentArea.getBoundRect()[1] - props.offset.y,
+        );
+        ctxRef.putSave();
+      });
     }
   });
   onEditWithAreaEvent(function () {
@@ -325,9 +330,6 @@
     fullDrawer.removeEventListener('mousedown', handleMouseDownOuter);
     fullDrawer.removeEventListener('mousemove', handleMouseMoveOuter);
     fullDrawer.removeEventListener('mouseup', handleMouseUpOuter);
-
-    handleMouseMove.cancel();
-
     ctxRef.destroy();
   });
 

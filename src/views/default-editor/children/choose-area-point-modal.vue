@@ -83,7 +83,13 @@
           willReadFrequently: true,
         }) as CanvasRenderingContext2D;
         baseCtxRef.value.clearRect(0, 0, 500, 500);
-        baseCtxRef.value.putImageData(scaleImageData(data, scale), 0, 0);
+        createImageBitmap(data).then((bitmap) => {
+          const dataW = imageData.width;
+          const dataH = imageData.height;
+          const w = Math.floor(imageData.width * scale);
+          const h = Math.floor(imageData.height * scale);
+          baseCtxRef.value?.drawImage(bitmap, 0, 0, dataW, dataH, 0, 0, w, h);
+        });
       }
       if (confirmCanvasRef.value) {
         confirmCtxRef.value = confirmCanvasRef.value.getContext('2d', {
