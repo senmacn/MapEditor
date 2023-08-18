@@ -44,7 +44,7 @@
             configRef.getProjectSizeConfig.startPointY +
               pureY * configRef.getProjectSizeConfigScale,
           ];
-    return `x: ${x} y: ${y}`;
+    return `x: ${x | 0} y: ${y | 0}`;
   });
 
   const mapSize = computed(() => {
