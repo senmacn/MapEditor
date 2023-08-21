@@ -78,7 +78,7 @@ export class ExtendCanvas implements CanvasExtendImp {
   private height = 0;
   private canvasConfig = useEditorConfig();
   // 橡皮擦用
-  private lastPoint: PointA | null = null;
+  private lastPoints: PointA[] = <any>[];
   // canvas 存储历史用于保存、撤销、重做操作
   // 当前数据
   private currentData: SaveData | null = null;
@@ -235,7 +235,7 @@ export class ExtendCanvas implements CanvasExtendImp {
       const { x, y } = this.childrenPoints[index];
       if (computeRectIntersect([point.x - 20, point.y - 20, 2 * 20, 2 * 20], [x, y, this.width / 2, this.height / 2])) {
         // 计算偏移
-        const _point = { x: point.x - x, y: point.y - y };
+        const _point = { x: point.x - x, y: point.y - y };        
         this.eraseIn(index, _point, isLast);
         this.changeInfo[index] = true;
       }
@@ -243,14 +243,14 @@ export class ExtendCanvas implements CanvasExtendImp {
   }
   private eraseIn(index: number, point: PointA, isLast: boolean = false) {
     const ctx = this.children[index];
-    if (!this.lastPoint) {
-      this.lastPoint = point;
+    if (!this.lastPoints[index]) {
+      this.lastPoints[index] = point;
     } else {
       ctx.save();
       //设置擦除路径
       ctx.beginPath();
       // 清除上一次erase产生的圆和内部内容
-      ctx.arc(this.lastPoint.x, this.lastPoint.y, this.canvasConfig.getEraseSize + 1, 0, Math.PI * 2, false);
+      ctx.arc(this.lastPoints[index].x, this.lastPoints[index].y, this.canvasConfig.getEraseSize + 1, 0, Math.PI * 2, false);
       // 通过clip设置下一步清空时，只影响arc的内容
       ctx.clip();
       ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
@@ -266,9 +266,9 @@ export class ExtendCanvas implements CanvasExtendImp {
       ctx.clip();
       ctx.stroke();
       ctx.restore();
-      this.lastPoint = point;
+      this.lastPoints[index] = point;
     } else {
-      this.lastPoint = null;
+      this.lastPoints[index] = null;
     }
   }
   // 贝塞尔曲线
