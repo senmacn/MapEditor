@@ -1,8 +1,5 @@
 <template>
-  <div
-    :class="['edit-options', editShowRef ? 'long' : 'small']"
-    @mouseleave="handleHiddenEditOptions"
-  >
+  <div :class="['edit-options', editShowRef ? 'long' : 'small']" @mouseleave="handleHiddenEditOptions">
     <template v-if="editShowRef">
       <a-tooltip title="画笔">
         <a-button
@@ -190,6 +187,8 @@
 
   const editableRef = computed(() => {
     if (controller.isDrawingArea()) {
+      editShowRef.value = true;
+      stableRef.value = true;
       return true;
     } else {
       editShowRef.value = false;
