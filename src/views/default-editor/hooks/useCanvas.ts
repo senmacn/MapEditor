@@ -1,5 +1,4 @@
 import { isFunction } from 'lodash-es';
-import { CanvasExtendImp, CanvasInstance } from '../common/types';
 import { useEditorConfig } from '@/store/modules/editor-config';
 import { message } from 'ant-design-vue';
 
@@ -19,9 +18,8 @@ function getRoundedPoint(point: PointA, isOdd: boolean = false) {
 
 /**
  * canvas 直接操作的封装
- * @returns CanvasInstance
  */
-export default function useCanvas(): CanvasInstance {
+export default function useCanvas() {
   const extendCanvas = new ExtendCanvas();
   // 代理一下
   return new Proxy(extendCanvas, {
@@ -43,12 +41,12 @@ export default function useCanvas(): CanvasInstance {
       }
       return true;
     },
-  }) as CanvasInstance;
+  });
 }
 
 const HISTORY_MAX = 10;
 
-export class ExtendCanvas implements CanvasExtendImp {
+export class ExtendCanvas {
   private canvasInstance: CanvasRenderingContext2D | null = null;
   private canvasConfig = useEditorConfig();
   // 用于计算偏移

@@ -1,13 +1,11 @@
 import { Area, Pin } from '../draw-element';
 
-export type CanvasInstance = CanvasExtendImp & CanvasRenderingContext2D;
-
 export interface CanvasExtendImp {
-  reset(): void;
-  getCanvas(): CanvasRenderingContext2D;
-  setupCanvas: (canvas: CanvasRenderingContext2D) => void;
-  setOffset: (offset: Offset) => void;
-  getOffset: () => Offset;
+  setupCanvas: (
+    width: number,
+    height: number,
+    childrenCanvas: [HTMLCanvasElement, HTMLCanvasElement, HTMLCanvasElement, HTMLCanvasElement],
+  ) => void;
   putSave: () => void;
   redo: () => void;
   undo: () => void;
@@ -19,6 +17,7 @@ export interface CanvasExtendImp {
   drawRect: (beginPoint: PointA, endPoint: PointA, fill?: boolean) => void;
   drawText: (point: PointA, text: string) => void;
   getImageData: (props?: [number, number, number, number]) => ImageData;
+  drawImageData(imageData: ImageData, offsetX: number, offsetY: number, width: number, height: number): Promise<void>;
   destroy: () => void;
 }
 

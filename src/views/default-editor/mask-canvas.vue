@@ -1,15 +1,20 @@
 <template>
-  <canvas
+  <div
     id="mask-canvas"
     @mousemove="handleMouseMove"
     @mouseup="handleMouseUp"
     @mousedown="handleMouseDown"
     @mouseout="handleMouseMove"
-  ></canvas>
+  >
+    <canvas id="mask-canvas-1"></canvas>
+    <canvas id="mask-canvas-2"></canvas>
+    <canvas id="mask-canvas-3"></canvas>
+    <canvas id="mask-canvas-4"></canvas>
+  </div>
 </template>
 
 <script setup lang="ts">
-  import useCanvas from './hooks/useCanvas';
+  import useExpandCanvas from './hooks/useExpandCanvas';
   import controller, { CanvasOption } from './common/canvas-state-controller';
   import { getPos } from './utils/canvas-util';
   import { onBeforeUnmount, onMounted } from 'vue';
@@ -20,7 +25,7 @@
   import throttle from 'lodash-es/throttle';
 
   // canvas相关
-  const ctxRef = useCanvas();
+  const ctxRef = useExpandCanvas();
   const configRef = useEditorConfig();
   let beginPoint: PointA = { x: 0, y: 0 };
   let endPoint: PointA = { x: 0, y: 0 };
@@ -30,7 +35,9 @@
   // 鼠标事件根据不同按钮按下后分别处理
   function handleMouseDown(e: MouseEvent) {
     if (e.button !== 0) return;
-    e.stopPropagation();
+    if (Reflect.has(e, 'stopPropagation')) {
+      e.stopPropagation();
+    }
     switch (controller.getState()) {
       case CanvasOption.DrawLine:
       case CanvasOption.DrawCircle:
@@ -51,9 +58,7 @@
     }
     endPoint = getPos(e);
     // 清除
-    const radius = Math.sqrt(
-      Math.pow(beginPoint.x - prevPoint.x, 2) + Math.pow(beginPoint.y - prevPoint.y, 2),
-    );
+    const radius = Math.sqrt(Math.pow(beginPoint.x - prevPoint.x, 2) + Math.pow(beginPoint.y - prevPoint.y, 2));
     ctxRef.clean([
       beginPoint.x - radius - 50,
       beginPoint.y - radius - 50,
@@ -61,7 +66,7 @@
       2 * radius + 100,
       2 * radius + 100,
     ]);
-    ctxRef.setLineDash([5, 5]);
+    // ctxRef.setLineDash([5, 5]);
     switch (controller.getState()) {
       case CanvasOption.DrawLine: {
         ctxRef.drawLine(beginPoint, endPoint);
@@ -81,7 +86,9 @@
 
   function handleMouseUp(e: MouseEvent) {
     if (!activeRef.value || e.button !== 0) return;
-    e.stopPropagation();
+    if (Reflect.has(e, 'stopPropagation')) {
+      e.stopPropagation();
+    }
     endPoint = getPos(e);
     switch (controller.getState()) {
       case CanvasOption.DrawLine: {
@@ -101,9 +108,7 @@
       }
     }
     // 清除
-    const radius = Math.sqrt(
-      Math.pow(beginPoint.x - prevPoint.x, 2) + Math.pow(beginPoint.y - prevPoint.y, 2),
-    );
+    const radius = Math.sqrt(Math.pow(beginPoint.x - prevPoint.x, 2) + Math.pow(beginPoint.y - prevPoint.y, 2));
     ctxRef.clean([
       beginPoint.x - radius - 50,
       beginPoint.y - radius - 50,
@@ -114,23 +119,12 @@
     setActiveRef(false);
   }
 
-  // 挂载时初始化
-  function setup() {
-    let maskCanvas: HTMLCanvasElement | null = document.querySelector('#mask-canvas');
-    if (maskCanvas == null) return;
-    maskCanvas.width = configRef.getProjectSizeConfigPxWidth;
-    maskCanvas.height = configRef.getProjectSizeConfigPxHeight;
-    let ctx = maskCanvas.getContext('2d', {
-      willReadFrequently: true,
-    }) as CanvasRenderingContext2D;
-    ctxRef.setupCanvas(ctx);
-  }
-
   function handleMouseUpOuter(e: MouseEvent) {
     if (e.button !== 0 || !activeRef.value) return;
-    e?.stopPropagation();
-    const canvas = ctxRef.getCanvas().canvas;
-    const canvasRect = canvas.getBoundingClientRect();
+    if (Reflect.has(e, 'stopPropagation')) {
+      e.stopPropagation();
+    }
+    const canvasRect = (<HTMLElement>document.getElementById('mask-canvas')).getBoundingClientRect();
     const x = e.clientX - canvasRect.left;
     const y = e.clientY - canvasRect.top;
     handleMouseUp({ button: 0, offsetX: x, offsetY: y } as MouseEvent);
@@ -139,18 +133,45 @@
   function handleMouseMoveOuter(e: MouseEvent) {
     if (e.button !== 0 || !activeRef.value) return;
     // 跳过当前canvas上触发的
-    if ((<HTMLElement>e.target).id.includes('mask-canvas')){
+    if ((<HTMLElement>e.target).id.includes('mask-canvas')) {
       return;
     }
-    const canvas = ctxRef.getCanvas().canvas;
-    const canvasRect = canvas.getBoundingClientRect();
+    const canvasRect = (<HTMLElement>document.getElementById('mask-canvas')).getBoundingClientRect();
     const x = e.clientX - canvasRect.left;
     const y = e.clientY - canvasRect.top;
     syncHandleMouseMove({ button: 0, offsetX: x, offsetY: y } as MouseEvent);
   }
   // 挂载时初始化
   onMounted(() => {
-    setup();
+    // 挂载时初始化
+    const width = configRef.getProjectSizeConfigPxWidth;
+    const height = configRef.getProjectSizeConfigPxHeight;
+    document
+      .getElementById('mask-canvas')
+      ?.setAttribute(
+        'style',
+        `width: ${width}px; height: ${height}px;` + document.getElementById('mask-canvas')?.getAttribute('style'),
+      );
+
+    const maskCanvas1 = <HTMLCanvasElement>document.getElementById('mask-canvas-1');
+    maskCanvas1.setAttribute('style', `top: 0px; left: 0px;`);
+    maskCanvas1.width = width / 2;
+    maskCanvas1.height = height / 2;
+    const maskCanvas2 = <HTMLCanvasElement>document.getElementById('mask-canvas-2');
+    maskCanvas2?.setAttribute('style', `top: 0px; left: ${width / 2}px;`);
+    maskCanvas2.width = width / 2;
+    maskCanvas2.height = height / 2;
+    const maskCanvas3 = <HTMLCanvasElement>document.getElementById('mask-canvas-3');
+    maskCanvas3?.setAttribute('style', `top: ${height / 2}px; left: 0px;`);
+    maskCanvas3.width = width / 2;
+    maskCanvas3.height = height / 2;
+    const maskCanvas4 = <HTMLCanvasElement>document.getElementById('mask-canvas-4');
+    maskCanvas4?.setAttribute('style', `top: ${height / 2}px; left: ${width / 2}px;`);
+    maskCanvas4.width = width / 2;
+    maskCanvas4.height = height / 2;
+
+    ctxRef.setupCanvas(width, height, [maskCanvas1, maskCanvas2, maskCanvas3, maskCanvas4]);
+
     const fullDrawer = document.getElementsByClassName('map-editor')[0];
     fullDrawer.addEventListener('mouseup', handleMouseUpOuter);
     fullDrawer.addEventListener('mousemove', handleMouseMoveOuter);
@@ -172,5 +193,13 @@
     top: 0;
     left: 0;
     z-index: 100;
+  }
+  #mask-canvas-1,
+  #mask-canvas-2,
+  #mask-canvas-3,
+  #mask-canvas-4 {
+    position: absolute;
+    z-index: 100;
+    pointer-events: none;
   }
 </style>

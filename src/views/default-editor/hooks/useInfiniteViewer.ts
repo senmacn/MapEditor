@@ -11,6 +11,9 @@ function useInfiniteViewer(viewer: string, viewport: string): [Ref<[number, numb
   let $bg1: HTMLElement;
   let $bg2: HTMLElement;
 
+  // 记录鼠标样式
+  let defaultCursor = 'auto';
+
   const dragState = {
     isDrag: false,
   };
@@ -62,6 +65,7 @@ function useInfiniteViewer(viewer: string, viewport: string): [Ref<[number, numb
     if (msEvent.button === 1) {
       msEvent.preventDefault();
       dragState.isDrag = true;
+      defaultCursor = $viewer.style.cursor;
       $viewer.style.cursor = 'move';
     }
   };
@@ -75,12 +79,16 @@ function useInfiniteViewer(viewer: string, viewport: string): [Ref<[number, numb
     updateViewPort();
   }, 16);
   const handleMouseUp = (_msEvent: MouseEvent) => {
+    if (dragState.isDrag) {
+      $viewer.style.cursor = defaultCursor;
+    }
     dragState.isDrag = false;
-    $viewer.style.cursor = 'auto';
   };
   const handleMouseMoveLeave = (_msEvent: MouseEvent) => {
+    if (dragState.isDrag) {
+      $viewer.style.cursor = defaultCursor;
+    }
     dragState.isDrag = false;
-    $viewer.style.cursor = 'auto';
   };
 
   onMounted(() => {

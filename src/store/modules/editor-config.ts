@@ -4,6 +4,8 @@ import { defineStore } from 'pinia';
 
 export interface EditorConfig {
   [K: string]: Recordable<any> | string | number | boolean;
+  // 大尺寸优化
+  bigSize: boolean;
   style: Recordable<string>;
   color: string;
   lineWidth: number;
@@ -17,6 +19,7 @@ export interface EditorConfig {
 }
 
 const editorConfig: EditorConfig = {
+  bigSize: false,
   style: {},
   zoom: 1,
   color: 'red',
@@ -128,6 +131,13 @@ export const useEditorConfig = defineStore({
   },
   actions: {
     setAll(_editorConfig: EditorConfig) {
+      this.bigSize =
+        (this.projectSizeConfig.offsetHeight / this.projectSizeConfig.actorWidth) *
+          this.projectSizeConfig.actorPxWidth >
+          5000 ||
+        (this.projectSizeConfig.mapWidth / this.projectSizeConfig.actorWidth) *
+          this.projectSizeConfig.actorPxWidth >
+          5000;
       // this.style = _editorConfig.style;
       // this.zoom = _editorConfig.zoom;
       this.color = _editorConfig.color;
