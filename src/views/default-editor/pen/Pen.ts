@@ -230,11 +230,11 @@ class Pen {
   renderer() {
     if (this.ctx && this.canvas) {
       this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-      this.renderTo(this.ctx, this.canvas, this.paths);
+      this.renderTo(this.ctx, this.paths);
     }
   }
-  renderTo(ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement, paths: Path<EndPoint>[]) {
-    if (!ctx || !canvas) return;
+  renderTo(ctx: CanvasRenderingContext2D, paths: Path<EndPoint>[]) {
+    if (!ctx) return;
     let ep, prev_ep;
 
     paths.forEach(function (path) {
@@ -310,6 +310,11 @@ class Pen {
 
   getPath() {
     return this.paths;
+  }
+
+  getImageData() {
+    if (!this.ctx || !this.canvas) return;
+    return this.ctx?.getImageData(0, 0, this.canvas?.width, this.canvas?.height);
   }
 }
 

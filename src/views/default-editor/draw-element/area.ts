@@ -31,7 +31,7 @@ export default class Area extends DrawElement {
       willReadFrequently: true,
     }) as CanvasRenderingContext2D;
     cacheCtx.putImageData(this.data, 0, 0);
-    const dataUrl = cacheCanvas.toDataURL('image/webp', 0.1);
+    const dataUrl = cacheCanvas.toDataURL('image/webp', 0.5);
     this.img = dataUrl;
     return this.img;
   }

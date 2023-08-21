@@ -1,10 +1,10 @@
 <template>
-  <canvas
-    id="area-canvas"
-    @mousemove="syncHandleMouseMove"
-    @mouseup="handleMouseUp"
-    @mousedown="handleMouseDown"
-  ></canvas>
+  <div id="area-canvas" @mousemove="syncHandleMouseMove" @mouseup="handleMouseUp" @mousedown="handleMouseDown">
+    <canvas id="area-canvas-1"></canvas>
+    <canvas id="area-canvas-2"></canvas>
+    <canvas id="area-canvas-3"></canvas>
+    <canvas id="area-canvas-4"></canvas>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -12,7 +12,7 @@
   import controller, { CanvasOption } from './common/canvas-state-controller';
   import * as canvasUtil from './utils/canvas-util';
   import * as imageDataUtil from './utils/image-data-util';
-  import useCanvas from './hooks/useCanvas';
+  import useExpandCanvas from './hooks/useExpandCanvas';
   import {
     onEditWithAreaEvent,
     onCanvasRedoEvent,
@@ -35,7 +35,7 @@
   });
 
   // canvas相关
-  const ctxRef = useCanvas();  
+  const ctxRef = useExpandCanvas();
   const configRef = useEditorConfig();
   let movedPoints: PointA[] = [];
   let beginPoint: PointA = { x: 0, y: 0 };
@@ -44,7 +44,9 @@
   // 鼠标事件根据不同按钮按下后分别处理
   function handleMouseDown(e: MouseEvent) {
     if (e.button !== 0) return;
-    e?.stopPropagation();
+    if (Reflect.has(e, 'stopPropagation')) {
+      e.stopPropagation();
+    }
     switch (controller.getState()) {
       case CanvasOption.FollowMouse: {
         const lastedPoint = movedPoints.pop();
@@ -77,10 +79,13 @@
 
   function syncHandleMouseMove(e: MouseEvent) {
     if (e.button !== 0 || !activeRef.value) return;
+    if (Reflect.has(e, 'stopPropagation')) {
+      e.stopPropagation();
+    }
     const curPoint = canvasUtil.getPos(e);
     switch (controller.getState()) {
       case CanvasOption.FollowMouse: {
-        window.requestAnimationFrame(() => _drawSmoothLine(curPoint));
+        _drawSmoothLine(curPoint);
         break;
       }
       case CanvasOption.FollowMouseClear: {
@@ -92,7 +97,9 @@
 
   function handleMouseUp(e: MouseEvent) {
     if (e.button !== 0 || !activeRef.value) return;
-    e?.stopPropagation();
+    if (Reflect.has(e, 'stopPropagation')) {
+      e.stopPropagation();
+    }
     const curPoint = canvasUtil.getPos(e);
     switch (controller.getState()) {
       case CanvasOption.FollowMouse: {
@@ -160,28 +167,15 @@
       currentArea.cancelSelect();
       currentArea.hide();
       const data = currentArea.getData();
-      createImageBitmap(data).then((data) => {
-        ctxRef.drawImage(
-          data,
-          currentArea.getBoundRect()[0] - props.offset.x,
-          currentArea.getBoundRect()[1] - props.offset.y,
-        );
+      ctxRef.drawImageData(data, ...currentArea.getBoundRect()).then(() => {
         ctxRef.putSave();
       });
     }
   });
   onEditWithAreaEvent(function () {
-    const results = controller.getCurrentAreas().map((area) => {
-      area.cancelSelect();
-      area.hide();
-      return createImageBitmap(area.getData()).then((imageBitmap) => {
-        ctxRef.drawImage(
-          imageBitmap,
-          area.getBoundRect()[0] - props.offset.x,
-          area.getBoundRect()[1] - props.offset.y,
-        );
-      });
-    });
+    const results = controller
+      .getCurrentAreas()
+      .map((area) => ctxRef.drawImageData(area.getData(), ...area.getBoundRect()));
     Promise.all(results).then(() => {
       ctxRef.putSave();
     });
@@ -229,31 +223,20 @@
       if (oldState === CanvasOption.Pen && newState !== CanvasOption.Pen) {
         const paths = Pen.getPath();
         if (paths.length === 0) return;
-        let editCanvas: HTMLCanvasElement = document.getElementById(
-          'area-canvas',
-        ) as HTMLCanvasElement;
-        Pen.renderTo(ctxRef, editCanvas, paths);
+        const imagedata = Pen.getImageData();
+        if (!imagedata) return;
+        ctxRef.drawImageData(
+          imagedata,
+          0,
+          0,
+          configRef.getProjectSizeConfigPxWidth,
+          configRef.getProjectSizeConfigPxHeight,
+        );
         ctxRef.putSave();
       }
     },
   );
 
-  // 初始化
-  let setUpState = false;
-  function setup() {
-    if (setUpState) return;
-    let editCanvas: HTMLCanvasElement = document.getElementById('area-canvas') as HTMLCanvasElement;
-    if (editCanvas == null) return;
-    editCanvas.width = configRef.getProjectSizeConfigPxWidth;
-    editCanvas.height = configRef.getProjectSizeConfigPxHeight;
-    let ctx = editCanvas.getContext('2d', {
-      willReadFrequently: true,
-    }) as CanvasRenderingContext2D;
-    ctxRef.setupCanvas(ctx);
-    // drawCanvas();
-
-    setUpState = true;
-  }
   function onKeyBoardDown(e: KeyboardEvent) {
     if (e.key === 'Escape') {
       controller.setState(CanvasOption.None);
@@ -273,51 +256,78 @@
   }
   function handleMouseUpOuter(e: MouseEvent) {
     if (e.button !== 0 || !activeRef.value) return;
-    const canvas = ctxRef.getCanvas().canvas;
-    const canvasRect = canvas.getBoundingClientRect();
+    const canvasRect = (<HTMLElement>document.getElementById('area-canvas')).getBoundingClientRect();
     const x = Math.max(
       0,
-      Math.min(e.clientX - canvasRect.left, canvas.width * configRef.zoom) / configRef.zoom,
+      Math.min(e.clientX - canvasRect.left, configRef.getProjectSizeConfigPxWidth * configRef.getZoom) / configRef.zoom,
     );
     const y = Math.max(
       0,
-      Math.min(e.clientY - canvasRect.top, canvas.height * configRef.zoom) / configRef.zoom,
+      Math.min(e.clientY - canvasRect.top, configRef.getProjectSizeConfigPxHeight * configRef.getZoom) / configRef.zoom,
     );
     handleMouseUp({ button: 0, offsetX: x, offsetY: y } as MouseEvent);
   }
 
   function handleMouseMoveOuter(e: MouseEvent) {
     if (e.button !== 0 || !activeRef.value) return;
-    e?.stopPropagation();
-    const canvas = ctxRef.getCanvas().canvas;
-    const canvasRect = canvas.getBoundingClientRect();
+    if (Reflect.has(e, 'stopPropagation')) {
+      e.stopPropagation();
+    }
+    const canvasRect = (<HTMLElement>document.getElementById('area-canvas')).getBoundingClientRect();
     const x = Math.max(
       0,
-      Math.min(e.clientX - canvasRect.left, canvas.width * configRef.zoom) / configRef.zoom,
+      Math.min(e.clientX - canvasRect.left, configRef.getProjectSizeConfigPxWidth * configRef.zoom) / configRef.zoom,
     );
     const y = Math.max(
       0,
-      Math.min(e.clientY - canvasRect.top, canvas.height * configRef.zoom) / configRef.zoom,
+      Math.min(e.clientY - canvasRect.top, configRef.getProjectSizeConfigPxHeight * configRef.zoom) / configRef.zoom,
     );
     syncHandleMouseMove({ button: 0, offsetX: x, offsetY: y } as MouseEvent);
   }
   function handleMouseDownOuter(e: MouseEvent) {
     if (e.button !== 0) return;
-    const canvas = ctxRef.getCanvas().canvas;
-    const canvasRect = canvas.getBoundingClientRect();
+    const canvasRect = (<HTMLElement>document.getElementById('area-canvas')).getBoundingClientRect();
     const x = Math.max(
       0,
-      Math.min(e.clientX - canvasRect.left, canvas.width * configRef.zoom) / configRef.zoom,
+      Math.min(e.clientX - canvasRect.left, configRef.getProjectSizeConfigPxWidth * configRef.zoom) / configRef.zoom,
     );
     const y = Math.max(
       0,
-      Math.min(e.clientY - canvasRect.top, canvas.height * configRef.zoom) / configRef.zoom,
+      Math.min(e.clientY - canvasRect.top, configRef.getProjectSizeConfigPxHeight * configRef.zoom) / configRef.zoom,
     );
     handleMouseDown({ button: 0, offsetX: x, offsetY: y } as MouseEvent);
   }
+
   // 挂载时初始化
   onMounted(() => {
-    setup();
+    // 挂载时初始化
+    const width = configRef.getProjectSizeConfigPxWidth;
+    const height = configRef.getProjectSizeConfigPxHeight;
+    document
+      .getElementById('area-canvas')
+      ?.setAttribute(
+        'style',
+        `width: ${width}px; height: ${height}px;` + document.getElementById('area-canvas')?.getAttribute('style'),
+      );
+
+    const areaCanvas1 = <HTMLCanvasElement>document.getElementById('area-canvas-1');
+    areaCanvas1.setAttribute('style', `top: 0px; left: 0px;`);
+    areaCanvas1.width = width / 2;
+    areaCanvas1.height = height / 2;
+    const areaCanvas2 = <HTMLCanvasElement>document.getElementById('area-canvas-2');
+    areaCanvas2?.setAttribute('style', `top: 0px; left: ${width / 2}px;`);
+    areaCanvas2.width = width / 2;
+    areaCanvas2.height = height / 2;
+    const areaCanvas3 = <HTMLCanvasElement>document.getElementById('area-canvas-3');
+    areaCanvas3?.setAttribute('style', `top: ${height / 2}px; left: 0px;`);
+    areaCanvas3.width = width / 2;
+    areaCanvas3.height = height / 2;
+    const areaCanvas4 = <HTMLCanvasElement>document.getElementById('area-canvas-4');
+    areaCanvas4?.setAttribute('style', `top: ${height / 2}px; left: ${width / 2}px;`);
+    areaCanvas4.width = width / 2;
+    areaCanvas4.height = height / 2;
+
+    ctxRef.setupCanvas(width, height, [areaCanvas1, areaCanvas2, areaCanvas3, areaCanvas4]);
     document.body.addEventListener('keydown', onKeyBoardDown);
     const fullDrawer = document.getElementsByClassName('map-editor')[0];
     fullDrawer.addEventListener('mousedown', handleMouseDownOuter);
@@ -356,10 +366,18 @@
 </script>
 
 <style scoped lang="less">
-  canvas {
+  #area-canvas {
     position: absolute;
     top: 0;
     left: 0;
     z-index: 2;
+  }
+  #area-canvas-1,
+  #area-canvas-2,
+  #area-canvas-3,
+  #area-canvas-4 {
+    position: absolute;
+    z-index: 100;
+    pointer-events: none;
   }
 </style>
