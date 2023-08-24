@@ -1,8 +1,5 @@
 <template>
-  <div
-    class="map-editor"
-    :style="{ height: isLocal() ? 'calc(100vh - 100px)' : 'calc(100vh - 70px)' }"
-  >
+  <div class="map-editor" :style="{ height: isLocal() ? 'calc(100vh - 100px)' : 'calc(100vh - 70px)' }">
     <default-options @end-edit-area="handleEndDrawingArea" />
     <div class="content-box">
       <div ref="hRuler" class="ruler h-ruler"></div>
@@ -11,10 +8,7 @@
     </div>
     <status-bar></status-bar>
   </div>
-  <choose-area-point-modal
-    ref="confirmModelRef"
-    @confirm-end="handleConfirmEnd"
-  ></choose-area-point-modal>
+  <choose-area-point-modal ref="confirmModelRef" @confirm-end="handleConfirmEnd"></choose-area-point-modal>
 </template>
 
 <script setup lang="ts">
@@ -30,6 +24,7 @@
   import { useCanvasState } from '@/store/modules/canvas-state';
   import { useEditorConfig } from '@/store/modules/editor-config';
   import { isLocal } from '@/utils/env';
+  import { emitDeleteAreaEvent } from './common/event';
 
   const configRef = useEditorConfig();
 
@@ -59,9 +54,7 @@
     width: 30,
     unit: unit,
     textFormat: (scale) =>
-      Math.round(
-        configRef.getProjectSizeConfig.offsetY + scale * configRef.getProjectSizeConfigScale,
-      ).toString(),
+      Math.round(configRef.getProjectSizeConfig.offsetY + scale * configRef.getProjectSizeConfigScale).toString(),
   });
 
   const hRuler = ref();
@@ -70,9 +63,7 @@
     height: 30,
     unit: unit,
     textFormat: (scale) =>
-      Math.round(
-        configRef.projectSizeConfig.offsetX + scale * configRef.getProjectSizeConfigScale,
-      ).toString(),
+      Math.round(configRef.projectSizeConfig.offsetX + scale * configRef.getProjectSizeConfigScale).toString(),
   });
   // 视窗滚动时修改标尺offset
   watch(
@@ -87,8 +78,7 @@
     () => configRef.zoom,
     () => {
       if (configRef) {
-        const unit =
-          configRef.getProjectSizeConfigScale > 50 ? configRef.getProjectSizeConfigScale : 50;
+        const unit = configRef.getProjectSizeConfigScale > 50 ? configRef.getProjectSizeConfigScale : 50;
         // 根据放缩大小和地图左上角（假如有的话）计算
         vRulerInstance.rebuild({
           type: 'vertical',
@@ -96,8 +86,7 @@
           unit: unit,
           textFormat: (scale) =>
             Math.round(
-              configRef.getProjectSizeConfig.offsetY +
-                (scale * configRef.getProjectSizeConfigScale) / configRef.zoom,
+              configRef.getProjectSizeConfig.offsetY + (scale * configRef.getProjectSizeConfigScale) / configRef.zoom,
             ).toString(),
         });
         hRulerInstance.rebuild({
@@ -106,8 +95,7 @@
           unit: unit,
           textFormat: (scale) =>
             Math.round(
-              configRef.projectSizeConfig.offsetX +
-                (scale * configRef.getProjectSizeConfigScale) / configRef.zoom,
+              configRef.projectSizeConfig.offsetX + (scale * configRef.getProjectSizeConfigScale) / configRef.zoom,
             ).toString(),
         });
       }
@@ -139,7 +127,7 @@
       const oldRect = area.getBoundRect();
       confirmData.rect[0] = confirmData.rect[0] + oldRect[0];
       confirmData.rect[1] = confirmData.rect[1] + oldRect[1];
-      area.setBoundRect(confirmData.rect);
+      area.setBoundRect(confirmData.rect.slice());
       for (let index = canvasState.getLayers.length - 1; index >= 0; index--) {
         const element = canvasState.getLayers[index];
         if (element.hot) {
@@ -152,8 +140,13 @@
         }
       }
     }
+    if (controller.isEditingArea() && complete) {
+      emitDeleteAreaEvent();
+    }
     controller.getCurrentAreas().forEach((area) => area.show());
     controller.endDrawingArea();
+    // 最后更新一下选中
+    controller.setCurrentAreas([]);
   }
   function handleConfirmEnd(point: [number, number], data: ImageData, rect: any, cancel: boolean) {
     if (cancel) {

@@ -73,9 +73,13 @@
     if (!controller.getCurrentAreas().length) {
       return;
     }
+    const areas = controller
+      .getCurrentAreas()
+      .map((area) => area.getName())
+      .join(',');
     Modal.confirm({
       title: '提醒',
-      content: '删除当前选中的区域？',
+      content: `删除当前选中的区域？[${areas}]`,
       okText: '确定',
       cancelText: '取消',
       onOk: () => {
@@ -116,9 +120,7 @@
       okText: '确定',
       cancelText: '取消',
       onOk() {
-        const posIndex = pinToDelete?.layer?.pins.findIndex((value) =>
-          value.isSame(pinToDelete),
-        ) as number;
+        const posIndex = pinToDelete?.layer?.pins.findIndex((value) => value.isSame(pinToDelete)) as number;
         if (posIndex > -1) {
           pinToDelete?.layer?.pins.splice(posIndex, 1);
           canvasState.getPinMap.delete(pinToDelete?.getUuid());

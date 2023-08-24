@@ -1,9 +1,9 @@
 import { getShortUuid } from '@/utils/uuid';
-import controller from '../common/canvas-state-controller';
 import { nextTick } from 'vue';
 import DrawElement from './draw-element';
 import { useTooltip } from '@/components/Tooltip/useTooltip';
 import { PinAssociation } from './type';
+import controller from '../common/canvas-state-controller';
 
 export enum PinIcon {
   star = 'star',
@@ -91,7 +91,9 @@ export default class Pin extends DrawElement {
 
     // TODO: onclick 右键
 
-    instance.ondblclick = this.select.bind(this);
+    instance.ondblclick = () => {
+      controller.setCurrentPin(this);
+    };
     instance.oncontextmenu = this.select.bind(this);
 
     if (this.draw === 'update') {
@@ -111,13 +113,15 @@ export default class Pin extends DrawElement {
     useTooltip({ target: instance, props: { title: this.name } });
   }
   select() {
-    if (controller.getCurrentPin() === this) return;
+    if (this.selected) {
+      return;
+    }
     this.moveable?.updateRect();
     nextTick(() => {
-      controller.setCurrentPin(this as unknown as Pin);
       this.moveable?.setState({ draggable: true });
       // @ts-ignore
       document.getElementsByClassName(this.uuid).item(0).style.visibility = 'visible';
     });
+    this.selected = true;
   }
 }

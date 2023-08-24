@@ -164,6 +164,7 @@
   onEditAreaEvent(function () {
     const currentArea = controller.getCurrentAreas()[controller.getCurrentAreas().length - 1];
     if (currentArea) {
+      // 新增、编辑时得取消选中
       currentArea.cancelSelect();
       currentArea.hide();
       const data = currentArea.getData();
@@ -173,9 +174,11 @@
     }
   });
   onEditWithAreaEvent(function () {
-    const results = controller
-      .getCurrentAreas()
-      .map((area) => ctxRef.drawImageData(area.getData(), ...area.getBoundRect()));
+    const results = controller.getCurrentAreas().map((area) => {
+      area.hide();
+      area.cancelSelect();
+      ctxRef.drawImageData(area.getData(), ...area.getBoundRect());
+    });
     Promise.all(results).then(() => {
       ctxRef.putSave();
     });

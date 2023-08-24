@@ -4,21 +4,13 @@
       <span class="group-label">区域名称 </span>
     </a-col>
     <a-col :span="18">
-      <a-input
-        type="text"
-        placeholder="请填写英文字母、数字和下划线"
-        v-model:value="areaNameRef"
-      ></a-input>
+      <a-input type="text" placeholder="请填写英文字母、数字和下划线" v-model:value="areaNameRef"></a-input>
     </a-col>
     <a-col class="row-label" :span="6">
       <span class="group-label">区域 ID </span>
     </a-col>
     <a-col :span="18">
-      <a-input
-        type="text"
-        placeholder="请填写英文字母、数字和下划线"
-        v-model:value="areaIDRef"
-      ></a-input>
+      <a-input type="text" placeholder="请填写英文字母、数字和下划线" v-model:value="areaIDRef"></a-input>
     </a-col>
     <a-col class="row-label" :span="6">
       <span class="group-label">区域类型 </span>
@@ -44,20 +36,12 @@
       </a-button>
     </a-col>
     <a-col :span="4">
-      <a-button
-        class="success-item"
-        :disabled="!controller.isDrawingArea()"
-        @click="handleEndDrawingArea(true)"
-      >
+      <a-button class="success-item" :disabled="!controller.isDrawingArea()" @click="handleEndDrawingArea(true)">
         <template #icon><check-outlined /> </template>完成
       </a-button>
     </a-col>
     <a-col :span="4">
-      <a-button
-        class="default-item"
-        :disabled="!controller.isDrawingArea()"
-        @click="handleEndDrawingArea(false)"
-      >
+      <a-button class="default-item" :disabled="!controller.isDrawingArea()" @click="handleEndDrawingArea(false)">
         <template #icon><close-outlined /> </template>取消
       </a-button>
     </a-col>
@@ -76,13 +60,7 @@
   import { emitEditAreaEvent, emitDeleteAreaEvent } from '../common/event';
   import { checkFileName } from '@/utils/file';
   import Modal from 'ant-design-vue/lib/modal';
-  import {
-    PlusOutlined,
-    EditOutlined,
-    CheckOutlined,
-    CloseOutlined,
-    DeleteOutlined,
-  } from '@ant-design/icons-vue';
+  import { PlusOutlined, EditOutlined, CheckOutlined, CloseOutlined, DeleteOutlined } from '@ant-design/icons-vue';
   import { useCanvasState } from '@/store/modules/canvas-state';
 
   const emit = defineEmits<{
@@ -131,24 +109,7 @@
     // 编辑、新增逻辑不同
     controller.setState(CanvasOption.None);
     setTimeout(() => {
-      if (!controller.isEditingArea()) {
-        emit(
-          'end-edit-area',
-          areaNameRef.value + '-' + areaIDRef.value,
-          areaTypeRef.value[0],
-          complete,
-        );
-      } else {
-        complete && emitDeleteAreaEvent();
-        setTimeout(() => {
-          emit(
-            'end-edit-area',
-            areaNameRef.value + '-' + areaIDRef.value,
-            areaTypeRef.value[0],
-            complete,
-          );
-        }, 50);
-      }
+      emit('end-edit-area', areaNameRef.value + '-' + areaIDRef.value, areaTypeRef.value[0], complete);
     }, 100);
   }
 
@@ -163,9 +124,13 @@
   }
 
   function handleDeleteArea() {
+    const areas = controller
+      .getCurrentAreas()
+      .map((area) => area.getName())
+      .join(',');
     Modal.confirm({
       title: '提醒',
-      content: '删除当前选中的区域？',
+      content: `删除当前选中的区域？[${areas}]`,
       okText: '确定',
       cancelText: '取消',
       onOk: () => {
@@ -175,15 +140,10 @@
   }
 
   const addBtnDisabled = computed(
-    () =>
-      !controller.getCurrentLayer() ||
-      controller.getCurrentLayer()?.lock ||
-      controller.isDrawingArea(),
+    () => !controller.getCurrentLayer() || controller.getCurrentLayer()?.lock || controller.isDrawingArea(),
   );
 
-  const editBtnDisabled = computed(
-    () => !controller.getCurrentAreas()[0] || controller.isDrawingArea(),
-  );
+  const editBtnDisabled = computed(() => !controller.getCurrentAreas()[0] || controller.isDrawingArea());
 </script>
 
 <style lang="less">

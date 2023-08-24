@@ -15,9 +15,9 @@ export interface DrawElementInterface {
 type DrawType = 'done' | 'update' | 'none';
 
 export default class DrawElement implements DrawElementInterface {
-  protected uuid;
-  protected name;
-  protected description;
+  protected uuid: string = '';
+  protected name: string = '';
+  protected description: string = '';
   // @json-delete
   public layer: Layer | undefined;
   protected boundRect: Box = [0, 0, 0, 0];
@@ -33,6 +33,7 @@ export default class DrawElement implements DrawElementInterface {
   public scale = 1;
   public type: string = '';
   public visible = true;
+  protected selected = false;
 
   getUuid() {
     return this.uuid;
@@ -64,6 +65,9 @@ export default class DrawElement implements DrawElementInterface {
   getImage() {}
   select() {}
   cancelSelect() {
+    if (!this.selected) {
+      return;
+    }
     if (this.moveable?.draggable) {
       this.moveable?.setState({ draggable: false, resizable: false });
       // 插件修改draggable的时候会显示外框，造成被选中的效果，需要移除
@@ -72,6 +76,7 @@ export default class DrawElement implements DrawElementInterface {
         document.getElementsByClassName(this.uuid).item(0).style.visibility = 'hidden';
       }, 5);
     }
+    this.selected = false;
   }
   render(_: HTMLElement) {}
   show() {
@@ -143,6 +148,7 @@ export default class DrawElement implements DrawElementInterface {
       });
     // 刚渲染完未被点击时不允许拖拽
     setTimeout(() => {
+      this.selected = true;
       this.cancelSelect();
     }, 5);
   }

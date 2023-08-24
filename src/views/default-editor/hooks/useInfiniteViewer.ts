@@ -22,13 +22,7 @@ function useInfiniteViewer(viewer: string, viewport: string): [Ref<[number, numb
   const configRef = useEditorConfig();
   const updateViewPort = () => {
     $viewport!.style.transform =
-      'translate(' +
-      viewportOffset.value[0] +
-      'px, ' +
-      viewportOffset.value[1] +
-      'px) scale(' +
-      configRef.zoom +
-      ')';
+      'translate(' + viewportOffset.value[0] + 'px, ' + viewportOffset.value[1] + 'px) scale(' + configRef.zoom + ')';
     $bg1.style.backgroundPosition = `${viewportOffset.value[0]}px ${viewportOffset.value[1]}px`;
     $bg2.style.backgroundPosition = `${viewportOffset.value[0]}px ${viewportOffset.value[1]}px`;
   };
@@ -125,10 +119,11 @@ function useInfiniteViewer(viewer: string, viewport: string): [Ref<[number, numb
   // 快速定位事件
   onFocusAreaEvent((_, ele: DrawElement) => {
     const boundRect = ele.getBoundRect();
-    let left = -(boundRect[0] + boundRect[2] / 2) * configRef.zoom - $viewport.clientWidth / 2;
-    left = left > 0 ? Math.floor(left) : 0;
-    let top = -(boundRect[1] + boundRect[3] / 2) * configRef.zoom - $viewport.clientHeight / 2;
-    top = top > 0 ? Math.floor(top) : 0;
+
+    let left = -boundRect[0] * configRef.zoom;
+    left = left <= 0 ? Math.floor(left) : 0;
+    let top = -boundRect[1] * configRef.zoom;
+    top = top <= 0 ? Math.floor(top) : 0;
 
     viewportOffset.value[0] = left;
     viewportOffset.value[1] = top;

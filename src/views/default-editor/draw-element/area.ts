@@ -1,8 +1,8 @@
 import { getShortUuid } from '@/utils/uuid';
-import controller from '../common/canvas-state-controller';
 import { getPosition, scaleImageData } from '../utils/image-data-util';
 import DrawElement from './draw-element';
 import { useEditorConfig } from '@/store/modules/editor-config';
+import controller from '../common/canvas-state-controller';
 
 export default class Area extends DrawElement {
   // 手动选择的内部点，用于填充内容
@@ -64,10 +64,7 @@ export default class Area extends DrawElement {
       const boundRect = this.boundRect.slice();
       boundRect[2] = this.boundRect[2] * this.scale;
       boundRect[3] = this.boundRect[3] * this.scale;
-      return [
-        Math.round(this.choosePoint[0] * this.scale),
-        Math.round(this.choosePoint[1] * this.scale),
-      ];
+      return [Math.round(this.choosePoint[0] * this.scale), Math.round(this.choosePoint[1] * this.scale)];
     } else {
       return this.choosePoint;
     }
@@ -114,8 +111,7 @@ export default class Area extends DrawElement {
     const width = 'width: ' + this.boundRect[2] + 'px;';
     const height = 'height: ' + this.boundRect[3] + 'px;';
     const color = 'color: ' + useEditorConfig().color + ';';
-    const backgroundImage =
-      'background-image: ' + 'url(' + this.getImage() + ');background-size: contain';
+    const backgroundImage = 'background-image: ' + 'url(' + this.getImage() + ');background-size: contain';
     instance.setAttribute('style', top + left + height + width + color + backgroundImage);
     const nameElement = document.createTextNode(this.name);
     instance.appendChild(nameElement);
@@ -125,8 +121,10 @@ export default class Area extends DrawElement {
 
     // TODO: onclick 右键
 
-    instance.ondblclick = this.select.bind(this);
-    instance.oncontextmenu = this.select.bind(this);
+    instance.ondblclick = () => {
+      controller.setCurrentAreas([this]);
+    };
+    instance.oncontextmenu = this.select.bind(this, false);
     if (this.draw === 'update' || this.draw === 'done') {
       // 防止切换时target变了
       this.target?.removeChild(this.instance as HTMLElement);
@@ -144,17 +142,17 @@ export default class Area extends DrawElement {
 
     // useTooltip({ target: instance, props: { title: this.name } });
   }
-  select() {
-    this.moveable?.updateRect();
-    controller.getCurrentAreas().forEach((area) => {
-      if (area.uuid !== this.uuid) {
-        area.cancelSelect();
-      }
-    });
-    controller.setCurrentAreas([this]);
-    // @ts-ignore
-    document.getElementsByClassName(this.uuid).item(0).style.visibility = 'visible';
-    this.instance?.click();
-    this.moveable?.setState({ draggable: true, resizable: true });
+  select(silence?: boolean) {
+    if (this.selected) {
+      return;
+    }    
+    if (!silence) {
+      // @ts-ignore
+      document.getElementsByClassName(this.uuid).item(0).style.visibility = 'visible';
+      this.moveable?.setState({ draggable: true, resizable: true });
+      this.selected = true;
+      this.instance?.click();
+      this.moveable?.updateRect();
+    }
   }
 }
