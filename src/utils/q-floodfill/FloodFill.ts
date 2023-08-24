@@ -1,11 +1,5 @@
 import { isPointInData } from '@/views/default-editor/utils/image-data-util';
-import {
-  isSameColor,
-  setColorAtPixel,
-  getColorAtPixel,
-  colorToRGBA,
-  ColorRGBA,
-} from './colorUtils';
+import { isSameColor, setColorAtPixel, getColorAtPixel, colorToRGBA, ColorRGBA } from './colorUtils';
 
 type PixelCoords = {
   x: number;
@@ -81,8 +75,8 @@ export default class FloodFill {
 
   /**
    * 混合原有的imageData和新imageData，更新边界
-   * @param initialData 
-   * @returns 
+   * @param initialData
+   * @returns
    */
   public getImageDataFrom(initialData: ImageData) {
     const data = initialData.data;
@@ -124,7 +118,7 @@ export default class FloodFill {
     tempCanvas.height = this.imageData.height;
     tempContext.putImageData(initialData, 0, 0);
     return [
-      tempContext.getImageData(minX, minY, maxX + 1, maxY + 1),
+      tempContext.getImageData(minX, minY, maxX - minX + 1, maxY - minY + 1),
       [minX, minY, maxX - minX + 1, maxY - minY + 1],
     ];
   }
@@ -245,9 +239,7 @@ export default class FloodFill {
       const [start, end, y, parentY] = line;
       let currX = start;
       while (currX !== -1 && currX <= end) {
-        const [lineStart, lineEnd] = this.executeBounds
-          ? this.fillLineAtAll(currX, y)
-          : this.fillLineAt(currX, y);
+        const [lineStart, lineEnd] = this.executeBounds ? this.fillLineAtAll(currX, y) : this.fillLineAt(currX, y);
         if (lineStart !== -1) {
           if (lineStart >= start && lineEnd <= end && parentY !== -1) {
             if (parentY < y && y + 1 < this.imageData.height) {
@@ -281,11 +273,7 @@ export default class FloodFill {
     this.collectModifiedPixels && this.modifiedPixels.add(`${pixel.x}|${pixel.y}`);
   }
 
-  private getPixelNeighbor(
-    direction: 'left' | 'right' | 'top' | 'bottom',
-    x: number,
-    y: number,
-  ): PixelCoords | null {
+  private getPixelNeighbor(direction: 'left' | 'right' | 'top' | 'bottom', x: number, y: number): PixelCoords | null {
     x = x | 0;
     y = y | 0;
     let coords: PixelCoords;
@@ -303,12 +291,7 @@ export default class FloodFill {
         coords = { x: x | 0, y: y - 1 };
         break;
     }
-    if (
-      coords.x >= 0 &&
-      coords.x < this.imageData.width &&
-      coords.y >= 0 &&
-      coords.y < this.imageData.height
-    ) {
+    if (coords.x >= 0 && coords.x < this.imageData.width && coords.y >= 0 && coords.y < this.imageData.height) {
       return coords;
     }
     return null;

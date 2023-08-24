@@ -94,7 +94,17 @@ class CanvasStateController {
   getCurrentAreas() {
     return this.currentAreas.value;
   }
-  setCurrentAreas(areas: Area[]) {
+  setCurrentAreas(areas: Area[], silence: boolean = false) {
+    const newUuids = areas.map((area) => area.getUuid());
+    this.currentAreas.value.forEach((area) => {
+      if (!newUuids.includes(area.getUuid())) {
+        area.cancelSelect();
+      }
+    });
+    for (let index = 0; index < areas.length; index++) {
+      const area = areas[index];
+      area.select(silence);
+    }
     this.currentAreas.value = areas;
   }
   addCurrentArea(area: Area) {
@@ -117,10 +127,7 @@ class CanvasStateController {
     this.setState(CanvasOption.None);
   }
   isDrawingArea() {
-    return (
-      this.areaState.value === CanvasAreaOption.AreaEdit ||
-      this.areaState.value === CanvasAreaOption.AreaAdd
-    );
+    return this.areaState.value === CanvasAreaOption.AreaEdit || this.areaState.value === CanvasAreaOption.AreaAdd;
   }
   isEditingArea() {
     return this.areaState.value === CanvasAreaOption.AreaEdit;
@@ -132,6 +139,9 @@ class CanvasStateController {
     return this.currentPin.value;
   }
   setCurrentPin(pin: Pin | null) {
+    if (this.currentPin.value && (!pin || pin.getUuid() !== this.currentPin.value.getUuid())) {
+      this.currentPin.value.cancelSelect();
+    }
     this.currentPin.value = pin;
   }
   pushAction(action: AreaAction) {

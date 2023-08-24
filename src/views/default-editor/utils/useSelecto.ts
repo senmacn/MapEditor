@@ -12,6 +12,7 @@ export default function useSelecto(target: Ref<HTMLElement> | HTMLElement = docu
   let selecto: Selecto;
   let moveable: Moveable;
   const canvasState = useCanvasState();
+  let currentAreas: string = '';
   onMounted(() => {
     selecto = new Selecto({
       // The container to add a selection element
@@ -47,10 +48,7 @@ export default function useSelecto(target: Ref<HTMLElement> | HTMLElement = docu
         selecto.clickTarget(e.inputEvent, e.inputTarget);
       })
       .on('dragStart', (e) => {
-        history.set(e.target.id, [
-          getNumberFromCss(e.target.style.left),
-          getNumberFromCss(e.target.style.top),
-        ]);
+        history.set(e.target.id, [getNumberFromCss(e.target.style.left), getNumberFromCss(e.target.style.top)]);
       })
       // 单个框选拖动
       .on('drag', (e) => {
@@ -80,10 +78,7 @@ export default function useSelecto(target: Ref<HTMLElement> | HTMLElement = docu
       })
       .on('dragGroupStart', (e) => {
         e.events.forEach((ev) => {
-          history.set(ev.target.id, [
-            getNumberFromCss(ev.target.style.left),
-            getNumberFromCss(ev.target.style.top),
-          ]);
+          history.set(ev.target.id, [getNumberFromCss(ev.target.style.left), getNumberFromCss(ev.target.style.top)]);
         });
       })
       // 多个框选拖动
@@ -121,10 +116,7 @@ export default function useSelecto(target: Ref<HTMLElement> | HTMLElement = docu
     selecto
       .on('dragStart', (e) => {
         const target = e.inputEvent.target;
-        if (
-          moveable.isMoveableElement(target) ||
-          targets.some((t) => t === target || t.contains(target))
-        ) {
+        if (moveable.isMoveableElement(target) || targets.some((t) => t === target || t.contains(target))) {
           e.stop();
         }
       })
@@ -137,17 +129,22 @@ export default function useSelecto(target: Ref<HTMLElement> | HTMLElement = docu
         });
         // 计算选中和未选中
         const addIds = e.afterAdded.map((el) => el.id);
-        const removeIds = e.afterRemoved.map((el) => el.id);
+        const areas: any[] = [];
         for (const layer of useCanvasState().getLayers) {
           for (const area of layer.areas) {
             if (addIds.includes(area.getUuid())) {
-              controller.addCurrentArea(area);
+              areas.push(area);
               continue;
             }
-            if (removeIds.includes(area.getUuid())) {
-              controller.removeCurrentArea(area);
-            }
           }
+        }
+        currentAreas = areas.map((area) => area.getUuid()).join('');
+        if (areas.length === 1) {
+          // 选中一个不在这处理
+          controller.setCurrentAreas(areas);
+          return;
+        } else {
+          controller.setCurrentAreas(areas, true);
         }
 
         // 更新moveable组
@@ -189,12 +186,29 @@ export default function useSelecto(target: Ref<HTMLElement> | HTMLElement = docu
     },
   );
 
+  watch(
+    () => controller.getCurrentAreas(),
+    () => {
+      if (
+        controller
+          .getCurrentAreas()
+          .map((area) => area.getUuid())
+          .join('') !== currentAreas
+      ) {
+        selecto && selecto.setSelectedTargets([]);
+        if (moveable) {
+          moveable.target = null;
+        }
+      }
+    },
+  );
+
   function updateRect() {
     if (selecto && moveable) {
       moveable.updateRect();
     }
   }
   return {
-    updateRect 
-  }
+    updateRect,
+  };
 }
