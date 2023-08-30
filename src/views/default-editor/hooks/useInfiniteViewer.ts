@@ -4,6 +4,8 @@ import { onMounted, onBeforeUnmount, ref, watch } from 'vue';
 import { useEditorConfig } from '@/store/modules/editor-config';
 import throttle from 'lodash-es/throttle';
 import { onFocusAreaEvent } from '../common/event';
+import { Area } from '../draw-element';
+import controller from '../common/canvas-state-controller';
 
 function useInfiniteViewer(viewer: string, viewport: string): [Ref<[number, number]>] {
   let $viewer: HTMLElement;
@@ -130,7 +132,11 @@ function useInfiniteViewer(viewer: string, viewport: string): [Ref<[number, numb
 
     updateViewPort();
     setTimeout(() => {
-      ele.select();
+      if (ele instanceof Area) {
+        controller.setCurrentAreas([ele]);
+      } else {
+        controller.setCurrentPin(ele as any);
+      }
     }, 100);
   });
 
