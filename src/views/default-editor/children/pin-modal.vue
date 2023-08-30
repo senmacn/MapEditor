@@ -4,18 +4,18 @@
     :width="360"
     :visible="visibleRef"
     :closable="false"
-    :onCancel="handleCancel"
+    :on-cancel="handleCancel"
     :title="null"
     :footer="null"
   >
     <div class="pin-wrapper">
-      <div class="title">地图钉配置</div>
+      <div class="title"> 地图钉配置 </div>
       <a-form
         ref="pinFormRef"
         :model="formModel"
-        :labelCol="{ span: 4 }"
-        :wrapperCol="{ span: 20 }"
-        labelAlign="right"
+        :label-col="{ span: 4 }"
+        :wrapper-col="{ span: 20 }"
+        label-align="right"
       >
         <a-form-item
           name="name"
@@ -23,10 +23,10 @@
           :validate-trigger="['change', 'input']"
           :rules="[{ required: true, message: '请填写名称！' }]"
         >
-          <a-input size="small" v-model:value="formModel.name" :readonly="!canEditRef" />
+          <a-input v-model:value="formModel.name" size="small" :readonly="!canEditRef" />
         </a-form-item>
         <a-form-item name="author" label="作者">
-          <a-input size="small" v-model:value="formModel.author" :readonly="!canEditRef" />
+          <a-input v-model:value="formModel.author" size="small" :readonly="!canEditRef" />
         </a-form-item>
         <a-form-item name="type" label="类型">
           <a-select
@@ -36,19 +36,19 @@
             :options="areaTypeOptionsRef"
             :disabled="!canEditRef"
             @change="(val) => handleTypeChange(val)"
-          ></a-select>
+          />
         </a-form-item>
         <a-form-item name="state" label="状态">
-          <a-input size="small" v-model:value="formModel.state" :readonly="!canEditRef" />
+          <a-input v-model:value="formModel.state" size="small" :readonly="!canEditRef" />
         </a-form-item>
         <a-form-item name="jira" label="JIRA">
-          <a-input size="small" v-model:value="formModel.jira" :readonly="!canEditRef" />
+          <a-input v-model:value="formModel.jira" size="small" :readonly="!canEditRef" />
         </a-form-item>
         <a-form-item name="icon" label="图标">
           <a-radio-group
+            v-model:value="formModel.icon"
             class="icon-radios"
             type="button"
-            v-model:value="formModel.icon"
             size="small"
             :disabled="!canEditRef"
           >
@@ -84,38 +84,29 @@
           </a-radio-group>
         </a-form-item>
         <a-form-item name="size" label="尺寸">
-          <a-radio-group
-            size="small"
-            type="button"
-            v-model:value="formModel.size"
-            :disabled="!canEditRef"
-          >
-            <a-radio-button value="40">40</a-radio-button>
-            <a-radio-button value="60">60</a-radio-button>
-            <a-radio-button value="80">80</a-radio-button>
+          <a-radio-group v-model:value="formModel.size" size="small" type="button" :disabled="!canEditRef">
+            <a-radio-button value="40"> 40 </a-radio-button>
+            <a-radio-button value="60"> 60 </a-radio-button>
+            <a-radio-button value="80"> 80 </a-radio-button>
           </a-radio-group>
         </a-form-item>
         <a-form-item name="description" label="描述">
           <a-textarea
-            size="small"
             v-model:value="formModel.description"
+            size="small"
             show-word-limit
             :max-length="100"
             :readonly="!canEditRef"
           />
         </a-form-item>
         <a-form-item name="association" label="关联">
-          <div class="association-wrapper" v-auto-animate>
+          <div v-auto-animate class="association-wrapper">
             <div class="association-row head">
               <div>名称</div>
               <div>关系</div>
               <div>操作</div>
             </div>
-            <div
-              class="association-row"
-              v-for="(item, index) in formModel.association"
-              :key="index"
-            >
+            <div v-for="(item, index) in formModel.association" :key="index" class="association-row">
               <div>{{ item.name }}</div>
               <div>{{ item.type }}</div>
               <div v-if="canEditRef">
@@ -124,19 +115,17 @@
               </div>
             </div>
             <div class="association-row">
-              <a-button class="add" :disabled="!canEditRef" @click="() => handleShowEditModal()">
-                +
-              </a-button>
+              <a-button class="add" :disabled="!canEditRef" @click="() => handleShowEditModal()"> + </a-button>
             </div>
           </div>
         </a-form-item>
       </a-form>
     </div>
     <div class="button-group">
-      <a-button type="primary" v-if="canEditRef" @click="handleOk">确定</a-button>
-      <a-button type="primary" v-else @click="() => (canEditRef = true)">编辑</a-button>
-      <a-button type="primary" @click="handleShareLink" v-if="!isCreateRef">分享</a-button>
-      <a-button @click="handleCancel">关闭</a-button>
+      <a-button v-if="canEditRef" type="primary" @click="handleOk"> 确定 </a-button>
+      <a-button v-else type="primary" @click="() => (canEditRef = true)"> 编辑 </a-button>
+      <a-button v-if="!isCreateRef" type="primary" @click="handleShareLink"> 分享 </a-button>
+      <a-button @click="handleCancel"> 关闭 </a-button>
     </div>
   </a-modal>
   <pin-association-edit-modal ref="editModal" @edit="handleCompleteEdit" />
@@ -152,7 +141,8 @@
   import { computed, inject, reactive, ref } from 'vue';
   import { isNull } from '@/utils/is';
   import cloneDeep from 'lodash-es/cloneDeep';
-  import DrawElement, { Pin, PinIcon } from '../draw-element';
+  import type DrawElement from '../draw-element';
+  import { Pin, PinIcon } from '../draw-element';
   import { useCanvasState } from '@/store/modules/canvas-state';
   import pinAssociationEditModal from './pin-association-edit-modal.vue';
   import ShareLinkModal from './share-link-modal.vue';
@@ -251,12 +241,7 @@
                 sitPin.setState(formModel.state);
                 sitPin.setIcon(formModel.icon);
                 sitPin.setJira(formModel.jira);
-                sitPin.setBoundRect([
-                  sitPin.getBoundRect()[0],
-                  sitPin.getBoundRect()[1],
-                  size,
-                  size,
-                ]);
+                sitPin.setBoundRect([sitPin.getBoundRect()[0], sitPin.getBoundRect()[1], size, size]);
                 sitPin.association = formModel.association;
                 // 重新渲染
                 sitPin.draw = 'update';
@@ -296,7 +281,7 @@
     shareLinkModalVisibleRef.value = true;
   }
 
-  onFocusAreaEvent((_, ele: DrawElement) => {    
+  onFocusAreaEvent((_, ele: DrawElement) => {
     if (ele instanceof Pin) {
       setPin(ele);
     }
