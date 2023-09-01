@@ -46,8 +46,11 @@
 </template>
 
 <script setup lang="ts">
-  import { Ref, computed, reactive, ref } from 'vue';
-  import DrawElement, { Area, Pin } from '../draw-element';
+  import type { Ref } from 'vue';
+  import type DrawElement from '../draw-element';
+  import type { Pin } from '../draw-element';
+  import { computed, reactive, ref } from 'vue';
+  import { Area } from '../draw-element';
   import { emitFocusAreaEvent } from '../common/event';
   import {
     PushpinOutlined,
@@ -110,10 +113,13 @@
     padding: 0;
     margin: 0;
     border-top: 1px solid @color-border-table;
-    line-height: 20px;
+    line-height: 24px;
     .area-item {
       display: flex;
       text-align: center;
+      align-items: center;
+      border-bottom: 1px solid @color-border-table;
+      min-height: 24px;
     }
     .area-index {
       width: 60px;
@@ -124,14 +130,19 @@
       border-right: 1px solid @color-border-table;
     }
     .area-option {
-      width: 140px;
+      width: 120px;
       display: flex;
       justify-content: center;
+      align-items: center;
     }
     .ant-btn {
       display: inline-block;
       height: 16px;
       width: 32px;
+      line-height: 16px;
+      .anticon {
+        font-size: 14px;
+      }
     }
   }
 </style>
