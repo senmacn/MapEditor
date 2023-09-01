@@ -21,11 +21,7 @@
             @dragend.stop="dragend($event)"
           >
             <a-tooltip title="隐藏图层" v-if="layer.visible">
-              <a-button
-                type="text"
-                class="success-color"
-                @click="() => changeLayerVisible(layer, false)"
-              >
+              <a-button type="text" class="success-color" @click="() => changeLayerVisible(layer, false)">
                 <template #icon><eye-outlined /></template>
               </a-button>
             </a-tooltip>
@@ -41,20 +37,12 @@
           <div class="layer-option">
             <a-space>
               <a-tooltip title="关闭锁" v-if="layer.lock">
-                <a-button
-                  type="text"
-                  class="warning-color"
-                  @click.stop="() => changeLayerLock(layer, false)"
-                >
+                <a-button type="text" class="warning-color" @click.stop="() => changeLayerLock(layer, false)">
                   <template #icon><lock-outlined /></template>
                 </a-button>
               </a-tooltip>
               <a-tooltip title="开启锁" v-else>
-                <a-button
-                  type="text"
-                  class="success-color"
-                  @click.stop="() => changeLayerLock(layer, true)"
-                >
+                <a-button type="text" class="success-color" @click.stop="() => changeLayerLock(layer, true)">
                   <template #icon><unlock-outlined /></template>
                 </a-button>
               </a-tooltip>
@@ -83,12 +71,7 @@
             </a-space>
           </div>
         </div>
-        <area-list
-          v-if="layer.visible"
-          :areas="layer.areas"
-          :pins="layer.pins"
-          :lock="layer.lock"
-        />
+        <area-list v-if="layer.visible" :areas="layer.areas" :pins="layer.pins" :lock="layer.lock" />
       </li>
     </transition-group>
     <a-tooltip title="添加图层">
@@ -105,11 +88,11 @@
 </template>
 
 <script setup lang="ts">
+  import type { Layer } from '../common/types';
   import { ref } from 'vue';
   import AreaList from './area-list.vue';
   import modal from 'ant-design-vue/lib/modal';
   import { getRandomDomId } from '../../../utils/uuid';
-  import { Layer } from '../common/types';
   import {
     EyeOutlined,
     EyeInvisibleOutlined,
@@ -203,11 +186,7 @@
       e.preventDefault();
       return;
     }
-    e.dataTransfer?.setDragImage(
-      (e.target as HTMLElement).parentElement as HTMLElement,
-      e.offsetX,
-      e.offsetY,
-    );
+    e.dataTransfer?.setDragImage((e.target as HTMLElement).parentElement as HTMLElement, e.offsetX, e.offsetY);
     dragStartRef.value = index;
   }
   function dragenter(_, index: number) {
@@ -216,11 +195,7 @@
   }
   const [openLoading, closeLoading] = useLoading({ tip: '移动中', minTime: 1000 });
   function dragend(_) {
-    if (
-      dragStartRef.value < 0 ||
-      dragEnterRef.value < 0 ||
-      dragStartRef.value === dragEnterRef.value
-    ) {
+    if (dragStartRef.value < 0 || dragEnterRef.value < 0 || dragStartRef.value === dragEnterRef.value) {
       return;
     }
     const source = canvasState.layers[dragStartRef.value];
@@ -289,11 +264,11 @@
     .layer-index,
     .layer-name,
     .layer-option {
-      height: 24px;
+      height: 26px;
       border-right: 1px solid @color-border-table;
       border-bottom: 1px solid @color-border-table;
       text-align: center;
-      line-height: 24px;
+      line-height: 26px;
       font-size: 12px;
       .ant-btn {
         display: inline-block;
@@ -313,18 +288,18 @@
       flex: 1;
       input.ant-input {
         font-size: 12px;
-        line-height: 24px;
+        line-height: 26px;
         text-align: center;
         height: 100%;
         border: 0;
       }
       span {
         font-size: 12px;
-        line-height: 24px;
+        line-height: 26px;
       }
     }
     .layer-option {
-      width: 140px;
+      width: 120px;
       border-right: 0;
     }
   }
