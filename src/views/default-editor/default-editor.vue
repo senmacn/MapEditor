@@ -2,11 +2,11 @@
   <div class="map-editor" :style="{ height: isLocal() ? 'calc(100vh - 100px)' : 'calc(100vh - 70px)' }">
     <default-options @end-edit-area="handleEndDrawingArea" />
     <div class="content-box">
-      <div ref="hRuler" class="ruler h-ruler"></div>
-      <div ref="vRuler" class="ruler v-ruler"></div>
+      <div ref="hRuler" class="ruler h-ruler" />
+      <div ref="vRuler" class="ruler v-ruler" />
       <canvas-container ref="areaCanvasRef" />
     </div>
-    <status-bar></status-bar>
+    <status-bar />
   </div>
   <choose-area-point-modal ref="confirmModelRef" @confirm-end="handleConfirmEnd"></choose-area-point-modal>
 </template>
@@ -19,7 +19,7 @@
   import DefaultOptions from './default-options.vue';
   import { getRandomDomId } from '../../utils/uuid';
   import controller from './common/canvas-state-controller';
-  import { Area } from './draw-element';
+  import type { Area } from './draw-element';
   import useRuler from '@/hooks/useRuler';
   import { useCanvasState } from '@/store/modules/canvas-state';
   import { useEditorConfig } from '@/store/modules/editor-config';
@@ -120,9 +120,9 @@
       // 等待确定
       const confirmData = await confirm;
       if (!confirmData) return;
-      // 使用选取区域内的点后的新data
-      area.setChoosePoint([confirmData.point[0], confirmData.point[1]]);
       area.setData(confirmData.data);
+      // 使用选取区域内的点后的新data
+      area.setChoosePoint([confirmData.point[0] - confirmData.rect[0], confirmData.point[1] - confirmData.rect[1]]);
       // 重新计算边界，编辑过程可能修改
       const oldRect = area.getBoundRect();
       confirmData.rect[0] = confirmData.rect[0] + oldRect[0];

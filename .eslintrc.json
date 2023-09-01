@@ -5,7 +5,7 @@
     "node": true,
     "browser": false
   },
-  "extends": ["plugin:vue/vue3-recommended", "eslint:recommended", "plugin:@typescript-eslint/recommended"],
+  "extends": ["eslint:recommended", "plugin:@typescript-eslint/recommended"],
   "parser": "vue-eslint-parser",
   "parserOptions": {
     "ecmaVersion": 2020,
