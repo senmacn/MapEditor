@@ -124,7 +124,9 @@ export default class Area extends DrawElement {
     instance.ondblclick = () => {
       controller.setCurrentAreas([this]);
     };
-    instance.oncontextmenu = this.select.bind(this, false);
+    instance.oncontextmenu = () => {
+      controller.setCurrentAreas([this]);
+    };
     if (this.draw === 'update' || this.draw === 'done') {
       // 防止切换时target变了
       this.target?.removeChild(this.instance as HTMLElement);
@@ -145,7 +147,7 @@ export default class Area extends DrawElement {
   select(silence?: boolean) {
     if (this.selected) {
       return;
-    }    
+    }
     if (!silence) {
       // @ts-ignore
       document.getElementsByClassName(this.uuid).item(0).style.visibility = 'visible';

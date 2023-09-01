@@ -37,20 +37,10 @@
         <div class="ant-modal-footer">
           <a-button @click="handleCancel">取消</a-button>
           <a-button type="primary" v-if="!isFirst" @click="goToPrevious">返回</a-button>
-          <a-button
-            type="primary"
-            v-if="isFirst"
-            :disabled="areasRef.length === 0"
-            @click="handleExportBySingle"
-          >
+          <a-button type="primary" v-if="isFirst" :disabled="areasRef.length === 0" @click="handleExportBySingle">
             单独导出
           </a-button>
-          <a-button
-            type="primary"
-            v-if="isFirst"
-            :disabled="areasRef.length < 2"
-            @click="handleExportMixin"
-          >
+          <a-button type="primary" v-if="isFirst" :disabled="areasRef.length < 2" @click="handleExportMixin">
             合并导出
           </a-button>
           <a-button type="primary" v-if="!isFirst" @click="handleConfirmOkExport">确定</a-button>
@@ -71,7 +61,7 @@
   import { exportFile } from '@/utils/file';
   import { useStepper } from '@vueuse/core';
   import { GatewayOutlined, BlockOutlined } from '@ant-design/icons-vue';
-  import { Area } from '../draw-element';
+  import type { Area } from '../draw-element';
   import { max, min } from 'lodash-es';
   import { useCanvasState } from '@/store/modules/canvas-state';
   import { useProgressEvent } from '@/components/controlled-progress';
@@ -205,6 +195,7 @@
               data: data,
             });
           } catch (e) {
+            console.error(e);
             message.warning(`区域${area.getName()}构建失败！请确认编辑数据！`);
           }
         }
