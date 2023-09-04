@@ -2,7 +2,7 @@ import { isPointInData } from '@/views/default-editor/utils/image-data-util';
 import isEqual from 'lodash-es/isEqual';
 import uniqWith from 'lodash-es/uniqWith';
 import filter from 'lodash-es/filter';
-import simplify from 'simplify-js';
+// import simplify from 'simplify-js';
 import { getDistance } from '@/views/default-editor/utils/canvas-util';
 
 function getCentroid(points: PointA[]) {
@@ -42,22 +42,22 @@ function getPosition(imageData: ImageData) {
   }
 
   // 通过 simplify 做一下单层
-  const pointsA = simplify(
-    positions.sort((a, b) => a.x + a.y - b.x - b.y),
-    5,
-    true,
-  );
-  const pointsB = simplify(
-    positions.sort((a, b) => -a.x + a.y + b.x - b.y),
-    5,
-    true,
-  );
-  const simplePoints = uniqWith(pointsA.concat(pointsB), isEqual);
+  // const pointsA = simplify(
+  //   positions.sort((a, b) => a.x + a.y - b.x - b.y),
+  //   5,
+  //   true,
+  // );
+  // const pointsB = simplify(
+  //   positions.sort((a, b) => -a.x + a.y + b.x - b.y),
+  //   5,
+  //   true,
+  // );
+  const simplePoints = uniqWith(positions, isEqual);
 
   let sortedPoints = sortVertices(simplePoints);
   sortedPoints = filter(
     uniqWith(sortedPoints, (p1, p2) => getDistance(p1, p2) <= 1),
-    (_, index) => index % 2 === 0,
+    (_, index) => index % 4 === 0,
   );
   return sortedPoints;
 }
