@@ -2,22 +2,35 @@
   <div class="history-list">
     <a-space class="opt-button-group">
       <a-button @click="() => handleOpenProject('')"> <plus-outlined />新建项目 </a-button>
-      <a-upload
-        :before-upload="(file) => handleLoadSaves(file)"
-        accept=".json"
-        :showUploadList="false"
-      >
+      <a-upload :before-upload="(file) => handleLoadSaves(file)" accept=".json" :showUploadList="false">
         <a-button> <import-outlined />从文件打开项目 </a-button>
       </a-upload>
       <a-button @click="handleShowLinkModal"> <link-outlined />从链接打开项目 </a-button>
-      <a-button class="history-open" :disable="!isLocal()" @click="openSavesFolder">
-        <folder-open-filled> </folder-open-filled>
-        访问存档目录
-      </a-button>
-      <a-button class="history-refresh" :disable="!isLocal()" @click="() => refreshHistory(false)">
+      <a-button class="history-refresh" :disable="!isLocal()" @click="refreshHistory(false)">
         <sync-outlined> </sync-outlined>
         刷新
       </a-button>
+      <a-dropdown>
+        <button class="ant-btn">
+          <more-outlined></more-outlined>
+        </button>
+        <template #overlay>
+          <a-menu>
+            <a-menu-item key="0">
+              <div class="history-open" :disable="!isLocal()" @click="openSavesFolder">
+                <folder-open-filled> </folder-open-filled>
+                访问存档目录
+              </div>
+            </a-menu-item>
+            <a-menu-item key="1">
+              <div class="history-refresh" :disable="!isLocal()" @click="createShortcut()">
+                <sync-outlined> </sync-outlined>
+                创建快捷方式
+              </div>
+            </a-menu-item>
+          </a-menu>
+        </template>
+      </a-dropdown>
     </a-space>
     <a-tooltip title="用户设置" placement="bottom">
       <a class="settings" @click.prevent="handleOpenConfig">
@@ -25,10 +38,7 @@
       </a>
     </a-tooltip>
     <project-list :dataSource="dataSource" @refresh-list="refreshHistory"></project-list>
-    <user-config-modal
-      :visible="userConfigModalVisibleRef"
-      @close="userConfigModalVisibleRef = false"
-    />
+    <user-config-modal :visible="userConfigModalVisibleRef" @close="userConfigModalVisibleRef = false" />
     <share-link-modal :visible="linkModalVisibleRef" @close="() => (linkModalVisibleRef = false)" />
   </div>
 </template>
@@ -46,6 +56,7 @@
     SyncOutlined,
     FolderOpenFilled,
     SettingOutlined,
+    MoreOutlined,
   } from '@ant-design/icons-vue';
   import { useLoading } from '@/components/Loading';
   import { loadSaves } from '@/utils/persist';
@@ -73,7 +84,7 @@
 
   async function handleOpenProject(project: string) {
     // location.href = '/#/map-editor?name=' + project;
-    const url = location.href.slice().replace(/\#\/.+/, '#/map-editor?name=' + project);
+    const url = location.href.slice().replace(/#\/.+/, '#/map-editor?name=' + project);
     const config = await localApi?.getCustomConfig();
     if (localApi && config && config.openProjectInNewWindow) {
       localApi.newWindow(url);
@@ -98,7 +109,7 @@
         const result = loadSaves(String(evt.target?.result), true);
         canvasState.setLayers(result.layers);
 
-        const url = location.href.slice().replace(/\#\/.+/, '#/map-editor?name=' + file.name);
+        const url = location.href.slice().replace(/#\/.+/, '#/map-editor?name=' + file.name);
         location.replace(url);
       } catch (e: any) {
         message.warning({
@@ -119,6 +130,10 @@
   const linkModalVisibleRef = ref(false);
   function handleShowLinkModal() {
     linkModalVisibleRef.value = true;
+  }
+
+  function createShortcut() {
+    localApi?.createShortcut();
   }
 </script>
 

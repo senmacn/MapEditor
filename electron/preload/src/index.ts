@@ -76,6 +76,9 @@ const electronApi: LocalApi = {
   stringifyData: (obj: object) => {
     return ipcRenderer.invoke('stringify-data', obj);
   },
+  createShortcut: () => {
+    return ipcRenderer.invoke('create-shortcut');
+  },
 };
 
 contextBridge.exposeInMainWorld('electronAPI', electronApi);

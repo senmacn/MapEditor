@@ -9,12 +9,8 @@ interface LocalApi {
   useLocalFileHistory(historyName: string): Promise<string>;
   deleteLocalFile(fileName: string): Promise<unknown>;
   renameLocalFile(fileName: string, newname: string): Promise<LocalResult<null>>;
-  saveLoads(fileName: string, data: Object): Promise<LocalResult<null>>;
-  saveLocalFile(
-    fileName: string,
-    data: string | Buffer,
-    folder?: string,
-  ): Promise<LocalResult<null>>;
+  saveLoads(fileName: string, data: object): Promise<LocalResult<null>>;
+  saveLocalFile(fileName: string, data: string | Buffer, folder?: string): Promise<LocalResult<null>>;
   newWindow(url: string, browser?: boolean): Promise<LocalResult<null>>;
   relaunch(): void;
   maximizeWindow(): void;
@@ -28,4 +24,5 @@ interface LocalApi {
   openDevTools(): void;
   clearCache(): void;
   stringifyData(obj: object): Promise<LocalResult<string>>;
+  createShortcut(): void;
 }

@@ -1,6 +1,7 @@
 import { BrowserWindow, ipcMain, shell, app } from 'electron';
 import * as path from 'path';
 import { SAVES_DIR } from '../common/const';
+import { createShortcut } from '../utils/exe-runner';
 
 export default function () {
   // 创建多窗口表
@@ -79,14 +80,18 @@ export default function () {
     }
   });
 
-  ipcMain.handle('clear-cache', (event) => {
+  ipcMain.handle('clear-cache', () => {
     const focusedWindow = BrowserWindow.getFocusedWindow();
     if (focusedWindow) {
-      focusedWindow.webContents.session.clearCache()
+      focusedWindow.webContents.session.clearCache();
     }
   });
 
   ipcMain.handle('open-folder', () => {
     shell.openPath(path.resolve(process.cwd(), SAVES_DIR));
+  });
+
+  ipcMain.handle('create-shortcut', () => {
+    createShortcut();
   });
 }
