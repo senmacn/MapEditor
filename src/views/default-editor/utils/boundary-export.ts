@@ -15,7 +15,7 @@ export function handleExportBoundary() {
   const canvasState = useCanvasState();
   const [start, progress] = useProgressEvent();
 
-  let iter = canvasState.getAreaMap.values();
+  const iter = canvasState.getAreaMap.values();
   let areaNext = iter.next();
 
   start(canvasState.getAreaMap.size);
@@ -30,13 +30,11 @@ export function handleExportBoundary() {
       const fileName = name + '.boundary.json';
       const retData = e.data;
       if (localApi) {
-        const e = await localApi.saveLocalFile(
-          fileName,
-          JSON.stringify(retData),
-          localState.getDownloadLocation,
-        );
+        const e = await localApi.saveLocalFile(fileName, JSON.stringify(retData), localState.getDownloadLocation);
         // #[test]
-        // let maskCanvas: HTMLCanvasElement | null = document.querySelector('#mask-canvas');
+        // let maskCanvasAll: HTMLCanvasElement | null = document.querySelector('#mask-canvas');
+        // maskCanvasAll.style.display = 'block';
+        // let maskCanvas: HTMLCanvasElement | null = document.querySelector('#mask-canvas-1');
         // if (maskCanvas == null) return;
         // maskCanvas.style.display = 'block';
         // let ctx = maskCanvas.getContext('2d', {}) as CanvasRenderingContext2D;
@@ -49,12 +47,11 @@ export function handleExportBoundary() {
         //       50,
         //   ),
         //   Math.round(
-        //     Number(configRef.getMapSize.ltY) +
+        //     Number(configRef.getProjectSizeConfig.startPointY) +
         //       (point[1] + boundRect[1]) * Number(configRef.getProjectSizeConfigScale) +
         //       50,
         //   ),
         // ]));
-        // console.log('111', formatPoints);
 
         // retData.value.forEach((p) => {
         //   ctx.fillRect(Math.round(p[0]), Math.round(p[1]), 1, 1);
@@ -114,30 +111,16 @@ export function handleExportBoundary() {
       configRef.getProjectSizeConfigPxOffsetY + boundRect[1],
     );
   });
-  // compressImage(dataCanvas.toDataURL(), 8192, 8192).then((blob) => {
-  //   blob?.arrayBuffer().then((buffer) => {
-  //     localApi?.saveLocalFile('2d_areas.jpg', buffer as Buffer, localState.getDownloadLocation);
-  //   });
-  // });
-  // compressImage(dataCanvas.toDataURL(), 2048, 2048).then((blob) => {
-  //   blob?.arrayBuffer().then((buffer) => {
-  //     localApi?.saveLocalFile('2d_areas_2048.jpg', buffer as Buffer, localState.getDownloadLocation);
-  //   });
-  // });
   canvasToFile(dataCanvas, 'image/png', 1)
     .then((blob) => {
       if (!blob) {
         message.warning('构建图片数据为空，请检查区域或尺寸设置！');
       }
       blob?.arrayBuffer().then((buffer) => {
-        localApi?.saveLocalFile(
-          '10000_boundary.png',
-          buffer as Buffer,
-          localState.getDownloadLocation,
-        );
+        localApi?.saveLocalFile('10000_boundary.png', buffer as Buffer, localState.getDownloadLocation);
       });
     })
-    .catch((err) => {
+    .catch(() => {
       message.error('图片下载失败！');
     });
 }
