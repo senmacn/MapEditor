@@ -1,12 +1,8 @@
 <template>
   <a-list-item :class="['list-item', item.property.star && 'star-item']" item-layout="vertical">
     <template #actions>
-      <span class="options" v-if="!item.property.star" @click.stop="handleStarItem(true)">
-        <star-outlined />置顶
-      </span>
-      <span class="options" v-else @click.stop="handleStarItem(false)">
-        <star-filled />取消置顶
-      </span>
+      <span class="options" v-if="!item.property.star" @click.stop="handleStarItem(true)"> <star-outlined />置顶 </span>
+      <span class="options" v-else @click.stop="handleStarItem(false)"> <star-filled />取消置顶 </span>
       <span class="options" @click.stop="editRef = true"> <edit-outlined />重命名</span>
       <span class="options" @click.stop="handleDownloadProject(item.title)">
         <download-outlined />
@@ -33,7 +29,7 @@
             v-if="editRef"
             :default-value="item.title"
             type="text"
-            @blur="(e) => handleEditProjectName(item.title, e?.target?.value)"
+            @blur="(e: any) => handleEditProjectName(item.title, e?.target?.value)"
           />
           <span v-else>{{ item.title }}</span>
         </template>
@@ -43,19 +39,13 @@
 </template>
 
 <script setup lang="ts">
+  import type { LocalMapHistory } from '../common/types';
   import { getLocalApi } from '@/utils/env';
-  import { LocalMapHistory } from '../common/types';
   import { ref } from 'vue';
   import { exportFile } from '@/utils/file';
   import { message, Modal } from 'ant-design-vue';
   import { isObject } from 'lodash-es';
-  import {
-    StarOutlined,
-    StarFilled,
-    DownloadOutlined,
-    EditOutlined,
-    DeleteOutlined,
-  } from '@ant-design/icons-vue';
+  import { StarOutlined, StarFilled, DownloadOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons-vue';
 
   const emits = defineEmits<{
     (e: 'refresh-list', silence: boolean): void;
@@ -71,7 +61,7 @@
 
   function handleOpenProject(project: string) {
     // location.href = '/#/map-editor?name=' + project;
-    const url = location.href.slice().replace(/\#\/.+/, '#/map-editor?name=' + project);
+    const url = location.href.slice().replace(/#\/.+/, '#/map-editor?name=' + project);
     location.replace(url);
     // 刷新加载存档
     setTimeout(() => {
@@ -151,26 +141,21 @@
       }
     }
     &:hover {
-      background: linear-gradient(
-        90deg,
-        rgb(120, 120, 120),
-        rgb(120, 120, 120),
-        rgba(0, 0, 0, 0),
-        rgba(0, 0, 0, 0)
-      );
+      background: linear-gradient(270deg, rgb(120, 120, 120), rgb(120, 120, 120), rgba(0, 0, 0, 0), rgba(0, 0, 0, 0));
       border-radius: 6px;
       background-size: 200%;
-      animation: grow 1.5s linear infinite;
+      background-position: 100%;
+      animation: grow 0.8s linear;
       .ant-list-item-action {
         visibility: visible;
       }
     }
     @keyframes grow {
       0% {
-        background-position: 0%;
+        background-position: 200%;
       }
       100% {
-        background-position: 200%;
+        background-position: 100%;
       }
     }
 

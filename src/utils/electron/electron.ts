@@ -17,7 +17,7 @@ class ElectronApi implements LocalApi {
   getLocalHistoryList(fileName: string) {
     return window['electronAPI'].getLocalHistoryList(fileName);
   }
-  getLocalFileContent(fileName, history) {
+  getLocalFileContent(fileName, history?) {
     return window['electronAPI'].getLocalFileContent(fileName, history);
   }
   useLocalFileHistory(historyName: string) {
@@ -29,7 +29,7 @@ class ElectronApi implements LocalApi {
   deleteLocalFile(fileName: string): Promise<unknown> {
     return window['electronAPI'].deleteLocalFile(fileName);
   }
-  saveLoads(fileName: string, data: Object) {
+  saveLoads(fileName: string, data: object) {
     return window['electronAPI'].saveLoads(fileName, data);
   }
   saveLocalFile(fileName: string, data: string | Buffer, folder?: string) {
@@ -73,6 +73,9 @@ class ElectronApi implements LocalApi {
   }
   stringifyData(obj: object) {
     return window['electronAPI'].stringifyData(obj);
+  }
+  createShortcut() {
+    return window['electronAPI'].createShortcut();
   }
 }
 

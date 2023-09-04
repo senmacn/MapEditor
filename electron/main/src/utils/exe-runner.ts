@@ -1,4 +1,6 @@
+import { join } from 'path';
 import { execFile } from 'child_process';
+import { app } from 'electron';
 
 interface ExeRunnerHandler {
   errHandler?: (e: Error) => void;
@@ -15,7 +17,7 @@ interface ExeRunnerHandler {
  */
 export default function runner(exeFilePath: string, args: string[], handler?: ExeRunnerHandler) {
   return new Promise((resolve, reject) => {
-    execFile(exeFilePath, args, { shell: true }, (error, stdout, stderr) => {      
+    execFile(exeFilePath, args, { shell: true }, (error, stdout, stderr) => {
       if (error && handler && handler.errHandler) {
         handler.errHandler(error);
         reject(stderr);
@@ -30,4 +32,12 @@ export default function runner(exeFilePath: string, args: string[], handler?: Ex
       resolve(stdout);
     });
   });
+}
+
+export function createShortcut() {
+  const transformCommand = `/F:"${join(app.getPath('desktop'), 'mapeditor.lnk')}" /A:C /T:${process.execPath}`;
+  const ToolPath = join(app.getAppPath(), 'tools', 'Shortcut.exe');
+  console.log(transformCommand);
+
+  runner(ToolPath, [transformCommand]);
 }
