@@ -1,6 +1,6 @@
+import type { Layer } from '../common/types';
 import Moveable from 'moveable';
 import controller, { AreaActionType } from '../common/canvas-state-controller';
-import { Layer } from '../common/types';
 
 export interface DrawElementInterface {
   select(...args: any): void;
@@ -37,6 +37,9 @@ export default class DrawElement implements DrawElementInterface {
 
   getUuid() {
     return this.uuid;
+  }
+  setUuid(uuid) {
+    this.uuid = uuid;
   }
   isSame(area: Partial<DrawElement>) {
     return area.getUuid && area.getUuid() === this.uuid;
@@ -106,24 +109,23 @@ export default class DrawElement implements DrawElementInterface {
       throttleScale: 0,
       throttleRotate: 0,
     });
-    const _this = this;
     let dragState: number[] = [];
     /* draggable */
     this.moveable
       .on('dragStart', () => {
-        dragState = [_this.boundRect[0], _this.boundRect[1]];
+        dragState = [this.boundRect[0], this.boundRect[1]];
       })
       .on('drag', ({ target, left, top }) => {
         target.style.left = `${left}px`;
         target.style.top = `${top}px`;
       })
       .on('dragEnd', ({ target }) => {
-        _this.boundRect[0] = parseInt(target.style.left.replace('px', ''));
-        _this.boundRect[1] = parseInt(target.style.top.replace('px', ''));
+        this.boundRect[0] = parseInt(target.style.left.replace('px', ''));
+        this.boundRect[1] = parseInt(target.style.top.replace('px', ''));
         // 记录历史
         controller.pushAction({
           key: new Date().getTime().toString(),
-          uuid: _this.uuid,
+          uuid: this.uuid,
           type: AreaActionType.MOVE,
           state: dragState.slice() as [number, number],
         });
@@ -135,16 +137,17 @@ export default class DrawElement implements DrawElementInterface {
       .on('resizeEnd', ({ target }) => {
         controller.pushAction({
           key: new Date().getTime().toString(),
-          uuid: _this.uuid,
+          uuid: this.uuid,
           type: AreaActionType.SCALE,
-          state: _this.scale,
+          state: this.scale,
         });
         // 自动对齐整数
         const newWidth = parseInt(target.style.width.replace('px', ''));
         const newHeight = parseInt(target.style.height.replace('px', ''));
+        this.scale = Number((newWidth / this.boundRect[2]).toFixed(2));
         target.style.width = `${newWidth}px`;
         target.style.height = `${newHeight}px`;
-        _this.scale = newWidth / _this.boundRect[2];
+        console.log(this);
       });
     // 刚渲染完未被点击时不允许拖拽
     setTimeout(() => {
