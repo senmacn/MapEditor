@@ -1,14 +1,8 @@
 <template>
-  <a-modal
-    class="change-layer-modal"
-    :width="600"
-    :visible="visible"
-    :closable="false"
-    :footer="null"
-  >
+  <a-modal class="change-layer-modal" :width="600" :visible="visible" :closable="false" :footer="null">
     <div class="modal-title">历史版本</div>
     <div class="modal-content">
-      <a-list item-layout="horizontal" :data-source="dataSource">
+      <a-list item-layout="horizontal" :data-source="dataSource" :pagination="paginationProps">
         <template #renderItem="{ item }">
           <a-list-item>
             <template #actions>
@@ -18,7 +12,7 @@
             <a-skeleton avatar :title="false" :loading="!!item.loading" active>
               <a-list-item-meta :description="item.time">
                 <template #title>
-                  {{ item.name }}
+                  {{ item.viewName }}
                 </template>
               </a-list-item-meta>
             </a-skeleton>
@@ -36,7 +30,7 @@
   import { useLocalState } from '@/store/modules/local-state';
   import { getLocalApi, isLocal } from '@/utils/env';
   import { isArray } from '@/utils/is';
-  import { ref, watch } from 'vue';
+  import { computed, ref, watch } from 'vue';
   import { useLoading } from '@/components/Loading';
   import { Modal } from 'ant-design-vue';
   import moment from 'moment';
@@ -62,16 +56,18 @@
         const record: Recordable[] = [];
         for (let index = 0; index < data.length; index++) {
           const element = data[index];
-          const date = element.split('_').slice(0, 2);
+          const dataResult = element.split('_');
+          const date = dataResult.slice(0, 2);
           const dateStr = date[0] + ' ' + date[1].replaceAll('-', ':');
           const fDate = moment(dateStr);
           record.push({
             name: element,
+            viewName: dataResult[2].slice(0, 12),
             moment: fDate,
             time: fDate.format('YYYY-MM-DD HH:mm:ss'),
           });
         }
-        record.sort((v, j) => v.moment.isAfter(j.moment) ? -1 : 1);
+        record.sort((v, j) => (v.moment.isAfter(j.moment) ? -1 : 1));
         dataSource.value = record;
       }
     });
@@ -85,8 +81,13 @@
     },
   );
 
+  const paginationProps = computed(() => ({
+    pageSize: 8,
+    total: dataSource.value.length,
+  }));
+
   function handleReviewHistory(historyName) {
-    let url = location.href.slice().replace(/\#\/.+/, '#/map-editor?name=');
+    let url = location.href.slice().replace(/#\/.+/, '#/map-editor?name=');
     url += localState.filename + '&history=' + historyName;
     isLocal() ? localApi?.newWindow(url) : window.open(url);
   }

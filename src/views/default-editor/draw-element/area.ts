@@ -11,9 +11,9 @@ export default class Area extends DrawElement {
   // rect 内的data
   public data: ImageData;
 
-  constructor(name: string, data: ImageData, boundRect: Box) {
+  constructor(name: string, data: ImageData, boundRect: Box, uuid?: string) {
     super();
-    this.uuid = getShortUuid();
+    this.uuid = uuid || getShortUuid();
     this.name = name;
     this.data = data;
     if (Array.isArray(boundRect)) {
