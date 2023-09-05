@@ -128,6 +128,13 @@
       confirmData.rect[0] = confirmData.rect[0] + oldRect[0];
       confirmData.rect[1] = confirmData.rect[1] + oldRect[1];
       area.setBoundRect(confirmData.rect.slice());
+      // 假如是编辑的话，删除原有区域
+      if (controller.isEditingArea()) {
+        // TODO: 最好保证uuid不变
+        // const initialArea = controller.getCurrentAreas()[0];
+        // initialArea && area.setUuid(initialArea.getUuid());
+        emitDeleteAreaEvent();
+      }
       for (let index = canvasState.getLayers.length - 1; index >= 0; index--) {
         const element = canvasState.getLayers[index];
         if (element.hot) {
@@ -139,9 +146,6 @@
           canvasState.getAreaMap.set(area.getUuid(), area);
         }
       }
-    }
-    if (controller.isEditingArea() && complete) {
-      emitDeleteAreaEvent();
     }
     controller.getCurrentAreas().forEach((area) => area.show());
     controller.endDrawingArea();

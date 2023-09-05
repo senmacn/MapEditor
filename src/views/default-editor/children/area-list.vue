@@ -13,11 +13,19 @@
           </a-button>
         </a-tooltip>
       </div>
-      <div class="area-name">
+      <div class="area-name" @click="changeName(index, area.getName())">
         <a-tooltip :title="'类型-' + area.type">
           <gateway-outlined v-if="area instanceof Area" />
           <pushpin-outlined v-else></pushpin-outlined>
-          {{ area.getName() }}
+          <span v-if="changeNameItemRef.index !== index">{{ area.getName() }}</span>
+          <a-input
+            v-else
+            class="change-name-input"
+            type="text"
+            v-model:value="changeNameItemRef.name"
+            :disabled="lock"
+            @blur="changeNameEnd($event, index)"
+          />
         </a-tooltip>
       </div>
       <div class="area-option">
@@ -61,6 +69,7 @@
     EyeInvisibleOutlined,
   } from '@ant-design/icons-vue';
   import ChangeLayerModal from './change-layer-modal.vue';
+  import { message } from 'ant-design-vue';
 
   const props = defineProps({
     areas: {
@@ -105,6 +114,43 @@
   function handleGotoArea(area: DrawElement) {
     emitFocusAreaEvent(area);
   }
+
+  const changeNameItemRef = ref({
+    index: -1,
+    name: '',
+  });
+  function changeName(index, name) {
+    if (changeNameItemRef.value.index === index) return;
+    changeNameItemRef.value = { index, name };
+    setTimeout(() => {
+      const element = <HTMLElement>document.querySelector('input.change-name-input');
+      element.focus();
+    }, 16);
+  }
+  function changeNameEnd(e, index) {
+    const value: string = e.target.value;
+    if (!value.includes('-')) {
+      changeNameItemRef.value = {
+        index: -1,
+        name: '',
+      };
+      message.warning('区域名称不正确！');
+      return;
+    }
+    const area = visibleList.value[index];
+    if (value && value !== area.getName() && area.layer?.uuid) {
+      const target = <HTMLElement | null>document.getElementById(area.layer?.uuid);
+      if (target) {
+        area.setName(value);
+        area.draw = 'update';
+        area.render(target);
+      }
+    }
+    changeNameItemRef.value = {
+      index: -1,
+      name: '',
+    };
+  }
 </script>
 
 <style lang="less" scoped>
@@ -128,6 +174,14 @@
     .area-name {
       flex: 1;
       border-right: 1px solid @color-border-table;
+      input.ant-input {
+        display: inline-block;
+        height: 100%;
+        width: 80%;
+        border: 0;
+        font-size: 12px;
+        line-height: 26px;
+      }
     }
     .area-option {
       width: 120px;

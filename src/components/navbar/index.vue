@@ -23,10 +23,7 @@
         <a-avatar :size="36" :src="defaultAvatar"></a-avatar>
       </a-space>
     </div>
-    <user-config-modal
-      :visible="userConfigModalVisibleRef"
-      @close="userConfigModalVisibleRef = false"
-    />
+    <user-config-modal :visible="userConfigModalVisibleRef" @close="userConfigModalVisibleRef = false" />
   </nav>
 </template>
 
@@ -43,7 +40,6 @@
     if (isLocal()) {
       getLocalApi()?.newWindow(href, true);
     } else {
-      // TODO: 解决419报错
       const element = document.createElement('a');
       element.href = href;
       const a = document.body.appendChild(element);
