@@ -143,7 +143,7 @@
     &:hover {
       background: linear-gradient(270deg, rgb(120, 120, 120), rgb(120, 120, 120), rgba(0, 0, 0, 0), rgba(0, 0, 0, 0));
       border-radius: 6px;
-      background-size: 200%;
+      background-size: 300%;
       background-position: 100%;
       animation: grow 0.8s linear;
       .ant-list-item-action {
@@ -152,7 +152,7 @@
     }
     @keyframes grow {
       0% {
-        background-position: 200%;
+        background-position: 150%;
       }
       100% {
         background-position: 100%;

@@ -24,7 +24,7 @@
             </a-menu-item>
             <a-menu-item key="1">
               <div class="history-refresh" :disable="!isLocal()" @click="createShortcut()">
-                <sync-outlined> </sync-outlined>
+                <desktop-outlined />
                 创建快捷方式
               </div>
             </a-menu-item>
@@ -57,6 +57,7 @@
     FolderOpenFilled,
     SettingOutlined,
     MoreOutlined,
+    DesktopOutlined,
   } from '@ant-design/icons-vue';
   import { useLoading } from '@/components/Loading';
   import { loadSaves } from '@/utils/persist';

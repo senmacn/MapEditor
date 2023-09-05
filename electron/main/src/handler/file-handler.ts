@@ -7,15 +7,19 @@ import {
   rmSync,
   writeFileSync,
   rm,
-  copyFileSync,
   existsSync,
+  createReadStream,
 } from 'fs';
 import path from 'path';
 import { FILE_PATH, HISTORY_DIR, SAVES_DIR } from '../common/const';
 import { ProjectItemStore } from '../store/project-item-store';
 import { stringifySave } from '../utils/json';
-import { getRandomDomId } from '../utils/random';
+import crypto from 'crypto';
 import moment from 'moment';
+
+const SPLIT_SYMBOL = '_';
+
+const fileCache = new Map<string, string>();
 
 function saveFile(fileName: string, data: string | Buffer, folder: string) {
   if (typeof data === 'string') {
@@ -26,6 +30,22 @@ function saveFile(fileName: string, data: string | Buffer, folder: string) {
     writeFileSync(path.join(folder, fileName), new Uint8Array(data));
   }
   return;
+}
+
+function calculateFileHash(filePath: string, algorithm = 'sha256') {
+  return new Promise((resolve, reject) => {
+    const hash = crypto.createHash(algorithm);
+    const fileStream = createReadStream(filePath);
+    fileStream.on('data', (chunk: any) => {
+      hash.update(chunk);
+    });
+    fileStream.on('end', () => {
+      resolve(hash.digest('hex'));
+    });
+    fileStream.on('error', (error: any) => {
+      reject(error);
+    });
+  });
 }
 
 export default function () {
@@ -40,7 +60,7 @@ export default function () {
         const filePath = path.join(SAVES_DIR, fileName);
         const stat = statSync(filePath);
         // 查找附带额外属性
-        let property: Recordable = {};
+        const property: Recordable = {};
         projectItemStore.files.forEach((file) => {
           if (file.name === fileName) {
             Object.assign(property, file.property);
@@ -82,8 +102,7 @@ export default function () {
         return readFileSync(path.join(SAVES_DIR, decodeURIComponent(fileName)), 'utf8');
       }
     } catch (err) {
-      (err as LocalError).showMessage =
-        'Error use local history because of error: ' + (err as LocalError).message;
+      (err as LocalError).showMessage = 'Error use local history because of error: ' + (err as LocalError).message;
       return err as LocalError;
     }
   });
@@ -96,35 +115,29 @@ export default function () {
           for (let index = 0; index < element.history.length; index++) {
             const history = element.history[index];
             if (history === historyName) {
-              const result = readFileSync(
-                path.join(HISTORY_DIR, decodeURIComponent(historyName)),
-                'utf8',
-              );
+              const result = readFileSync(path.join(HISTORY_DIR, decodeURIComponent(historyName)), 'utf8');
               _save(element.name, result);
+              break;
             }
           }
         }
       }
     } catch (err) {
-      (err as LocalError).showMessage =
-        'Error use local history because of error: ' + (err as LocalError).message;
+      (err as LocalError).showMessage = 'Error use local history because of error: ' + (err as LocalError).message;
       return err as LocalError;
     }
   });
 
-  ipcMain.handle(
-    'rename-local-file',
-    (_evt, fileName: string, newname: string): LocalResult<null> => {
-      try {
-        renameSync(path.join(SAVES_DIR, fileName), path.join(SAVES_DIR, newname));
-        projectItemStore.setFileName(newname, fileName);
-        return null;
-      } catch (err: any) {
-        err.showMessage = '重命名失败！';
-        return err as LocalError;
-      }
-    },
-  );
+  ipcMain.handle('rename-local-file', (_evt, fileName: string, newname: string): LocalResult<null> => {
+    try {
+      renameSync(path.join(SAVES_DIR, fileName), path.join(SAVES_DIR, newname));
+      projectItemStore.setFileName(newname, fileName);
+      return null;
+    } catch (err: any) {
+      err.showMessage = '重命名失败！';
+      return err as LocalError;
+    }
+  });
 
   ipcMain.handle('delete-local-file', (_evt, fileName: string) => {
     try {
@@ -144,24 +157,52 @@ export default function () {
     }
   });
 
-  function _save(fileName: string, data: Object) {
-    // 同时保存历史记录
-    const historyName = moment().format('YYYY-MM-DD_HH-mm-ss_') + getRandomDomId();
+  async function _save(fileName: string, data: string) {
+    const currentFilePath = path.join(SAVES_DIR, fileName);
+    const tempFilePath = path.join(SAVES_DIR, SPLIT_SYMBOL + fileName);
     // 判断是否第一次保存
-    if (existsSync(path.join(SAVES_DIR, fileName))) {
-      copyFileSync(path.join(SAVES_DIR, fileName), path.join(HISTORY_DIR, historyName));
+    if (existsSync(currentFilePath)) {
+      try {
+        renameSync(currentFilePath, tempFilePath);
+        saveFile(fileName, data, SAVES_DIR);
+        // 计算当前将要存为历史记录的文件 hash 和历史记录最后一个文件的hash
+        const hash = await calculateFileHash(tempFilePath);
+        const fileHistory = projectItemStore.getFile(fileName).history;
+        if (fileHistory.length > 0) {
+          const latestHistoryHashStr = fileHistory[fileHistory.length - 1].split(SPLIT_SYMBOL);
+          if (latestHistoryHashStr && latestHistoryHashStr.length >= 3 && latestHistoryHashStr[2] === hash) {
+            return;
+          }
+        }
+        // 保存历史记录
+        const historyName = moment().format('YYYY-MM-DD_HH-mm-ss') + SPLIT_SYMBOL + hash;
+        renameSync(tempFilePath, path.join(HISTORY_DIR, historyName));
+        const deletedHistory = projectItemStore.addFile(fileName, historyName);
+        deletedHistory &&
+          rm(path.join(HISTORY_DIR, deletedHistory), (e) => {
+            console.warn(e);
+          });
+      } finally {
+        existsSync(tempFilePath) && rm(tempFilePath, () => {});
+      }
+    } else {
+      saveFile(fileName, data, SAVES_DIR);
+      projectItemStore.addFile(fileName);
     }
-    saveFile(fileName, stringifySave(data), SAVES_DIR);
-    const deletedHistory = projectItemStore.addFile(fileName, historyName);
-    deletedHistory && rm(path.join(HISTORY_DIR, deletedHistory), () => {});
   }
-  ipcMain.handle('save-loads', (_evt, fileName: string, data: Object) => {
+  ipcMain.handle('save-loads', (_evt, fileName: string, data: object) => {
     try {
-      _save(fileName, data);
+      const stringifyData = stringifySave(data);
+      if (fileCache.has(fileName)) {
+        if (stringifyData === fileCache.get(fileName)) {
+          return;
+        }
+      }
+      _save(fileName, stringifyData);
+      fileCache.set(fileName, stringifyData);
       return;
     } catch (err) {
-      (err as LocalError).showMessage =
-        'Error saving local file because of error: ' + (err as LocalError).message;
+      (err as LocalError).showMessage = 'Error saving local file because of error: ' + (err as LocalError).message;
       return err as LocalError;
     }
   });
@@ -172,8 +213,7 @@ export default function () {
       try {
         return saveFile(fileName, data, folder);
       } catch (err) {
-        (err as LocalError).showMessage =
-          'Error saving local file because of error: ' + (err as LocalError).message;
+        (err as LocalError).showMessage = 'Error saving local file because of error: ' + (err as LocalError).message;
         return err as LocalError;
       }
     },
@@ -183,8 +223,7 @@ export default function () {
     try {
       projectItemStore.setProperty(filename, 'star', star);
     } catch (err) {
-      (err as LocalError).showMessage =
-        'Error saving local file because of error: ' + (err as LocalError).message;
+      (err as LocalError).showMessage = 'Error saving local file because of error: ' + (err as LocalError).message;
       return err as LocalError;
     }
   });

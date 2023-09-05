@@ -76,6 +76,16 @@ export class ProjectItemStore {
     this.syncLocal();
   }
 
+  getFile(filename: string) {
+    for (let index = 0; index < this.files.length; index++) {
+      const file = this.files[index];
+      if (file.name === filename) {
+        return file;
+      }
+    }
+    throw new Error(`File ${filename} not exist`);
+  }
+
   addFile(filename: string, historyName?: string): string | undefined {
     const file = this.files.find((file) => file.name === filename);
     if (!file) {
@@ -90,14 +100,16 @@ export class ProjectItemStore {
       this.syncLocal();
     } else {
       if (historyName) {
+        let rmFile;
         if (!Array.isArray(file.history)) file.history = [];
-        if (file.history.length < 8) {
+        if (file.history.length <= 10) {
           file.history.push(historyName);
         } else {
           file.history.push(historyName);
-          return file.history.shift();
+          rmFile = file.history.shift();
         }
         this.syncLocal();
+        return rmFile;
       }
     }
   }

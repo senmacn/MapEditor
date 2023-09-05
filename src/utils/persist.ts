@@ -1,5 +1,6 @@
-import { useEditorConfig, EditorConfig } from '@/store/modules/editor-config';
-import { Layer } from '@/views/default-editor/common/types';
+import type { EditorConfig } from '@/store/modules/editor-config';
+import type { Layer } from '@/views/default-editor/common/types';
+import { useEditorConfig } from '@/store/modules/editor-config';
 import { Area, Pin, PinIcon } from '@/views/default-editor/draw-element';
 import { toRaw } from 'vue';
 
@@ -127,10 +128,10 @@ function _loadSaves(pureObj: Saves, useConfig: boolean) {
       const newLayer: Layer = Object.create(layer);
       Object.keys(layer).forEach((key) => {
         if (key === 'areas') {
-          const areas = layer[key] as Object[];
+          const areas = layer[key] as object[];
           if (areas.length > 0) {
             newLayer[key] = [];
-            for (let area of areas) {
+            for (const area of areas) {
               // imagedata 的 data 序列化后为普通的（序列化）数组，因此得重新生成 Uint8ClampedArray
               // TODO: 删除 兼容旧数据
               let newData;
@@ -144,17 +145,17 @@ function _loadSaves(pureObj: Saves, useConfig: boolean) {
                 const newUint8Array = new Uint8ClampedArray(newArray);
                 newData = new ImageData(newUint8Array, area['boundRect'][2], area['boundRect'][3]);
               }
-              const newArea = new Area(area['name'], newData, area['boundRect']);
+              const newArea = new Area(area['name'], newData, area['boundRect'], area['uuid']);
               newArea.layer = newLayer;
               newArea.setChoosePoint(area['choosePoint']);
               newLayer[key].push(newArea);
             }
           }
         } else if (key === 'pins') {
-          const pins = layer[key] as Object[];
+          const pins = layer[key] as object[];
           if (pins.length > 0) {
             newLayer[key] = [];
-            for (let pin of pins) {
+            for (const pin of pins) {
               const newPin = new Pin('', '', '', '', '', '', { x: 0, y: 0 }, 40, PinIcon.animal);
               Object.assign(newPin, pin);
               newPin.draw = 'none';
