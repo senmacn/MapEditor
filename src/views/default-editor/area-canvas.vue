@@ -168,7 +168,7 @@
       currentArea.cancelSelect();
       currentArea.hide();
       const data = currentArea.getData();
-      ctxRef.drawImageData(data, ...currentArea.getBoundRect()).then(() => {
+      ctxRef.drawImageData(data, ...currentArea.getActualBoundRect()).then(() => {
         ctxRef.putSave();
       });
     }
@@ -177,7 +177,7 @@
     const results = controller.getCurrentAreas().map((area) => {
       area.hide();
       area.cancelSelect();
-      ctxRef.drawImageData(area.getData(), ...area.getBoundRect());
+      ctxRef.drawImageData(area.getData(), ...area.getActualBoundRect());
     });
     Promise.all(results).then(() => {
       ctxRef.putSave();
@@ -314,7 +314,7 @@
       );
 
     const areaCanvas1 = <HTMLCanvasElement>document.getElementById('area-canvas-1');
-    areaCanvas1.setAttribute('style', `top: 0px; left: 0px;`);
+    areaCanvas1.setAttribute('style', 'top: 0px; left: 0px;');
     areaCanvas1.width = width / 2;
     areaCanvas1.height = height / 2;
     const areaCanvas2 = <HTMLCanvasElement>document.getElementById('area-canvas-2');

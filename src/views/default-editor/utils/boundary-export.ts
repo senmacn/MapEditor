@@ -22,7 +22,7 @@ export function handleExportBoundary() {
 
   while (!areaNext.done) {
     const name = areaNext.value.getName(),
-      boundRect = areaNext.value.getBoundRect(),
+      boundRect = areaNext.value.getActualBoundRect(),
       data = areaNext.value.getData();
 
     const worker = new DownloadWorker();
@@ -97,7 +97,7 @@ export function handleExportBoundary() {
     willReadFrequently: true,
   }) as CanvasRenderingContext2D;
   canvasState.getAreaMap.forEach((area) => {
-    const boundRect = area.getBoundRect();
+    const boundRect = area.getActualBoundRect();
     // putImageData会相互覆盖，使用drawImage
     const initData = area.getData();
     const offscreenCanvas = new OffscreenCanvas(initData.width, initData.height);

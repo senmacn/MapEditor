@@ -7,7 +7,6 @@ import controller from '../common/canvas-state-controller';
 export default class Area extends DrawElement {
   // 手动选择的内部点，用于填充内容
   private choosePoint;
-  private boundRectPoints: Point[] | undefined;
   // rect 内的data
   public data: ImageData;
 
@@ -23,14 +22,15 @@ export default class Area extends DrawElement {
     }
   }
   getImage() {
-    // 获取图片展示(延迟获取，因为创建时不知道名称；)
+    // 获取图片展示(延迟获取，因为创建时不知道名称)
     const cacheCanvas = document.createElement('canvas');
-    cacheCanvas.width = this.boundRect[2];
-    cacheCanvas.height = this.boundRect[3];
+    const boundRect = this.getActualBoundRect();
+    cacheCanvas.width = boundRect[2];
+    cacheCanvas.height = boundRect[3];
     const cacheCtx = cacheCanvas.getContext('2d', {
       willReadFrequently: true,
     }) as CanvasRenderingContext2D;
-    cacheCtx.putImageData(this.data, 0, 0);
+    cacheCtx.putImageData(this.getData(), 0, 0);
     const dataUrl = cacheCanvas.toDataURL('image/webp', 0.5);
     this.img = dataUrl;
     return this.img;
@@ -44,10 +44,10 @@ export default class Area extends DrawElement {
     return this.data;
   }
   // 使用数据时考虑
-  getActualBoundRect() {
+  getActualBoundRect(): Box {
     if (this.scale !== 1) {
-      // 考虑缩放
-      const boundRect = this.boundRect.slice();
+      // 考虑缩放1
+      const boundRect = <Box>this.boundRect.slice();
       boundRect[2] = this.boundRect[2] * this.scale;
       boundRect[3] = this.boundRect[3] * this.scale;
       return boundRect;
@@ -74,23 +74,15 @@ export default class Area extends DrawElement {
     this.scale = 1;
     this.data = value;
   }
-  getCenterPoint(): PointA {
-    return {
-      x: this.boundRect[0] + this.boundRect[2] / 2,
-      y: this.boundRect[1] + this.boundRect[3] / 2,
-    };
-  }
   // 获取区域轮廓点
   getBoundRectPoints() {
-    if (!this.boundRectPoints) {
-      const points = getPosition(this.getData());
-      points.forEach((point) => {
-        point[0] = point[0] + this.boundRect[0];
-        point[1] = point[1] + this.boundRect[1];
-      });
-      this.boundRectPoints = points;
-    }
-    return this.boundRectPoints;
+    const boundRect = this.getActualBoundRect();
+    const points = getPosition(this.getData());
+    points.forEach((point) => {
+      point[0] = point[0] + boundRect[0];
+      point[1] = point[1] + boundRect[1];
+    });
+    return points;
   }
   // 点是否在区域矩形轮廓内部
   checkPointInArea(point: PointA, offset: Offset) {
@@ -106,10 +98,11 @@ export default class Area extends DrawElement {
     const instance = document.createElement('div');
     instance.setAttribute('id', this.uuid);
     instance.setAttribute('class', 'moveable');
-    const left = 'left: ' + this.boundRect[0] + 'px;';
-    const top = 'top: ' + this.boundRect[1] + 'px;';
-    const width = 'width: ' + this.boundRect[2] + 'px;';
-    const height = 'height: ' + this.boundRect[3] + 'px;';
+    const boundRect = this.getActualBoundRect();
+    const left = 'left: ' + boundRect[0] + 'px;';
+    const top = 'top: ' + boundRect[1] + 'px;';
+    const width = 'width: ' + boundRect[2] + 'px;';
+    const height = 'height: ' + boundRect[3] + 'px;';
     const color = 'color: ' + useEditorConfig().color + ';';
     const backgroundImage = 'background-image: ' + 'url(' + this.getImage() + ');background-size: contain';
     instance.setAttribute('style', top + left + height + width + color + backgroundImage);
