@@ -147,6 +147,7 @@ function _loadSaves(pureObj: Saves, useConfig: boolean) {
               }
               const newArea = new Area(area['name'], newData, area['boundRect'], area['uuid']);
               newArea.layer = newLayer;
+              newArea.scale = area['scale'];
               newArea.setChoosePoint(area['choosePoint']);
               newLayer[key].push(newArea);
             }
