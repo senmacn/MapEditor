@@ -1,15 +1,10 @@
-import { Area } from '../draw-element';
+import type { Area } from '../draw-element';
 import { getDistance } from './canvas-util';
 import FloodFill from '@/utils/q-floodfill';
 
 // 是否是点
 export function isPointInData(data: Uint8ClampedArray, startIndex: number) {
-  return (
-    data[startIndex] > 0 ||
-    data[startIndex + 1] > 0 ||
-    data[startIndex + 2] > 0 ||
-    data[startIndex + 3] > 0
-  );
+  return data[startIndex] > 0 || data[startIndex + 1] > 0 || data[startIndex + 2] > 0 || data[startIndex + 3] > 0;
 }
 
 // 获取范围内点的数量
@@ -36,12 +31,7 @@ export function getPositionCount(imageData: ImageData, x, y, width, height): num
  * @param lineWidth 线段宽度
  * @returns
  */
-export function getConnectEndPoint(
-  imageData: ImageData,
-  point: PointA,
-  lineWidth: number,
-  scope: number,
-) {
+export function getConnectEndPoint(imageData: ImageData, point: PointA, lineWidth: number, scope: number) {
   const endPoints: PointA[] = [];
   const data = imageData.data;
   const checkLength = Math.floor(scope / 2 + lineWidth / 2);
@@ -76,10 +66,7 @@ export function getConnectEndPoint(
           ++connectPointCount;
         // [x, y - 1]
         const topStartIndex = pointStartIndex - 4 * imageData.width;
-        topStartIndex >= 0 &&
-          topStartIndex < data.length &&
-          isPointInData(data, topStartIndex) &&
-          ++connectPointCount;
+        topStartIndex >= 0 && topStartIndex < data.length && isPointInData(data, topStartIndex) && ++connectPointCount;
         // [x + 1, y - 1]
         const rightTopStartIndex = pointStartIndex + 4 - 4 * imageData.width;
         rightTopStartIndex >= 0 &&

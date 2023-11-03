@@ -8,7 +8,7 @@ import { useEditorConfig } from '@/store/modules/editor-config';
 import { useProgressEvent } from '@/components/controlled-progress';
 import { canvasToFile } from '@/utils/file/image';
 
-export function handleExportBoundary() {
+export function handleExportBoundary(interval: number, exportType = true) {
   const configRef = useEditorConfig();
   const localState = useLocalState();
   const localApi = getLocalApi();
@@ -30,7 +30,11 @@ export function handleExportBoundary() {
       const fileName = name + '.boundary.json';
       const retData = e.data;
       if (localApi) {
-        const e = await localApi.saveLocalFile(fileName, JSON.stringify(retData), localState.getDownloadLocation);
+        const e = await localApi.saveLocalFile(
+          fileName,
+          JSON.stringify(exportType ? retData : retData.value),
+          localState.getDownloadLocation,
+        );
         // #[test]
         // let maskCanvasAll: HTMLCanvasElement | null = document.querySelector('#mask-canvas');
         // maskCanvasAll.style.display = 'block';
@@ -38,24 +42,14 @@ export function handleExportBoundary() {
         // if (maskCanvas == null) return;
         // maskCanvas.style.display = 'block';
         // let ctx = maskCanvas.getContext('2d', {}) as CanvasRenderingContext2D;
-        // ctx.fillStyle = 'red';
+        // ctx.strokeStyle = '#00e000';
         // console.log(retData);
-        // const formatPoints = retData.value.map((point) => ([
-        //   Math.round(
-        //     Number(configRef.getProjectSizeConfig.startPointX) +
-        //       (point[0] + boundRect[0]) * Number(configRef.getProjectSizeConfigScale) +
-        //       50,
-        //   ),
-        //   Math.round(
-        //     Number(configRef.getProjectSizeConfig.startPointY) +
-        //       (point[1] + boundRect[1]) * Number(configRef.getProjectSizeConfigScale) +
-        //       50,
-        //   ),
-        // ]));
-
-        // retData.value.forEach((p) => {
-        //   ctx.fillRect(Math.round(p[0]), Math.round(p[1]), 1, 1);
+        // ctx.beginPath();
+        // ctx.moveTo(retData.value[retData.value.length - 1].x, retData.value[retData.value.length - 1].y);
+        // (retData.value as Point[]).forEach((p) => {
+        //   ctx.lineTo(p[0], p[1]);
         // });
+        // ctx.stroke();
         // test end
         if (e) {
           message.error(`区域[${name}]导出失败！`);
@@ -63,7 +57,7 @@ export function handleExportBoundary() {
           return;
         }
       } else {
-        exportFile(fileName, retData);
+        exportType ? exportFile(fileName, retData) : exportFile(fileName, retData.value);
       }
       progress();
       notification.success({
@@ -86,6 +80,7 @@ export function handleExportBoundary() {
       Number(configRef.getProjectSizeConfig.startPointY),
       Number(configRef.getProjectSizeConfigScale),
       areaNext.value.type,
+      interval,
     ]);
 
     areaNext = iter.next();

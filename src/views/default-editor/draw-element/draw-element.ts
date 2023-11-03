@@ -147,7 +147,6 @@ export default class DrawElement implements DrawElementInterface {
         this.scale = Number((newWidth / this.boundRect[2]).toFixed(2));
         target.style.width = `${newWidth}px`;
         target.style.height = `${newHeight}px`;
-        console.log(this);
       });
     // 刚渲染完未被点击时不允许拖拽
     setTimeout(() => {
