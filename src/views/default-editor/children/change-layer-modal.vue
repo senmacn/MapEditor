@@ -1,11 +1,5 @@
 <template>
-  <a-modal
-    class="change-layer-modal"
-    :width="500"
-    :visible="visible"
-    :closable="false"
-    :footer="null"
-  >
+  <a-modal class="change-layer-modal" :width="500" :visible="visible" :closable="false" :footer="null">
     <div class="modal-title">切换图层</div>
     <div class="modal-content">
       <a-row class="title">
@@ -13,11 +7,7 @@
       </a-row>
       <a-row v-for="layer in canvasState.getLayers">
         <div>
-          <a-button
-            type="text"
-            :disabled="layer.uuid === element?.layer?.uuid"
-            @click="handleChangeLayer(layer)"
-          >
+          <a-button type="text" :disabled="layer.uuid === element?.layer?.uuid" @click="handleChangeLayer(layer)">
             <template #icon>
               <right-circle-outlined />
             </template>
@@ -34,10 +24,12 @@
 </template>
 
 <script setup lang="ts">
-  import DrawElement, { Area, Pin } from '../draw-element';
+  import type { Pin } from '../draw-element';
+  import type { Layer } from '../common/types';
+  import type DrawElement from '../draw-element';
+  import { Area } from '../draw-element';
   import { useCanvasState } from '@/store/modules/canvas-state';
   import { GatewayOutlined, BlockOutlined, RightCircleOutlined } from '@ant-design/icons-vue';
-  import { Layer } from '../common/types';
 
   const emit = defineEmits<{
     (e: 'close'): void;
@@ -61,14 +53,10 @@
     const oldLayer = props.element.layer;
     if (oldLayer) {
       if (props.element instanceof Area) {
-        const index = oldLayer.areas.findIndex(
-          (area) => area.getUuid() === props.element?.getUuid(),
-        );
+        const index = oldLayer.areas.findIndex((area) => area.getUuid() === props.element?.getUuid());
         oldLayer.areas.splice(index, 1);
       } else {
-        const index = oldLayer.pins.findIndex(
-          (area) => area.getUuid() === props.element?.getUuid(),
-        );
+        const index = oldLayer.pins.findIndex((area) => area.getUuid() === props.element?.getUuid());
         oldLayer.pins.splice(index, 1);
       }
     }

@@ -19,12 +19,7 @@ export function getColorAtPixel(imageData: ImageData, x: number, y: number): Col
   };
 }
 
-export function setColorAtPixel(
-  imageData: ImageData,
-  color: ColorRGBA,
-  x: number,
-  y: number,
-): void {
+export function setColorAtPixel(imageData: ImageData, color: ColorRGBA, x: number, y: number): void {
   const { width, data } = imageData;
   const startPos = 4 * (y * width + x);
   if (data[startPos + 3] === undefined) {
@@ -52,8 +47,7 @@ export function hex2RGBA(hex: string, alpha = 255): ColorRGBA {
   }
   // convert 3-digit hex to 6-digits.
   if (parsedHex.length === 3) {
-    parsedHex =
-      parsedHex[0] + parsedHex[0] + parsedHex[1] + parsedHex[1] + parsedHex[2] + parsedHex[2];
+    parsedHex = parsedHex[0] + parsedHex[0] + parsedHex[1] + parsedHex[1] + parsedHex[2] + parsedHex[2];
   }
   if (parsedHex.length !== 6) {
     throw new Error(`Invalid HEX color ${parsedHex}.`);
@@ -71,10 +65,9 @@ export function hex2RGBA(hex: string, alpha = 255): ColorRGBA {
 
 export function colorToRGBA(color: string): ColorRGBA {
   if (color.indexOf('rgba') !== -1) {
-    const [_, r, g, b, a] =
-      /rgba\(.*?([0-9]{1,3}).*?([0-9]{1,3}).*?([0-9]{1,3}).*?([0-9\.]{1,3})/g.exec(
-        color,
-      ) as RegExpExecArray;
+    const [_, r, g, b, a] = /rgba\(.*?([0-9]{1,3}).*?([0-9]{1,3}).*?([0-9]{1,3}).*?([0-9.]{1,3})/g.exec(
+      color,
+    ) as RegExpExecArray;
     return {
       r: parseInt(r),
       g: parseInt(g),
@@ -82,9 +75,7 @@ export function colorToRGBA(color: string): ColorRGBA {
       a: Math.ceil(parseFloat(a) * 255),
     };
   } else if (color.indexOf('rgb') !== -1) {
-    const [_, r, g, b] = /rgb\(.*?([0-9]{1,3}).*?([0-9]{1,3}).*?([0-9]{1,3})/g.exec(
-      color,
-    ) as RegExpExecArray;
+    const [_, r, g, b] = /rgb\(.*?([0-9]{1,3}).*?([0-9]{1,3}).*?([0-9]{1,3})/g.exec(color) as RegExpExecArray;
     return {
       r: parseInt(r),
       g: parseInt(g),

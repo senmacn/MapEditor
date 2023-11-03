@@ -7,6 +7,7 @@ export function exportFile(filename: string, data: any, type?: string) {
       break;
     case 'base64':
       uri = data;
+      break;
     default:
       uri = getDownloadUri(data);
   }
@@ -37,6 +38,6 @@ function getJsonDownloadUri(data: any) {
 }
 
 export function checkFileName(fileName: string) {
-  var reg = /^[a-zA-Z0-9_\.-]{1,40}$/;
+  const reg = /^[a-zA-Z0-9_.-]{1,40}$/;
   return reg.test(fileName);
 }

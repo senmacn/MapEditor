@@ -1,5 +1,6 @@
+import type { ColorRGBA } from './colorUtils';
 import { isPointInData } from '@/views/default-editor/utils/image-data-util';
-import { isSameColor, setColorAtPixel, getColorAtPixel, colorToRGBA, ColorRGBA } from './colorUtils';
+import { isSameColor, setColorAtPixel, getColorAtPixel, colorToRGBA } from './colorUtils';
 
 type PixelCoords = {
   x: number;

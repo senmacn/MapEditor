@@ -36,8 +36,7 @@ export default function runner(exeFilePath: string, args: string[], handler?: Ex
 
 export function createShortcut() {
   const transformCommand = `/F:"${join(app.getPath('desktop'), 'mapeditor.lnk')}" /A:C /T:${process.execPath}`;
-  const ToolPath = join(app.getAppPath(), 'tools', 'Shortcut.exe');
-  console.log(transformCommand);
+  const ToolPath = join(process.cwd(), 'tools', 'Shortcut.exe');
 
   runner(ToolPath, [transformCommand]);
 }

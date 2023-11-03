@@ -15,11 +15,7 @@
             <div class="inner-content" @click="handleOpenExportModal">导出文件</div>
           </a-menu-item>
           <a-menu-item key="3">
-            <a-upload
-              :before-upload="(file) => handleLoadSaves(file)"
-              accept=".json"
-              :showUploadList="false"
-            >
+            <a-upload :before-upload="(file) => handleLoadSaves(file)" accept=".json" :showUploadList="false">
               <div class="inner-content">加载文件</div>
             </a-upload>
           </a-menu-item>
@@ -71,10 +67,11 @@
     @emit-close-export="handleCloseExport"
     @emit-format-exp-data="handleFormatExpData"
   />
-  <edit-config-modal
-    :visible="editConfigModalVisible"
-    @close="editConfigModalVisible = false"
-  ></edit-config-modal>
+  <edit-config-modal :visible="editConfigModalVisible" @close="editConfigModalVisible = false"></edit-config-modal>
+  <boundary-export-modal
+    :visible="boundaryExportVisible"
+    @close="boundaryExportVisible = false"
+  ></boundary-export-modal>
 </template>
 
 <script setup lang="ts">
@@ -83,18 +80,18 @@
   import { useEditorConfig } from '@/store/modules/editor-config';
   import { getLocalApi, isLocal } from '@/utils/env';
   import { loadNewSaves } from '@/utils/persist';
-  import { Modal, message, notification } from 'ant-design-vue';
+  import { Modal, message } from 'ant-design-vue';
   import useSaves from './hooks/useSaves';
   import ProjectSizeConfigModal from './children/project-size-config-modal.vue';
   import HistoryModal from './children/history-modal.vue';
   import DisplayOutputModal from './children/display-output-modal.vue';
   import ColorImageModal from './children/color-image-modal.vue';
+  import BoundaryExportModal from './children/boundary-export-modal.vue';
   import ExportModal from './children/export-modal.vue';
   import EditConfigModal from './children/edit-config-modal.vue';
   import { ref } from 'vue';
   import { useLocalState } from '@/store/modules/local-state';
   import { useRouter } from 'vue-router';
-  import { handleExportBoundary } from './utils/boundary-export';
 
   const localApi = getLocalApi();
   const configRef = useEditorConfig();
@@ -102,7 +99,7 @@
   const localState = useLocalState();
 
   function handleOpenProject() {
-    const url = location.href.slice().replace(/\#\/.+/, '#/map-editor?name=');
+    const url = location.href.slice().replace(/#\/.+/, '#/map-editor?name=');
     isLocal() ? localApi?.newWindow(url) : window.open(url);
   }
 
@@ -241,20 +238,13 @@
     displayOutputVisibleRef.value = true;
   }
 
+  const boundaryExportVisible = ref(false);
   function handleAreaBoundaryExport() {
-    Modal.confirm({
-      title: '区域边框数据导出',
-      content: '导出位置将使用【坐标下载位置】，确认导出所有区域边框数据？',
-      okText: '确定',
-      cancelText: '取消',
-      onOk: () => {
-        notification.info({
-          message: '下载坐标',
-          description: `区域边界数据的下载已在后台进行，请勿关闭编辑器！`,
-        });
-        handleExportBoundary();
-      },
-    });
+    if (isLocal() && !localState.getDownloadLocation) {
+      message.warning('导出位置将使用【坐标下载位置】，确认已设置！');
+      return;
+    }
+    boundaryExportVisible.value = true;
   }
 
   const colorImageVisibleRef = ref(false);
@@ -293,7 +283,7 @@
   async function handleMapSizeChanged() {
     // 先保存存档，主要是为了保存尺寸设置
     const name = await handleCreateSaves();
-    const url = location.href.slice().replace(/\#\/.+/, '#/map-editor?name=' + name);
+    const url = location.href.slice().replace(/#\/.+/, '#/map-editor?name=' + name);
     location.replace(url);
     setTimeout(() => {
       location.reload();
