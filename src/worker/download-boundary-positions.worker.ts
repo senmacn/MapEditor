@@ -2,10 +2,10 @@ import { getDistance2 } from '@/views/default-editor/utils/canvas-util';
 import FloodSpread from '@/utils/q-floodfill/FloodSpread';
 
 // 获取imageData中的点(离散,单层)
-function getPosition(imageData: ImageData, interval: number = 2) {
+function getPosition(imageData: ImageData, choosePoint: [number, number], interval: number = 2) {
   // 洪水算法处理边界，并进行基础的XY方向排序
   const floodSpread = new FloodSpread(imageData);
-  floodSpread.spread(Math.floor(imageData.width / 2), Math.floor(imageData.height / 2), 0);
+  floodSpread.spread(choosePoint[0], choosePoint[1], 0);
   const result = floodSpread.getResults().sort((p1, p2) => (p1[1] * 10 + p1[0] > p2[1] * 10 + p2[0] ? 1 : -1));
 
   // 间隔取点
@@ -56,8 +56,8 @@ addEventListener(
   'message',
   function (event) {
     const data = event.data;
-    const [imageData, offsetX, offsetY, ltX, ltY, scale, type, interval] = data;
-    const points = getPosition(imageData, interval);
+    const [imageData, offsetX, offsetY, ltX, ltY, scale, type, choosePoint, interval] = data;
+    const points = getPosition(imageData, choosePoint, interval);
 
     // 取转换厘米后方块中心点
     const formatPoints = points.map((point) => [

@@ -61,9 +61,6 @@ export default class Area extends DrawElement {
   getChoosePoint() {
     if (this.scale !== 1) {
       // 考虑缩放
-      const boundRect = this.boundRect.slice();
-      boundRect[2] = this.boundRect[2] * this.scale;
-      boundRect[3] = this.boundRect[3] * this.scale;
       return [Math.round(this.choosePoint[0] * this.scale), Math.round(this.choosePoint[1] * this.scale)];
     } else {
       return this.choosePoint;

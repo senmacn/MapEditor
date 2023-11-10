@@ -73,15 +73,13 @@ export function dataToBin(
     const blockWidth_CM = MAX_WIDTH_CM / blockSize;
     // 最小
     if (layerWidth_CM < 128) break;
-    let layerDataView = new ExtendedDataView(
-      layerIndex >= 6 ? (layerIndex >= 8 ? (grids * grids) / 16 : 4096) : 1024,
-    );
+    let layerDataView = new ExtendedDataView(layerIndex >= 6 ? (layerIndex >= 8 ? (grids * grids) / 16 : 4096) : 1024);
     // 用 1byte 的二进制位记录下图块尺寸（先默认等于分层块尺寸）
     layerDataView.addByte(Math.log2(blocks));
     let dataFlag = false;
     let prevData: number | null = null;
     let repeatFlag = 0;
-    function _computeRepeat(element: number | null) {
+    const _computeRepeat = (element: number | null) => {
       // 第一项重复或是后续重复直接++返回
       if (element !== null && (element === prevData || repeatFlag === 0)) {
         repeatFlag++;
@@ -114,13 +112,13 @@ export function dataToBin(
         repeatFlag = 0;
         prevData = null;
       }
-    }
+    };
     for (let _y = 0; _y < blockSize; _y++) {
       for (let _x = 0; _x < blockSize; _x++) {
         // 第0层不需要考虑00
         if (layerIndex === 0) continue;
         let _states = '';
-        let _statesNum = { '01': 0, '10': 0, '00': 0 };
+        const _statesNum = { '01': 0, '10': 0, '00': 0 };
         // 遍历图块中的单元格
         for (let indexY = 0; indexY < blocks; indexY++) {
           for (let indexX = 0; indexX < blocks; indexX++) {

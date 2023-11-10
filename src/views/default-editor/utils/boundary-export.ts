@@ -8,6 +8,15 @@ import { useEditorConfig } from '@/store/modules/editor-config';
 import { useProgressEvent } from '@/components/controlled-progress';
 import { canvasToFile } from '@/utils/file/image';
 
+function getCObject(list: Point[]) {
+  return {
+    points: list.map((p) => ({
+      X: p[0],
+      Y: p[1],
+    })),
+  };
+}
+
 export function handleExportBoundary(interval: number, exportType = true) {
   const configRef = useEditorConfig();
   const localState = useLocalState();
@@ -32,7 +41,7 @@ export function handleExportBoundary(interval: number, exportType = true) {
       if (localApi) {
         const e = await localApi.saveLocalFile(
           fileName,
-          JSON.stringify(exportType ? retData : retData.value),
+          JSON.stringify(exportType ? retData : getCObject(retData.value)),
           localState.getDownloadLocation,
         );
         // #[test]
@@ -57,7 +66,7 @@ export function handleExportBoundary(interval: number, exportType = true) {
           return;
         }
       } else {
-        exportType ? exportFile(fileName, retData) : exportFile(fileName, retData.value);
+        exportType ? exportFile(fileName, retData) : exportFile(fileName, getCObject(retData.value));
       }
       progress();
       notification.success({
@@ -80,11 +89,17 @@ export function handleExportBoundary(interval: number, exportType = true) {
       Number(configRef.getProjectSizeConfig.startPointY),
       Number(configRef.getProjectSizeConfigScale),
       areaNext.value.type,
+      [...areaNext.value.getChoosePoint()],
       interval,
     ]);
 
     areaNext = iter.next();
   }
+  // 用于生成碰撞检测的话，在这里已经可以返回了
+  if (!exportType) {
+    return;
+  }
+  // 用于策划观察边框，还需要生成图片
   const dataCanvas = document.createElement('canvas');
   dataCanvas.width = configRef.getProjectSizeConfigFullWidth;
   dataCanvas.height = configRef.getProjectSizeConfigFullHeight;
