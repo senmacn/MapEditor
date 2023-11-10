@@ -1,4 +1,4 @@
-import { Area, Pin } from '../draw-element';
+import type { Area, Pin } from '../draw-element';
 
 export interface CanvasExtendImp {
   setupCanvas: (
