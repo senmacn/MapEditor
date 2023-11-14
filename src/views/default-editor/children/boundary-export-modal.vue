@@ -8,6 +8,10 @@
           <a-slider v-model:value="interval" :max="10" :min="1"></a-slider>
         </a-col>
       </a-row>
+      <a-row class="tip"> 导出间隔越小，导出的点越多，但兼容性会变差。 </a-row>
+      <a-row class="tip"> 导出间隔加大时，对于边角的复杂曲线兼容性会更好。 </a-row>
+      <a-row class="tip"> 如果导出的数据质量不佳，建议调高两档间隔试试。 </a-row>
+      <a-divider></a-divider>
       <a-row>
         <a-col :span="12"> 用于策划观察边框 </a-col>
         <a-col :span="12">
@@ -86,6 +90,10 @@
       &:hover {
         background-color: rgb(149, 184, 255);
       }
+    }
+    .tip {
+      text-align: center;
+      font-size: 12px;
     }
   }
 </style>

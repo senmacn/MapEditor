@@ -29,9 +29,11 @@ function getPosition(imageData: ImageData, choosePoint: [number, number], interv
       }
     }
   }
+  const maxCount = positions.length;
   // 排序
   const sortedPoint: Point[] = [];
   let comparePoint = positions.pop() as Point;
+  const positionFlag = { length: 0, count: 1 };
   while (positions.length > 0) {
     let minPos = 100;
     let minIndex = -1;
@@ -47,6 +49,13 @@ function getPosition(imageData: ImageData, choosePoint: [number, number], interv
       sortedPoint.push(comparePoint);
       comparePoint = positions.splice(minIndex, 1)[0];
     }
+
+    if (positionFlag.count > maxCount * 2) {
+      console.warn('陷入死循环!!!剩余点：' + positions.length);
+      break;
+    }
+    positionFlag.count++;
+    positionFlag.length = positions.length;
   }
 
   return sortedPoint;
