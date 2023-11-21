@@ -1,11 +1,12 @@
-import { mkdirSync, existsSync, writeFileSync, readFileSync } from "fs";
-import { CONFIG_PATH, DATA_DIR, HISTORY_DIR, SAVES_DIR } from "../common/const";
+import { mkdirSync, existsSync, writeFileSync, readFileSync } from 'fs';
+import { CONFIG_PATH, DATA_DIR, HISTORY_DIR, SAVES_DIR } from '../common/const';
 
 export default class UserConfigStore {
   config = {
     exportLocation: '',
     downloadLocation: '',
     colorExportLocation: '',
+    uiExportLocation: '',
     remoteURL: 'http://10.7.1.194:7792',
     autoSaveTime: 5,
     useLatestConfig: false,
@@ -25,12 +26,14 @@ export default class UserConfigStore {
         const config = JSON.parse(readFileSync(CONFIG_PATH, 'utf8'));
         Object.assign(this.config, config);
       }
-    } catch (e) {}
+    } catch (e) {
+      console.warn(e);
+    }
   }
   static instance: UserConfigStore;
   static getInstance(): UserConfigStore {
     if (this.instance) return this.instance;
-    this.instance = new UserConfigStore;
+    this.instance = new UserConfigStore();
     return this.instance;
   }
 }

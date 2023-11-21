@@ -2,6 +2,7 @@ interface UserConfig {
   exportLocation: string;
   downloadLocation: string;
   colorExportLocation: string;
+  uiExportLocation: string;
   remoteURL: string;
   autoSaveTime: number;
   useLatestConfig: boolean;

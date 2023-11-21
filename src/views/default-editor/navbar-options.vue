@@ -32,8 +32,11 @@
           <a-menu-item key="7">
             <div class="inner-content" @click="handleAreaBoundaryExport">边框数据下载</div>
           </a-menu-item>
-          <a-divider></a-divider>
           <a-menu-item key="8">
+            <div class="inner-content" @click="handleUIImageExport">UI图下载</div>
+          </a-menu-item>
+          <a-divider></a-divider>
+          <a-menu-item key="9">
             <div class="inner-content" @click="handleCloseProject">关闭项目</div>
           </a-menu-item>
         </a-menu>
@@ -72,6 +75,7 @@
     :visible="boundaryExportVisible"
     @close="boundaryExportVisible = false"
   ></boundary-export-modal>
+  <ui-image-export-modal :visible="uiImageExportVisible" @close="uiImageExportVisible = false"></ui-image-export-modal>
 </template>
 
 <script setup lang="ts">
@@ -89,6 +93,7 @@
   import BoundaryExportModal from './children/boundary-export-modal.vue';
   import ExportModal from './children/export-modal.vue';
   import EditConfigModal from './children/edit-config-modal.vue';
+  import UiImageExportModal from './children/ui-image-export-modal.vue';
   import { ref } from 'vue';
   import { useLocalState } from '@/store/modules/local-state';
   import { useRouter } from 'vue-router';
@@ -245,6 +250,15 @@
       return;
     }
     boundaryExportVisible.value = true;
+  }
+
+  const uiImageExportVisible = ref(false);
+  function handleUIImageExport() {
+    if (isLocal() && !localState.getUIExportLocation) {
+      message.warning('请设置UI图下载位置！');
+      return;
+    }
+    uiImageExportVisible.value = true;
   }
 
   const colorImageVisibleRef = ref(false);
