@@ -9,13 +9,7 @@
   >
     <div class="modal-title">用户设置</div>
     <div class="modal-content">
-      <a-form
-        size="small"
-        :model="formModel"
-        :labelCol="{ span: 6 }"
-        :wrapperCol="{ span: 18 }"
-        labelAlign="right"
-      >
+      <a-form size="small" :model="formModel" :labelCol="{ span: 6 }" :wrapperCol="{ span: 18 }" labelAlign="right">
         <a-form-item name="downloadLocation" label="坐标下载位置">
           <a-input v-if="isLocal()" v-model:value="formModel.downloadLocation" />
           <a-input v-else disabled placeholder="浏览器环境下此项配置不可用！" />
@@ -26,6 +20,10 @@
         </a-form-item>
         <a-form-item name="colorExportLocation" label="色值图导出位置">
           <a-input v-if="isLocal()" v-model:value="formModel.colorExportLocation" />
+          <a-input v-else disabled placeholder="浏览器环境下此项配置不可用！" />
+        </a-form-item>
+        <a-form-item name="colorExportLocation" label="UI图导出位置">
+          <a-input v-if="isLocal()" v-model:value="formModel.uiExportLocation" />
           <a-input v-else disabled placeholder="浏览器环境下此项配置不可用！" />
         </a-form-item>
         <a-form-item name="colorExportLocation" label="远端服务器地址">
@@ -75,6 +73,7 @@
     exportLocation: localState.getExportLocation,
     downloadLocation: localState.getDownloadLocation,
     colorExportLocation: localState.getColorExportLocation,
+    uiExportLocation: localState.getUIExportLocation,
     remoteURL: localState.getRemoteURL,
     autoSaveTime: localState.getAutoSaveTime,
     useLatestConfig: localState.getUseLatestConfig,
@@ -85,6 +84,7 @@
       exportLocation: formModel.exportLocation,
       downloadLocation: formModel.downloadLocation,
       colorExportLocation: formModel.colorExportLocation,
+      uiExportLocation: formModel.uiExportLocation,
       remoteURL: formModel.remoteURL,
       autoSaveTime: formModel.autoSaveTime,
       useLatestConfig: formModel.useLatestConfig,

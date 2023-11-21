@@ -3,7 +3,7 @@ import { defineStore } from 'pinia';
 
 enum Mode {
   Normal,
-  History
+  History,
 }
 
 const localConfig = {
@@ -14,6 +14,7 @@ const localConfig = {
     exportLocation: '',
     downloadLocation: '',
     colorExportLocation: '',
+    uiExportLocation: '',
     remoteURL: '',
     autoSaveTime: 5,
     useLatestConfig: false,
@@ -41,6 +42,9 @@ export const useLocalState = defineStore({
     },
     getColorExportLocation(): string {
       return this.userConfig.colorExportLocation;
+    },
+    getUIExportLocation(): string {
+      return this.userConfig.uiExportLocation;
     },
     getRemoteURL(): string {
       return this.userConfig.remoteURL;
