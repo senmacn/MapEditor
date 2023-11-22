@@ -3,9 +3,10 @@
     <a-space class="opt-button-group">
       <a-button @click="() => handleOpenProject('')"> <plus-outlined />新建项目 </a-button>
       <a-upload :before-upload="(file) => handleLoadSaves(file)" accept=".json" :showUploadList="false">
-        <a-button> <import-outlined />从文件打开项目 </a-button>
+        <a-button> <import-outlined />打开文件 </a-button>
       </a-upload>
-      <a-button @click="handleShowLinkModal"> <link-outlined />从链接打开项目 </a-button>
+      <a-button @click="handleShowLinkModal"> <link-outlined />读取链接 </a-button>
+      <a-button @click="handleShowShareModal"> <link-outlined />查看共享目录 </a-button>
       <a-button class="history-refresh" :disable="!isLocal()" @click="refreshHistory(false)">
         <sync-outlined> </sync-outlined>
         刷新
@@ -40,6 +41,11 @@
     <project-list :dataSource="dataSource" @refresh-list="refreshHistory"></project-list>
     <user-config-modal :visible="userConfigModalVisibleRef" @close="userConfigModalVisibleRef = false" />
     <share-link-modal :visible="linkModalVisibleRef" @close="() => (linkModalVisibleRef = false)" />
+    <share-directory-modal
+      :visible="shareModalVisibleRef"
+      @success="handleDownloadSuccess"
+      @close="() => (shareModalVisibleRef = false)"
+    />
   </div>
 </template>
 
@@ -65,6 +71,7 @@
   import ProjectList from './project-list.vue';
   import UserConfigModal from '@/components/navbar/user-config-modal.vue';
   import ShareLinkModal from './share-link-modal.vue';
+  import ShareDirectoryModal from './share-directory-modal.vue';
 
   const localApi = getLocalApi();
   const dataSource = ref<LocalMapHistory[]>([]);
@@ -73,7 +80,7 @@
     localApi?.getLocalFileList().then((data: LocalMapHistory[]) => {
       if (isArray(data)) {
         dataSource.value = data;
-        !silence && message.success('历史记录刷新成功！');
+        !silence && message.success('刷新成功！');
       }
     });
   }
@@ -131,6 +138,15 @@
   const linkModalVisibleRef = ref(false);
   function handleShowLinkModal() {
     linkModalVisibleRef.value = true;
+  }
+
+  const shareModalVisibleRef = ref(false);
+  function handleShowShareModal() {
+    shareModalVisibleRef.value = true;
+  }
+  function handleDownloadSuccess() {
+    shareModalVisibleRef.value = false;
+    refreshHistory(false);
   }
 
   function createShortcut() {

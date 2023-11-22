@@ -4,6 +4,7 @@
       <span class="options" v-if="!item.property.star" @click.stop="handleStarItem(true)"> <star-outlined />置顶 </span>
       <span class="options" v-else @click.stop="handleStarItem(false)"> <star-filled />取消置顶 </span>
       <span class="options" @click.stop="editRef = true"> <edit-outlined />重命名</span>
+      <span class="options" @click.stop="handleShareFile"> <cloud-upload-outlined />共享</span>
       <span class="options" @click.stop="handleDownloadProject(item.title)">
         <download-outlined />
         下载
@@ -45,7 +46,14 @@
   import { exportFile } from '@/utils/file';
   import { message, Modal } from 'ant-design-vue';
   import { isObject } from 'lodash-es';
-  import { StarOutlined, StarFilled, DownloadOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons-vue';
+  import {
+    StarOutlined,
+    StarFilled,
+    DownloadOutlined,
+    EditOutlined,
+    DeleteOutlined,
+    CloudUploadOutlined,
+  } from '@ant-design/icons-vue';
 
   const emits = defineEmits<{
     (e: 'refresh-list', silence: boolean): void;
@@ -74,6 +82,27 @@
     if (localApi) {
       await localApi.starItem(props.item.title, star);
       emits('refresh-list', true);
+    }
+  }
+
+  function handleShareFile() {
+    if (localApi) {
+      Modal.confirm({
+        title: '提醒',
+        content: `请确认共享${props.item.title}？如有同名文件将被覆盖！`,
+        okText: '确定',
+        cancelText: '取消',
+        onOk: async () => {
+          if (localApi) {
+            try {
+              await localApi.uploadRemoteFile(props.item.title);
+              message.success('共享成功！可以在共享目录中查看用户共享的文件！');
+            } catch (e) {
+              message.error('共享失败！请检查网络连接、远程url地址，或者联系开发人员！');
+            }
+          }
+        },
+      });
     }
   }
 

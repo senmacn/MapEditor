@@ -74,6 +74,18 @@ class ElectronApi implements LocalApi {
   stringifyData(obj: object) {
     return window['electronAPI'].stringifyData(obj);
   }
+  getRemoteFiles() {
+    return window['electronAPI'].getRemoteFiles();
+  }
+  uploadRemoteFile(filename: string) {
+    return window['electronAPI'].uploadRemoteFile(filename);
+  }
+  downloadRemoteFile(filename: string) {
+    return window['electronAPI'].downloadRemoteFile(filename);
+  }
+  deleteRemoteFile(filename: string) {
+    return window['electronAPI'].deleteRemoteFile(filename);
+  }
   createShortcut() {
     return window['electronAPI'].createShortcut();
   }
