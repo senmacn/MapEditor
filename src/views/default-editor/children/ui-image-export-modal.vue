@@ -106,6 +106,7 @@
           // 绘制背景
           if (areas[0].layer?.map) {
             const image = await dataURLToImage(areas[0].layer?.map as string);
+            // 暂时先填满
             areas[0].layer?.map && fullCtx.drawImage(image, 0, 0, fullCanvas.width, fullCanvas.height);
           }
           for (const area of areas) {
@@ -117,11 +118,7 @@
               willReadFrequently: true,
             });
             context?.putImageData(initData, 0, 0);
-            fullCtx.drawImage(
-              offscreenCanvas,
-              configRef.getProjectSizeConfigPxOffsetX + boundRect[0],
-              configRef.getProjectSizeConfigPxOffsetY + boundRect[1],
-            );
+            fullCtx.drawImage(offscreenCanvas, boundRect[0], boundRect[1]);
           }
           await canvasToFile(fullCanvas, 'image/png', 1).then((blob) => {
             if (!blob) {
@@ -148,11 +145,7 @@
               willReadFrequently: true,
             });
             context?.putImageData(initData, 0, 0);
-            fullCtx.drawImage(
-              offscreenCanvas,
-              configRef.getProjectSizeConfigPxOffsetX + boundRect[0],
-              configRef.getProjectSizeConfigPxOffsetY + boundRect[1],
-            );
+            fullCtx.drawImage(offscreenCanvas, boundRect[0], boundRect[1]);
             await canvasToFile(fullCanvas, 'image/png', 1).then((blob) => {
               if (!blob) {
                 message.warning('构建图片数据为空，请检查区域或尺寸设置！');
