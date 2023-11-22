@@ -92,3 +92,63 @@ export async function executeShareLink(remoteURL: string, link: string) {
     uuid: attr.uuid,
   };
 }
+
+// #Region 共享文件
+export async function shareFileRemote(remote: string, filename: string) {
+  const filePath = path.join(SAVES_DIR, filename);
+  const url = remote + '/file/sharefile';
+  const blob = new Blob([readFileSync(decodeURIComponent(filePath))]);
+  const form = new FormData();
+  form.append('file', blob);
+  form.append('name', filename);
+  const res = await fetch(url, {
+    method: 'POST',
+    body: form,
+  });
+  if (res.status === 200) {
+    const data = await res.text();
+    return data;
+  } else {
+    throw new Error('请求错误！');
+  }
+}
+
+export async function downloadShareFileFromRemote(remote: string, filename: string) {
+  const data = await getFileFromRemote(remote, 'share/' + filename);
+  writeFileSync(path.join(SAVES_DIR, '共享_' + filename), data, {
+    encoding: 'utf8',
+  });
+}
+
+export async function getFilesFromRemote(remote: string) {
+  const url = remote + '/file/getfiles';
+  const res = await fetch(url, {
+    method: 'GET',
+    headers: {
+      responseType: 'text',
+      responseEncoding: 'utf8',
+    },
+  });
+  if (res.status === 200) {
+    const data = await res.json();
+    return data;
+  } else {
+    throw new Error('请求错误！');
+  }
+}
+
+export async function deleteFilesFromRemote(remote: string, filename: string) {
+  const url = remote + '/file/deletefile/' + encodeURIComponent(filename);
+  const res = await fetch(url, {
+    method: 'GET',
+    headers: {
+      responseType: 'json',
+      responseEncoding: 'utf8',
+    },
+  });
+  if (res.status === 200) {
+    return null;
+  } else {
+    throw new Error('请求错误！');
+  }
+}

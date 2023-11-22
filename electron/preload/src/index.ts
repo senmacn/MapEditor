@@ -76,6 +76,18 @@ const electronApi: LocalApi = {
   stringifyData: (obj: object) => {
     return ipcRenderer.invoke('stringify-data', obj);
   },
+  getRemoteFiles: () => {
+    return ipcRenderer.invoke('get-remote-files');
+  },
+  uploadRemoteFile: (filename: string) => {
+    return ipcRenderer.invoke('upload-remote-file', filename);
+  },
+  downloadRemoteFile: (filename: string) => {
+    return ipcRenderer.invoke('download-remote-file', filename);
+  },
+  deleteRemoteFile: (filename: string) => {
+    return ipcRenderer.invoke('delete-remote-file', filename);
+  },
   createShortcut: () => {
     return ipcRenderer.invoke('create-shortcut');
   },

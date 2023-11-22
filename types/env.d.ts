@@ -24,5 +24,9 @@ interface LocalApi {
   openDevTools(): void;
   clearCache(): void;
   stringifyData(obj: object): Promise<LocalResult<string>>;
+  getRemoteFiles(): Promise<Recordable<string>[]>;
+  uploadRemoteFile(filename: string): Promise<void>;
+  downloadRemoteFile(filename: string): Promise<void>;
+  deleteRemoteFile(filename: string): Promise<void>;
   createShortcut(): void;
 }
