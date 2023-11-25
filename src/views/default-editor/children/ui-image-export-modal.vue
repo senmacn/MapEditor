@@ -162,8 +162,14 @@
       });
     })
       .then(() => {
-        // TODO: 自动打开文件夹（在设置中配置）
         message.success('下载成功！');
+
+        localApi &&
+          localApi.getCustomConfig().then((config) => {
+            if (config.autoOpenDownloadDirectory) {
+              localApi.openFolder(localState.getUIExportLocation);
+            }
+          });
       })
       .catch((e) => {
         console.error(e);

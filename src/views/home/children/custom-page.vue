@@ -3,12 +3,22 @@
     <div class="custom-wrapper">
       <div class="custom-title"> 通用设置 </div>
       <div class="custom-content">
-        <a-checkbox
-          v-model:checked="customSettingRef.openProjectInNewWindow"
-          @change="(e) => handleSettingChange(e, 'openProjectInNewWindow')"
-        >
-          打开项目在新窗口显示
-        </a-checkbox>
+        <div>
+          <a-checkbox
+            v-model:checked="customSettingRef.openProjectInNewWindow"
+            @change="(e) => handleSettingChange(e, 'openProjectInNewWindow')"
+          >
+            打开项目在新窗口显示
+          </a-checkbox>
+        </div>
+        <div>
+          <a-checkbox
+            v-model:checked="customSettingRef.autoOpenDownloadDirectory"
+            @change="(e) => handleSettingChange(e, 'autoOpenDownloadDirectory')"
+          >
+            下载完成时自动打开下载目录
+          </a-checkbox>
+        </div>
       </div>
     </div>
     <div class="custom-wrapper">
@@ -51,6 +61,7 @@
 
   const customSettingRef = reactive({
     openProjectInNewWindow: false,
+    autoOpenDownloadDirectory: false,
     ctrlSSaveProject: false,
     closeCPUAcceleration: false,
   });

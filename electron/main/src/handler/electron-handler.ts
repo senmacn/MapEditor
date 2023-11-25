@@ -87,8 +87,8 @@ export default function () {
     }
   });
 
-  ipcMain.handle('open-folder', () => {
-    shell.openPath(path.resolve(process.cwd(), SAVES_DIR));
+  ipcMain.handle('open-folder', (_e, folderName?: string) => {
+    shell.openPath(folderName || path.resolve(process.cwd(), SAVES_DIR));
   });
 
   ipcMain.handle('create-shortcut', () => {

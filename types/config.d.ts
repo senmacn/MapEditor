@@ -14,6 +14,7 @@ interface UserConfig {
 interface CustomSetting {
   openProjectInNewWindow: boolean;
   ctrlSSaveProject: boolean;
+  autoOpenDownloadDirectory: boolean;
   closeCPUAcceleration: boolean;
 }
 

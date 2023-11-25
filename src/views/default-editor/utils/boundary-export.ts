@@ -17,7 +17,7 @@ function getCObject(list: Point[]) {
   };
 }
 
-export function handleExportBoundary(interval: number, exportType = true) {
+export async function handleExportBoundary(interval: number, exportType = true) {
   const configRef = useEditorConfig();
   const localState = useLocalState();
   const localApi = getLocalApi();
@@ -121,7 +121,7 @@ export function handleExportBoundary(interval: number, exportType = true) {
       configRef.getProjectSizeConfigPxOffsetY + boundRect[1],
     );
   });
-  canvasToFile(dataCanvas, 'image/png', 1)
+  await canvasToFile(dataCanvas, 'image/png', 1)
     .then((blob) => {
       if (!blob) {
         message.warning('构建图片数据为空，请检查区域或尺寸设置！');
@@ -132,5 +132,12 @@ export function handleExportBoundary(interval: number, exportType = true) {
     })
     .catch(() => {
       message.error('图片下载失败！');
+    });
+
+  localApi &&
+    localApi.getCustomConfig().then((config) => {
+      if (config.autoOpenDownloadDirectory) {
+        localApi.openFolder(localState.getDownloadLocation);
+      }
     });
 }

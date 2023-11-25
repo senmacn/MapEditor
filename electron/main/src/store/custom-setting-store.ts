@@ -14,6 +14,7 @@ export default class CustomSettingStore {
       name: 'custom-setting',
       defaults: {
         openProjectInNewWindow: false,
+        autoOpenDownloadDirectory: false,
         ctrlSSaveProject: false,
         closeCPUAcceleration: false,
       },

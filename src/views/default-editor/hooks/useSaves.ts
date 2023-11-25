@@ -97,6 +97,12 @@ export default function useSaves() {
                 message.error('导出失败！');
               } else {
                 message.success('导出成功！');
+                localApi &&
+                  localApi.getCustomConfig().then((config) => {
+                    if (config.autoOpenDownloadDirectory) {
+                      localApi.openFolder(localState.getExportLocation);
+                    }
+                  });
               }
             })
             .finally(() => {});
