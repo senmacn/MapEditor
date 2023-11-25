@@ -1,5 +1,5 @@
+import type { ProgressEventPayload, ProgressMessage } from './type';
 import { emitProgressEvent } from './progress-event';
-import { ProgressEventPayload, ProgressMessage } from './type';
 import ControlledProgress from './controlled-progress.vue';
 
 export default ControlledProgress;

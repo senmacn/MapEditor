@@ -52,8 +52,8 @@ const electronApi: LocalApi = {
   closeWindow: () => {
     ipcRenderer.invoke('close-window');
   },
-  openFolder: async () => {
-    return await ipcRenderer.invoke('open-folder');
+  openFolder: async (folderName?: string) => {
+    return await ipcRenderer.invoke('open-folder', folderName);
   },
   concatExr: async (targetDir: string) => {
     return await ipcRenderer.invoke('concat-exr', targetDir);

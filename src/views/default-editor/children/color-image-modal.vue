@@ -99,7 +99,7 @@
 
   function handleExportColorImage() {
     spinningRef.value = true;
-    setTimeout(() => {
+    setTimeout(async () => {
       try {
         const layers = canvasState.getLayers;
         const areas: Area[] = [];
@@ -141,11 +141,11 @@
             const _x = indexX * blockWith;
             const _y = indexY * blockHeight;
             tempCtx.putImageData(fullCtx.getImageData(_x, _y, blockWith, blockHeight), 0, 0);
-            tempCanvas.toBlob(
-              (blob) => {
+            await tempCanvas.toBlob(
+              async (blob) => {
                 const filename = indexX + '_' + indexY + '.jpg';
                 if (localApi) {
-                  blob?.arrayBuffer().then((data) => {
+                  await blob?.arrayBuffer().then((data) => {
                     localApi.saveLocalFile(filename, data as Buffer, localState.getColorExportLocation).then((e) => {
                       if (e) {
                         message.error('色值图导出失败！');
@@ -163,6 +163,13 @@
             );
           }
         }
+        message.success('色值图导出完成！');
+        localApi &&
+          localApi.getCustomConfig().then((config) => {
+            if (config.autoOpenDownloadDirectory) {
+              localApi.openFolder(localState.getUIExportLocation);
+            }
+          });
       } catch (e) {
         message.error('色值图导出失败！');
       }

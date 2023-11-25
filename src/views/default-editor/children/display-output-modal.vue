@@ -212,47 +212,65 @@
   function handleConfirmOkExport() {
     start(areaData.length);
     setTimeout(() => {
+      const promises: Promise<any>[] = [];
       for (let aData of areaData) {
-        const { name, boundRect, data } = aData;
-        const worker = new DownloadWorker();
-        worker.onmessage = async function (e) {
-          const fileName = mixinRef.value ? mixinNameRef.value : name + '.data.bin';
-          const data = e.data;
-          if (localApi) {
-            const e = await localApi.saveLocalFile(fileName, data, localState.getDownloadLocation);
-            if (e) {
-              message.error(`区域[${name}]导出失败！`);
-              console.error(e);
-              return;
-            }
-          } else {
-            exportFile(fileName, data);
-          }
-          progress();
-          notification.success({
-            message: '下载坐标',
-            description: `区域[${name}]下载完成！`,
-          });
-          worker.terminate();
-        };
-        worker.onerror = function (event) {
-          console.error(event);
-          message.error('下载失败！');
-          worker.terminate();
-        };
-        worker.postMessage([
-          data,
-          boundRect[0] + Number(configRef.getProjectSizeConfigPxOffsetX),
-          boundRect[1] + Number(configRef.getProjectSizeConfigPxOffsetY),
-          Number(configRef.getProjectSizeConfigFullWidth),
-          Number(configRef.getProjectSizeConfigFullHeight),
-          Number(configRef.getProjectSizeConfigScale),
-        ]);
-        notification.info({
-          message: '下载坐标',
-          description: `区域[${name}]的下载已在后台进行，请勿关闭编辑器！`,
-        });
+        promises.push(
+          new Promise((resolve) => {
+            const { name, boundRect, data } = aData;
+            const worker = new DownloadWorker();
+            worker.onmessage = async function (e) {
+              const fileName = mixinRef.value ? mixinNameRef.value : name + '.data.bin';
+              const data = e.data;
+              if (localApi) {
+                const e = await localApi.saveLocalFile(fileName, data, localState.getDownloadLocation);
+                if (e) {
+                  message.error(`区域[${name}]导出失败！`);
+                  console.error(e);
+                  return;
+                }
+              } else {
+                exportFile(fileName, data);
+              }
+              progress();
+              notification.success({
+                message: '下载坐标',
+                description: `区域[${name}]下载完成！`,
+              });
+              worker.terminate();
+              resolve(1);
+            };
+            worker.onerror = function (event) {
+              console.error(event);
+              message.error('下载失败！');
+              worker.terminate();
+            };
+            worker.postMessage([
+              data,
+              boundRect[0] + Number(configRef.getProjectSizeConfigPxOffsetX),
+              boundRect[1] + Number(configRef.getProjectSizeConfigPxOffsetY),
+              Number(configRef.getProjectSizeConfigFullWidth),
+              Number(configRef.getProjectSizeConfigFullHeight),
+              Number(configRef.getProjectSizeConfigScale),
+            ]);
+            notification.info({
+              message: '下载坐标',
+              description: `区域[${name}]的下载已在后台进行，请勿关闭编辑器！`,
+            });
+          }),
+        );
       }
+      Promise.all(promises).then(() => {
+        notification.success({
+          message: '下载坐标',
+          description: '所有区域下载完成！',
+        });
+        localApi &&
+          localApi.getCustomConfig().then((config) => {
+            if (config.autoOpenDownloadDirectory) {
+              localApi.openFolder(localState.getDownloadLocation);
+            }
+          });
+      });
     }, 0);
     handleCancel();
   }
