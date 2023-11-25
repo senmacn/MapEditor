@@ -1,25 +1,9 @@
-import { Ref, ref } from 'vue';
-import { Area, Pin } from '../draw-element';
+import { type Ref, ref } from 'vue';
+import { CanvasOption, DrawState, type Layer } from './types';
+import type { Area, Pin, Pathway } from '../draw-element';
 import { message } from 'ant-design-vue';
 import { isArray } from '@/utils/is';
 import PencilSvg from '@/assets/cursor/pencil.svg';
-import { Layer } from './types';
-
-export enum CanvasAreaOption {
-  AreaCheck,
-  AreaAdd,
-  AreaEdit,
-}
-
-export enum CanvasOption {
-  None,
-  FollowMouse,
-  FollowMouseClear,
-  Pen,
-  DrawLine,
-  DrawRect,
-  DrawCircle,
-}
 
 export enum AreaActionType {
   MOVE,
@@ -42,11 +26,12 @@ function setCursor(cursor: string) {
 }
 
 class CanvasStateController {
-  private areaState = ref(CanvasAreaOption.AreaCheck);
+  private drawState = ref(DrawState.Check);
   private state = ref(CanvasOption.None);
   private currentLayer: Ref<Layer | null> = ref(null);
   private currentAreas: Ref<Area[]> = ref([]);
   private currentPin: Ref<Pin | null> = ref(null);
+  private currentPathway: Ref<Pathway | null> = ref(null);
   private actions: AreaAction[] = [];
   constructor() {}
   getState() {
@@ -91,6 +76,9 @@ class CanvasStateController {
   isSelectedArea() {
     return this.currentAreas.value.length;
   }
+  isSelectedPathway() {
+    return this.currentPathway.value;
+  }
   getCurrentAreas() {
     return this.currentAreas.value;
   }
@@ -118,19 +106,19 @@ class CanvasStateController {
     const index = areas.findIndex((_area) => _area.isSame(area));
     this.currentAreas.value = areas.splice(index, 1);
   }
-  startDrawingArea(isAdd: boolean) {
-    this.areaState.value = isAdd ? CanvasAreaOption.AreaAdd : CanvasAreaOption.AreaEdit;
+  startDrawing(state: DrawState) {
+    this.drawState.value = state;
     this.setState(CanvasOption.FollowMouse);
   }
-  endDrawingArea() {
-    this.areaState.value = CanvasAreaOption.AreaCheck;
+  endDrawing() {
+    this.drawState.value = DrawState.Check;
     this.setState(CanvasOption.None);
   }
-  isDrawingArea() {
-    return this.areaState.value === CanvasAreaOption.AreaEdit || this.areaState.value === CanvasAreaOption.AreaAdd;
+  isDrawing() {
+    return this.drawState.value !== DrawState.Check;
   }
-  isEditingArea() {
-    return this.areaState.value === CanvasAreaOption.AreaEdit;
+  isEditing() {
+    return this.drawState.value === DrawState.AreaEdit || this.drawState.value === DrawState.PathwayEdit;
   }
   reset() {
     this.setState(CanvasOption.FollowMouse);
@@ -142,7 +130,18 @@ class CanvasStateController {
     if (this.currentPin.value && (!pin || pin.getUuid() !== this.currentPin.value.getUuid())) {
       this.currentPin.value.cancelSelect();
     }
+    pin?.select();
     this.currentPin.value = pin;
+  }
+  getCurrentPathway() {
+    return this.currentPathway.value;
+  }
+  setCurrentPathway(pathway: Pathway | null) {
+    if (this.currentPathway.value && (!pathway || pathway.getUuid() !== this.currentPathway.value.getUuid())) {
+      this.currentPathway.value.cancelSelect();
+    }
+    pathway?.select();
+    this.currentPathway.value = pathway;
   }
   pushAction(action: AreaAction) {
     this.actions.push(action);

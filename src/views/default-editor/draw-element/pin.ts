@@ -2,7 +2,7 @@ import { getShortUuid } from '@/utils/uuid';
 import { nextTick } from 'vue';
 import DrawElement from './draw-element';
 import { useTooltip } from '@/components/Tooltip/useTooltip';
-import { PinAssociation } from './type';
+import type { PinAssociation } from './type';
 import controller from '../common/canvas-state-controller';
 
 export enum PinIcon {
@@ -94,7 +94,9 @@ export default class Pin extends DrawElement {
     instance.ondblclick = () => {
       controller.setCurrentPin(this);
     };
-    instance.oncontextmenu = this.select.bind(this);
+    instance.oncontextmenu = () => {
+      controller.setCurrentPin(this);
+    };
 
     if (this.draw === 'update') {
       this.target?.removeChild(this.instance as HTMLElement);

@@ -9,7 +9,7 @@
 
 <script setup lang="ts">
   import { onBeforeUnmount, onMounted, watch } from 'vue';
-  import controller, { CanvasOption } from './common/canvas-state-controller';
+  import controller from './common/canvas-state-controller';
   import * as canvasUtil from './utils/canvas-util';
   import * as imageDataUtil from './utils/image-data-util';
   import useExpandCanvas from './hooks/useExpandCanvas';
@@ -20,12 +20,14 @@
     onEditAreaEvent,
     onPersistLineEvent,
     onPersistShapeEvent,
+    onEditPathwayEvent,
   } from './common/event';
-  import { Area } from './draw-element';
+  import { Area, Pathway } from './draw-element';
   import { useEditorConfig } from '@/store/modules/editor-config';
   import { message } from 'ant-design-vue';
   import Pen from './pen/Pen';
   import { useToggle } from '@vueuse/core';
+  import { CanvasOption } from './common/types';
 
   const props = defineProps({
     offset: {
@@ -183,19 +185,31 @@
       ctxRef.putSave();
     });
   });
+  onEditPathwayEvent(function () {
+    const currentPathway = controller.getCurrentPathway();
+    if (currentPathway) {
+      // 新增、编辑时得取消选中
+      currentPathway.cancelSelect();
+      currentPathway.hide();
+      const data = currentPathway.getData();
+      ctxRef.drawImageData(data, ...currentPathway.getActualBoundRect()).then(() => {
+        ctxRef.putSave();
+      });
+    }
+  });
 
   onCanvasRedoEvent(() => {
-    if (controller.isDrawingArea()) {
+    if (controller.isDrawing()) {
       ctxRef.redo();
     }
   });
   onCanvasUndoEvent(() => {
-    if (controller.isDrawingArea()) {
+    if (controller.isDrawing()) {
       ctxRef.undo();
     }
   });
   onPersistLineEvent((_, payload) => {
-    if (controller.isDrawingArea()) {
+    if (controller.isDrawing()) {
       _autoConnect(payload.beginPoint);
       _autoConnect(payload.endPoint);
       ctxRef.drawLine(payload.beginPoint, payload.endPoint);
@@ -203,7 +217,7 @@
     }
   });
   onPersistShapeEvent((_, payload) => {
-    if (controller.isDrawingArea()) {
+    if (controller.isDrawing()) {
       switch (controller.getState()) {
         case CanvasOption.DrawCircle: {
           // @ts-ignore
@@ -346,8 +360,7 @@
     ctxRef.destroy();
   });
 
-  // 对外暴露
-  function getCreatedArea() {
+  function getCreatedData() {
     // 先获取完整的数据内容
     const fullData = ctxRef.getImageData();
     const boundRect = imageDataUtil.getImageDataBoundRect(fullData);
@@ -360,11 +373,20 @@
     // 计算偏移
     boundRect[0] = boundRect[0] + props.offset.x;
     boundRect[1] = boundRect[1] + props.offset.y;
-    const area = new Area('新区域', data, Object.assign({}, boundRect));
-    return area;
+    return [data, Object.assign({}, boundRect)] as any;
+  }
+  // 对外暴露
+  function getCreatedArea() {
+    const [data, boundRect] = getCreatedData();
+    return new Area('新区域', data, Object.assign({}, boundRect));
+  }
+  function getCreatedPathway() {
+    const [data, boundRect] = getCreatedData();
+    return new Pathway('new', data, Object.assign({}, boundRect));
   }
   defineExpose({
     getCreatedArea,
+    getCreatedPathway,
   });
 </script>
 

@@ -59,11 +59,11 @@
   const canvasState = useCanvasState();
 
   function handleDrawArea() {
-    controller.startDrawingArea(true);
+    controller.startDrawing(true);
   }
 
   function handleDrawAreaBaseOnChoose() {
-    controller.startDrawingArea(true);
+    controller.startDrawing(true);
     setTimeout(() => {
       emitEditWithAreaEvent();
     }, 30);

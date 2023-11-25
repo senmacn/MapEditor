@@ -1,11 +1,12 @@
 import type { Layer } from '@/views/default-editor/common/types';
-import type { Area, Pin } from '@/views/default-editor/draw-element';
+import type { Area, Pin, Pathway } from '@/views/default-editor/draw-element';
 import { defineStore } from 'pinia';
 
 interface CanvasState {
   layers: Layer[];
-  areaMap: Map<String, Area>;
-  pinMap: Map<String, Pin>;
+  areaMap: Map<string, Area>;
+  pinMap: Map<string, Pin>;
+  pathwayMap: Map<string, Pathway>;
   offset: {
     x: number;
     y: number;
@@ -18,17 +19,21 @@ export const useCanvasState = defineStore({
     layers: [],
     areaMap: new Map(),
     pinMap: new Map(),
+    pathwayMap: new Map(),
     offset: {
       x: 0,
       y: 0,
     },
   }),
   getters: {
-    getAreaMap(): Map<String, Area> {
+    getAreaMap(): Map<string, Area> {
       return this.areaMap;
     },
-    getPinMap(): Map<String, Pin> {
+    getPinMap(): Map<string, Pin> {
       return this.pinMap;
+    },
+    getPathwayMap(): Map<string, Pathway> {
+      return this.pathwayMap;
     },
     getOffset(): Offset {
       return this.offset;
@@ -49,6 +54,9 @@ export const useCanvasState = defineStore({
       const pinMap = new Map();
       layers.forEach((layer) => layer.pins.forEach((pin) => pinMap.set(pin.getUuid(), pin)));
       this.pinMap = pinMap;
+      const pathwayMap = new Map();
+      layers.forEach((layer) => layer.pathways.forEach((pathway) => pathwayMap.set(pathway.getUuid(), pathway)));
+      this.pathwayMap = pathwayMap;
       // @ts-ignore TODO: execute
       this.layers = layers;
     },

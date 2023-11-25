@@ -35,8 +35,11 @@
           <a-menu-item key="8">
             <div class="inner-content" @click="handleUIImageExport">UI图下载</div>
           </a-menu-item>
-          <a-divider></a-divider>
           <a-menu-item key="9">
+            <div class="inner-content" @click="handlePathwayExport">路径导出</div>
+          </a-menu-item>
+          <a-divider></a-divider>
+          <a-menu-item key="10">
             <div class="inner-content" @click="handleCloseProject">关闭项目</div>
           </a-menu-item>
         </a-menu>
@@ -64,6 +67,7 @@
   <history-modal :visible="historyOutputVisibleRef" @close="handleCloseHistoryModal" />
   <display-output-modal :visible="displayOutputVisibleRef" @cancel="handleConfirmCancelExport" />
   <color-image-modal :visible="colorImageVisibleRef" @cancel="handleColorImageExport" />
+  <pathway-export-modal :visible="pathwayExportVisibleRef" @close="pathwayExportVisibleRef = false" />
   <export-modal
     :visible="exportModalRef"
     :layers="canvasState.getLayers"
@@ -91,6 +95,7 @@
   import DisplayOutputModal from './children/display-output-modal.vue';
   import ColorImageModal from './children/color-image-modal.vue';
   import BoundaryExportModal from './children/boundary-export-modal.vue';
+  import PathwayExportModal from './children/pathway-export-modal.vue';
   import ExportModal from './children/export-modal.vue';
   import EditConfigModal from './children/edit-config-modal.vue';
   import UiImageExportModal from './children/ui-image-export-modal.vue';
@@ -127,12 +132,14 @@
     exportModalRef.value = false;
   }
   function handleFormatExpData(data: any) {
-    const { layers, areas, pins } = data;
+    // TODO: 导出pathways
+    const { layers, areas, pins, pathways } = data;
     const expLayerAreaData: any = [];
     for (let i = 0; i < layers.length; i += 1) {
       expLayerAreaData.push({
         ...canvasState.layers.slice(layers[i], layers[i] + 1)[0],
         areas: [],
+        pathways: [],
         pins: [],
       });
     }
@@ -146,14 +153,24 @@
           : expLayerAreaData[i - 1].areas.push(canvasState.layers[i].areas[areas[i][j]]);
       }
     }
-    for (let i = 0; i < areas.length; i += 1) {
-      if (!areas[i].length) {
+    for (let i = 0; i < pins.length; i += 1) {
+      if (!pins[i].length) {
         continue;
       }
       for (let j = 0; j < pins[i].length; j += 1) {
         expLayerAreaData[i]
           ? expLayerAreaData[i].pins.push(canvasState.layers[i].pins[pins[i][j]])
           : expLayerAreaData[i - 1].pins.push(canvasState.layers[i].pins[pins[i][j]]);
+      }
+    }
+    for (let i = 0; i < pathways.length; i += 1) {
+      if (!pathways[i].length) {
+        continue;
+      }
+      for (let j = 0; j < pathways[i].length; j += 1) {
+        expLayerAreaData[i]
+          ? expLayerAreaData[i].pathways.push(canvasState.layers[i].pathways[pathways[i][j]])
+          : expLayerAreaData[i - 1].pathways.push(canvasState.layers[i].pathways[pathways[i][j]]);
       }
     }
     handleExportSaves(expLayerAreaData);
@@ -271,6 +288,15 @@
   }
   function handleColorImageExport() {
     colorImageVisibleRef.value = false;
+  }
+
+  const pathwayExportVisibleRef = ref(false);
+  function handlePathwayExport() {
+    if (isLocal() && !localState.getDownloadLocation) {
+      message.warning('导出位置将使用【坐标下载位置】，确认已设置！');
+      return;
+    }
+    pathwayExportVisibleRef.value = true;
   }
 
   const router = useRouter();

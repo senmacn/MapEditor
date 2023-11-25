@@ -47,6 +47,14 @@ const onEditAreaEvent = (listener: EventBusListener) => {
 };
 const emitEditAreaEvent = () => editAreaBus.emit(editAreaEvent);
 
+const editPathwayEvent = Symbol('editPathway');
+const editPathwayBus = useEventBus<symbol>(editPathwayEvent);
+const onEditPathwayEvent = (listener: EventBusListener) => {
+  editPathwayBus.on(listener);
+  onUnmounted(() => editPathwayBus.off(listener));
+};
+const emitEditPathwayEvent = () => editPathwayBus.emit(editPathwayEvent);
+
 // 基于已有创建
 const editWithAreaEvent = Symbol('editWithArea');
 const editWithAreaBus = useEventBus<symbol>(editWithAreaEvent);
@@ -64,6 +72,15 @@ const onDeleteAreaEvent = (listener: EventBusListener) => {
   onUnmounted(() => deleteAreaBus.off(listener));
 };
 const emitDeleteAreaEvent = () => deleteAreaBus.emit(deleteAreaEvent);
+
+// 删除路径
+const deletePathwayEvent = Symbol('deletePathway');
+const deletePathwayBus = useEventBus<symbol>(deletePathwayEvent);
+const onDeletePathwayEvent = (listener: EventBusListener) => {
+  deletePathwayBus.on(listener);
+  onUnmounted(() => deletePathwayBus.off(listener));
+};
+const emitDeletePathwayEvent = () => deletePathwayBus.emit(deletePathwayEvent);
 
 // 快速定位
 const focusAreaEvent = Symbol('focusArea');
@@ -91,4 +108,8 @@ export {
   emitDeleteAreaEvent,
   onFocusAreaEvent,
   emitFocusAreaEvent,
+  onEditPathwayEvent,
+  emitEditPathwayEvent,
+  onDeletePathwayEvent,
+  emitDeletePathwayEvent,
 };

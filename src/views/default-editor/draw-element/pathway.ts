@@ -1,12 +1,10 @@
-import { getShortUuid } from '@/utils/uuid';
-import { getPosition, scaleImageData } from '../utils/image-data-util';
-import DrawElement from './draw-element';
 import { useEditorConfig } from '@/store/modules/editor-config';
 import controller from '../common/canvas-state-controller';
+import DrawElement from './draw-element';
+import { getShortUuid } from '@/utils/uuid';
+import { scaleImageData } from '../utils/image-data-util';
 
-export default class Area extends DrawElement {
-  // 手动选择的内部点，用于填充内容
-  private choosePoint;
+export default class Pathway extends DrawElement {
   // rect 内的data
   public data: ImageData;
 
@@ -43,6 +41,7 @@ export default class Area extends DrawElement {
     }
     return this.data;
   }
+
   // 使用数据时考虑
   getActualBoundRect(): Box {
     if (this.scale !== 1) {
@@ -55,32 +54,7 @@ export default class Area extends DrawElement {
       return this.boundRect;
     }
   }
-  setChoosePoint(choosePoint: [number, number]) {
-    this.choosePoint = choosePoint;
-  }
-  getChoosePoint() {
-    if (this.scale !== 1) {
-      // 考虑缩放
-      return [Math.round(this.choosePoint[0] * this.scale), Math.round(this.choosePoint[1] * this.scale)];
-    } else {
-      return this.choosePoint;
-    }
-  }
-  setData(value: ImageData) {
-    // 重置缩放
-    this.scale = 1;
-    this.data = value;
-  }
-  // 获取区域轮廓点
-  getBoundRectPoints() {
-    const boundRect = this.getActualBoundRect();
-    const points = getPosition(this.getData());
-    points.forEach((point) => {
-      point[0] = point[0] + boundRect[0];
-      point[1] = point[1] + boundRect[1];
-    });
-    return points;
-  }
+
   render(target: HTMLElement) {
     // 创建挂载的dom元素
     const instance = document.createElement('div');
@@ -103,10 +77,10 @@ export default class Area extends DrawElement {
     // TODO: onclick 右键
 
     instance.ondblclick = () => {
-      controller.setCurrentAreas([this]);
+      controller.setCurrentPathway(this);
     };
     instance.oncontextmenu = () => {
-      controller.setCurrentAreas([this]);
+      controller.setCurrentPathway(this);
     };
     if (this.draw === 'update' || this.draw === 'done') {
       // 防止切换时target变了
@@ -125,6 +99,7 @@ export default class Area extends DrawElement {
 
     // useTooltip({ target: instance, props: { title: this.name } });
   }
+
   select(silence?: boolean) {
     if (this.selected) {
       return;

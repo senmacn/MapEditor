@@ -15,7 +15,7 @@
 
 <script setup lang="ts">
   import useExpandCanvas from './hooks/useExpandCanvas';
-  import controller, { CanvasOption } from './common/canvas-state-controller';
+  import controller from './common/canvas-state-controller';
   import { getPos } from './utils/canvas-util';
   import { onBeforeUnmount, onMounted } from 'vue';
   import { emitPersistLineEvent, emitPersistShapeEvent } from './common/event';
@@ -23,6 +23,7 @@
   import { useEditorConfig } from '@/store/modules/editor-config';
   import { useToggle } from '@vueuse/core';
   import throttle from 'lodash-es/throttle';
+  import { CanvasOption } from './common/types';
 
   // canvas相关
   const ctxRef = useExpandCanvas();
@@ -154,7 +155,7 @@
       );
 
     const maskCanvas1 = <HTMLCanvasElement>document.getElementById('mask-canvas-1');
-    maskCanvas1.setAttribute('style', `top: 0px; left: 0px;`);
+    maskCanvas1.setAttribute('style', 'top: 0px; left: 0px;');
     maskCanvas1.width = width / 2;
     maskCanvas1.height = height / 2;
     const maskCanvas2 = <HTMLCanvasElement>document.getElementById('mask-canvas-2');

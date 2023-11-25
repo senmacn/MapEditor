@@ -61,7 +61,6 @@ const stringify = fastJson({
               properties: {
                 uuid: { type: 'string' },
                 name: { type: 'string' },
-                draw: { type: 'string' },
                 scale: { type: 'number' },
                 type: { type: 'string' },
                 visible: { type: 'boolean' },
@@ -72,6 +71,31 @@ const stringify = fastJson({
                   },
                 },
                 choosePoint: {
+                  type: 'array',
+                  items: {
+                    type: 'number',
+                  },
+                },
+                data: {
+                  type: 'object',
+                  additionalProperties: {
+                    type: 'number',
+                  },
+                },
+              },
+            },
+          },
+          pathways: {
+            type: 'array',
+            items: {
+              type: 'object',
+              properties: {
+                uuid: { type: 'string' },
+                name: { type: 'string' },
+                scale: { type: 'number' },
+                type: { type: 'string' },
+                visible: { type: 'boolean' },
+                boundRect: {
                   type: 'array',
                   items: {
                     type: 'number',
@@ -100,7 +124,6 @@ const stringify = fastJson({
                     type: 'number',
                   },
                 },
-                draw: { type: 'string' },
                 scale: { type: 'number' },
                 visible: { type: 'boolean' },
                 author: { type: 'string' },
@@ -128,18 +151,14 @@ const stringify = fastJson({
 });
 
 export function stringifySave(obj: object | string) {
-  try {
-    if (typeof obj === 'string') {
-      return obj;
-    } else {
-      const jsonStr = stringify(obj);
-      // stringify 解析错误，使用 JSON 的 stringify
-      if (jsonStr === '{}') {
-        return JSON.stringify(obj);
-      }
-      return jsonStr;
+  if (typeof obj === 'string') {
+    return obj;
+  } else {
+    const jsonStr = stringify(obj);
+    // stringify 解析错误，使用 JSON 的 stringify
+    if (jsonStr === '{}') {
+      return JSON.stringify(obj);
     }
-  } catch (err) {
-    throw err;
+    return jsonStr;
   }
 }

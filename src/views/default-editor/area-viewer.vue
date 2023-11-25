@@ -3,11 +3,11 @@
 </template>
 
 <script setup lang="ts">
+  import type { Area, Pathway, Pin } from './draw-element';
+  import type { Layer } from './common/types';
   import { ref, watch } from 'vue';
-  import { Layer } from './common/types';
   import controller from './common/canvas-state-controller';
-  import { onDeleteAreaEvent } from './common/event';
-  import { Area, Pin } from './draw-element';
+  import { onDeleteAreaEvent, onDeletePathwayEvent } from './common/event';
   import { useCanvasState } from '@/store/modules/canvas-state';
 
   const props = defineProps({
@@ -39,7 +39,7 @@
 
   // 添加区域时渲染
   const areaViewer = ref();
-  function render(element: Area | Pin) {
+  function render(element: Area | Pin | Pathway) {
     if (areaViewer.value) {
       element.render(areaViewer.value);
       element.drawAreaComplete();
@@ -80,6 +80,21 @@
     },
     { deep: true, immediate: true },
   );
+  watch(
+    () => props.layer?.pathways,
+    () => {
+      if (props.layer && props.layer.pathways && props.layer.pathways.length > 0) {
+        for (let index = 0; index < props.layer.pathways.length; index++) {
+          const pathway = props.layer.pathways[index];
+          // 绘制更新
+          if (!pathway.getDrawAreaComplete() || pathway.getDrawAreaUpdate()) {
+            render(pathway);
+          }
+        }
+      }
+    },
+    { deep: true, immediate: true },
+  );
 
   const canvasState = useCanvasState();
   onDeleteAreaEvent(() => {
@@ -94,6 +109,14 @@
           canvasState.getAreaMap.delete(areas[0].getUuid());
         }
       }
+    }
+  });
+  onDeletePathwayEvent(() => {
+    const currentPathway = controller.getCurrentPathway();
+    if (props.layer && currentPathway) {
+      currentPathway.destroy();
+      controller.setCurrentPathway(null);
+      canvasState.getPathwayMap.delete(currentPathway.getUuid());
     }
   });
 </script>

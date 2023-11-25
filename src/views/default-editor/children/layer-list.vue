@@ -71,7 +71,13 @@
             </a-space>
           </div>
         </div>
-        <area-list v-if="layer.visible" :areas="layer.areas" :pins="layer.pins" :lock="layer.lock" />
+        <area-list
+          v-if="layer.visible"
+          :areas="layer.areas"
+          :pins="layer.pins"
+          :pathways="layer.pathways"
+          :lock="layer.lock"
+        />
       </li>
     </transition-group>
     <a-tooltip title="添加图层">
@@ -144,6 +150,7 @@
       visible: true,
       map: null,
       areas: [],
+      pathways: [],
       pins: [],
       transparency: 1,
     });

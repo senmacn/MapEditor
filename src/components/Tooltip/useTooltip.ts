@@ -9,8 +9,8 @@ export interface UseTooltipOptions {
 export function useTooltip(opt: UseTooltipOptions): [(s: string) => void];
 
 export function useTooltip(opt: UseTooltipOptions): [(s: string) => void] {
-  let props = opt.props || {};
-  let target = opt.target;
+  const props = opt.props || {};
+  const target = opt.target;
 
   const instance = createTooltip(unref(target) || document.createElement('div'), props, true);
 

@@ -1,7 +1,7 @@
 import type { EditorConfig } from '@/store/modules/editor-config';
 import type { Layer } from '@/views/default-editor/common/types';
 import { useEditorConfig } from '@/store/modules/editor-config';
-import { Area, Pin, PinIcon } from '@/views/default-editor/draw-element';
+import { Area, Pin, PinIcon, Pathway } from '@/views/default-editor/draw-element';
 import { toRaw } from 'vue';
 
 interface Saves {
@@ -62,7 +62,7 @@ export async function createSaves(layers: Layer[]) {
     const pins: Partial<Area>[] = [];
     layer.pins.forEach((pin) => {
       const newPin = Object.assign({}, toRaw(pin));
-      newPin.association = Object.assign({}, toRaw(pin.association));
+      newPin.association = [...toRaw(pin.association)];
       // 删除一些用不到且很难序列化的属性
       Reflect.deleteProperty(newPin, 'instance');
       Reflect.deleteProperty(newPin, 'moveable');
@@ -79,6 +79,27 @@ export async function createSaves(layers: Layer[]) {
       pins.push(newPin);
     });
     partLay.pins = pins as Pin[];
+
+    const pathways: Partial<Pathway>[] = [];
+    layer.pathways.forEach((pathway) => {
+      const newPathway = Object.assign({}, toRaw(pathway));
+      // 删除一些用不到且很难序列化的属性
+      Reflect.deleteProperty(newPathway, 'instance');
+      Reflect.deleteProperty(newPathway, 'moveable');
+      Reflect.deleteProperty(newPathway, 'target');
+      Reflect.deleteProperty(newPathway, 'img');
+      // 处理循环引用
+      Reflect.deleteProperty(newPathway, 'layer');
+      // 处理 undefined Key
+      Object.keys(newPathway).forEach((key) => {
+        if (typeof newPathway[key] === 'undefined') {
+          Reflect.deleteProperty(newPathway, key);
+        }
+      });
+      newPathway.data = stringifyImageData(pathway.data) as any;
+      pathways.push(newPathway);
+    });
+    partLay.pathways = pathways as Pathway[];
 
     partLayers.push(partLay);
   });
@@ -163,10 +184,38 @@ function _loadSaves(pureObj: Saves, useConfig: boolean) {
               newLayer[key].push(newPin);
             }
           }
+        } else if (key === 'pathways') {
+          const pathways = layer[key] as object[];
+          if (pathways.length > 0) {
+            newLayer[key] = [];
+            for (const pathway of pathways) {
+              // imagedata 的 data 序列化后为普通的（序列化）数组，因此得重新生成 Uint8ClampedArray
+              // TODO: 删除 兼容旧数据
+              let newData;
+              try {
+                newData = parseImageData(pathway['data']);
+              } catch (_) {
+                const newArray: any[] = [];
+                Object.keys(pathway['data'].data).forEach((key) => {
+                  newArray[Number(key)] = pathway['data'].data[key];
+                });
+                const newUint8Array = new Uint8ClampedArray(newArray);
+                newData = new ImageData(newUint8Array, pathway['boundRect'][2], pathway['boundRect'][3]);
+              }
+              const newPathway = new Pathway(pathway['name'], newData, pathway['boundRect'], pathway['uuid']);
+              newPathway.layer = newLayer;
+              newPathway.scale = pathway['scale'];
+              newLayer[key].push(newPathway);
+            }
+          }
         } else {
           newLayer[key] = layer[key];
         }
       });
+      // 兼容没有pathway的旧数据
+      if (!Reflect.has(newLayer, 'pathways')) {
+        newLayer.pathways = [];
+      }
       saves.layers.push(newLayer);
     }
   }

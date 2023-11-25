@@ -15,8 +15,9 @@
       </div>
       <div class="area-name" @click="changeName(index, area.getName())">
         <a-tooltip :title="'类型-' + area.type">
-          <gateway-outlined v-if="area instanceof Area" />
-          <pushpin-outlined v-else></pushpin-outlined>
+          <gateway-outlined v-if="Boolean(area instanceof Area)" />
+          <pushpin-outlined v-if="Boolean(area instanceof Pin)" />
+          <node-index-outlined v-if="Boolean(area instanceof Pathway)" />
           <span v-if="changeNameItemRef.index !== index">{{ area.getName() }}</span>
           <a-input
             v-else
@@ -56,9 +57,8 @@
 <script setup lang="ts">
   import type { Ref } from 'vue';
   import type DrawElement from '../draw-element';
-  import type { Pin } from '../draw-element';
   import { computed, reactive, ref } from 'vue';
-  import { Area } from '../draw-element';
+  import { Area, Pathway, Pin } from '../draw-element';
   import { emitFocusAreaEvent } from '../common/event';
   import {
     PushpinOutlined,
@@ -67,6 +67,7 @@
     AimOutlined,
     EyeOutlined,
     EyeInvisibleOutlined,
+    NodeIndexOutlined,
   } from '@ant-design/icons-vue';
   import ChangeLayerModal from './change-layer-modal.vue';
   import { message } from 'ant-design-vue';
@@ -80,6 +81,10 @@
       type: Array as PropType<Pin[]>,
       default: () => [],
     },
+    pathways: {
+      type: Array as PropType<Pathway[]>,
+      default: () => [],
+    },
     lock: {
       type: Boolean,
       default: false,
@@ -87,11 +92,7 @@
   });
 
   const visibleList = computed(() => {
-    if (props.areas.length + props.pins.length > 0) {
-      return [...props.areas, ...props.pins].filter((ele) => ele.visible);
-    } else {
-      return [];
-    }
+    return [...props.areas, ...props.pins, ...props.pathways].filter((ele) => ele.visible);
   });
 
   const hideStatesRef = reactive({});

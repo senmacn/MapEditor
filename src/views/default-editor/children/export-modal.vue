@@ -11,11 +11,7 @@
     <div class="modal-title">请选择导出图层</div>
     <div class="modal-content">
       <div class="layer-group">
-        <a-checkbox
-          v-model:checked="state.checkAll"
-          :indeterminate="state.indeterminate"
-          @change="onCheckAllChange"
-        >
+        <a-checkbox v-model:checked="state.checkAll" :indeterminate="state.indeterminate" @change="onCheckAllChange">
           全部
         </a-checkbox>
         <a-checkbox-group v-model:value="state.checkedLayerList" class="layer-opts">
@@ -44,6 +40,16 @@
                   </a-col>
                 </a-row>
               </a-checkbox-group>
+              <a-checkbox-group v-model:value="state.checkedPathwayList[idx]" class="layer-area-opts">
+                <a-row>
+                  <a-col :span="6" v-for="(pathway, adx) in item.pathways" :key="adx">
+                    <a-checkbox :value="pathway.value" @change="handleChangeArea(idx)">
+                      <pushpin-outlined />
+                      <span class="area-opt-label">{{ pathway.label }}</span>
+                    </a-checkbox>
+                  </a-col>
+                </a-row>
+              </a-checkbox-group>
             </a-col>
           </a-row>
         </a-checkbox-group>
@@ -57,10 +63,10 @@
 </template>
 
 <script setup lang="ts">
+  import type { Area, Pathway, Pin } from '../draw-element';
+  import type { Layer } from '../common/types';
   import { ref, reactive, watch, nextTick } from 'vue';
   import { PushpinOutlined, GatewayOutlined } from '@ant-design/icons-vue';
-  import { Layer } from '../common/types';
-  import { Area, Pin } from '../draw-element';
 
   const props = defineProps({
     visible: {
@@ -75,12 +81,21 @@
   const emits = defineEmits(['emitCloseExport', 'emitFormatExpData']);
 
   const visibleRef = ref(false);
-  const state: any = reactive({
+  const state = reactive<{
+    indeterminate: boolean;
+    checkAll: boolean;
+    checkedLayerList: any[];
+    checkedAreaList: any[];
+    checkedPinList: any[];
+    checkedPathwayList: any[];
+    plainOptions: any[];
+  }>({
     indeterminate: false,
     checkAll: true,
     checkedLayerList: [],
     checkedAreaList: [],
     checkedPinList: [],
+    checkedPathwayList: [],
     plainOptions: [],
   });
 
@@ -105,6 +120,13 @@
             });
           })
         : [],
+      checkedPathwayList: e.target.checked
+        ? state.plainOptions.map((item) => {
+            return item.pathways.map((pathway) => {
+              return pathway.value;
+            });
+          })
+        : [],
       indeterminate: false,
     });
   };
@@ -125,6 +147,11 @@
     const pinOrders = state.plainOptions.map((item: any) => {
       return item.pins.map((pin: any) => {
         return pin.value;
+      });
+    });
+    const pathwayOrders = state.plainOptions.map((item: any) => {
+      return item.pathways.map((pathway: any) => {
+        return pathway.value;
       });
     });
     const resultLayersIdx: Array<number> = [];
@@ -154,10 +181,21 @@
         }
       }
     }
+    const resultPathwaysIdx: number[][] = [];
+    for (let i = 0; i < pathwayOrders.length; i++) {
+      resultPathwaysIdx.push([]);
+      for (let j = 0; j < pathwayOrders[i].length; j++) {
+        const index = state.checkedPathwayList[i].indexOf(pathwayOrders[i][j]);
+        if (index > -1) {
+          resultPathwaysIdx[i].push(j);
+        }
+      }
+    }
     emits('emitFormatExpData', {
       layers: resultLayersIdx,
       areas: resultAreasIdx,
       pins: resultPinsIdx,
+      pathways: resultPathwaysIdx,
     });
     handleCancel();
   }
@@ -177,12 +215,16 @@
       if (index < 0) {
         state.checkedAreaList[idx] = [];
         state.checkedPinList[idx] = [];
+        state.checkedPathwayList[idx] = [];
       } else {
         state.checkedAreaList[idx] = state.plainOptions[idx].areas.map((area) => {
           return area.value;
         });
         state.checkedPinList[idx] = state.plainOptions[idx].pins.map((pin) => {
           return pin.value;
+        });
+        state.checkedPathwayList[idx] = state.plainOptions[idx].pins.map((pathway) => {
+          return pathway.value;
         });
       }
     });
@@ -214,6 +256,12 @@
               value: pin.getUuid(),
             };
           }),
+          pathways: item.pathways.map((pathway: Pathway) => {
+            return {
+              label: pathway.getName(),
+              value: pathway.getUuid(),
+            };
+          }),
         };
       });
       state.checkedLayerList = props.layers.map((item) => {
@@ -227,6 +275,11 @@
       state.checkedPinList = props.layers.map((item) => {
         return item.pins.map((pin) => {
           return pin.getUuid();
+        });
+      });
+      state.checkedPathwayList = props.layers.map((item) => {
+        return item.pathways.map((pathway) => {
+          return pathway.getUuid();
         });
       });
     },

@@ -166,7 +166,7 @@
 
 <script setup lang="ts">
   import { useEditorConfig } from '@/store/modules/editor-config';
-  import controller, { CanvasOption } from '../common/canvas-state-controller';
+  import controller from '../common/canvas-state-controller';
   import { emitCanvasUndoEvent, emitCanvasRedoEvent } from '../common/event';
   import { computed, onMounted, ref } from 'vue';
   import {
@@ -178,6 +178,7 @@
     ToolOutlined,
   } from '@ant-design/icons-vue';
   import { useColorPicker } from '@/hooks/useColorPicker';
+  import { CanvasOption } from '../common/types';
 
   function handleChangeOptionState(state: CanvasOption) {
     controller.setState(state);
@@ -186,7 +187,7 @@
   const config = useEditorConfig();
 
   const editableRef = computed(() => {
-    if (controller.isDrawingArea()) {
+    if (controller.isDrawing()) {
       editShowRef.value = true;
       stableRef.value = true;
       return true;

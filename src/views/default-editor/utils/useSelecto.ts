@@ -1,4 +1,5 @@
-import { Ref, onBeforeUnmount, onMounted, unref, watch } from 'vue';
+import type { Ref } from 'vue';
+import { onBeforeUnmount, onMounted, unref, watch } from 'vue';
 import Selecto from 'selecto';
 import { useCanvasState } from '@/store/modules/canvas-state';
 import Moveable from 'moveable';
@@ -175,9 +176,9 @@ export default function useSelecto(target: Ref<HTMLElement> | HTMLElement = docu
 
   // 新增、编辑时得取消选中
   watch(
-    () => controller.isDrawingArea(),
+    () => controller.isDrawing(),
     () => {
-      if (controller.isDrawingArea()) {
+      if (controller.isDrawing()) {
         selecto && selecto.setSelectedTargets([]);
         if (moveable) {
           moveable.target = null;

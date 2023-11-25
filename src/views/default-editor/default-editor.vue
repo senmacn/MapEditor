@@ -1,6 +1,6 @@
 <template>
   <div class="map-editor" :style="{ height: isLocal() ? 'calc(100vh - 100px)' : 'calc(100vh - 70px)' }">
-    <default-options @end-edit-area="handleEndDrawingArea" />
+    <default-options @end-edit-area="handleEndDrawingArea" @end-edit-pathway="handleEndDrawingPathway" />
     <div class="content-box">
       <div ref="hRuler" class="ruler h-ruler" />
       <div ref="vRuler" class="ruler v-ruler" />
@@ -19,7 +19,7 @@
   import DefaultOptions from './default-options.vue';
   import { getRandomDomId } from '../../utils/uuid';
   import controller from './common/canvas-state-controller';
-  import type { Area } from './draw-element';
+  import type { Area, Pathway } from './draw-element';
   import useRuler from '@/hooks/useRuler';
   import { useCanvasState } from '@/store/modules/canvas-state';
   import { useEditorConfig } from '@/store/modules/editor-config';
@@ -40,6 +40,7 @@
         visible: true,
         map: null,
         areas: [],
+        pathways: [],
         pins: [],
       },
     ]);
@@ -129,7 +130,7 @@
       confirmData.rect[1] = confirmData.rect[1] + oldRect[1];
       area.setBoundRect(confirmData.rect.slice());
       // 假如是编辑的话，删除原有区域
-      if (controller.isEditingArea()) {
+      if (controller.isEditing()) {
         // TODO: 最好保证uuid不变
         // const initialArea = controller.getCurrentAreas()[0];
         // initialArea && area.setUuid(initialArea.getUuid());
@@ -140,7 +141,6 @@
         if (element.hot) {
           area.setName(name);
           area.type = type;
-          // @ts-ignore
           element.areas.push(area);
           area.layer = element;
           canvasState.getAreaMap.set(area.getUuid(), area);
@@ -148,7 +148,7 @@
       }
     }
     controller.getCurrentAreas().forEach((area) => area.show());
-    controller.endDrawingArea();
+    controller.endDrawing();
     // 最后更新一下选中
     controller.setCurrentAreas([]);
   }
@@ -163,6 +163,34 @@
           rect,
         });
     }
+  }
+
+  // 路径编辑
+  function handleEndDrawingPathway(name: string, type: string, complete: boolean) {
+    if (complete && areaCanvasRef.value) {
+      const pathway: Pathway = areaCanvasRef.value.getCreatedPathway();
+      if (!pathway) return;
+      // 假如是编辑的话，删除原有区域
+      if (controller.isEditing()) {
+        // TODO: 最好保证uuid不变
+        // const initialArea = controller.getCurrentAreas()[0];
+        // initialArea && area.setUuid(initialArea.getUuid());
+        emitDeleteAreaEvent();
+      }
+      for (let index = canvasState.getLayers.length - 1; index >= 0; index--) {
+        const element = canvasState.getLayers[index];
+        if (element.hot) {
+          pathway.setName(name);
+          pathway.type = type;
+          element.pathways.push(pathway);
+          pathway.layer = element;
+          canvasState.getPathwayMap.set(pathway.getUuid(), pathway);
+        }
+      }
+    }
+    controller.endDrawing();
+    // 最后更新一下选中
+    controller.setCurrentPathway(null);
   }
 </script>
 
