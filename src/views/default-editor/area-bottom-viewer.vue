@@ -35,9 +35,11 @@
         });
         controller.setCurrentAreas([]);
       }
-      controller.getCurrentPin()?.cancelSelect();
       // 这里只处理点击区域外的逻辑
+      controller.getCurrentPin()?.cancelSelect();
       controller.setCurrentPin(null);
+      controller.getCurrentPathway()?.cancelSelect();
+      controller.setCurrentPathway(null);
     } else {
       const id = target.id;
       // 点击到非选中区域
@@ -75,11 +77,7 @@
                 // 考虑偏移
                 newBoundRect[2] = newBoundRect[2] * area.scale;
                 newBoundRect[3] = newBoundRect[3] * area.scale;
-                const newArea = new Area(
-                  area.getName() + '_拷贝',
-                  copyImageData(area.getData()),
-                  newBoundRect,
-                );
+                const newArea = new Area(area.getName() + '_拷贝', copyImageData(area.getData()), newBoundRect);
                 newArea.layer = layer;
                 layer.areas.splice(Number(index) + 1, 0, newArea);
                 state.getAreaMap.set(newArea.getUuid(), newArea);
@@ -92,7 +90,7 @@
           message.info('粘贴成功！');
         }
       }
-      if (e.key === 'z' && !controller.isDrawingArea()) {
+      if (e.key === 'z' && !controller.isDrawing()) {
         controller.revertAction(state);
       }
     }

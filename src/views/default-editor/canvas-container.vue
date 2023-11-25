@@ -2,16 +2,17 @@
   <div
     id="scroller"
     ref="scrollerRef"
-    :class="[controller.isDrawingArea() ? 'active' : '']"
+    :class="[controller.isDrawing() ? 'active' : '']"
     @contextmenu="handleClickMenu"
     @click="handleClick"
+    @mousedown="handleClickOutArea"
   >
     <div class="viewport" :style="style">
       <area-bottom-viewer :style="style"></area-bottom-viewer>
       <template v-for="layer in state.getLayers" :key="layer.uuid">
         <area-viewer :layer="layer" v-show="layer.visible" :style="style" />
       </template>
-      <area-canvas ref="areaCanvasRef" v-if="controller.isDrawingArea()" />
+      <area-canvas ref="areaCanvasRef" v-if="controller.isDrawing()" />
       <pen-canvas v-show="controller.isDrawingPen()" />
       <mask-canvas v-show="controller.isDrawingShape()" />
     </div>
@@ -34,6 +35,7 @@
   import PinModal from './children/pin-modal.vue';
   import useSelecto from './utils/useSelecto';
   import useInfiniteViewer from './hooks/useInfiniteViewer';
+  import { isString } from '@/utils/is';
 
   const state = useCanvasState();
   const configRef = useEditorConfig();
@@ -47,6 +49,7 @@
       setTimeout(() => {
         requestAnimationFrame(() => {
           controller.getCurrentAreas().forEach((area) => area?.moveable?.updateRect());
+          controller.getCurrentPathway()?.moveable?.updateRect();
           updateRect();
         });
       }, 100);
@@ -61,8 +64,15 @@
     }
     return null;
   }
+  function getCreatedPathway() {
+    if (areaCanvasRef.value) {
+      return areaCanvasRef.value.getCreatedPathway();
+    }
+    return null;
+  }
   defineExpose({
     getCreatedArea,
+    getCreatedPathway,
   });
 
   // 右键菜单
@@ -70,7 +80,7 @@
   provide('clickPositionRef', clickPositionRef);
   const contextmenuRef = ref();
   function handleClickMenu(e: MouseEvent) {
-    if (controller.isDrawingArea()) {
+    if (controller.isDrawing()) {
       return;
     }
     e.preventDefault();
@@ -99,6 +109,7 @@
       setTimeout(() => {
         requestAnimationFrame(() => {
           controller.getCurrentAreas().forEach((area) => area?.moveable?.updateRect());
+          controller.getCurrentPathway()?.moveable?.updateRect();
           updateRect();
         });
       }, 100);
@@ -108,6 +119,26 @@
   // 框选
   const scrollerRef = ref();
   const { updateRect } = useSelecto(scrollerRef);
+
+  function handleClickOutArea(e: MouseEvent) {
+    if (!e.isTrusted) return;
+    // 区分点击/拖拽
+    const target = e.target as HTMLElement;
+    // 区分点击空白处和区域(排除svg点击干扰)
+    if (e.button === 0 && isString(target.className) && target.className.includes('scroll')) {
+      if (controller.getCurrentAreas().length) {
+        controller.getCurrentAreas().forEach((area) => {
+          area.cancelSelect();
+        });
+        controller.setCurrentAreas([]);
+      }
+      // 这里只处理点击区域外的逻辑
+      controller.getCurrentPin()?.cancelSelect();
+      controller.setCurrentPin(null);
+      controller.getCurrentPathway()?.cancelSelect();
+      controller.setCurrentPathway(null);
+    }
+  }
 </script>
 
 <style lang="less">

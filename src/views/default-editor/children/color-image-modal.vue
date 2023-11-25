@@ -55,19 +55,17 @@
       </div>
       <div class="ant-modal-footer">
         <a-button @click="handleCancel">取消</a-button>
-        <a-button type="primary" @click="handleExportColorImage" :disabled="areasRef.length === 0">
-          导出
-        </a-button>
+        <a-button type="primary" @click="handleExportColorImage" :disabled="areasRef.length === 0"> 导出 </a-button>
       </div>
     </a-spin>
   </a-modal>
 </template>
 
 <script setup lang="ts">
+  import type { Area } from '../draw-element';
   import { ref } from 'vue';
   import { GatewayOutlined, BlockOutlined } from '@ant-design/icons-vue';
   import { useCanvasState } from '@/store/modules/canvas-state';
-  import { Area } from '../draw-element';
   import { useEditorConfig } from '@/store/modules/editor-config';
   import { getClosedCurvePointsData } from '../utils/image-data-util';
   import { exportFile } from '@/utils/file';
@@ -122,9 +120,7 @@
         }) as CanvasRenderingContext2D;
         for (const area of areas) {
           // 计算色值
-          const color = Math.floor(
-            (255 / totalAreasRef.value) * areasColorValueRef.value[area.getUuid()],
-          );
+          const color = Math.floor((255 / totalAreasRef.value) * areasColorValueRef.value[area.getUuid()]);
           const data = getClosedCurvePointsData(area, [color, 0, 0, 255]);
           fullCtx.putImageData(data, area.getActualBoundRect()[0], area.getActualBoundRect()[1]);
         }
@@ -150,15 +146,13 @@
                 const filename = indexX + '_' + indexY + '.jpg';
                 if (localApi) {
                   blob?.arrayBuffer().then((data) => {
-                    localApi
-                      .saveLocalFile(filename, data as Buffer, localState.getColorExportLocation)
-                      .then((e) => {
-                        if (e) {
-                          message.error(`色值图导出失败！`);
-                          console.error(e);
-                          return;
-                        }
-                      });
+                    localApi.saveLocalFile(filename, data as Buffer, localState.getColorExportLocation).then((e) => {
+                      if (e) {
+                        message.error('色值图导出失败！');
+                        console.error(e);
+                        return;
+                      }
+                    });
                   });
                 } else {
                   exportFile(filename, blob);

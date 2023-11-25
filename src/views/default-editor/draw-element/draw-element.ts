@@ -30,6 +30,7 @@ export default class DrawElement implements DrawElementInterface {
   // @json-delete 实例父级
   public target: HTMLElement | undefined;
   public draw: DrawType = 'none';
+  // @json-delete
   public scale = 1;
   public type: string = '';
   public visible = true;

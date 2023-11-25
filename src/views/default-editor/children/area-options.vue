@@ -36,12 +36,12 @@
       </a-button>
     </a-col>
     <a-col :span="4">
-      <a-button class="success-item" :disabled="!controller.isDrawingArea()" @click="handleEndDrawingArea(true)">
+      <a-button class="success-item" :disabled="!controller.isDrawing()" @click="handleEndDrawingArea(true)">
         <template #icon><check-outlined /> </template>完成
       </a-button>
     </a-col>
     <a-col :span="4">
-      <a-button class="default-item" :disabled="!controller.isDrawingArea()" @click="handleEndDrawingArea(false)">
+      <a-button class="default-item" :disabled="!controller.isDrawing()" @click="handleEndDrawingArea(false)">
         <template #icon><close-outlined /> </template>取消
       </a-button>
     </a-col>
@@ -56,12 +56,13 @@
 <script setup lang="ts">
   import { computed, ref } from 'vue';
   import { message } from 'ant-design-vue';
-  import controller, { CanvasOption } from '../common/canvas-state-controller';
+  import controller from '../common/canvas-state-controller';
   import { emitEditAreaEvent, emitDeleteAreaEvent } from '../common/event';
   import { checkFileName } from '@/utils/file';
   import Modal from 'ant-design-vue/lib/modal';
   import { PlusOutlined, EditOutlined, CheckOutlined, CloseOutlined, DeleteOutlined } from '@ant-design/icons-vue';
   import { useCanvasState } from '@/store/modules/canvas-state';
+  import { CanvasOption, DrawState } from '../common/types';
 
   const emit = defineEmits<{
     (e: 'end-edit-area', name: string, type: string, complete: boolean): void;
@@ -95,7 +96,7 @@
       message.warning('格式错误！区域标识只支持字母、数字、下划线！');
       return;
     }
-    controller.startDrawingArea(true);
+    controller.startDrawing(DrawState.AreaAdd);
   }
   function handleEndDrawingArea(complete: boolean) {
     if (complete && (!areaNameRef.value.length || !areaIDRef.value.length)) {
@@ -117,7 +118,7 @@
     const area = controller.getCurrentAreas()[0];
     [areaNameRef.value, areaIDRef.value] = area?.getName().split('-') || '';
     areaTypeRef.value = [area.type];
-    controller.startDrawingArea(false);
+    controller.startDrawing(DrawState.AreaEdit);
     setTimeout(() => {
       emitEditAreaEvent();
     }, 30);
@@ -140,10 +141,10 @@
   }
 
   const addBtnDisabled = computed(
-    () => !controller.getCurrentLayer() || controller.getCurrentLayer()?.lock || controller.isDrawingArea(),
+    () => !controller.getCurrentLayer() || controller.getCurrentLayer()?.lock || controller.isDrawing(),
   );
 
-  const editBtnDisabled = computed(() => !controller.getCurrentAreas()[0] || controller.isDrawingArea());
+  const editBtnDisabled = computed(() => !controller.getCurrentAreas()[0] || controller.isDrawing());
 </script>
 
 <style lang="less">

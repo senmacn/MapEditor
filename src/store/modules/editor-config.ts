@@ -90,42 +90,42 @@ export const useEditorConfig = defineStore({
     getProjectSizeConfigScale(): number {
       return this.projectSizeConfig.actorWidth / this.projectSizeConfig.actorPxWidth;
     },
+    // 地图全高(px)
     getProjectSizeConfigFullHeight(): number {
       return (
-        (this.projectSizeConfig.mapHeight / this.projectSizeConfig.actorWidth) *
-        this.projectSizeConfig.actorPxWidth
+        (this.projectSizeConfig.mapHeight / this.projectSizeConfig.actorWidth) * this.projectSizeConfig.actorPxWidth
       );
     },
+    // 项目中底图Y方向偏移(px)
     getProjectSizeConfigPxOffsetY(): number {
       return (
-        ((this.projectSizeConfig.offsetY - this.projectSizeConfig.startPointY) /
-          this.projectSizeConfig.actorWidth) *
+        ((this.projectSizeConfig.offsetY - this.projectSizeConfig.startPointY) / this.projectSizeConfig.actorWidth) *
         this.projectSizeConfig.actorPxWidth
       );
     },
+    // 项目中底图高度(px)
     getProjectSizeConfigPxHeight(): number {
       return (
-        (this.projectSizeConfig.offsetHeight / this.projectSizeConfig.actorWidth) *
-        this.projectSizeConfig.actorPxWidth
+        (this.projectSizeConfig.offsetHeight / this.projectSizeConfig.actorWidth) * this.projectSizeConfig.actorPxWidth
       );
     },
+    // 地图全宽(px)
     getProjectSizeConfigFullWidth(): number {
       return (
-        (this.projectSizeConfig.mapWidth / this.projectSizeConfig.actorWidth) *
-        this.projectSizeConfig.actorPxWidth
+        (this.projectSizeConfig.mapWidth / this.projectSizeConfig.actorWidth) * this.projectSizeConfig.actorPxWidth
       );
     },
+    // 项目中底图X方向偏移(px)
     getProjectSizeConfigPxOffsetX(): number {
       return (
-        ((this.projectSizeConfig.offsetX - this.projectSizeConfig.startPointX) /
-          this.projectSizeConfig.actorWidth) *
+        ((this.projectSizeConfig.offsetX - this.projectSizeConfig.startPointX) / this.projectSizeConfig.actorWidth) *
         this.projectSizeConfig.actorPxWidth
       );
     },
+    // 项目中底图宽度(px)
     getProjectSizeConfigPxWidth(): number {
       return (
-        (this.projectSizeConfig.offsetWidth / this.projectSizeConfig.actorWidth) *
-        this.projectSizeConfig.actorPxWidth
+        (this.projectSizeConfig.offsetWidth / this.projectSizeConfig.actorWidth) * this.projectSizeConfig.actorPxWidth
       );
     },
   },
@@ -135,8 +135,7 @@ export const useEditorConfig = defineStore({
         (this.projectSizeConfig.offsetHeight / this.projectSizeConfig.actorWidth) *
           this.projectSizeConfig.actorPxWidth >
           5000 ||
-        (this.projectSizeConfig.mapWidth / this.projectSizeConfig.actorWidth) *
-          this.projectSizeConfig.actorPxWidth >
+        (this.projectSizeConfig.mapWidth / this.projectSizeConfig.actorWidth) * this.projectSizeConfig.actorPxWidth >
           5000;
       // this.style = _editorConfig.style;
       // this.zoom = _editorConfig.zoom;
@@ -157,10 +156,8 @@ export const useEditorConfig = defineStore({
             mapHeight: _editorConfig.size.allY * _editorConfig.size.scale,
             actorWidth: 1024 * _editorConfig.size.scale,
             actorPxWidth: 1024,
-            offsetX:
-              _editorConfig.mapSize.map_ltX + _editorConfig.size.offsetX * _editorConfig.size.scale,
-            offsetY:
-              _editorConfig.mapSize.map_ltY + _editorConfig.size.offsetY * _editorConfig.size.scale,
+            offsetX: _editorConfig.mapSize.map_ltX + _editorConfig.size.offsetX * _editorConfig.size.scale,
+            offsetY: _editorConfig.mapSize.map_ltY + _editorConfig.size.offsetY * _editorConfig.size.scale,
             offsetWidth: _editorConfig.size.x * _editorConfig.size.scale,
             offsetHeight: _editorConfig.size.y * _editorConfig.size.scale,
           };
@@ -173,18 +170,15 @@ export const useEditorConfig = defineStore({
             mapHeight: _editorConfig.size.allY * _editorConfig.size.scale,
             actorWidth: 1024 * _editorConfig.size.scale,
             actorPxWidth: 1024,
-            offsetX:
-              _editorConfig.mapSize.map_ltX + _editorConfig.size.offsetX * _editorConfig.size.scale,
-            offsetY:
-              _editorConfig.mapSize.map_ltY + _editorConfig.size.offsetY * _editorConfig.size.scale,
+            offsetX: _editorConfig.mapSize.map_ltX + _editorConfig.size.offsetX * _editorConfig.size.scale,
+            offsetY: _editorConfig.mapSize.map_ltY + _editorConfig.size.offsetY * _editorConfig.size.scale,
             offsetWidth: _editorConfig.size.x * _editorConfig.size.scale,
             offsetHeight: _editorConfig.size.y * _editorConfig.size.scale,
           };
         }
         this.setProjectSizeConfig(projectSizeConfig);
       } else {
-        _editorConfig.projectSizeConfig &&
-          this.setProjectSizeConfig(_editorConfig.projectSizeConfig);
+        _editorConfig.projectSizeConfig && this.setProjectSizeConfig(_editorConfig.projectSizeConfig);
       }
     },
     setStyle(value: Recordable<string>) {

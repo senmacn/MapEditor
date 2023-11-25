@@ -60,7 +60,7 @@ export default function useSaves() {
         const data = await createSaves(canvasState.getLayers);
         await localApi.saveLoads(fileName, data);
         localState.setFileName(fileName);
-        location.href = location.href.slice().replace(/\#\/.+/, '#/map-editor?name=' + fileName);
+        location.href = location.href.slice().replace(/#\/.+/, '#/map-editor?name=' + fileName);
       }
       isSaving = false;
       return fileName;
@@ -95,8 +95,9 @@ export default function useSaves() {
             .then((e) => {
               if (e) {
                 message.error('导出失败！');
+              } else {
+                message.success('导出成功！');
               }
-              message.success('导出成功！');
             })
             .finally(() => {});
         } else {
@@ -129,11 +130,14 @@ export default function useSaves() {
   // 自动保存相关
   let endAutoSave: any = null;
   function handleAutoSave() {
-    try {
-      handleCreateSaves().then(() => {
+    handleCreateSaves()
+      .then(() => {
         message.success('自动保存成功！');
+      })
+      .catch(() => {
+        message.error('自动保存失败！');
       });
-    } catch (_) {}
+
     if (localState.getAutoSaveTime) {
       endAutoSave = setTimeout(handleAutoSave, localState.getAutoSaveTime * 60 * 1000);
     }

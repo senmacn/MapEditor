@@ -25,7 +25,7 @@
   const configRef = useEditorConfig();
 
   const statusRef = computed(() => {
-    return controller.isDrawingArea()
+    return controller.isDrawing()
       ? '区域编辑<' + (controller.getCurrentAreas()[0]?.getName() || 'newArea') + '>'
       : '区域查看';
   });
@@ -39,10 +39,8 @@
       pureX < 0 || pureY < 0
         ? [configRef.getProjectSizeConfig.startPointX, configRef.getProjectSizeConfig.startPointY]
         : [
-            configRef.getProjectSizeConfig.startPointX +
-              pureX * configRef.getProjectSizeConfigScale,
-            configRef.getProjectSizeConfig.startPointY +
-              pureY * configRef.getProjectSizeConfigScale,
+            configRef.getProjectSizeConfig.startPointX + pureX * configRef.getProjectSizeConfigScale,
+            configRef.getProjectSizeConfig.startPointY + pureY * configRef.getProjectSizeConfigScale,
           ];
     return `x: ${x | 0} y: ${y | 0}`;
   });

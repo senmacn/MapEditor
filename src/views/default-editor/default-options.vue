@@ -20,19 +20,11 @@
         </a-col>
         <a-col :span="24">
           <a-input-group compact>
-            <a-select
-              dropdownClassName="element-search-item"
-              v-model:value="searchTypeRef"
-              style="width: 30%"
-            >
+            <a-select dropdownClassName="element-search-item" v-model:value="searchTypeRef" style="width: 30%">
               <a-select-option :value="0">名称搜索</a-select-option>
               <a-select-option :value="1">类型搜索</a-select-option>
             </a-select>
-            <a-input-search
-              v-model:value="searchValueRef"
-              style="width: 70%"
-              @search="handleSearch"
-            />
+            <a-input-search v-model:value="searchValueRef" style="width: 70%" @search="handleSearch" />
           </a-input-group>
         </a-col>
         <a-col class="row-label" :span="4">
@@ -42,9 +34,14 @@
           <layer-list></layer-list>
         </a-col>
       </a-row>
-      <area-options
-        @end-edit-area="(...props) => emit('end-edit-area', props[0], props[1], props[2])"
-      />
+      <a-tabs v-model:activeKey="activeKey">
+        <a-tab-pane key="1" tab="区域操作">
+          <area-options @end-edit-area="(...props) => emit('end-edit-area', props[0], props[1], props[2])" />
+        </a-tab-pane>
+        <a-tab-pane key="2" tab="路径操作">
+          <pathway-options @end-edit-pathway="(...props) => emit('end-edit-pathway', props[0], props[1], props[2])" />
+        </a-tab-pane>
+      </a-tabs>
     </div>
   </a-drawer>
 </template>
@@ -53,11 +50,13 @@
   import { ref } from 'vue';
   import LayerList from './children/layer-list.vue';
   import AreaOptions from './children/area-options.vue';
+  import PathwayOptions from './children/pathway-options.vue';
   import { RightOutlined } from '@ant-design/icons-vue';
   import { useCanvasState } from '@/store/modules/canvas-state';
 
   const emit = defineEmits<{
     (e: 'end-edit-area', name: string, type: string, complete: boolean): void;
+    (e: 'end-edit-pathway', name: string, type: string, complete: boolean): void;
   }>();
 
   const drawerVisibleRef = ref(true);
@@ -78,6 +77,8 @@
       }
     }
   }
+
+  const activeKey = ref('1');
 </script>
 
 <style lang="less">

@@ -4,10 +4,11 @@
 
 <script setup lang="ts">
   import useCanvas from './hooks/useCanvas';
-  import controller, { CanvasOption } from './common/canvas-state-controller';
+  import controller from './common/canvas-state-controller';
   import { onBeforeUnmount, onMounted, watch } from 'vue';
   import { useEditorConfig } from '@/store/modules/editor-config';
   import Pen from './pen/Pen';
+  import { CanvasOption } from './common/types';
 
   // canvas相关
   const ctxRef = useCanvas();

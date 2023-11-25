@@ -1,4 +1,4 @@
-import type { Area, Pin } from '../draw-element';
+import type { Area, Pin, Pathway } from '../draw-element';
 
 export interface CanvasExtendImp {
   setupCanvas: (
@@ -30,5 +30,24 @@ export interface Layer {
   hot: boolean;
   areas: Area[];
   pins: Pin[];
+  pathways: Pathway[];
   transparency?: number;
+}
+
+export enum DrawState {
+  Check,
+  AreaAdd,
+  AreaEdit,
+  PathwayAdd,
+  PathwayEdit,
+}
+
+export enum CanvasOption {
+  None,
+  FollowMouse,
+  FollowMouseClear,
+  Pen,
+  DrawLine,
+  DrawRect,
+  DrawCircle,
 }
