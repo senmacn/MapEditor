@@ -214,3 +214,18 @@ export function getClosedCurvePointsData(area: Area, colors = [255, 0, 0, 255]) 
   // put the modified data back in context
   return floodFill.imageData;
 }
+
+export function changeAreaBoundaryColor(imageData: ImageData, color: [number, number, number, number]) {
+  const data = imageData.data;
+  for (let yIndex = 0; yIndex < imageData.height; yIndex++) {
+    for (let xIndex = 0; xIndex < imageData.width; xIndex++) {
+      const pointStartIndex = xIndex * 4 + yIndex * 4 * imageData.width;
+      if (isPointInData(data, pointStartIndex)) {
+        data[pointStartIndex] = color[0];
+        data[pointStartIndex + 1] = color[1];
+        data[pointStartIndex + 2] = color[2];
+        data[pointStartIndex + 3] = color[3];
+      }
+    }
+  }
+}

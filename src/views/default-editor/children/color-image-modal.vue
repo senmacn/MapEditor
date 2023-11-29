@@ -23,14 +23,14 @@
             </a-col>
           </a-row>
           <a-row>
-            <a-tooltip title="区域的最大数量，决定了下面区域色值的最大值">
+            <a-tooltip title="区域的最大数量，下列区域填写的色值 / 区域总数量 = 实际亮度">
               <a-col :span="4">
                 区域总数量
                 <info-circle-outlined class="warning-color" />
               </a-col>
             </a-tooltip>
             <a-col :span="8">
-              <a-input-number v-model:value="totalAreasRef" :max="200" :min="0" :step="1" />
+              <a-input-number v-model:value="totalAreasRef" :max="100" :min="1" :step="1" />
             </a-col>
           </a-row>
         </a-space>
@@ -41,12 +41,12 @@
               <block-outlined />
               {{ layer.name }}
             </a-col>
-            <a-col :span="8" v-for="area in layer.areas">
+            <a-col :span="10" v-for="area in layer.areas">
               <a-checkbox :value="area.getUuid()">
                 <gateway-outlined />
                 {{ area.getName() }}
               </a-checkbox>
-              <a-input-number v-model:value="areasColorValueRef[area.getUuid()]">
+              <a-input-number v-model:value="areasColorValueRef[area.getUuid()]" :max="100" :min="1" :step="1">
                 {{ area.getName() }}
               </a-input-number>
             </a-col>
@@ -67,12 +67,13 @@
   import { GatewayOutlined, BlockOutlined } from '@ant-design/icons-vue';
   import { useCanvasState } from '@/store/modules/canvas-state';
   import { useEditorConfig } from '@/store/modules/editor-config';
-  import { getClosedCurvePointsData } from '../utils/image-data-util';
+  import { changeAreaBoundaryColor, getClosedCurvePointsData } from '../utils/image-data-util';
   import { exportFile } from '@/utils/file';
   import { message } from 'ant-design-vue';
   import { InfoCircleOutlined } from '@ant-design/icons-vue';
   import { getLocalApi } from '@/utils/env';
   import { useLocalState } from '@/store/modules/local-state';
+  import { hsbToRgba } from '@/utils/color';
 
   const emit = defineEmits<{
     (event: 'ok'): void;
@@ -120,9 +121,16 @@
         }) as CanvasRenderingContext2D;
         for (const area of areas) {
           // 计算色值
-          const color = Math.floor((255 / totalAreasRef.value) * areasColorValueRef.value[area.getUuid()]);
-          const data = getClosedCurvePointsData(area, [color, 0, 0, 255]);
-          fullCtx.putImageData(data, area.getActualBoundRect()[0], area.getActualBoundRect()[1]);
+          const colorRGB = hsbToRgba(0, 0, areasColorValueRef.value[area.getUuid()] / totalAreasRef.value);
+          const data = getClosedCurvePointsData(area, [...colorRGB]);
+          changeAreaBoundaryColor(data, colorRGB);
+          // putImageData会相互覆盖，使用drawImage
+          const offscreenCanvas = new OffscreenCanvas(data.width, data.height);
+          const context = <OffscreenCanvasRenderingContext2D>offscreenCanvas.getContext('2d', {
+            willReadFrequently: true,
+          });
+          context?.putImageData(data, 0, 0);
+          fullCtx.drawImage(offscreenCanvas, area.getActualBoundRect()[0], area.getActualBoundRect()[1]);
         }
         // 分块导出准备
         const blocks = Math.sqrt(exportRef.value);
@@ -135,6 +143,9 @@
         const tempCtx = tempCanvas.getContext('2d', {
           willReadFrequently: true,
         }) as CanvasRenderingContext2D;
+        // 计算开始XY
+        const startX = configRef.getProjectSizeConfigPxOffsetX / configRef.getProjectSizeConfig.actorPxWidth;
+        const startY = configRef.getProjectSizeConfigPxOffsetY / configRef.getProjectSizeConfig.actorPxWidth;
         // 分块导出
         for (let indexX = 0; indexX < blocks; indexX++) {
           for (let indexY = 0; indexY < blocks; indexY++) {
@@ -143,7 +154,7 @@
             tempCtx.putImageData(fullCtx.getImageData(_x, _y, blockWith, blockHeight), 0, 0);
             await tempCanvas.toBlob(
               async (blob) => {
-                const filename = indexX + '_' + indexY + '.jpg';
+                const filename = startX + indexX + '_' + (startY + indexY) + '.jpg';
                 if (localApi) {
                   await blob?.arrayBuffer().then((data) => {
                     localApi.saveLocalFile(filename, data as Buffer, localState.getColorExportLocation).then((e) => {
