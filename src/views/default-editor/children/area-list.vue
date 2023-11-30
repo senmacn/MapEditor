@@ -174,7 +174,10 @@
     }
     .area-name {
       flex: 1;
+      max-width: 300px;
       border-right: 1px solid @color-border-table;
+      overflow: visible;
+      white-space: nowrap;
       input.ant-input {
         display: inline-block;
         height: 100%;
@@ -189,6 +192,7 @@
       display: flex;
       justify-content: center;
       align-items: center;
+      z-index: 2;
     }
     .ant-btn {
       display: inline-block;

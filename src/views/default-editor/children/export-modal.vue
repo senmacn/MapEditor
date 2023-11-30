@@ -1,7 +1,7 @@
 <template>
   <a-modal
     class="export-modal"
-    :width="600"
+    :width="1000"
     :visible="visibleRef"
     :closable="false"
     :onCancel="handleCancel"
@@ -22,7 +22,7 @@
               </a-checkbox>
               <a-checkbox-group v-model:value="state.checkedAreaList[idx]" class="layer-area-opts">
                 <a-row>
-                  <a-col :span="6" v-for="(area, adx) in item.areas" :key="adx">
+                  <a-col :span="8" v-for="(area, adx) in item.areas" :key="adx">
                     <a-checkbox :value="area.value" @change="handleChangeArea(idx)">
                       <gateway-outlined />
                       <span class="area-opt-label">{{ area.label }}</span>
@@ -32,7 +32,7 @@
               </a-checkbox-group>
               <a-checkbox-group v-model:value="state.checkedPinList[idx]" class="layer-area-opts">
                 <a-row>
-                  <a-col :span="6" v-for="(pin, adx) in item.pins" :key="adx">
+                  <a-col :span="8" v-for="(pin, adx) in item.pins" :key="adx">
                     <a-checkbox :value="pin.value" @change="handleChangeArea(idx)">
                       <pushpin-outlined />
                       <span class="area-opt-label">{{ pin.label }}</span>
@@ -42,7 +42,7 @@
               </a-checkbox-group>
               <a-checkbox-group v-model:value="state.checkedPathwayList[idx]" class="layer-area-opts">
                 <a-row>
-                  <a-col :span="6" v-for="(pathway, adx) in item.pathways" :key="adx">
+                  <a-col :span="8" v-for="(pathway, adx) in item.pathways" :key="adx">
                     <a-checkbox :value="pathway.value" @change="handleChangeArea(idx)">
                       <pushpin-outlined />
                       <span class="area-opt-label">{{ pathway.label }}</span>
@@ -304,7 +304,7 @@
       width: 100%;
       margin: 5px 0;
       box-sizing: border-box;
-      padding-left: 25px;
+      padding-left: 10px;
     }
   }
 
@@ -313,7 +313,6 @@
     white-space: nowrap;
     text-overflow: ellipsis;
     overflow: hidden;
-    width: 60px;
     line-height: 12px;
   }
 </style>
