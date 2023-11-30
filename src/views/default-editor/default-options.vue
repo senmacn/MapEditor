@@ -5,7 +5,7 @@
   <a-drawer
     class="option-drawer"
     placement="right"
-    :width="400"
+    :width="440"
     :visible="drawerVisibleRef"
     :mask="false"
     @close="drawerVisibleRef = false"
@@ -113,7 +113,7 @@
       overflow: hidden;
     }
     &.ant-drawer-open {
-      width: 400px;
+      width: 440px;
       height: 100% !important;
       .ant-drawer-content-wrapper {
         overflow: visible;

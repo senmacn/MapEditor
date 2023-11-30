@@ -18,7 +18,7 @@
                 <block-outlined />
                 {{ layer.name }}
               </a-col>
-              <a-col :span="4" v-for="areas in layer.areas">
+              <a-col :span="8" v-for="areas in layer.areas">
                 <a-checkbox :value="areas.getUuid()">
                   <gateway-outlined />
                   {{ areas.getName() }}
