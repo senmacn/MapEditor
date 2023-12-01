@@ -12,14 +12,9 @@
       <div class="modal-content">
         <a-space class="config-box" direction="vertical" size="large">
           <a-row>
-            <a-tooltip title="这一参数决定了最终导出图片的个数 (必须是X * X)">
-              <a-col :span="4">
-                色值图导出数量
-                <info-circle-outlined class="warning-color" />
-              </a-col>
-            </a-tooltip>
+            <a-col :span="4"> 色值图前缀 </a-col>
             <a-col :span="8">
-              <a-input-number v-model:value="exportRef" :max="128" :min="1" :step="1" />
+              <a-input v-model:value="exportRef" />
             </a-col>
           </a-row>
           <a-row>
@@ -92,7 +87,7 @@
   const localApi = getLocalApi();
   const localState = useLocalState();
 
-  const exportRef = ref(4);
+  const exportRef = ref('');
   const totalAreasRef = ref(100);
   const areasRef = ref<string[]>([]);
   const areasColorValueRef = ref<Recordable<number>>({});
@@ -133,28 +128,28 @@
           fullCtx.drawImage(offscreenCanvas, area.getActualBoundRect()[0], area.getActualBoundRect()[1]);
         }
         // 分块导出准备
-        const blocks = Math.sqrt(exportRef.value);
-        const blockWith = configRef.getProjectSizeConfigPxWidth / blocks;
-        const blockHeight = configRef.getProjectSizeConfigPxWidth / blocks;
+        const blockWith = configRef.getProjectSizeConfig.actorPxWidth;
+        const blocksX = configRef.getProjectSizeConfigPxWidth / blockWith;
+        const blocksY = configRef.getProjectSizeConfigPxHeight / blockWith;
         // 创建临时canvas
         const tempCanvas = document.createElement('canvas');
         tempCanvas.width = blockWith;
-        tempCanvas.height = blockHeight;
+        tempCanvas.height = blockWith;
         const tempCtx = tempCanvas.getContext('2d', {
           willReadFrequently: true,
         }) as CanvasRenderingContext2D;
         // 计算开始XY
-        const startX = configRef.getProjectSizeConfigPxOffsetX / configRef.getProjectSizeConfig.actorPxWidth;
-        const startY = configRef.getProjectSizeConfigPxOffsetY / configRef.getProjectSizeConfig.actorPxWidth;
+        const startX = configRef.getProjectSizeConfigPxOffsetX / blockWith;
+        const startY = configRef.getProjectSizeConfigPxOffsetY / blockWith;
         // 分块导出
-        for (let indexX = 0; indexX < blocks; indexX++) {
-          for (let indexY = 0; indexY < blocks; indexY++) {
+        for (let indexX = 0; indexX < blocksX; indexX++) {
+          for (let indexY = 0; indexY < blocksY; indexY++) {
             const _x = indexX * blockWith;
-            const _y = indexY * blockHeight;
-            tempCtx.putImageData(fullCtx.getImageData(_x, _y, blockWith, blockHeight), 0, 0);
+            const _y = indexY * blockWith;
+            tempCtx.putImageData(fullCtx.getImageData(_x, _y, blockWith, blockWith), 0, 0);
             await tempCanvas.toBlob(
               async (blob) => {
-                const filename = startX + indexX + '_' + (startY + indexY) + '.jpg';
+                const filename = exportRef.value + (startY + indexY) + '_' + (startX + indexX) + '.jpg';
                 if (localApi) {
                   await blob?.arrayBuffer().then((data) => {
                     localApi.saveLocalFile(filename, data as Buffer, localState.getColorExportLocation).then((e) => {
@@ -178,7 +173,7 @@
         localApi &&
           localApi.getCustomConfig().then((config) => {
             if (config.autoOpenDownloadDirectory) {
-              localApi.openFolder(localState.getUIExportLocation);
+              localApi.openFolder(localState.getColorExportLocation);
             }
           });
       } catch (e) {
