@@ -215,6 +215,7 @@ export function getClosedCurvePointsData(area: Area, colors = [255, 0, 0, 255]) 
   return floodFill.imageData;
 }
 
+// 将 imagedata 中点修改为选定的颜色
 export function changeAreaBoundaryColor(imageData: ImageData, color: [number, number, number, number]) {
   const data = imageData.data;
   for (let yIndex = 0; yIndex < imageData.height; yIndex++) {
@@ -227,5 +228,17 @@ export function changeAreaBoundaryColor(imageData: ImageData, color: [number, nu
         data[pointStartIndex + 3] = color[3];
       }
     }
+  }
+}
+
+/**
+ * 通过data数组将source合并到target，性能更好
+ * @param source
+ * @param target
+ * @param start 起始位置
+ */
+export function mixinImageData(source: ImageData, target: ImageData, start: number = 0) {
+  for (let index = 0; index < source.data.length; index++) {
+    target.data[start + index] = source.data[index];
   }
 }

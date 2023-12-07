@@ -74,21 +74,29 @@ export default class FloodFill {
     }
   }
 
+  public static getImageDataFromData(initialData: ImageData, newImageData: ImageData) {
+    return this._getImageDataFrom(initialData, newImageData);
+  }
+
+  public getImageDataFrom(initialData: ImageData) {
+    return FloodFill._getImageDataFrom(initialData, this.imageData);
+  }
+
   /**
    * 混合原有的imageData和新imageData，更新边界
    * @param initialData
    * @returns
    */
-  public getImageDataFrom(initialData: ImageData) {
+  public static _getImageDataFrom(initialData: ImageData, newImageData: ImageData) {
     const data = initialData.data;
-    const newData = this.imageData.data;
-    let minX = this.imageData.height;
-    let minY = this.imageData.width;
+    const newData = newImageData.data;
+    let minX = newImageData.height;
+    let minY = newImageData.width;
     let maxX = 0;
     let maxY = 0;
-    for (let yIndex = 0; yIndex < this.imageData.height; yIndex++) {
-      for (let xIndex = 0; xIndex < this.imageData.width; xIndex++) {
-        const pointStartIndex = xIndex * 4 + yIndex * 4 * this.imageData.width;
+    for (let yIndex = 0; yIndex < newImageData.height; yIndex++) {
+      for (let xIndex = 0; xIndex < newImageData.width; xIndex++) {
+        const pointStartIndex = xIndex * 4 + yIndex * 4 * newImageData.width;
         // 去除无用点（原来有点，新data没点）
         if (isPointInData(data, pointStartIndex) && !isPointInData(newData, pointStartIndex)) {
           data[pointStartIndex] = 0;
@@ -115,8 +123,8 @@ export default class FloodFill {
     }
     const tempCanvas = document.createElement('canvas');
     const tempContext = tempCanvas.getContext('2d') as CanvasRenderingContext2D;
-    tempCanvas.width = this.imageData.width;
-    tempCanvas.height = this.imageData.height;
+    tempCanvas.width = newImageData.width;
+    tempCanvas.height = newImageData.height;
     tempContext.putImageData(initialData, 0, 0);
     return [
       tempContext.getImageData(minX, minY, maxX - minX + 1, maxY - minY + 1),

@@ -69,7 +69,7 @@ export default class DrawElement implements DrawElementInterface {
   getImage() {}
   select() {}
   cancelSelect() {
-    if (!this.selected) {
+    if (!this.selected || !this.moveable) {
       return;
     }
     if (this.moveable?.draggable) {
@@ -158,5 +158,6 @@ export default class DrawElement implements DrawElementInterface {
   destroy() {
     this.instance && this.target?.removeChild(this.instance);
     this.moveable?.destroy();
+    this.moveable = undefined;
   }
 }
