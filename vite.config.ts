@@ -1,4 +1,5 @@
-import { ConfigEnv, defineConfig, loadEnv, splitVendorChunkPlugin } from 'vite';
+import type { ConfigEnv } from 'vite';
+import { defineConfig, loadEnv, splitVendorChunkPlugin } from 'vite';
 import vue from '@vitejs/plugin-vue';
 import vueJsx from '@vitejs/plugin-vue-jsx';
 import { renderer } from 'unplugin-auto-expose';
@@ -73,12 +74,7 @@ export default defineConfig(({ mode }: ConfigEnv) => {
     },
     define: { 'process.env': {} },
     optimizeDeps: {
-      include: [
-        '@vue/runtime-core',
-        '@vue/shared',
-        'ant-design-vue/es/locale/zh_CN',
-        'ant-design-vue/es/locale/en_US',
-      ],
+      include: ['@vue/runtime-core', '@vue/shared', 'ant-design-vue/es/locale/zh_CN', 'ant-design-vue/es/locale/en_US'],
     },
     worker: {
       format: 'es',

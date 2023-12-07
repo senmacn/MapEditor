@@ -114,9 +114,13 @@
   onDeletePathwayEvent(() => {
     const currentPathway = controller.getCurrentPathway();
     if (props.layer && currentPathway) {
-      currentPathway.destroy();
-      controller.setCurrentPathway(null);
-      canvasState.getPathwayMap.delete(currentPathway.getUuid());
+      const posIndex = props.layer.pathways.findIndex((path) => path.isSame(currentPathway));
+      if (posIndex > -1) {
+        props.layer.pathways.splice(posIndex, 1);
+        currentPathway.destroy();
+        controller.setCurrentPathway(null);
+        canvasState.getPathwayMap.delete(currentPathway.getUuid());
+      }
     }
   });
 </script>

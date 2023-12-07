@@ -36,6 +36,7 @@
         ></component>
       </keep-alive>
     </div>
+    <tips-modal />
   </div>
 </template>
 
@@ -43,6 +44,7 @@
   import { getLocalApi } from '@/utils/env';
   import HistoryList from './children/history-list.vue';
   import CustomPage from './children/custom-page.vue';
+  import TipsModal from './children/tips-modal.vue';
   import { ref } from 'vue';
 
   enum HomePanel {
@@ -54,7 +56,7 @@
 
   const localApi = getLocalApi();
   if (!localApi) {
-    const url = location.href.slice().replace(/\#\/.+/, '#/map-editor?name=');
+    const url = location.href.slice().replace(/#\/.+/, '#/map-editor?name=');
     location.replace(url);
   }
 
@@ -62,10 +64,7 @@
     getLocalApi()?.newWindow('https://docs.oa.wanmei.net/kdocs/l/cgpQRPmL23TQ', true);
   }
   function openLog() {
-    getLocalApi()?.newWindow(
-      'https://docs.oa.wanmei.net/weboffice/l/cvFBr84fiEZz?timestamp=1690340901454',
-      true,
-    );
+    getLocalApi()?.newWindow('https://docs.oa.wanmei.net/weboffice/l/cvFBr84fiEZz?timestamp=1690340901454', true);
   }
 </script>
 

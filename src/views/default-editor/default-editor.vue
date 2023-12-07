@@ -24,7 +24,7 @@
   import { useCanvasState } from '@/store/modules/canvas-state';
   import { useEditorConfig } from '@/store/modules/editor-config';
   import { isLocal } from '@/utils/env';
-  import { emitDeleteAreaEvent } from './common/event';
+  import { emitDeleteAreaEvent, emitDeletePathwayEvent } from './common/event';
 
   const configRef = useEditorConfig();
 
@@ -175,7 +175,7 @@
         // TODO: 最好保证uuid不变
         // const initialArea = controller.getCurrentAreas()[0];
         // initialArea && area.setUuid(initialArea.getUuid());
-        emitDeleteAreaEvent();
+        emitDeletePathwayEvent();
       }
       for (let index = canvasState.getLayers.length - 1; index >= 0; index--) {
         const element = canvasState.getLayers[index];

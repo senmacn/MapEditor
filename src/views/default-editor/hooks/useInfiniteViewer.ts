@@ -4,7 +4,7 @@ import { onMounted, onBeforeUnmount, ref, watch } from 'vue';
 import { useEditorConfig } from '@/store/modules/editor-config';
 import throttle from 'lodash-es/throttle';
 import { onFocusAreaEvent } from '../common/event';
-import { Area } from '../draw-element';
+import { Area, Pathway } from '../draw-element';
 import controller from '../common/canvas-state-controller';
 
 function useInfiniteViewer(viewer: string, viewport: string): [Ref<[number, number]>] {
@@ -134,6 +134,9 @@ function useInfiniteViewer(viewer: string, viewport: string): [Ref<[number, numb
     setTimeout(() => {
       if (ele instanceof Area) {
         controller.setCurrentAreas([ele]);
+      }
+      if (ele instanceof Pathway) {
+        controller.setCurrentPathway(ele);
       } else {
         controller.setCurrentPin(ele as any);
       }
