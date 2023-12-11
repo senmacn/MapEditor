@@ -12,6 +12,18 @@
     <a-spin tip="渲染中..." :spinning="spinningRef">
       <div class="modal-content">
         <div class="area-choose">
+          <a-row>
+            <a-col :span="4"> 路径导出图前缀 </a-col>
+            <a-col :span="8">
+              <a-input v-model:value="exportRef" />
+            </a-col>
+          </a-row>
+          <a-row>
+            <a-col :span="4"> 路径导出图后缀 </a-col>
+            <a-col :span="8">
+              <a-input v-model:value="exportBackRef" />
+            </a-col>
+          </a-row>
           <a-checkbox-group v-model:value="pathwaysRef">
             <a-row v-for="layer in canvasState.layers">
               <a-col :span="4" class="title">
@@ -64,6 +76,8 @@
 
   const spinningRef = ref(false);
   const useBackgroundRef = ref(false);
+  const exportRef = ref('Tex_Minimap_');
+  const exportBackRef = ref('');
 
   const canvasState = useCanvasState();
   const configRef = useEditorConfig();
@@ -139,7 +153,7 @@
               }
               blob?.arrayBuffer().then((buffer) => {
                 localApi?.saveLocalFile(
-                  `${startX + indexX}-${startY + indexY}.png`,
+                  `${exportRef.value}${startY + indexY}_${startX + indexX}${exportBackRef.value}.png`,
                   buffer as Buffer,
                   localState.getDownloadLocation,
                 );
