@@ -1,7 +1,7 @@
 {
   "name": "mapeditor",
   "private": true,
-  "version": "0.0.3",
+  "version": "0.0.4",
   "type": "module",
   "description": "map-editor for pwrd-7",
   "main": "electron/main/dist/index.cjs",

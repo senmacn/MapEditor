@@ -42,7 +42,7 @@
   import FloodFill from '@/utils/q-floodfill';
   import { message } from 'ant-design-vue';
   import { useLoading } from '@/components/Loading';
-  import { quickFillArea } from '../utils/worker';
+  import { quickFillAreaWasm } from '../utils/worker';
 
   const emit = defineEmits<{
     (event: 'confirm-end', point: [number, number] | null, data: any, rect: any, cancel: boolean): void;
@@ -100,15 +100,21 @@
     // 从点击位置开始计算
     setTimeout(async () => {
       try {
-        const newData = await quickFillArea(imageData, 'rgba(29, 180, 64, 0.75)', [
-          Math.round(e.offsetX / scale),
-          Math.round(e.offsetY / scale),
-        ]);
+        // const newData = await quickFillArea(imageData, 'rgba(29, 180, 64, 0.75)', [
+        //   Math.round(e.offsetX / scale),
+        //   Math.round(e.offsetY / scale),
+        // ]);
+        const newData = await quickFillAreaWasm(
+          imageData,
+          [29, 180, 64, 255],
+          [Math.round(e.offsetX / scale), Math.round(e.offsetY / scale)],
+        );
         confirmCtxRef.value?.putImageData(scaleImageData(newData, scale), 0, 0);
         outData = newData;
         setTimeout(() => (spinningRef.value = false), 200);
       } catch (e) {
         pointRef.value = null;
+        console.error(e);
         message.error('无效的点！');
         spinningRef.value = false;
       }
@@ -134,7 +140,7 @@
         // @ts-ignore
         [Math.round(pointRef.value[0] / scale), Math.round(pointRef.value[1] / scale)],
         // @ts-ignore
-        ...FloodFill.getImageDataFrom(imageData, outData),
+        ...FloodFill.getImageDataFromData(imageData, outData),
         false,
       );
       pointRef.value = null;
