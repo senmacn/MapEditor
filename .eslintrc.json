@@ -13,7 +13,7 @@
     "parser": "@typescript-eslint/parser"
   },
   "plugins": ["@typescript-eslint", "vue"],
-  "ignorePatterns": ["node_modules/**", "**/dist/**"],
+  "ignorePatterns": ["node_modules/**", "**/dist/**", "**/assets/**"],
   "rules": {
     "@typescript-eslint/ban-ts-comment": "off",
     "@typescript-eslint/no-unused-vars": [

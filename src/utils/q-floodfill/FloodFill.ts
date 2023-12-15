@@ -211,7 +211,7 @@ export default class FloodFill {
       px = this.getPixelNeighbor('right', maxX, y);
     }
     // 向右看边界
-    let right = this.getPixelNeighbor('right', minX, y);
+    let right = this.getPixelNeighbor('right', maxX, y);
     while (right && this.isValidPoint(right)) {
       this.setPixelColor(this._newColor, right);
       right = this.getPixelNeighbor('right', right.x, y);

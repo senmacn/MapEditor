@@ -12,16 +12,11 @@
     <div class="modal-content">
       <div>更新内容</div>
       <ul>
+        <li>优化区域完成时的填充算法（预估加速230%），<b>不需要强制选中中心</b>。</li>
+        <li>区域列表添加<b>【仅显示此项】</b>按钮，方便快速隐藏不相关内容。</li>
+        <br />
         <li>路径导出修改为Y-X导出。</li>
         <li>路径导出增加自定义前后缀功能。</li>
-        <li>修复了路径定位以及编辑的部分问题。</li>
-        <li>
-          优化了大型区域完成时填充显示的逻辑。建议
-          <span class="hot">选择区域内部点</span>
-          时尽量选择
-          <span class="hot">区域中心点</span>
-          ，可以获得更快的(200%↑)填充速度。
-        </li>
       </ul>
     </div>
     <div class="ant-modal-footer">
@@ -70,7 +65,7 @@
         font-size: 14px;
       }
     }
-    .hot {
+    b {
       color: #e9434b;
       font-weight: bold;
     }

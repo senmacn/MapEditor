@@ -37,8 +37,15 @@
             </template>
           </a-button>
         </a-tooltip>
+        <a-tooltip title="仅显示此项">
+          <a-button type="text" @click="onlyShowElement(area)">
+            <template #icon>
+              <eye-two-tone />
+            </template>
+          </a-button>
+        </a-tooltip>
         <a-tooltip title="快速定位">
-          <a-button type="text" @click="handleGotoArea(area)" :disabled="lock">
+          <a-button type="text" @click="handleGotoArea(area)">
             <template #icon>
               <aim-outlined />
             </template>
@@ -66,6 +73,7 @@
     SwapOutlined,
     AimOutlined,
     EyeOutlined,
+    EyeTwoTone,
     EyeInvisibleOutlined,
     NodeIndexOutlined,
   } from '@ant-design/icons-vue';
@@ -103,6 +111,16 @@
   function hideElement(ele: DrawElement) {
     ele.hide();
     hideStatesRef[ele.getUuid()] = true;
+  }
+  function onlyShowElement(ele: DrawElement) {
+    if (hideStatesRef[ele.getUuid()]) {
+      showElement(ele);
+    }
+    visibleList.value.forEach((visibleEle) => {
+      if (!visibleEle.isSame(ele)) {
+        hideElement(visibleEle);
+      }
+    });
   }
 
   const changeLayerVisibleRef = ref(false);

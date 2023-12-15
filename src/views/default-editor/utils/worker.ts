@@ -1,10 +1,11 @@
 import FloodWorker from '@/worker/flood.worker?worker';
+import FloodWasmWorker from '@/worker/flood_wasm.worker?worker';
 
 /**
  * 快速进行洪水(分块洪水，对于某些凹多边形可能会造成填充较少！)
  * @param imageData 不会修改原有imageData
  * @param color 填充颜色
- * @param point 填充起始点s
+ * @param point 填充起始点
  */
 export function quickFillArea(imageData: ImageData, color: string, point: [number, number]) {
   return new Promise((resolve) => {
@@ -94,5 +95,43 @@ export function quickFillArea(imageData: ImageData, color: string, point: [numbe
     ]).then(() => {
       resolve(context.getImageData(0, 0, width, height));
     });
+  });
+}
+
+let wasmBytes: ArrayBuffer;
+
+(async function () {
+  // 读取WASM二进制数据
+  const response = await fetch('/map_editor_wasm_bg.wasm');
+  wasmBytes = await response.arrayBuffer();
+})();
+
+/**
+ * 使用Wasm进行洪水
+ * @param imageData 不会修改原有imageData
+ * @param color 填充颜色
+ * @param point 填充起始点
+ */
+export async function quickFillAreaWasm(
+  imageData: ImageData,
+  color: [number, number, number, number],
+  point: [number, number],
+) {
+  return new Promise((resolve) => {
+    const fw = new FloodWasmWorker();
+    fw.postMessage({
+      data: imageData.data.buffer,
+      width: imageData.width,
+      height: imageData.height,
+      color,
+      point,
+      wasmBytes,
+    });
+    fw.onmessage = function (event) {
+      const { data } = event;
+      if (data) {
+        resolve(data);
+      }
+    };
   });
 }
