@@ -25,8 +25,8 @@ export default class FloodSpread {
   private _tolerance = 0;
   private _queue: Array<LineQueued> = [];
   private _replacedColor: ColorRGBA = { r: 0, g: 0, b: 0, a: 0 };
-  private _newColor: ColorRGBA = { r: 255, g: 255, b: 255, a: 111 };
-  private results: [number, number][] = [];
+  private _newColor: ColorRGBA = { r: 214, g: 203, b: 211, a: 111 };
+  private results: Set<string> = new Set();
 
   constructor(imageData: ImageData) {
     this.imageData = imageData;
@@ -38,7 +38,10 @@ export default class FloodSpread {
   }
 
   public getResults() {
-    return this.results;
+    return Array.from(this.results.values()).map((v) => {
+      const array = v.split('-');
+      return [Number(array[0]), Number(array[1])];
+    });
   }
 
   public spread(x: number, y: number, tolerance: number): void {
@@ -77,7 +80,12 @@ export default class FloodSpread {
       return false;
     }
     const pixelColor = this.getColorAtPixel(this.imageData, pixel.x, pixel.y);
-    return !this.isSameColor(this._replacedColor, pixelColor) && !this.isSameColor(this._newColor, pixelColor);
+    // 小于一定a值的没有意义
+    return (
+      pixelColor.a > 10 &&
+      !this.isSameColor(this._replacedColor, pixelColor) &&
+      !this.isSameColor(this._newColor, pixelColor)
+    );
   }
 
   // 扩张基点（先左右再扩张基点，否则先扩张完基点，左右有问题）
@@ -101,7 +109,8 @@ export default class FloodSpread {
         minX = px.x;
         px = this.getPixelNeighbor('left', minX, y);
       } else {
-        // 如果不是内部点，判断是否是边界
+        // 如果不是内部点，判断是否是边界(单个点不计入)
+        const startX = px.x;
         while (px && this.isValidBorder(px)) {
           const newPx = this.getPixelNeighbor('left', px.x, y);
           // 如果边界点的下一个点是外部点（非边界），则找到了最外层边界
@@ -109,7 +118,9 @@ export default class FloodSpread {
             px = newPx;
             continue;
           } else {
-            this.results.push([px.x, y]);
+            if (Math.abs(px.x - startX) > 1) {
+              this.results.add(px.x + '-' + y);
+            }
             break;
           }
         }
@@ -135,6 +146,7 @@ export default class FloodSpread {
         px = this.getPixelNeighbor('right', maxX, y);
       } else {
         // 如果不是内部点，判断是否是边界
+        const startX = px.x;
         while (px && this.isValidBorder(px)) {
           const newPx = this.getPixelNeighbor('right', px.x, y);
           // 如果边界点的下一个点是外部点（非边界），则找到了最外层边界
@@ -142,7 +154,9 @@ export default class FloodSpread {
             px = newPx;
             continue;
           } else {
-            this.results.push([px.x, y]);
+            if (Math.abs(px.x - startX) > 1) {
+              this.results.add(px.x + '-' + y);
+            }
             break;
           }
         }
@@ -167,6 +181,7 @@ export default class FloodSpread {
         px = this.getPixelNeighbor('top', x, minY);
       } else {
         // 如果不是内部点，判断是否是边界
+        const startY = px.y;
         while (px && this.isValidBorder(px)) {
           const newPx = this.getPixelNeighbor('top', x, px.y);
           // 如果边界点的下一个点是外部点（非边界），则找到了最外层边界
@@ -174,7 +189,9 @@ export default class FloodSpread {
             px = newPx;
             continue;
           } else {
-            this.results.push([x, px.y]);
+            if (Math.abs(px.y - startY) > 1) {
+              this.results.add(x + '-' + px.y);
+            }
             break;
           }
         }
@@ -199,6 +216,7 @@ export default class FloodSpread {
         px = this.getPixelNeighbor('bottom', x, maxY);
       } else {
         // 如果不是内部点，判断是否是边界
+        const startY = px.y;
         while (px && this.isValidBorder(px)) {
           const newPx = this.getPixelNeighbor('bottom', x, px.y);
           // 如果边界点的下一个点是外部点（非边界），则找到了最外层边界
@@ -206,7 +224,9 @@ export default class FloodSpread {
             px = newPx;
             continue;
           } else {
-            this.results.push([x, px.y]);
+            if (Math.abs(px.y - startY) > 1) {
+              this.results.add(x + '-' + px.y);
+            }
             break;
           }
         }
@@ -295,21 +315,19 @@ export default class FloodSpread {
   }
 
   private getPixelNeighbor(direction: 'left' | 'right' | 'top' | 'bottom', x: number, y: number): PixelCoords | null {
-    x = x | 0;
-    y = y | 0;
     let coords: PixelCoords;
     switch (direction) {
       case 'right':
-        coords = { x: (x + 1) | 0, y };
+        coords = { x: x + 1, y };
         break;
       case 'left':
-        coords = { x: (x - 1) | 0, y };
+        coords = { x: x - 1, y };
         break;
       case 'top':
-        coords = { x: x | 0, y: y - 1 };
+        coords = { x: x, y: y - 1 };
         break;
       case 'bottom':
-        coords = { x: x | 0, y: y + 1 };
+        coords = { x: x, y: y + 1 };
         break;
     }
     if (coords.x >= 0 && coords.x < this.imageData.width && coords.y >= 0 && coords.y < this.imageData.height) {
