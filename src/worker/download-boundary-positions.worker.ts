@@ -5,9 +5,8 @@ import FloodSpread from '@/utils/q-floodfill/FloodSpread';
 function getPosition(imageData: ImageData, choosePoint: [number, number], interval: number = 2) {
   // 洪水算法处理边界，并进行基础的XY方向排序
   const floodSpread = new FloodSpread(imageData);
-  floodSpread.spread(choosePoint[0], choosePoint[1], 0);
+  floodSpread.spread(choosePoint[0], choosePoint[1], 1);
   const result = floodSpread.getResults().sort((p1, p2) => (p1[1] * 10 + p1[0] > p2[1] * 10 + p2[0] ? 1 : -1));
-
   // 间隔取点
   const positions: Point[] = [];
   const basePositions: Point[] = [[0, 0]];
@@ -50,7 +49,7 @@ function getPosition(imageData: ImageData, choosePoint: [number, number], interv
       comparePoint = positions.splice(minIndex, 1)[0];
     }
 
-    if (positionFlag.count > maxCount * 2) {
+    if (positionFlag.count > maxCount * 10) {
       console.warn('陷入死循环!!!剩余点：' + positions.length);
       break;
     }

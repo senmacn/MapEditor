@@ -8,15 +8,6 @@ import { useEditorConfig } from '@/store/modules/editor-config';
 import { useProgressEvent } from '@/components/controlled-progress';
 import { canvasToFile } from '@/utils/file/image';
 
-function getCObject(list: Point[]) {
-  return {
-    points: list.map((p) => ({
-      X: p[0],
-      Y: p[1],
-    })),
-  };
-}
-
 export async function handleExportBoundary(interval: number, exportType = true) {
   const configRef = useEditorConfig();
   const localState = useLocalState();
@@ -39,26 +30,28 @@ export async function handleExportBoundary(interval: number, exportType = true) 
       const fileName = name + '.boundary.json';
       const retData = e.data;
       if (localApi) {
-        const e = await localApi.saveLocalFile(
-          fileName,
-          JSON.stringify(exportType ? retData : getCObject(retData.value)),
-          localState.getDownloadLocation,
-        );
+        const e = await localApi.saveLocalFile(fileName, JSON.stringify(retData), localState.getDownloadLocation);
         // #[test]
         // let maskCanvasAll: HTMLCanvasElement | null = document.querySelector('#mask-canvas');
         // maskCanvasAll.style.display = 'block';
         // let maskCanvas: HTMLCanvasElement | null = document.querySelector('#mask-canvas-1');
         // if (maskCanvas == null) return;
         // maskCanvas.style.display = 'block';
+        // maskCanvas.width = 2048;
+        // maskCanvas.height = 2048;
         // let ctx = maskCanvas.getContext('2d', {}) as CanvasRenderingContext2D;
         // ctx.strokeStyle = '#00e000';
         // console.log(retData);
-        // ctx.beginPath();
-        // ctx.moveTo(retData.value[retData.value.length - 1].x, retData.value[retData.value.length - 1].y);
+        // // ctx.beginPath();
+        // // ctx.moveTo(retData.value[retData.value.length - 1].x, retData.value[retData.value.length - 1].y);
+        // // (retData.value as Point[]).forEach((p) => {
+        // //   ctx.lineTo(p[0], p[1]);
+        // // });
+        // // ctx.stroke();
+        // ctx.fillStyle = '#00e000';
         // (retData.value as Point[]).forEach((p) => {
-        //   ctx.lineTo(p[0], p[1]);
+        //   ctx.fillRect(p[0], p[1], 1, 1);
         // });
-        // ctx.stroke();
         // test end
         if (e) {
           message.error(`区域[${name}]导出失败！`);
@@ -66,7 +59,7 @@ export async function handleExportBoundary(interval: number, exportType = true) 
           return;
         }
       } else {
-        exportType ? exportFile(fileName, retData) : exportFile(fileName, getCObject(retData.value));
+        exportFile(fileName, retData);
       }
       progress();
       notification.success({
