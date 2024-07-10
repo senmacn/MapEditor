@@ -23,7 +23,7 @@ async function createWindow() {
     resizable: true,
   });
 
-  browserWindow.webContents.setWindowOpenHandler(({}) => {
+  browserWindow.webContents.setWindowOpenHandler(() => {
     return {
       action: 'allow',
       overrideBrowserWindowOptions: {
