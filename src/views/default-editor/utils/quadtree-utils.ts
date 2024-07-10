@@ -63,6 +63,12 @@ export function dataToBin(
       case 13:
         blocks = 1 << 4;
         break;
+      case 14:
+        blocks = 1 << 5;
+        break;
+      case 15:
+        blocks = 1 << 5;
+        break;
       default:
         blocks = grids;
         break;

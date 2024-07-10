@@ -14,7 +14,7 @@ interface ShareLinkAttr {
 
 const BASE_SHARE_LINK = 'MAP_EDITOR_LINK[%s]';
 const BASE_SHARE_LINK_REG = /MAP_EDITOR_LINK\[(.+)\]/;
-const SECRET_KEY = 'pwrd';
+const SECRET_KEY = 'chenyijin';
 
 async function getFileFromRemote(remote: string, filename: string) {
   const url = remote + '/file/getfile/' + filename;
