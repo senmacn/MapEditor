@@ -34,7 +34,7 @@
   import UserConfigModal from './user-config-modal.vue';
   import { ref } from 'vue';
 
-  const href = 'https://docs.oa.wanmei.net/kdocs/l/cgpQRPmL23TQ';
+  const href = '';
 
   function handleGotoQuestion() {
     if (isLocal()) {

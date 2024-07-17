@@ -61,10 +61,10 @@
   }
 
   function openDocument() {
-    getLocalApi()?.newWindow('https://docs.oa.wanmei.net/kdocs/l/cgpQRPmL23TQ', true);
+    getLocalApi()?.newWindow('', true);
   }
   function openLog() {
-    getLocalApi()?.newWindow('https://docs.oa.wanmei.net/weboffice/l/cvFBr84fiEZz?timestamp=1690340901454', true);
+    getLocalApi()?.newWindow('', true);
   }
 </script>
 
